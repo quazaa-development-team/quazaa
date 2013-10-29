@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -65,7 +65,7 @@ void CHubHorizonPool::Setup()
 	for(quint32 nItem = 0 ; nItem < m_nBuffer ; nItem++)
 	{
 		m_pBuffer[ nItem ].m_pNext	= (nItem < m_nBuffer - 1)
-		                              ? &m_pBuffer[ nItem + 1 ] : 0;
+									  ? &m_pBuffer[ nItem + 1 ] : 0;
 	}
 }
 
@@ -78,7 +78,7 @@ void CHubHorizonPool::Clear()
 	for(quint32 nItem = 0 ; nItem < m_nBuffer ; nItem++)
 	{
 		m_pBuffer[ nItem ].m_pNext	= (nItem < m_nBuffer - 1)
-		                              ? &m_pBuffer[ nItem + 1 ] : 0;
+									  ? &m_pBuffer[ nItem + 1 ] : 0;
 	}
 }
 
@@ -151,7 +151,7 @@ int CHubHorizonPool::AddHorizonHubs(G2Packet* pPacket)
 	for(CHubHorizonHub* pHub = m_pActive ; pHub ; pHub = pHub->m_pNext)
 	{
 		pPacket->WritePacket("S", (pHub->m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 6 : 18));
-		pPacket->WriteHostAddress(&pHub->m_oAddress);
+		pPacket->WriteHostAddress(pHub->m_oAddress);
 
 		nCount++;
 	}

@@ -48,35 +48,37 @@
 
 class QFile;
 
-class CHostCache : public QObject
+class CG2HostCache : public QObject
 {
 	Q_OBJECT
 
 public:
-	THCLVector          m_vlHosts; // vector of (nFailures, QLinkedList);
-								   // QLinkedList sorted by timestamp (descending)
+	// allows access to 0 .. m_nMaxFailures + 1
+	TG2HostCacheIterator*   m_pFailures; // = new TG2HostCacheIterator[m_nMaxFailures + 2];
+	TG2HostCacheList        m_lHosts;
 
-	CEndPoint           m_oLokalAddress;
+	//THCLVector              m_vlHosts; // vector of (nFailures, QLinkedList);
+									   // QLinkedList sorted by timestamp (descending)
+
+	CEndPoint               m_oLokalAddress;
 
 #if ENABLE_HOST_CACHE_BENCHMARKING
-	QAtomicInt          m_nLockWaitTime;
-	QAtomicInt          m_nWorkTime;
+	QAtomicInt              m_nLockWaitTime;
+	QAtomicInt              m_nWorkTime;
 #endif
 
-	mutable QMutex      m_pSection;
-	mutable quint32     m_tLastSave; //TODO: use qatomicint
+	mutable QMutex          m_pSection;
+	mutable quint32         m_tLastSave; //TODO: use qatomicint
 
-	QString             m_sMessage;
-
-	quint8              m_nMaxFailures;
-	QAtomicInt          m_nSizeAtomic;
+	quint8                  m_nMaxFailures;
+	QAtomicInt              m_nSizeAtomic;
 
 	// Thread used by the Host Cache
-	TSharedThreadPtr    m_pHostCacheDiscoveryThread;
+	TSharedThreadPtr        m_pHostCacheDiscoveryThread;
 
 public:
-	CHostCache();
-	~CHostCache();
+	CG2HostCache();
+	~CG2HostCache();
 
 	void start();
 
@@ -86,25 +88,25 @@ public:
 	void addAck(const CEndPoint host, const quint32 tTimeStamp,
 				const quint32 tAck, const quint32 tNow);
 
-	inline CHostCacheHost* get(const CEndPoint& oHost);
-	inline bool check(const CHostCacheHost* const pHost);
+	inline CG2HostCacheHost* get(const CEndPoint& oHost);
+	inline bool check(const CG2HostCacheHost* const pHost);
 
 	void updateFailures(const CEndPoint& oAddress, const quint32 nFailures);
 
 private: // remove this private if this is ever required...
 //	CHostCacheHost* update(const CEndPoint& oHost,     const quint32 tTimeStamp);
-	CHostCacheHost* update(THostCacheIterator& itHost, const quint32 tTimeStamp,
-						   quint32 nFailures);
+	CG2HostCacheHost* update(TG2HostCacheIterator& itHost, const quint32 tTimeStamp,
+							 const quint32 nFailures);
 
 public:
 	void remove(const CEndPoint& oHost);
-	void remove(CHostCacheHost*& pHost);
+	void remove(CG2HostCacheHost*& pHost);
 
 	void addXTry(QString sHeader);
 	QString getXTry() const;
 
 	void onFailure(const CEndPoint& addr);
-	CHostCacheHost* getConnectable(const QSet<CHostCacheHost*>& oExcept = QSet<CHostCacheHost*>(),
+	CG2HostCacheHost* getConnectable(const QSet<CG2HostCacheHost*>& oExcept = QSet<CG2HostCacheHost*>(),
 								   QString sCountry = QString("ZZ"));
 	bool hasConnectable();
 
@@ -125,10 +127,10 @@ public:
 public slots:
 	void localAddressChanged();
 
-	CHostCacheHost* addSync(CEndPoint host, quint32 tTimeStamp, bool bLock);
-	CHostCacheHost* addSyncKey(CEndPoint host, quint32 tTimeStamp, CEndPoint* pKeyHost,
+	CG2HostCacheHost* addSync(CEndPoint host, quint32 tTimeStamp, bool bLock);
+	CG2HostCacheHost* addSyncKey(CEndPoint host, quint32 tTimeStamp, CEndPoint* pKeyHost,
 							   const quint32 nKey, const quint32 tNow, bool bLock);
-	CHostCacheHost* addSyncAck(CEndPoint host, quint32 tTimeStamp, const quint32 tAck,
+	CG2HostCacheHost* addSyncAck(CEndPoint host, quint32 tTimeStamp, const quint32 tAck,
 							   const quint32 tNow, bool bLock);
 
 	void removeSync(CEndPoint oHost);
@@ -137,15 +139,15 @@ public slots:
 	void maintain();
 
 private:
-	CHostCacheHost* addSyncHelper(const CEndPoint& host, quint32 tTimeStamp, const quint32 tNow,
-								  quint32 nNewFailures = 0);
-	void insert(CHostCacheHost* pNew, THostCacheList& lHosts);
+	CG2HostCacheHost* addSyncHelper(const CEndPoint& host, quint32 tTimeStamp, const quint32 tNow,
+									quint32 nNewFailures = 0);
+	void insert(CG2HostCacheHost* pNew, TG2HostCacheIterator& it);
 
-	THostCacheIterator remove(THostCacheIterator& itHost, const quint8 nFailures);
+	TG2HostCacheIterator remove(TG2HostCacheIterator& itHost);
 	void removeWorst(quint8& nFailures);
 
-	THostCacheIterator      find(const CEndPoint& oHost, quint8& nFailures);
-	THostCacheIterator      find(const CHostCacheHost* const pHost);
+	TG2HostCacheIterator      find(const CEndPoint& oHost);
+	TG2HostCacheIterator      find(const CG2HostCacheHost* const pHost);
 //	THostCacheConstIterator find(const CHostCacheHost* const pHost) const;
 
 	void load();
@@ -163,16 +165,12 @@ private slots:
  * @param oHost: The CEndPoint.
  * @return the CHostCacheHost; NULL if the CEndPoint has not been found in the cache.
  */
-CHostCacheHost* CHostCache::get(const CEndPoint& oHost)
+CG2HostCacheHost* CG2HostCache::get(const CEndPoint& oHost)
 {
 	ASSUME_LOCK( m_pSection );
 
-	quint8 nFailures;
-	THostCacheIterator it = find( oHost, nFailures );
-
-	Q_ASSERT( nFailures < m_vlHosts.size() );
-
-	return ( ( it == m_vlHosts[nFailures].end() ) ? NULL : *it );
+	TG2HostCacheIterator it = find( oHost );
+	return ( ( it == m_lHosts.end() ) ? NULL : *it );
 }
 
 /**
@@ -182,13 +180,13 @@ CHostCacheHost* CHostCache::get(const CEndPoint& oHost)
  * @param pHost: the CHostCacheHost to check.
  * @return true if the host could be found in the cache, false otherwise.
  */
-bool CHostCache::check(const CHostCacheHost* const pHost)
+bool CG2HostCache::check(const CG2HostCacheHost* const pHost)
 {
 	ASSUME_LOCK( m_pSection );
-	Q_ASSERT( pHost->failures() < m_vlHosts.size() );
+	Q_ASSERT( pHost->failures() <= m_nMaxFailures );
 
-	THostCacheIterator it = find( pHost );
-	return it != m_vlHosts[pHost->failures()].end();
+	TG2HostCacheIterator it = find( pHost );
+	return it != m_lHosts.end();
 }
 
 /**
@@ -196,7 +194,7 @@ bool CHostCache::check(const CHostCacheHost* const pHost)
  * Locking: YES
  * @return the number of hosts in the cache.
  */
-quint32 CHostCache::count() const
+quint32 CG2HostCache::count() const
 {
 	return m_nSizeAtomic.loadAcquire();
 }
@@ -206,11 +204,11 @@ quint32 CHostCache::count() const
  * Locking: YES
  * @return true if the cache contains no hosts; false otherwise.
  */
-bool CHostCache::isEmpty() const
+bool CG2HostCache::isEmpty() const
 {
 	return !m_nSizeAtomic.loadAcquire();
 }
 
-extern CHostCache hostCache;
+extern CG2HostCache hostCache;
 
 #endif // HOSTCACHE_H

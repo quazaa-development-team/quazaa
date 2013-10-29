@@ -40,18 +40,20 @@
 
 #include "debug_new.h"
 
-CHostCache hostCache;
+CG2HostCache hostCache;
 
 /**
  * @brief CHostCache::CHostCache Constructor.
  */
-CHostCache::CHostCache():
+CG2HostCache::CG2HostCache() :
+	m_pFailures( NULL ),
 	m_oLokalAddress( CEndPoint() ),
 #if ENABLE_HOST_CACHE_BENCHMARKING
 	m_nLockWaitTime( 0 ),
 	m_nWorkTime( 0 ),
 #endif
-	m_tLastSave( common::getTNowUTC() ),
+	m_tLastSave( 0 ),
+	m_nMaxFailures( 0 ),
 	m_nSizeAtomic( 0 )
 {
 	static int foo = qRegisterMetaType<CEndPoint>( "CEndPoint" );
@@ -64,7 +66,7 @@ CHostCache::CHostCache():
 /**
  * @brief CHostCache::~CHostCache Destructor.
  */
-CHostCache::~CHostCache()
+CG2HostCache::~CG2HostCache()
 {
 	clear();
 }
@@ -74,7 +76,7 @@ CHostCache::~CHostCache()
  * instantiated.
  * Locking: YES (asynchronous)
  */
-void CHostCache::start()
+void CG2HostCache::start()
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "start()" ) );
@@ -94,7 +96,7 @@ void CHostCache::start()
  * @param host: the CEndPoint
  * @param tTimeStamp: its timestamp
  */
-void CHostCache::add(const CEndPoint host, const quint32 tTimeStamp)
+void CG2HostCache::add(const CEndPoint host, const quint32 tTimeStamp)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "add()" ) );
@@ -113,7 +115,7 @@ void CHostCache::add(const CEndPoint host, const quint32 tTimeStamp)
  * @param nKey
  * @param tNow
  */
-void CHostCache::addKey(const CEndPoint host, const quint32 tTimeStamp, CEndPoint* pKeyHost, const quint32 nKey, const quint32 tNow)
+void CG2HostCache::addKey(const CEndPoint host, const quint32 tTimeStamp, CEndPoint* pKeyHost, const quint32 nKey, const quint32 tNow)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "addKey()" ) );
@@ -133,7 +135,7 @@ void CHostCache::addKey(const CEndPoint host, const quint32 tTimeStamp, CEndPoin
  * @param tAck
  * @param tNow
  */
-void CHostCache::addAck(const CEndPoint host, const quint32 tTimeStamp, const quint32 tAck, const quint32 tNow)
+void CG2HostCache::addAck(const CEndPoint host, const quint32 tTimeStamp, const quint32 tAck, const quint32 tNow)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "addAck()" ) );
@@ -150,7 +152,7 @@ void CHostCache::addAck(const CEndPoint host, const quint32 tTimeStamp, const qu
  * @param oAddress: the host
  * @param nFailures: its new failures
  */
-void CHostCache::updateFailures(const CEndPoint& oAddress, const quint32 nFailures)
+void CG2HostCache::updateFailures(const CEndPoint& oAddress, const quint32 nFailures)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "updateFailures()" ) );
@@ -187,12 +189,13 @@ void CHostCache::updateFailures(const CEndPoint& oAddress, const quint32 nFailur
  * @brief CHostCache::update updates the timestamp of a host reprosented by its THostCacheIterator.
  * Note that the caller needs to make sure the host is actually part of the cache.
  * Locking: REQUIRED
- * @param itHost: the iterator - must be valid and not the end of the list.
+ * @param itHost: must be valid and not the end of the list; points to the updated host afterward
  * @param tTimeStamp: its timestamp
+ * @param nFailures: the new amount of failures
  * @return the CHostCacheHost pointer pertaining to the updated host.
  */
-CHostCacheHost* CHostCache::update(THostCacheIterator& itHost, const quint32 tTimeStamp,
-								   quint32 nFailures)
+CG2HostCacheHost* CG2HostCache::update(TG2HostCacheIterator& itHost, const quint32 tTimeStamp,
+									   const quint32 nFailures)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "update()" ) );
@@ -200,22 +203,22 @@ CHostCacheHost* CHostCache::update(THostCacheIterator& itHost, const quint32 tTi
 
 	ASSUME_LOCK( m_pSection );
 
-	CHostCacheHost* pHost = *itHost;
+	Q_ASSERT( itHost !=  m_lHosts.end() );
 
-	Q_ASSERT( pHost->failures() < m_vlHosts.size() );
+	CG2HostCacheHost* pHost = *itHost;
+	CG2HostCacheHost* pNew  = NULL;
 
-	THostCacheList& lHosts = m_vlHosts[pHost->failures()];
-	Q_ASSERT( itHost !=  lHosts.end() );
+	// TODO: remove for Quazaa beta 1
+	Q_ASSERT( pHost->failures() <= m_nMaxFailures );
 
-	Q_ASSERT( nFailures <= m_nMaxFailures );
-	if ( nFailures > m_nMaxFailures )
-		nFailures = m_nMaxFailures;
-
-	// create new host with correct data
-	CHostCacheHost* pNew = new CHostCacheHost( *pHost, tTimeStamp, nFailures );
+	if ( nFailures <= m_nMaxFailures )
+	{
+		// create new host with correct data
+		pNew = new CG2HostCacheHost( *pHost, tTimeStamp, nFailures );
+	}
 
 	m_nSizeAtomic.fetchAndAddRelaxed( -1 );
-	lHosts.erase( itHost );
+	m_lHosts.erase( itHost );
 	delete pHost;
 	pHost = NULL;
 
@@ -225,8 +228,12 @@ CHostCacheHost* CHostCache::update(THostCacheIterator& itHost, const quint32 tTi
 					   QString( " m_vlHosts.size(): " ) + QString::number( m_vlHosts.size()  ) +
 					   QString( " m_nMaxFailures: "   ) + QString::number( m_nMaxFailures    ) );
 #endif //ENABLE_HOST_CACHE_DEBUGGING
-	Q_ASSERT( pNew->failures() < m_vlHosts.size() );
-	insert( pNew, m_vlHosts[nFailures] );
+
+	if ( pNew )
+	{
+		itHost = m_pFailures[nFailures];
+		insert( pNew, itHost );
+	}
 
 	return pNew;
 }
@@ -236,7 +243,7 @@ CHostCacheHost* CHostCache::update(THostCacheIterator& itHost, const quint32 tTi
  * Locking: YES (asynchronous)
  * @param oHost: the CEndPoint
  */
-void CHostCache::remove(const CEndPoint& oHost)
+void CG2HostCache::remove(const CEndPoint& oHost)
 {
 	QMetaObject::invokeMethod( this, "removeSync", Qt::QueuedConnection, Q_ARG(CEndPoint, oHost) );
 }
@@ -248,7 +255,7 @@ void CHostCache::remove(const CEndPoint& oHost)
  * Locking: REQUIRED
  * @param pHost: the CHostCacheHost - is set to NULL on completion.
  */
-void CHostCache::remove(CHostCacheHost*& pHost)
+void CG2HostCache::remove(CG2HostCacheHost*& pHost)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "remove(CHCHost)" ) );
@@ -256,14 +263,11 @@ void CHostCache::remove(CHostCacheHost*& pHost)
 
 	ASSUME_LOCK( m_pSection );
 
-	quint8 nFailures = pHost->failures();
-	Q_ASSERT( nFailures < m_vlHosts.size() );
+	TG2HostCacheIterator it = find( pHost );
 
-	THostCacheIterator it = find( pHost );
-
-	if ( it != m_vlHosts[nFailures].end() )
+	if ( it != m_lHosts.end() )
 	{
-		remove( it, nFailures );
+		remove( it );
 	}
 
 	delete pHost;
@@ -275,7 +279,7 @@ void CHostCache::remove(CHostCacheHost*& pHost)
  * Locking: YES (asynchronous)
  * @param sHeader: a string representation of the XTry header
  */
-void CHostCache::addXTry(QString sHeader)
+void CG2HostCache::addXTry(QString sHeader)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "addXTry()" ) );
@@ -290,53 +294,63 @@ void CHostCache::addXTry(QString sHeader)
  * Locking: YES
  * @return the XTry header
  */
-QString CHostCache::getXTry() const
+QString CG2HostCache::getXTry() const
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "getXTry()" ) );
 #endif //ENABLE_HOST_CACHE_DEBUGGING
 
-	m_pSection.lock();
-
-	Q_ASSERT ( m_vlHosts.size() > 0 );
-	const THostCacheList& lHosts = m_vlHosts[0];
-
-	if ( !lHosts.size() )
+	if ( !m_nSizeAtomic.load() )
 	{
-		m_pSection.unlock();
 		return QString();    // sorry, no hosts in cache
 	}
 
-	const quint32 nMax      = 10;
+	m_pSection.lock();
 
+	// TODO: remove in beta1
+	Q_ASSERT( m_lHosts.size() > m_nMaxFailures + 1 ); // at least m_nMaxFailures + 2
+
+	const quint32 nMax = 10;
+	quint32 nCount     =  0;
+	char nFailures     = -1;
 	QString sReturn;
-	quint32 nCount = 0;
 
-	foreach ( CHostCacheHost* pHost, lHosts )
+	foreach ( CG2HostCacheHost* pHost, m_lHosts )
 	{
+		if ( !pHost )
+		{
+			if ( !nFailures )
+				break;
+
+			++nFailures;
+		}
+
 		QDateTime tTimeStamp;
 		tTimeStamp.setTimeSpec( Qt::UTC );
 		tTimeStamp.setTime_t( pHost->timestamp() );
 
 		sReturn.append( pHost->address().toStringWithPort() + " " );
 		sReturn.append( tTimeStamp.toString( "yyyy-MM-ddThh:mmZ" ) );
+		sReturn.append( "," );
 
 		++nCount;
 
 		if ( nCount == nMax )
 			break;
-
-		sReturn.append( "," );
 	}
+	m_pSection.unlock();
 
 	if ( sReturn.isEmpty() )
 	{
-		m_pSection.unlock();
 		return QString();
 	}
+	else
+	{
+		// TODO: remove later
+		Q_ASSERT( sReturn.at( sReturn.size() - 1 ) == QChar( ',' ) );
 
-	m_pSection.unlock();
-	return QString( "X-Try-Hubs: " ) + sReturn;
+		return QString( "X-Try-Hubs: " ) + sReturn.remove( sReturn.size() - 1, 1 );
+	}
 }
 
 /**
@@ -344,7 +358,7 @@ QString CHostCache::getXTry() const
  * Locking: YES (asynchronous)
  * @param addr: the CEndPoint
  */
-void CHostCache::onFailure(const CEndPoint& addr)
+void CG2HostCache::onFailure(const CEndPoint& addr)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "onFailure()" ) );
@@ -359,11 +373,12 @@ void CHostCache::onFailure(const CEndPoint& addr)
  * Cache.
  * Locking: REQUIRED
  * @param oExcept: a set of Hosts to exempt.
- * @param sCountry: the preferred country. If there are no hosts from the specified country or the
- * country ZZ is specified, country information is ignored.
+ * @param sCountry: the preferred country. If there are no connectable hosts from the specified
+ * country or the country ZZ is specified, country information is ignored.
  * @return a connectable CHostCacheHost.
  */
-CHostCacheHost* CHostCache::getConnectable(const QSet<CHostCacheHost*>& oExcept, QString sCountry)
+CG2HostCacheHost* CG2HostCache::getConnectable(const QSet<CG2HostCacheHost*>& oExcept,
+											   QString sCountry)
 {
 /*#if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "getConnectable()" ) );
@@ -381,25 +396,23 @@ CHostCacheHost* CHostCache::getConnectable(const QSet<CHostCacheHost*>& oExcept,
 
 	// First try untested or working hosts, then fall back to failed hosts to increase chances for
 	// successful connection
-	for ( quint8 nFailures = 0; nFailures < m_nMaxFailures &&
-		  nFailures < m_vlHosts.size(); ++nFailures )
+	foreach ( CG2HostCacheHost * pHost, m_lHosts )
 	{
-		foreach ( CHostCacheHost * pHost, m_vlHosts[nFailures] )
+		if ( pHost )
 		{
 			if ( bCountry && pHost->address().country() != sCountry )
 			{
 				continue;
 			}
 
-			if ( pHost->connectable() )
+			if ( pHost->connectable() && !oExcept.contains( pHost ) )
 			{
-				if ( !oExcept.contains( pHost ) )
-					return pHost;
+				return pHost;
 			}
 		}
 	}
 
-	CHostCacheHost* pReturn = NULL;
+	CG2HostCacheHost* pReturn = NULL;
 
 	if ( bSecondAttempt )
 	{
@@ -422,7 +435,7 @@ CHostCacheHost* CHostCache::getConnectable(const QSet<CHostCacheHost*>& oExcept,
  * Locking: YES
  * @return true if there are; false otherwise.
  */
-bool CHostCache::hasConnectable()
+bool CG2HostCache::hasConnectable()
 {
 /*#if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "hasConnectable()" ) );
@@ -439,28 +452,27 @@ bool CHostCache::hasConnectable()
  * @brief CHostCache::clear removes all hosts and frees all memory.
  * Locking: YES
  */
-void CHostCache::clear()
+void CG2HostCache::clear()
 {
 	m_pSection.lock();
 
-	THCLVector::iterator itFailures = m_vlHosts.begin();
-
-	while ( itFailures != m_vlHosts.end() )
+	// Make sure m_pFailures (contains iterators to NULL nodes) stays valid during removal.
+	TG2HostCacheIterator it = m_lHosts.begin();
+	while ( it != m_lHosts.end() )
 	{
-		THostCacheList& lHosts = (*itFailures);
-		while( lHosts.size() )
+		if ( *it )
 		{
-			delete lHosts.back();
-			lHosts.pop_back();
+			delete *it;
+			it = m_lHosts.erase( it );
 		}
-
-		++itFailures;
+		else
+		{
+			++it;
+		}
 	}
 
-	m_vlHosts.clear();
-	m_nSizeAtomic.store( 0 );
-
 	m_pSection.unlock();
+	m_nSizeAtomic.store( 0 );
 }
 
 /**
@@ -468,7 +480,7 @@ void CHostCache::clear()
  * Locking: REQUIRED
  * @param tNow: the current time in sec since 1970-01-01 UTC.
  */
-void CHostCache::save(const quint32 tNow) const
+void CG2HostCache::save(const quint32 tNow) const
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "save()" ) );
@@ -478,7 +490,7 @@ void CHostCache::save(const quint32 tNow) const
 
 	quint32 nCount = common::securredSaveFile( common::globalDataFiles, "hostcache.dat",
 											   Components::HostCache, this,
-											   &CHostCache::writeToFile );
+											   &CG2HostCache::writeToFile );
 	if ( nCount )
 	{
 		m_tLastSave = tNow;
@@ -493,7 +505,7 @@ void CHostCache::save(const quint32 tNow) const
  * Locking: REQUIRED
  * @param tNow: the current time in sec since 1970-01-01 UTC.
  */
-void CHostCache::pruneOldHosts(const quint32 tNow)
+void CG2HostCache::pruneOldHosts(const quint32 tNow)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "pruneOldHosts()" ) );
@@ -501,24 +513,29 @@ void CHostCache::pruneOldHosts(const quint32 tNow)
 
 	ASSUME_LOCK( m_pSection );
 
-	CHostCacheHost* pHost;
-
 	const quint32 tExpire = tNow - quazaaSettings.Gnutella2.HostExpire;
-	for ( quint8 nFailures = 0; nFailures < m_vlHosts.size(); ++nFailures )
+
+	CG2HostCacheHost* pHost;
+	TG2HostCacheIterator it = --m_lHosts.end();
+
+	// TODO: improve this
+
+	// at least m_nMaxFailures + 1
+	while ( it != m_lHosts.begin() )
 	{
-		THostCacheList& lHosts = m_vlHosts[nFailures];
+		pHost = *it;
 
-		if ( lHosts.size() )
-			pHost = lHosts.back(); // undefined behavior if list is empty :)
-
-		while ( lHosts.size() && pHost->timestamp() < tExpire )
+		// if an access point or not old enough to remove
+		if ( !pHost || pHost->timestamp() > tExpire )
 		{
-			lHosts.pop_back();
-			delete pHost;
-			pHost = lHosts.back();
-
-			m_nSizeAtomic.fetchAndAddRelaxed( -1 );
+			--it;
+			continue;
 		}
+
+		delete pHost;
+		it = --m_lHosts.erase( it );
+
+		m_nSizeAtomic.fetchAndAddRelaxed( -1 );
 	}
 }
 
@@ -528,7 +545,7 @@ void CHostCache::pruneOldHosts(const quint32 tNow)
  * Locking: YES
  * @param tNow: the current time in sec since 1970-01-01 UTC.
  */
-void CHostCache::pruneByQueryAck(const quint32 tNow)
+void CG2HostCache::pruneByQueryAck(const quint32 tNow)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "pruneByQA()" ) );
@@ -537,22 +554,17 @@ void CHostCache::pruneByQueryAck(const quint32 tNow)
 	m_pSection.lock();
 
 	const quint32 tAckExpire = tNow - quazaaSettings.Gnutella2.QueryHostDeadline;
-	for ( quint8 nFailures = 0; nFailures < m_vlHosts.size(); ++nFailures )
+	for ( TG2HostCacheIterator itHost = m_lHosts.begin(); itHost != m_lHosts.end(); ++itHost )
 	{
-		THostCacheList& lHosts = m_vlHosts[nFailures];
-
-		for ( THostCacheIterator itHost = lHosts.begin(); itHost != lHosts.end(); ++itHost )
+		if ( *itHost && (*itHost)->ack() && (*itHost)->ack() < tAckExpire )
 		{
-			if ( (*itHost)->ack() && (*itHost)->ack() < tAckExpire )
-			{
-				delete *itHost;
-				itHost = lHosts.erase( itHost );
-				m_nSizeAtomic.fetchAndAddRelaxed( -1 );
-			}
-			else
-			{
-				++itHost;
-			}
+			delete *itHost;
+			itHost = m_lHosts.erase( itHost );
+			m_nSizeAtomic.fetchAndAddRelaxed( -1 );
+		}
+		else
+		{
+			++itHost;
 		}
 	}
 	m_pSection.unlock();
@@ -563,14 +575,14 @@ void CHostCache::pruneByQueryAck(const quint32 tNow)
   * Locking: REQUIRED
   * @return the number of hosts written to file
   */
-quint32 CHostCache::writeToFile(const void * const pManager, QFile& oFile)
+quint32 CG2HostCache::writeToFile(const void * const pManager, QFile& oFile)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "writeToFile()" ) );
 #endif //ENABLE_HOST_CACHE_DEBUGGING
 
 	QDataStream oStream( &oFile );
-	CHostCache* pHostCache = (CHostCache*)pManager;
+	CG2HostCache* pHostCache = (CG2HostCache*)pManager;
 
 	ASSUME_LOCK( pHostCache->m_pSection );
 
@@ -582,11 +594,9 @@ quint32 CHostCache::writeToFile(const void * const pManager, QFile& oFile)
 
 	if ( nCount )
 	{
-		THCLVector::iterator itFailures = pHostCache->m_vlHosts.begin();
-
-		while ( itFailures != pHostCache->m_vlHosts.end() )
+		foreach ( CG2HostCacheHost* pHost, pHostCache->m_lHosts )
 		{
-			foreach ( CHostCacheHost* pHost, *itFailures )
+			if ( pHost )
 			{
 				oStream << pHost->address();
 				oStream << pHost->failures();
@@ -594,8 +604,6 @@ quint32 CHostCache::writeToFile(const void * const pManager, QFile& oFile)
 				oStream << pHost->timestamp();
 				oStream << pHost->lastConnect();
 			}
-
-			++itFailures;
 		}
 	}
 
@@ -605,7 +613,7 @@ quint32 CHostCache::writeToFile(const void * const pManager, QFile& oFile)
 /**
  * @brief CHostCache::localAddressChanged needs to be triggered on lokal IP changes.
  */
-void CHostCache::localAddressChanged()
+void CG2HostCache::localAddressChanged()
 {
 	Network.m_pSection.lock();
 	m_oLokalAddress = Network.GetLocalAddress();
@@ -620,7 +628,7 @@ void CHostCache::localAddressChanged()
  * @param bLock: does the method need to lock the mutex?
  * @return the CHostCacheHost pointer pertaining to the CEndPoint
  */
-CHostCacheHost* CHostCache::addSync(CEndPoint host, quint32 tTimeStamp, bool bLock)
+CG2HostCacheHost* CG2HostCache::addSync(CEndPoint host, quint32 tTimeStamp, bool bLock)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, "addSync()" );
@@ -633,7 +641,7 @@ CHostCacheHost* CHostCache::addSync(CEndPoint host, quint32 tTimeStamp, bool bLo
 
 	ASSUME_LOCK( m_pSection );
 
-	CHostCacheHost* pReturn = addSyncHelper( host, tTimeStamp, tNow );
+	CG2HostCacheHost* pReturn = addSyncHelper( host, tTimeStamp, tNow );
 
 	if ( bLock )
 		m_pSection.unlock();
@@ -651,7 +659,7 @@ CHostCacheHost* CHostCache::addSync(CEndPoint host, quint32 tTimeStamp, bool bLo
  * @param tNow: the current time in sec since 1970-01-01 UTC.
  * @return the CHostCacheHost pointer pertaining to the CEndPoint
  */
-CHostCacheHost* CHostCache::addSyncKey(CEndPoint host, quint32 tTimeStamp, CEndPoint* pKeyHost,
+CG2HostCacheHost* CG2HostCache::addSyncKey(CEndPoint host, quint32 tTimeStamp, CEndPoint* pKeyHost,
 									   const quint32 nKey, const quint32 tNow, bool bLock)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
@@ -661,7 +669,7 @@ CHostCacheHost* CHostCache::addSyncKey(CEndPoint host, quint32 tTimeStamp, CEndP
 	if ( bLock )
 		m_pSection.lock();
 
-	CHostCacheHost* pReturn = addSyncHelper( host, tTimeStamp, tNow );
+	CG2HostCacheHost* pReturn = addSyncHelper( host, tTimeStamp, tNow );
 
 	if ( pReturn )
 		pReturn->setKey( nKey, tNow, pKeyHost );
@@ -681,7 +689,7 @@ CHostCacheHost* CHostCache::addSyncKey(CEndPoint host, quint32 tTimeStamp, CEndP
  * @param tNow: the current time in sec since 1970-01-01 UTC.
  * @return the CHostCacheHost pointer pertaining to the CEndPoint
  */
-CHostCacheHost* CHostCache::addSyncAck(CEndPoint host, quint32 tTimeStamp,
+CG2HostCacheHost* CG2HostCache::addSyncAck(CEndPoint host, quint32 tTimeStamp,
 									   const quint32 tAck, const quint32 tNow, bool bLock)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
@@ -691,7 +699,7 @@ CHostCacheHost* CHostCache::addSyncAck(CEndPoint host, quint32 tTimeStamp,
 	if ( bLock )
 		m_pSection.lock();
 
-	CHostCacheHost* pReturn = addSyncHelper( host, tTimeStamp, tNow );
+	CG2HostCacheHost* pReturn = addSyncHelper( host, tTimeStamp, tNow );
 
 	if ( pReturn )
 		pReturn->setAck( tAck );
@@ -709,7 +717,7 @@ CHostCacheHost* CHostCache::addSyncAck(CEndPoint host, quint32 tTimeStamp,
  * Locking: YES
  * @param oHost: the CEndPoint
  */
-void CHostCache::removeSync(CEndPoint oHost)
+void CG2HostCache::removeSync(CEndPoint oHost)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "remove(CEndPoint)" ) );
@@ -717,15 +725,12 @@ void CHostCache::removeSync(CEndPoint oHost)
 
 	m_pSection.lock();
 
-	quint8 nFailures;
-	THostCacheIterator it = find( oHost, nFailures );
+	TG2HostCacheIterator it = find( oHost );
 
-	Q_ASSERT( nFailures < m_vlHosts.size() );
-
-	if ( it != m_vlHosts[nFailures].end() )
+	if ( it != m_lHosts.end() )
 	{
 		delete *it;
-		remove( it, nFailures );
+		remove( it );
 	}
 
 	m_pSection.unlock();
@@ -736,7 +741,7 @@ void CHostCache::removeSync(CEndPoint oHost)
  * added.
  * Locking: YES
  */
-void CHostCache::sanityCheck()
+void CG2HostCache::sanityCheck()
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "sanityCheck()" ) );
@@ -744,25 +749,22 @@ void CHostCache::sanityCheck()
 
 	m_pSection.lock();
 
-	THCLVector::iterator itFailures = m_vlHosts.begin();
+	TG2HostCacheIterator itHost = m_lHosts.begin();
+	CG2HostCacheHost* pHost = NULL;
 
-	while ( itFailures != m_vlHosts.end() )
+	while ( itHost != m_lHosts.end() )
 	{
-		THostCacheList& lHosts = *itFailures;
-		THostCacheIterator itHost = lHosts.begin();
-		CHostCacheHost* pHost = NULL;
+		pHost = *itHost;
 
-		while ( itHost != lHosts.end() )
+		if ( pHost && securityManager.isNewlyDenied( pHost->address() ) )
 		{
-			pHost = *itHost;
-
-			if ( securityManager.isNewlyDenied( pHost->address() ) )
-				itHost = remove( itHost, pHost->failures() );
-			else
-				++itHost;
+			delete *itHost;
+			itHost = remove( itHost );
 		}
-
-		++itFailures;
+		else
+		{
+			++itHost;
+		}
 	}
 
 	m_pSection.unlock();
@@ -774,7 +776,7 @@ void CHostCache::sanityCheck()
  * @brief CHostCache::maintain keeps everything neat and tidy.
  * Locking: YES
  */
-void CHostCache::maintain()
+void CG2HostCache::maintain()
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "maintain()" ) );
@@ -784,42 +786,73 @@ void CHostCache::maintain()
 
 	const quint32 tNow = common::getTNowUTC();
 
-	quint8 nFailure = (quint8)(m_vlHosts.size() - 1);
-	m_nMaxFailures  = quazaaSettings.Connection.FailureLimit;
-	static quint8 nLastFailureLimit = m_nMaxFailures;
-
-	if ( nLastFailureLimit != m_nMaxFailures )
+	const quint8 nNewMaxFailures = quazaaSettings.Connection.FailureLimit;
+	if ( m_nMaxFailures != nNewMaxFailures )
 	{
-		// increase the vector size
-		while ( nFailure < m_nMaxFailures )
+		if ( m_nMaxFailures > nNewMaxFailures )
 		{
-			m_vlHosts.push_back( THostCacheList() );
-			++nFailure;
-		}
+			quint8 nFailure = m_nMaxFailures;
 
-		// Remove all hosts in lists with failure limit higher than settings
-		while ( nFailure > m_nMaxFailures )
-		{
-			while ( m_vlHosts[nFailure].size() )
+			// clear hosts with too much failures
+			while ( nFailure > nNewMaxFailures )
 			{
 				removeWorst( nFailure );
 			}
 
-			m_vlHosts.pop_back();
-		}
+			// replace the old access point array by the new one
+			TG2HostCacheIterator* pNewFailures = new TG2HostCacheIterator[nNewMaxFailures + 2];
+			for ( quint8 i = 0; i < nNewMaxFailures + 2; ++i )
+			{
+				pNewFailures[i] = m_pFailures[i];
+			}
+			delete[] m_pFailures;
+			m_pFailures = pNewFailures;
 
-		nLastFailureLimit = m_nMaxFailures;
+			// remove the now unnecessary access points
+			for ( quint8 i = nNewMaxFailures; i < m_nMaxFailures; ++i )
+			{
+				Q_ASSERT( !m_lHosts.back() );
+				m_lHosts.pop_back();
+			}
+		}
+		//if ( m_nMaxFailures < nNewMaxFailures )
+		else
+		{
+			TG2HostCacheIterator* pNewFailures = new TG2HostCacheIterator[nNewMaxFailures + 2];
+
+			quint8 i = 0;
+			// copy the access points that will lateron still be used
+			while ( i < m_nMaxFailures + 2 )
+			{
+				pNewFailures[i] = m_pFailures[i];
+				++i; // gcc doesn't like it if this is included in the previous statement.
+			}
+
+			TG2HostCacheIterator it = m_lHosts.end();
+			--it;
+
+			// create the additional new access points
+			while ( i < nNewMaxFailures + 2 )
+			{
+				m_lHosts.push_back( NULL );
+				pNewFailures[i++] = ++it;
+			}
+
+			delete[] m_pFailures;
+			m_pFailures = pNewFailures;
+		}
+		m_nMaxFailures = nNewMaxFailures;
 	}
 
-	// nMaxSize == 0 means that he size limit has been disabled.
+	// nMaxSize == 0 means that the size limit has been disabled.
 	const quint32 nMaxSize = quazaaSettings.Gnutella.HostCacheSize;
 	if ( nMaxSize && (quint32)m_nSizeAtomic.load() > nMaxSize )
 	{
 		const quint32 nMax = nMaxSize - nMaxSize / 4;
+		quint8 nFailure    = m_nMaxFailures;
 
-		// TODO: remove these 2 after testing
+		// TODO: remove after testing
 		Q_ASSERT( nMax > 0 );
-		Q_ASSERT( nFailure == m_nMaxFailures );
 
 		// remove 1/4 of all hosts if the cache gets too full - failed and oldest first
 		while ( (quint32)m_nSizeAtomic.load() > nMax )
@@ -834,23 +867,28 @@ void CHostCache::maintain()
 		save( tNow );
 	}
 
-	// Update m_bConnectable for all hosts that are currently marked as unconnectable
-	quint32 tThrottle = quazaaSettings.Gnutella.ConnectThrottle;
-	THCLVector::iterator itFailures = m_vlHosts.begin();
-	while ( itFailures != m_vlHosts.end() )
-	{
-		Q_ASSERT( tNow > tThrottle ); // if not, the following if statement is wrong
+	// TODO: update m_bcon on attribute updates
+	// TODO: check if statement
 
-		foreach ( CHostCacheHost* pHost, *itFailures )
+	// Update m_bConnectable for all hosts that are currently marked as unconnectable
+	const quint16 tFailurePenalty = quazaaSettings.Connection.FailurePenalty;
+	qint32 tThrottle = ((qint32)quazaaSettings.Gnutella.ConnectThrottle) - tFailurePenalty;
+
+	Q_ASSERT( (qint64)tNow > tThrottle ); // if not, the following bool statement is wrong
+
+	foreach ( CG2HostCacheHost* pHost, m_lHosts )
+	{
+		if ( pHost )
 		{
 			// Note: if ( !pHost->m_tLastConnect ), the following statement also evaluates to true.
 			if ( !pHost->connectable() )
 				pHost->setConnectable( tNow > pHost->lastConnect() + tThrottle );
 		}
-		++itFailures;
-
-		// tThrottle = Gnutella.ConnectThrottle + pHost->failures() * Connection.FailurePenalty
-		tThrottle += quazaaSettings.Connection.FailurePenalty;
+		else // This will be triggered immediately at least once as the first node is always NULL.
+		{
+			// tThrottle = Gnutella.ConnectThrottle + pHost->failures() * Connection.FailurePenalty
+			tThrottle += tFailurePenalty;
+		}
 	}
 
 	m_pSection.unlock();
@@ -864,7 +902,7 @@ void CHostCache::maintain()
  * @param tNow: the current time in sec since 1970-01-01 UTC.
  * @return the CHostCacheHost pointer pertaining to the CEndPoint
  */
-CHostCacheHost* CHostCache::addSyncHelper(const CEndPoint& host, quint32 tTimeStamp,
+CG2HostCacheHost* CG2HostCache::addSyncHelper(const CEndPoint& host, quint32 tTimeStamp,
 										  const quint32 tNow, quint32 nFailures)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
@@ -879,6 +917,12 @@ CHostCacheHost* CHostCache::addSyncHelper(const CEndPoint& host, quint32 tTimeSt
 	}
 
 	if ( host.isFirewalled() )
+	{
+		return NULL;
+	}
+
+	Q_ASSERT( nFailures <= m_nMaxFailures ); //TODO: if this gets triggered, just comment it out. :)
+	if ( nFailures > m_nMaxFailures )
 	{
 		return NULL;
 	}
@@ -902,26 +946,18 @@ CHostCacheHost* CHostCache::addSyncHelper(const CEndPoint& host, quint32 tTimeSt
 	}
 
 	{   // update existing if such can be found
-		quint8 nOldFailures;
-		THostCacheIterator itPrevious = find( host, nOldFailures );
+		TG2HostCacheIterator itPrevious = find( host );
 
-		Q_ASSERT( nOldFailures < m_vlHosts.size() );
-		THostCacheList& lHosts = m_vlHosts[nOldFailures];
-
-		if ( itPrevious != lHosts.end() )
+		if ( itPrevious != m_lHosts.end() )
 		{
-			CHostCacheHost* pUpdate = update( itPrevious, tTimeStamp, nFailures );
+			CG2HostCacheHost* pUpdate = update( itPrevious, tTimeStamp, nFailures );
 			return pUpdate;
 		}
 	}
 
-	Q_ASSERT( nFailures <= m_nMaxFailures );
-	if ( nFailures > m_nMaxFailures )
-		nFailures = m_nMaxFailures;
-
 	// create host, find place in sorted list, insert it there
-	CHostCacheHost* pNew = new CHostCacheHost( host, tTimeStamp, nFailures );
-	insert( pNew, m_vlHosts[nFailures] );
+	CG2HostCacheHost* pNew = new CG2HostCacheHost( host, tTimeStamp, nFailures );
+	insert( pNew, m_pFailures[nFailures] );
 
 	return pNew;
 }
@@ -933,7 +969,7 @@ CHostCacheHost* CHostCache::addSyncHelper(const CEndPoint& host, quint32 tTimeSt
  * @param tTimeStamp: its timestamp
  * @param lHosts: the list of hosts
  */
-void CHostCache::insert(CHostCacheHost* pNew, THostCacheList& lHosts)
+void CG2HostCache::insert(CG2HostCacheHost* pNew, TG2HostCacheIterator& it)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "insert()" ) );
@@ -941,21 +977,18 @@ void CHostCache::insert(CHostCacheHost* pNew, THostCacheList& lHosts)
 
 	ASSUME_LOCK( m_pSection );
 
-	THostCacheIterator it = lHosts.begin();
-
-	// advance until 1 element past the last element with higher timestamp
-	while ( it != lHosts.end() && (*it)->timestamp() > pNew->timestamp() )
+	// We got here probably via a call to m_pFailures, which means the first pointer is a NULL one.
+	if ( !(*it) )
 		++it;
 
-	if ( it == lHosts.begin() ) // it hasn't been advanced
-	{
-		lHosts.push_front( pNew );
-	}
-	else
-	{
-		// go 1 element back (to last element with higher timestamp) and insert after this element
-		lHosts.insert( --it, pNew );
-	}
+	// advance until 1 element past the last element with higher timestamp
+	while ( it != m_lHosts.end() && *it && (*it)->timestamp() > pNew->timestamp() )
+		++it;
+
+	Q_ASSERT( it != m_lHosts.begin() && it != m_lHosts.end() );
+
+	// go 1 element back (to last element with higher timestamp) and insert after this element
+	it = m_lHosts.insert( --it, pNew );
 
 	// remember own position in list
 	pNew->setIterator( it );
@@ -968,10 +1001,9 @@ void CHostCache::insert(CHostCacheHost* pNew, THostCacheList& lHosts)
  * memory (if requried).
  * Locking: REQUIRED
  * @param itHost: the iterator - must be valid and not the end of the list.
- * @param nFailures: the number of failures
  * @return the new iterator
  */
-THostCacheIterator CHostCache::remove(THostCacheIterator& itHost, const quint8 nFailures)
+TG2HostCacheIterator CG2HostCache::remove(TG2HostCacheIterator& itHost)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "remove(iterator)" ) );
@@ -979,10 +1011,8 @@ THostCacheIterator CHostCache::remove(THostCacheIterator& itHost, const quint8 n
 
 	ASSUME_LOCK( m_pSection );
 
-	Q_ASSERT( nFailures < m_vlHosts.size() );
-
 	m_nSizeAtomic.fetchAndAddRelaxed( -1 );
-	return m_vlHosts[nFailures].erase( itHost );
+	return m_lHosts.erase( itHost );
 }
 
 /**
@@ -992,7 +1022,7 @@ THostCacheIterator CHostCache::remove(THostCacheIterator& itHost, const quint8 n
  * @param nFailures: the number of failures; this is set to the number of failures of the removed
  * host
  */
-void CHostCache::removeWorst(quint8& nFailures)
+void CG2HostCache::removeWorst(quint8& nFailures)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "removeWorst()" ) );
@@ -1000,20 +1030,28 @@ void CHostCache::removeWorst(quint8& nFailures)
 
 	ASSUME_LOCK( m_pSection );
 
-	if ( nFailures >= m_vlHosts.size() )
-		nFailures = (quint8)(m_vlHosts.size() - 1); // decrease to highest possible value
+	// TODO: remove in beta1
+	Q_ASSERT( !(*m_lHosts.begin()) );
 
-	while ( !m_vlHosts[nFailures].size() )
+	if ( nFailures > m_nMaxFailures )
+		nFailures = m_nMaxFailures; // decrease to highest possible value
+
+	TG2HostCacheIterator it = m_pFailures[nFailures + 1];
+	--it;
+
+	// skip over any failure access points in the way and make sure nFailures is properly decreased
+	while ( !(*it) && it != m_lHosts.begin() )
 	{
+		--it;
 		--nFailures;
-
-		if ( nFailures == 255 ) // overflow
-			return;
 	}
 
-	delete m_vlHosts[nFailures].back();
-	m_vlHosts[nFailures].pop_back();
-	m_nSizeAtomic.fetchAndAddRelaxed( -1 );
+	if ( *it ) // if we got a valid host (e.g. if it != m_lHosts.begin() ), remove it
+	{
+		delete *it;
+		m_lHosts.erase( it );
+		m_nSizeAtomic.fetchAndAddRelaxed( -1 );
+	}
 }
 
 /**
@@ -1023,7 +1061,7 @@ void CHostCache::removeWorst(quint8& nFailures)
  * @param nFailures: allows the caller to obtain the amount of failures of the host.
  * @return the iterator respectively m_vlHosts[0].end() if not found.
  */
-THostCacheIterator CHostCache::find(const CEndPoint& oHost, quint8& nFailures)
+TG2HostCacheIterator CG2HostCache::find(const CEndPoint& oHost)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "find(CEndPoint)" ) );
@@ -1031,26 +1069,28 @@ THostCacheIterator CHostCache::find(const CEndPoint& oHost, quint8& nFailures)
 
 	ASSUME_LOCK( m_pSection );
 
-	THCLVector::iterator itFailures = m_vlHosts.begin();
-	quint8 nFailIter = 0;
-	while ( itFailures != m_vlHosts.end() )
+	qint16 nFailTest = -1;
+	for ( TG2HostCacheIterator it = m_lHosts.begin(); it != m_lHosts.end(); ++it )
 	{
-		THostCacheList &lHosts = *itFailures;
-		for ( THostCacheIterator it = lHosts.begin(); it != lHosts.end(); ++it )
+		if ( *it )
 		{
+			if ( nFailTest != (*it)->failures() )
+			{
+				Q_ASSERT( nFailTest == (*it)->failures() );
+			}
+
 			if ( (*it)->address() == oHost )
 			{
-				nFailures = (*it)->failures();
-				Q_ASSERT( nFailIter == nFailures );
 				return it;
 			}
 		}
-		++itFailures;
-		++nFailIter;
+		else
+		{
+			++nFailTest;
+		}
 	}
 
-	nFailures = 0;
-	return (m_vlHosts[0]).end();
+	return m_lHosts.end();
 }
 
 /**
@@ -1059,16 +1099,16 @@ THostCacheIterator CHostCache::find(const CEndPoint& oHost, quint8& nFailures)
  * @param pHost: the given CHostCacheHost
  * @return the iterator respectively m_vlHosts[pHost->failures()].end() if not found.
  */
-THostCacheIterator CHostCache::find(const CHostCacheHost* const pHost)
+TG2HostCacheIterator CG2HostCache::find(const CG2HostCacheHost* const pHost)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "find(CHCHost)" ) );
 #endif //ENABLE_HOST_CACHE_DEBUGGING
 
 	ASSUME_LOCK( m_pSection );
-	Q_ASSERT( pHost->failures() < m_vlHosts.size() );
+	Q_ASSERT( pHost->failures() <= m_nMaxFailures );
 
-	return pHost->iteratorValid() ? pHost->iterator() : m_vlHosts[pHost->failures()].end();
+	return pHost->iteratorValid() ? pHost->iterator() : m_lHosts.end();
 }
 
 /**
@@ -1093,7 +1133,7 @@ THostCacheIterator CHostCache::find(const CHostCacheHost* const pHost)
  * @brief CHostCache::load reads the previously saved hosts from file and adds them to the cache.
  * Locking: YES
  */
-void CHostCache::load()
+void CG2HostCache::load()
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "load()" ) );
@@ -1123,7 +1163,7 @@ void CHostCache::load()
 		quint32 tTimeStamp   = 0;
 		quint32 tLastConnect = 0;
 
-		CHostCacheHost* pHost = NULL;
+		CG2HostCacheHost* pHost = NULL;
 
 		while ( nCount )
 		{
@@ -1165,15 +1205,15 @@ void CHostCache::load()
 	pruneOldHosts( tNow );
 	m_pSection.unlock();
 
-	systemLog.postLog( LogSeverity::Debug,
-					   m_sMessage + QObject::tr( "Loaded %1 hosts." ).arg( m_nSizeAtomic.load() ) );
+	systemLog.postLog( LogSeverity::Debug, Components::HostCache,
+					   QObject::tr( "Loaded %1 hosts." ).arg( m_nSizeAtomic.load() ) );
 }
 
 /**
  * @brief CHostCache::asyncStartUpHelper helper method for start().
  * Locking: YES
  */
-void CHostCache::asyncStartUpHelper()
+void CG2HostCache::asyncStartUpHelper()
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "asyncStartUpH()" ) );
@@ -1183,8 +1223,18 @@ void CHostCache::asyncStartUpHelper()
 	connect( &Network, SIGNAL( LocalAddressChanged() ), this, SLOT( localAddressChanged() ) );
 
 	m_nMaxFailures = quazaaSettings.Connection.FailureLimit;
-	for ( quint8 i = 0; i <= m_nMaxFailures; ++i )
-		m_vlHosts.push_back( THostCacheList() );
+	m_pFailures    = new TG2HostCacheIterator[m_nMaxFailures + 2];
+
+	m_lHosts.push_back( NULL );
+	TG2HostCacheIterator it = m_lHosts.begin();
+	m_pFailures[0] = it;
+
+	// add m_nMaxFailures + 2 items to the list
+	for ( quint8 i = 1; i < m_nMaxFailures + 2; ++i )
+	{
+		m_lHosts.push_back( NULL );
+		m_pFailures[i] = ++it;
+	}
 
 	// Includes its own locking.
 	load();
@@ -1199,7 +1249,7 @@ void CHostCache::asyncStartUpHelper()
  * @param oAddress: a CEndPoint
  * @param nFailures: its new value of failures
  */
-void CHostCache::asyncUpdateFailures(CEndPoint oAddress, quint32 nNewFailures)
+void CG2HostCache::asyncUpdateFailures(CEndPoint oAddress, quint32 nNewFailures)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "asyncUpdtFail()" ) );
@@ -1207,22 +1257,18 @@ void CHostCache::asyncUpdateFailures(CEndPoint oAddress, quint32 nNewFailures)
 
 	m_pSection.lock();
 
-	quint8 nOldFailures;
-	THostCacheIterator itHost = find( oAddress, nOldFailures );
+	TG2HostCacheIterator itHost = find( oAddress );
 
-	Q_ASSERT( nOldFailures < m_vlHosts.size() );
-
-	if ( nOldFailures != nNewFailures && itHost != m_vlHosts[nOldFailures].end() )
+	if ( itHost != m_lHosts.end() )
 	{
-		CHostCacheHost* pHost = *itHost;
-		remove( itHost, nOldFailures );      // remove host with old failure count
-
+		CG2HostCacheHost* pHost = *itHost;
+		remove( itHost );      // remove host with old failure count
 
 		if ( nNewFailures <= m_nMaxFailures )
 		{
 			// insert new host with correct failure count into correct list
-			insert( new CHostCacheHost( *pHost, pHost->timestamp(), nNewFailures ),
-					m_vlHosts[nNewFailures] );
+			insert( new CG2HostCacheHost( *pHost, pHost->timestamp(), nNewFailures ),
+					m_pFailures[nNewFailures] );
 		}
 
 		// free memory of old host
@@ -1237,7 +1283,7 @@ void CHostCache::asyncUpdateFailures(CEndPoint oAddress, quint32 nNewFailures)
  * Locking: YES
  * @param sHeader
  */
-void CHostCache::asyncAddXTry(QString sHeader)
+void CG2HostCache::asyncAddXTry(QString sHeader)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "asyncAddXTry()" ) );
@@ -1294,7 +1340,7 @@ void CHostCache::asyncAddXTry(QString sHeader)
  * Locking: YES
  * @param addr: the CEndPoint with the connection failure
  */
-void CHostCache::asyncOnFailure(CEndPoint addr)
+void CG2HostCache::asyncOnFailure(CEndPoint addr)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "asyncOnFailure()" ) );
@@ -1302,22 +1348,20 @@ void CHostCache::asyncOnFailure(CEndPoint addr)
 
 	m_pSection.lock();
 
-	quint8 nFailures;
-	THostCacheIterator itHost = find( addr, nFailures );
+	TG2HostCacheIterator itHost = find( addr );
 
-	Q_ASSERT( nFailures < (quint8)(m_vlHosts.size()) );
-
-	THostCacheList& lHosts = m_vlHosts[nFailures];
-	if ( itHost != lHosts.end() )
+	if ( itHost != m_lHosts.end() )
 	{
-		CHostCacheHost* pHost = *itHost;
-		remove( itHost, nFailures );      // remove host with old failure count
+		CG2HostCacheHost* pHost = *itHost;
+		remove( itHost );      // remove host with old failure count
 
+		quint8 nFailures = pHost->failures();
 		if ( nFailures < m_nMaxFailures ) // if failure count may be increased
 		{
+			++nFailures; // gcc doesn't like it if this is included in the following statement.
 			// insert new host with correct failure count into correct list
-			insert( new CHostCacheHost( *pHost, pHost->timestamp(), ++nFailures ),
-					m_vlHosts[nFailures] );
+			insert( new CG2HostCacheHost( *pHost, pHost->timestamp(), nFailures ),
+					m_pFailures[nFailures] );
 		}
 
 		// free memory of old host

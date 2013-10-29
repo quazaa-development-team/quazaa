@@ -269,14 +269,14 @@ void CNeighboursConnections::Maintain()
 			const quint32 tNow = common::getTNowUTC();
 			bool bCountry = true;
 			int  nCountry = 0;
-			QSet<CHostCacheHost*> oExcept;
+			QSet<CG2HostCacheHost*> oExcept;
 
 			QMutexLocker l(&hostCache.m_pSection);
 
 			for ( ; nAttempt > 0; --nAttempt )
 			{
 				// nowe polaczenie
-				CHostCacheHost* pHost;
+				CG2HostCacheHost* pHost;
 				QString sCountry;
 				sCountry = bCountry ? ( quazaaSettings.Connection.PreferredCountries.size() ?
 										quazaaSettings.Connection.PreferredCountries.at(nCountry) :
@@ -345,14 +345,14 @@ void CNeighboursConnections::Maintain()
 			const quint32 tNow = common::getTNowUTC();
 			qint32 nAttempt = qint32((quazaaSettings.Gnutella2.NumPeers - nHubsG2) * quazaaSettings.Gnutella.ConnectFactor);
 			nAttempt = qMin(nAttempt, 8) - nUnknown;
-			QSet<CHostCacheHost*> oExcept;
+			QSet<CG2HostCacheHost*> oExcept;
 
 			QMutexLocker l(&hostCache.m_pSection);
 
 			for ( ; nAttempt > 0; --nAttempt )
 			{
 				// nowe polaczenie
-				CHostCacheHost* pHost = hostCache.getConnectable( oExcept );
+				CG2HostCacheHost* pHost = hostCache.getConnectable( oExcept );
 
 				if ( pHost )
 				{

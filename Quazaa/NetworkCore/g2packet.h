@@ -100,7 +100,7 @@ public:
 	inline void WriteByte(uchar nByte);
 	inline void ReadHostAddress(CEndPoint* pDest, bool bIP4 = true);
 	inline QUuid ReadGUID();
-	inline void WriteHostAddress(CEndPoint* pSrc);
+	inline void WriteHostAddress(const CEndPoint& src);
 	inline void WriteGUID(QUuid& guid);
 
 public:
@@ -273,20 +273,20 @@ QUuid G2Packet::ReadGUID()
 
 	return ret;
 }
-void G2Packet::WriteHostAddress(CEndPoint* pSrc)
+void G2Packet::WriteHostAddress(const CEndPoint& src)
 {
-	if(pSrc->protocol() == 0)   // IPv4
+	if(src.protocol() == 0)   // IPv4
 	{
 		Ensure(6);
-		WriteIntBE(pSrc->toIPv4Address());
-		WriteIntLE(pSrc->port());
+		WriteIntBE(src.toIPv4Address());
+		WriteIntLE(src.port());
 	}
 	else
 	{
 		Ensure(18);
-		Q_IPV6ADDR ip6 = pSrc->toIPv6Address();
+		Q_IPV6ADDR ip6 = src.toIPv6Address();
 		Write(&ip6, 16);
-		WriteIntLE(pSrc->port());
+		WriteIntLE(src.port());
 	}
 }
 void G2Packet::WriteGUID(QUuid& guid)

@@ -35,7 +35,7 @@ public:
 	}
 };*/
 
-CHostCacheHost::CHostCacheHost(const CEndPoint& oAddress, const quint32 tTimestamp,
+CG2HostCacheHost::CG2HostCacheHost(const CEndPoint& oAddress, const quint32 tTimestamp,
                                const quint8 nFailures) :
     m_oAddress(     oAddress    ),
     m_tTimestamp(   tTimestamp  ),
@@ -51,7 +51,7 @@ CHostCacheHost::CHostCacheHost(const CEndPoint& oAddress, const quint32 tTimesta
 {
 }
 
-CHostCacheHost::CHostCacheHost(const CHostCacheHost& oHost, const quint32 tTimestamp,
+CG2HostCacheHost::CG2HostCacheHost(const CG2HostCacheHost& oHost, const quint32 tTimestamp,
                                const quint8 nFailures) :
     m_oAddress(     oHost.m_oAddress     ),
     m_tTimestamp(   tTimestamp           ),
@@ -67,11 +67,11 @@ CHostCacheHost::CHostCacheHost(const CHostCacheHost& oHost, const quint32 tTimes
 {
 }
 
-CHostCacheHost::~CHostCacheHost()
+CG2HostCacheHost::~CG2HostCacheHost()
 {
 }
 
-bool CHostCacheHost::canQuery(const quint32 tNow)
+bool CG2HostCacheHost::canQuery(const quint32 tNow)
 {
 	if ( m_tAck && m_nQueryKey ) // if waiting for an ack, and we have a query key
 	{
@@ -98,7 +98,7 @@ bool CHostCacheHost::canQuery(const quint32 tNow)
 	return tNow - m_tLastQuery > quazaaSettings.Gnutella2.QueryHostThrottle;
 }
 
-void CHostCacheHost::setKey(quint32 nKey, const quint32 tNow, CEndPoint* pHost)
+void CG2HostCacheHost::setKey(quint32 nKey, const quint32 tNow, CEndPoint* pHost)
 {
 	m_tAck      = 0;
 	m_nFailures = 0;
@@ -107,13 +107,13 @@ void CHostCacheHost::setKey(quint32 nKey, const quint32 tNow, CEndPoint* pHost)
 	m_oKeyHost  = pHost ? *pHost : Network.GetLocalAddress();
 }
 
-THostCacheIterator CHostCacheHost::iterator() const
+TG2HostCacheIterator CG2HostCacheHost::iterator() const
 {
 	Q_ASSERT( m_bIteratorValid );
 	return m_iHostCacheIterator;
 }
 
-void CHostCacheHost::setIterator(const THostCacheIterator& it)
+void CG2HostCacheHost::setIterator(const TG2HostCacheIterator& it)
 {
 	m_iHostCacheIterator = it;
 	m_bIteratorValid = true;

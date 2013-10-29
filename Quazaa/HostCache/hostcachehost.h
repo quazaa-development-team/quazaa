@@ -33,17 +33,17 @@
 #include "network.h"
 #include "quazaasettings.h"
 
-class CHostCacheHost;
+class CG2HostCacheHost;
 
-typedef QSharedPointer<QThread>         TSharedThreadPtr;
+typedef QSharedPointer<QThread>           TSharedThreadPtr;
 
-typedef std::list<CHostCacheHost*>      THostCacheList;
-typedef THostCacheList::iterator        THostCacheIterator;
-typedef THostCacheList::const_iterator  THostCacheConstIterator;
+typedef std::list<CG2HostCacheHost*>      TG2HostCacheList;
+typedef TG2HostCacheList::iterator        TG2HostCacheIterator;
+//typedef TG2HostCacheList::const_iterator  TG2HostCacheConstIterator;
 
-typedef std::vector<THostCacheList>     THCLVector;
+typedef std::vector<TG2HostCacheList>     THCLVector;
 
-class CHostCacheHost
+class CG2HostCacheHost
 {
 private:
 	CEndPoint   m_oAddress;     // Hub address
@@ -62,20 +62,20 @@ private:
 	quint32     m_tLastConnect; // kiedy ostatnio sie polaczylismy?
 	quint8      m_nFailures;    // Connection failures in a row.
 
-	bool        m_bConnectable; // TODO: calculate by maintain()
+	bool        m_bConnectable;
 
 	bool               m_bIteratorValid;
-	THostCacheIterator m_iHostCacheIterator;
+	TG2HostCacheIterator m_iHostCacheIterator;
 
 public:
-	CHostCacheHost(const CEndPoint& oAddress, const quint32 tTimestamp, const quint8 nFailures);
-	CHostCacheHost(const CHostCacheHost& oHost, const quint32 tTimestamp, const quint8 nFailures);
+	CG2HostCacheHost(const CEndPoint& oAddress, const quint32 tTimestamp, const quint8 nFailures);
+	CG2HostCacheHost(const CG2HostCacheHost& oHost, const quint32 tTimestamp, const quint8 nFailures);
 
 private:
-	CHostCacheHost(const CHostCacheHost&) {} // make sure to avoid unintentional copies
+	CG2HostCacheHost(const CG2HostCacheHost&) {} // make sure to avoid unintentional copies
 
 public:
-	~CHostCacheHost();
+	~CG2HostCacheHost();
 
 	bool canQuery(const quint32 tNow = common::getTNowUTC());
 	void setKey(quint32 nKey, const quint32 tNow = common::getTNowUTC(), CEndPoint* pHost = NULL);
@@ -105,8 +105,8 @@ public:
 // There is no setFailures() as the number of failures needs to be maintained by the Host Cache.
 	inline void      setConnectable( bool      bConnectable ) { m_bConnectable = bConnectable; }
 
-	THostCacheIterator iterator() const;
-	void setIterator(const THostCacheIterator& it);
+	TG2HostCacheIterator iterator() const;
+	void setIterator(const TG2HostCacheIterator& it);
 };
 
 #endif // HOSTCACHEHOST_H

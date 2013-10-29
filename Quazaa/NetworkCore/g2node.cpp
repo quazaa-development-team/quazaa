@@ -721,7 +721,7 @@ void CG2Node::SendStartups()
 		CEndPoint addr = Network.GetLocalAddress();
 		G2Packet* pPacket = G2Packet::New("PI", true);
 		pPacket->WritePacket("UDP", 6);
-		pPacket->WriteHostAddress(&addr);
+		pPacket->WriteHostAddress(addr);
 		pPacket->WritePacket("TFW", 0);
 		SendPacket(pPacket, false, true);
 	}
@@ -734,11 +734,11 @@ void CG2Node::SendLNI()
 	G2Packet* pLNI = G2Packet::New("LNI", true);
 	if(Network.m_oAddress.protocol() == 0)
 	{
-		pLNI->WritePacket("NA", 6)->WriteHostAddress(&Network.m_oAddress);
+		pLNI->WritePacket("NA", 6)->WriteHostAddress(Network.m_oAddress);
 	}
 	else
 	{
-		pLNI->WritePacket("NA", 18)->WriteHostAddress(&Network.m_oAddress);
+		pLNI->WritePacket("NA", 18)->WriteHostAddress(Network.m_oAddress);
 	}
 	pLNI->WritePacket("GU", 16)->WriteGUID(quazaaSettings.Profile.GUID);
 	pLNI->WritePacket("V", 4)->WriteString(CQuazaaGlobals::VENDOR_CODE(), false);
@@ -1253,7 +1253,7 @@ void CG2Node::OnQKR(G2Packet* pPacket)
 //	tHostCacheWork.start();
 //#endif
 
-	CHostCacheHost* pHost = bCacheOK ? hostCache.get( addr ) : NULL;
+	CG2HostCacheHost* pHost = bCacheOK ? hostCache.get( addr ) : NULL;
 
 //#if ENABLE_HOST_CACHE_BENCHMARKING
 //	qint64 tHCWork = tHostCacheWork.elapsed();
@@ -1265,11 +1265,11 @@ void CG2Node::OnQKR(G2Packet* pPacket)
 		G2Packet* pQKA = G2Packet::New( "QKA", true );
 		if ( addr.protocol() == 0 )
 		{
-			pQKA->WritePacket( "QNA", 6 )->WriteHostAddress( &addr );
+			pQKA->WritePacket( "QNA", 6 )->WriteHostAddress( addr );
 		}
 		else
 		{
-			pQKA->WritePacket( "QNA", 18 )->WriteHostAddress( &addr );
+			pQKA->WritePacket( "QNA", 18 )->WriteHostAddress( addr );
 		}
 		pQKA->WritePacket( "QK", 4 )->WriteIntLE<quint32>( pHost->queryKey() );
 		pQKA->WritePacket( "CACHED", 0 );
@@ -1280,20 +1280,20 @@ void CG2Node::OnQKR(G2Packet* pPacket)
 		G2Packet* pQKR = G2Packet::New( "QKR", true );
 		if ( addr.protocol() == 0 )
 		{
-			pQKR->WritePacket( "SNA", 6 )->WriteHostAddress( &m_oAddress );
+			pQKR->WritePacket( "SNA", 6 )->WriteHostAddress( m_oAddress );
 		}
 		else
 		{
-			pQKR->WritePacket( "SNA", 18 )->WriteHostAddress( &m_oAddress );
+			pQKR->WritePacket( "SNA", 18 )->WriteHostAddress( m_oAddress );
 		}
 
 		if ( Network.m_oAddress.protocol() == 0 )
 		{
-			pQKR->WritePacket( "RNA", 6 )->WriteHostAddress( &Network.m_oAddress );
+			pQKR->WritePacket( "RNA", 6 )->WriteHostAddress( Network.m_oAddress );
 		}
 		else
 		{
-			pQKR->WritePacket( "RNA", 18 )->WriteHostAddress( &Network.m_oAddress );
+			pQKR->WritePacket( "RNA", 18 )->WriteHostAddress( Network.m_oAddress );
 		}
 
 		Datagrams.SendPacket( addr, pQKR, false );
@@ -1505,7 +1505,7 @@ void CG2Node::SendHAW()
 	G2Packet* pPacket = G2Packet::New("HAW");
 
 	pPacket->WritePacket("NA", Network.m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 6 : 18);
-	pPacket->WriteHostAddress(&Network.m_oAddress);
+	pPacket->WriteHostAddress(Network.m_oAddress);
 
 	pPacket->WritePacket("V", 4);
 	pPacket->WriteString(CQuazaaGlobals::VENDOR_CODE());

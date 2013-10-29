@@ -278,7 +278,7 @@ bool CSearchManager::OnQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSen
 				}
 
 				hostCache.m_pSection.lock();
-				CHostCacheHost* pHost = hostCache.get( oQAOrigin );
+				CG2HostCacheHost* pHost = hostCache.get( oQAOrigin );
 				if ( pHost )
 				{
 					pHost->setRetryAfter( tNow + tRetryAfter );

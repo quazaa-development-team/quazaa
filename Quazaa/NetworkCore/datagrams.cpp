@@ -776,7 +776,7 @@ void CDatagrams::OnCRAWLR(CEndPoint& addr, G2Packet* pPacket)
 	{
 		pTmp->WritePacket("LEAF", 0);
 	}
-	pTmp->WritePacket("NA", ((Network.m_oAddress.protocol() == 0) ? 6 : 18))->WriteHostAddress(&Network.m_oAddress);
+	pTmp->WritePacket("NA", ((Network.m_oAddress.protocol() == 0) ? 6 : 18))->WriteHostAddress(Network.m_oAddress);
 	pTmp->WritePacket("CV", CQuazaaGlobals::USER_AGENT_STRING().toUtf8().size())->WriteString(CQuazaaGlobals::USER_AGENT_STRING(), false);
 	pTmp->WritePacket("V", 4)->WriteString(CQuazaaGlobals::VENDOR_CODE(), false);;
 	quint16 nLeaves = Neighbours.m_nLeavesConnectedG2;
@@ -802,7 +802,7 @@ void CDatagrams::OnCRAWLR(CEndPoint& addr, G2Packet* pPacket)
 			if(pNode->m_nType == G2_HUB)
 			{
 				G2Packet* pNH = G2Packet::New("NH");
-				pNH->WritePacket("NA", ((pNode->m_oAddress.protocol() == 0) ? 6 : 18))->WriteHostAddress(&pNode->m_oAddress);
+				pNH->WritePacket("NA", ((pNode->m_oAddress.protocol() == 0) ? 6 : 18))->WriteHostAddress(pNode->m_oAddress);
 				pNH->WritePacket("HS", 2)->WriteIntLE(pNode->m_nLeafCount);
 				pCA->WritePacket(pNH);
 				pNH->Release();
@@ -810,7 +810,7 @@ void CDatagrams::OnCRAWLR(CEndPoint& addr, G2Packet* pPacket)
 			else if(pNode->m_nType == G2_LEAF)
 			{
 				G2Packet* pNL = G2Packet::New("NL");
-				pNL->WritePacket("NA", ((pNode->m_oAddress.protocol() == 0) ? 6 : 18))->WriteHostAddress(&pNode->m_oAddress);
+				pNL->WritePacket("NA", ((pNode->m_oAddress.protocol() == 0) ? 6 : 18))->WriteHostAddress(pNode->m_oAddress);
 				pCA->WritePacket(pNL);
 				pNL->Release();
 			}
@@ -879,7 +879,7 @@ void CDatagrams::OnQKR(CEndPoint& addr, G2Packet* pPacket)
 	pAns->WritePacket("QK", 4);
 	pAns->WriteIntLE<quint32>(nKey);
 	G2Packet* pSNA = G2Packet::New("SNA");
-	pSNA->WriteHostAddress(&oSendingAddress);
+	pSNA->WriteHostAddress(oSendingAddress);
 	pAns->WritePacket(pSNA);
 	pSNA->Release();
 
@@ -942,7 +942,7 @@ void CDatagrams::OnQKA(CEndPoint& addr, G2Packet* pPacket)
 	if(Neighbours.IsG2Hub() && !nKeyHost.isNull() && nKeyHost != ((QHostAddress)Network.m_oAddress))
 	{
 		G2Packet* pQNA = G2Packet::New("QNA");
-		pQNA->WriteHostAddress(&addr);
+		pQNA->WriteHostAddress(addr);
 		pPacket->PrependPacket(pQNA);
 
 		Neighbours.m_pSection.lock();
@@ -968,7 +968,7 @@ void CDatagrams::OnQA(CEndPoint& addr, G2Packet* pPacket)
 	{
 		// Add from address
 		G2Packet* pFR = G2Packet::New( "FR" );
-		pFR->WriteHostAddress( &addr );
+		pFR->WriteHostAddress( addr );
 		pPacket->AddOrReplaceChild( "FR", pFR );
 
 		Network.m_pSection.lock();
@@ -1050,7 +1050,7 @@ void CDatagrams::OnQuery(CEndPoint &addr, G2Packet *pPacket)
 
 		if( addr != pQuery->m_oEndpoint )
 		{
-			pQKA->WritePacket("SNA", (pQuery->m_oEndpoint.protocol() == QAbstractSocket::IPv6Protocol ? 18 : 6))->WriteHostAddress(&pQuery->m_oEndpoint);
+			pQKA->WritePacket("SNA", (pQuery->m_oEndpoint.protocol() == QAbstractSocket::IPv6Protocol ? 18 : 6))->WriteHostAddress(pQuery->m_oEndpoint);
 		}
 
 		SendPacket(pQuery->m_oEndpoint, pQKA);
@@ -1070,7 +1070,7 @@ void CDatagrams::OnQuery(CEndPoint &addr, G2Packet *pPacket)
 
 		if( addr != pQuery->m_oEndpoint )
 		{
-			pQKA->WritePacket("SNA", (pQuery->m_oEndpoint.protocol() == QAbstractSocket::IPv6Protocol ? 18 : 6))->WriteHostAddress(&pQuery->m_oEndpoint);
+			pQKA->WritePacket("SNA", (pQuery->m_oEndpoint.protocol() == QAbstractSocket::IPv6Protocol ? 18 : 6))->WriteHostAddress(pQuery->m_oEndpoint);
 		}
 		SendPacket(addr, pPacket);
 		pQKA->Release();
@@ -1100,7 +1100,7 @@ void CDatagrams::OnQuery(CEndPoint &addr, G2Packet *pPacket)
 						   "Q2 received via UDP and return address points to us, changing return address to source %s",
 						   qPrintable( addr.toStringWithPort() ) );
 		G2Packet* pUDP = G2Packet::New("UDP");
-		pUDP->WriteHostAddress(&addr);
+		pUDP->WriteHostAddress(addr);
 		pUDP->WriteIntLE<quint32>(0);
 		pPacket->AddOrReplaceChild("UDP", pUDP);
 	}

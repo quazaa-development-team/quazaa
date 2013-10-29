@@ -103,7 +103,7 @@ void CQuazaaSettings::saveSettings()
 	m_qSettings.setValue("TimeoutConnect", quazaaSettings.Connection.TimeoutConnect);
 	m_qSettings.setValue("TimeoutTraffic", quazaaSettings.Connection.TimeoutTraffic);
 	m_qSettings.setValue("PreferredCountries", quazaaSettings.Connection.PreferredCountries);
-    m_qSettings.setValue("UDPOutLimitPPS", quazaaSettings.Connection.UDPOutLimitPPS);
+	m_qSettings.setValue("UDPOutLimitPPS", quazaaSettings.Connection.UDPOutLimitPPS);
 	m_qSettings.endGroup();
 
 	m_qSettings.beginGroup("Discovery");
@@ -518,7 +518,7 @@ void CQuazaaSettings::loadSettings()
 	quazaaSettings.Connection.DetectConnectionLoss = m_qSettings.value("DetectConnectionLoss", true).toBool();
 	quazaaSettings.Connection.DetectConnectionReset = m_qSettings.value("DetectConnectionReset", false).toBool();
 	quazaaSettings.Connection.FailureLimit = m_qSettings.value("FailureLimit", 3).toUInt();
-	quazaaSettings.Connection.FailurePenalty = m_qSettings.value("FailurePenalty", 300).toInt();
+	quazaaSettings.Connection.FailurePenalty = m_qSettings.value("FailurePenalty", 300).toUInt();
 	quazaaSettings.Connection.InSpeed = m_qSettings.value("InSpeed", 1024 * 1024).toULongLong(); // 1Mbit
 	quazaaSettings.Connection.OutSpeed = m_qSettings.value("OutSpeed", 16384).toULongLong();	 // 16KB/s
 	quazaaSettings.Connection.Port = m_qSettings.value("Port", 6350).toUInt();
@@ -527,9 +527,9 @@ void CQuazaaSettings::loadSettings()
 	quazaaSettings.Connection.TimeoutConnect = m_qSettings.value("TimeoutConnect", 16).toUInt();
 	quazaaSettings.Connection.TimeoutTraffic = m_qSettings.value("TimeoutTraffic", 60).toUInt();
 	quazaaSettings.Connection.PreferredCountries = m_qSettings.value("PreferredCountries", QStringList()).toStringList();
-    quazaaSettings.Connection.UDPOutLimitPPS = m_qSettings.value("UDPOutLimitPPS", 128).toUInt();
-    if( quazaaSettings.Connection.UDPOutLimitPPS < 10 )
-        quazaaSettings.Connection.UDPOutLimitPPS = 10; // failsafe
+	quazaaSettings.Connection.UDPOutLimitPPS = m_qSettings.value("UDPOutLimitPPS", 128).toUInt();
+	if( quazaaSettings.Connection.UDPOutLimitPPS < 10 )
+		quazaaSettings.Connection.UDPOutLimitPPS = 10; // failsafe
 	m_qSettings.endGroup();
 
 	m_qSettings.beginGroup("Discovery");
@@ -1132,7 +1132,7 @@ void CQuazaaSettings::loadChat()
 	// TODO: the default values should respect palette
 	quazaaSettings.Chat.Colors[IrcColorType::Background] = m_qSettings.value("ColorsBackground", "white").toString();
 	quazaaSettings.Chat.Colors[IrcColorType::Default] = m_qSettings.value("ColorsDefault", "black").toString();
-    quazaaSettings.Chat.Colors[IrcColorType::Event] = m_qSettings.value("ColorsEvent", "chocolate").toString();
+	quazaaSettings.Chat.Colors[IrcColorType::Event] = m_qSettings.value("ColorsEvent", "chocolate").toString();
 	quazaaSettings.Chat.Colors[IrcColorType::Notice] = m_qSettings.value("ColorsNotice", "indianred").toString();
 	quazaaSettings.Chat.Colors[IrcColorType::Action] = m_qSettings.value("ColorsAction", "darkmagenta").toString();
 	quazaaSettings.Chat.Colors[IrcColorType::Inactive] = m_qSettings.value("ColorsInactive", "gray").toString();
@@ -1297,9 +1297,9 @@ void CQuazaaSettings::saveWindowSettings(QMainWindow* window)
 	m_qSettings.setValue("ActivitySplitterRestoreBottom", quazaaSettings.WinMain.ActivitySplitterRestoreBottom);
 	m_qSettings.setValue("ChatRoomsTaskVisible", quazaaSettings.WinMain.ChatRoomsTaskVisible);
 	m_qSettings.setValue("ChatFriendsTaskVisible", quazaaSettings.WinMain.ChatFriendsTaskVisible);
-    m_qSettings.setValue("ChatListSplitter", quazaaSettings.WinMain.ChatUserListSplitter);
-    m_qSettings.setValue("ChatTreeWidget", quazaaSettings.WinMain.ChatTreeWidget);
-    m_qSettings.setValue("ChatTreeWidgetSplitter", quazaaSettings.WinMain.ChatTreeWidgetSplitter);
+	m_qSettings.setValue("ChatListSplitter", quazaaSettings.WinMain.ChatUserListSplitter);
+	m_qSettings.setValue("ChatTreeWidget", quazaaSettings.WinMain.ChatTreeWidget);
+	m_qSettings.setValue("ChatTreeWidgetSplitter", quazaaSettings.WinMain.ChatTreeWidgetSplitter);
 	m_qSettings.setValue("ChatToolbars", quazaaSettings.WinMain.ChatToolbars);
 	m_qSettings.setValue("DiscoveryHeader", quazaaSettings.WinMain.DiscoveryHeader);
 	m_qSettings.setValue("DiscoveryToolbar", quazaaSettings.WinMain.DiscoveryToolbar);
@@ -1352,9 +1352,9 @@ void CQuazaaSettings::saveWindowSettings(QMainWindow* window)
 	m_qSettings.setValue("TransfersSplitter", quazaaSettings.WinMain.TransfersSplitter);
 	m_qSettings.setValue("TransfersSplitterRestoreLeft", quazaaSettings.WinMain.TransfersSplitterRestoreLeft);
 	m_qSettings.setValue("TransfersSplitterRestoreRight", quazaaSettings.WinMain.TransfersSplitterRestoreRight);
-    m_qSettings.setValue("TransfersNavigationSplitter", quazaaSettings.WinMain.TransfersNavigationSplitter);
-    m_qSettings.setValue("TransfersNavigationSplitterRestoreTop", quazaaSettings.WinMain.TransfersNavigationSplitterRestoreTop);
-    m_qSettings.setValue("TransfersNavigationSplitterRestoreBottom", quazaaSettings.WinMain.TransfersNavigationSplitterRestoreBottom);
+	m_qSettings.setValue("TransfersNavigationSplitter", quazaaSettings.WinMain.TransfersNavigationSplitter);
+	m_qSettings.setValue("TransfersNavigationSplitterRestoreTop", quazaaSettings.WinMain.TransfersNavigationSplitterRestoreTop);
+	m_qSettings.setValue("TransfersNavigationSplitterRestoreBottom", quazaaSettings.WinMain.TransfersNavigationSplitterRestoreBottom);
 	m_qSettings.setValue("UploadsSplitter", quazaaSettings.WinMain.UploadsSplitter);
 	m_qSettings.setValue("UploadsSplitterRestoreTop", quazaaSettings.WinMain.UploadsSplitterRestoreTop);
 	m_qSettings.setValue("UploadsSplitterRestoreBottom", quazaaSettings.WinMain.UploadsSplitterRestoreBottom);
@@ -1432,9 +1432,9 @@ void CQuazaaSettings::loadWindowSettings(QMainWindow* window)
 	quazaaSettings.WinMain.TransfersSplitter = m_qSettings.value("TransfersSplitter", QByteArray()).toByteArray();
 	quazaaSettings.WinMain.TransfersSplitterRestoreLeft = m_qSettings.value("TransfersSplitterRestoreLeft", 0).toInt();
 	quazaaSettings.WinMain.TransfersSplitterRestoreRight = m_qSettings.value("TransfersSplitterRestoreRight", 0).toInt();
-    quazaaSettings.WinMain.TransfersNavigationSplitter = m_qSettings.value("TransfersNavigationSplitter", QByteArray()).toByteArray();
-    quazaaSettings.WinMain.TransfersNavigationSplitterRestoreTop = m_qSettings.value("TransfersNavigationSplitterRestoreTop", 0).toInt();
-    quazaaSettings.WinMain.TransfersNavigationSplitterRestoreBottom = m_qSettings.value("TransfersNavigationSplitterRestoreBottom", 0).toInt();
+	quazaaSettings.WinMain.TransfersNavigationSplitter = m_qSettings.value("TransfersNavigationSplitter", QByteArray()).toByteArray();
+	quazaaSettings.WinMain.TransfersNavigationSplitterRestoreTop = m_qSettings.value("TransfersNavigationSplitterRestoreTop", 0).toInt();
+	quazaaSettings.WinMain.TransfersNavigationSplitterRestoreBottom = m_qSettings.value("TransfersNavigationSplitterRestoreBottom", 0).toInt();
 	quazaaSettings.WinMain.UploadsSplitter = m_qSettings.value("UploadsSplitter", QByteArray()).toByteArray();
 	quazaaSettings.WinMain.UploadsSplitterRestoreTop = m_qSettings.value("UploadsSplitterRestoreTop", 0).toInt();
 	quazaaSettings.WinMain.UploadsSplitterRestoreBottom = m_qSettings.value("UploadsSplitterRestoreBottom", 0).toInt();
