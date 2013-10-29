@@ -29,7 +29,6 @@
 #endif
 
 #include <QDir>
-//#include <QMetaMethod>
 
 #include "network.h"
 #include "hostcache.h"
