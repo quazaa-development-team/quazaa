@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -36,19 +36,19 @@
 using namespace common;
 
 SearchTreeModel::SearchTreeModel() :
-    m_pIconProvider( new CFileIconProvider ),
-    m_pFilter( new SearchFilter )
+	m_pIconProvider( new CFileIconProvider ),
+	m_pFilter( new SearchFilter )
 {
 	QList<QVariant> rootItemData;
 	rootItemData << "File"
-	             << "Extension"
-	             << "Size"
-	             << "Rating"
-	             << "Status"
-	             << "Host/Count"
-	             << "Speed"
-	             << "Client"
-	             << "Country";
+				 << "Extension"
+				 << "Size"
+				 << "Rating"
+				 << "Status"
+				 << "Host/Count"
+				 << "Speed"
+				 << "Client"
+				 << "Country";
 	rootItem = new SearchTreeItem( rootItemData );
 	nFileCount = 0;
 }
@@ -81,6 +81,20 @@ bool SearchTreeModel::isRoot(QModelIndex index)
 	return false;
 }
 
+void SearchTreeModel::removeQueryHit(int position, const QModelIndex &parent)
+{
+	SearchTreeItem *parentItem = rootItem;
+	if (parent.isValid()) {
+		parentItem = static_cast<SearchTreeItem*>(parent.internalPointer());
+	}
+
+	if(parentItem) {
+		beginRemoveRows(parent, position, position);
+		parentItem->removeChild(position);
+		endRemoveRows();
+	}
+}
+
 int SearchTreeModel::columnCount(const QModelIndex& parent) const
 {
 	if ( parent.isValid() )
@@ -104,7 +118,7 @@ QVariant SearchTreeModel::data(const QModelIndex& index, int role) const
 
 	if ( role == Qt::DecorationRole )
 	{
-        if ( index.column() == 0 ) // Index CAN be a negative value.
+		if ( index.column() == 0 ) // Index CAN be a negative value.
 		{
 			if ( item->parent() == rootItem )
 				return m_pIconProvider->icon( item->data( 1 ).toString().prepend( "." ) );
@@ -294,50 +308,50 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 	{
 		int existingFileEntry = -1;
 
-        // Check for duplicate file.
-		foreach ( CHash pHash, pHit->m_lHashes )
+		// Check for duplicate file.
+		foreach ( CHash oHash, pHit->m_lHashes )
 		{
-			existingFileEntry = rootItem->find( pHash );
+			existingFileEntry = rootItem->find( oHash );
 			if ( existingFileEntry != -1 )
 				break;
 		}
 
-        // This hit is a new non duplicate file.
+		// This hit is a new non duplicate file.
 		if ( existingFileEntry == -1 )
 		{
 			QFileInfo fileInfo( pHit->m_sDescriptiveName );
 
-			QString sCountry = pHit->m_pHitInfo.data()->m_oNodeAddress.country();
+			QString sCountry = geoIP.findCountryCode(pHit->m_pHitInfo.data()->m_oNodeAddress.toIPv4Address());
 
 			// Create SearchTreeItem representing the new file
 			QList<QVariant> lParentData;
 			lParentData << fileInfo.completeBaseName()        // File name
-			            << fileInfo.suffix()                  // Extension
-			            << formatBytes( pHit->m_nObjectSize ) // Size
-			            << ""                                 // Rating
-			            << ""                                 // Status
-			            << 1                                  // Host/Count
-			            << ""                                 // Speed
-			            << ""                                 // Client
-			            << "";                                // Country
+						<< fileInfo.suffix()                  // Extension
+						<< formatBytes( pHit->m_nObjectSize ) // Size
+						<< ""                                 // Rating
+						<< ""                                 // Status
+						<< 1                                  // Host/Count
+						<< ""                                 // Speed
+						<< ""                                 // Client
+						<< "";                                // Country
 			SearchTreeItem* m_oFileItem = new SearchTreeItem( lParentData, rootItem );
 
-            m_oFileItem->HitData.lHashes << pHit->m_lHashes;
+			m_oFileItem->HitData.lHashes << pHit->m_lHashes;
 
 			// Create SearchTreeItem representing hit
 			QList<QVariant> lChildData;
 			lChildData << fileInfo.completeBaseName()
-			           << fileInfo.suffix()
-			           << formatBytes( pHit->m_nObjectSize )
-			           << ""
-			           << ""
-			           << pHit->m_pHitInfo.data()->m_oNodeAddress.toString()
-			           << ""
-			           << common::vendorCodeToName( pHit->m_pHitInfo.data()->m_sVendor )
-			           << geoIP.countryNameFromCode( sCountry );
+					   << fileInfo.suffix()
+					   << formatBytes( pHit->m_nObjectSize )
+					   << ""
+					   << ""
+					   << pHit->m_pHitInfo.data()->m_oNodeAddress.toString()
+					   << ""
+					   << common::vendorCodeToName( pHit->m_pHitInfo.data()->m_sVendor )
+					   << geoIP.countryNameFromCode( sCountry );
 			SearchTreeItem* m_oHitItem = new SearchTreeItem(lChildData, m_oFileItem);
 
-            m_oHitItem->HitData.lHashes << pHit->m_lHashes;
+			m_oHitItem->HitData.lHashes << pHit->m_lHashes;
 			m_oHitItem->HitData.iNetwork = CNetworkIconProvider::icon( dpG2 );
 			m_oHitItem->HitData.iCountry = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
 
@@ -352,31 +366,31 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 
 			nFileCount = rootItem->childCount();
 		}
-        // We do already have a file for that hit. Check for duplicate IP address. If not duplicate, add item.
+		// We do already have a file for that hit. Check for duplicate IP address. If not duplicate, add item.
 		else if ( !rootItem->child( existingFileEntry
-		                            )->duplicateCheck( rootItem->child( existingFileEntry ),
-		                                               pHit->m_pHitInfo.data()->
-		                                               m_oNodeAddress.toString() ) )
+									)->duplicateCheck( rootItem->child( existingFileEntry ),
+													   pHit->m_pHitInfo.data()->
+													   m_oNodeAddress.toString() ) )
 		{
 			QModelIndex idxParent = index( existingFileEntry, 0, QModelIndex() );
 			QFileInfo fileInfo( pHit->m_sDescriptiveName );
 
-			QString sCountry = pHit->m_pHitInfo.data()->m_oNodeAddress.country();
+			QString sCountry = geoIP.findCountryCode(pHit->m_pHitInfo.data()->m_oNodeAddress.toIPv4Address());
 
 			QList<QVariant> lChildData;
 			lChildData << fileInfo.completeBaseName()
-			           << fileInfo.suffix()
-			           << formatBytes( pHit->m_nObjectSize )
-			           << ""
-			           << ""
-			           << pHit->m_pHitInfo.data()->m_oNodeAddress.toString()
-			           << ""
-			           << common::vendorCodeToName( pHit->m_pHitInfo.data()->m_sVendor )
-			           << geoIP.countryNameFromCode( sCountry );
+					   << fileInfo.suffix()
+					   << formatBytes( pHit->m_nObjectSize )
+					   << ""
+					   << ""
+					   << pHit->m_pHitInfo.data()->m_oNodeAddress.toString()
+					   << ""
+					   << common::vendorCodeToName( pHit->m_pHitInfo.data()->m_sVendor )
+					   << geoIP.countryNameFromCode( sCountry );
 			SearchTreeItem* oHitItem = new SearchTreeItem( lChildData,
-			                                                 rootItem->child( existingFileEntry ) );
+															 rootItem->child( existingFileEntry ) );
 
-            oHitItem->HitData.lHashes << pHit->m_lHashes;
+			oHitItem->HitData.lHashes << pHit->m_lHashes;
 			oHitItem->HitData.iNetwork = CNetworkIconProvider::icon( dpG2 );
 			oHitItem->HitData.iCountry = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
 
@@ -384,10 +398,10 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 			oHitItem->HitData.pQueryHit = pHitX;
 
 			beginInsertRows( idxParent, rootItem->child( existingFileEntry )->childCount(),
-			                 rootItem->child( existingFileEntry )->childCount() );
+							 rootItem->child( existingFileEntry )->childCount() );
 			rootItem->child( existingFileEntry )->appendChild( oHitItem );
 			rootItem->child( existingFileEntry )->updateHitCount( rootItem->child( existingFileEntry
-			                                                                      )->childCount() );
+																				  )->childCount() );
 			endInsertRows();
 		}
 
@@ -462,6 +476,14 @@ SearchTreeItem* SearchTreeItem::parent()
 	return parentItem;
 }
 
+void SearchTreeItem::removeChild(int position)
+{
+	if (position < 0 || position  > childItems.size())
+		return;
+
+	delete childItems.takeAt(position);
+}
+
 int SearchTreeItem::row() const
 {
 	if(parentItem)
@@ -489,7 +511,7 @@ bool SearchTreeItem::duplicateCheck(SearchTreeItem* containerItem, QString ip)
 	return false;
 }
 
-SearchTreeItem * SearchTreeModel::itemFromIndex(QModelIndex index)
+SearchTreeItem * SearchTreeModel::topLevelItemFromIndex(QModelIndex index)
 {
 	Q_ASSERT(index.model() == this);
 
@@ -512,40 +534,58 @@ SearchTreeItem * SearchTreeModel::itemFromIndex(QModelIndex index)
 	return NULL;
 }
 
+SearchTreeItem * SearchTreeModel::itemFromIndex(QModelIndex index)
+{
+	Q_ASSERT(index.model() == this);
+
+	if(index.isValid())
+	{
+		QModelIndex idxThis = index;
+
+		SearchTreeItem* pThis = static_cast<SearchTreeItem*>(idxThis.internalPointer());
+
+		Q_ASSERT(pThis != NULL);
+
+		return pThis;
+	}
+
+	return NULL;
+}
+
 SearchFilter::SearchFilter() :
-    m_sMatchString( "" ),
-    m_bRegExp( false ),
-    m_nMinSize( 0 ),
-    m_nMaxSize( 18446744073709551615 ), // max value of 64 bit int
-    m_nMinSources( 0 ),
-    m_bBusy( true ),
-    m_bFirewalled( true ),
-    m_bUnstable( true ),
-    m_bDRM( true ),
-    m_bSuspicious( true ),
-    m_bNonMatching( true ),
-    m_bExistsInLibrary( true ),
-    m_bBogus( true ),
-    m_bAdult( true )
+	m_sMatchString( "" ),
+	m_bRegExp( false ),
+	m_nMinSize( 0 ),
+	m_nMaxSize( 18446744073709551615 ), // max value of 64 bit int
+	m_nMinSources( 0 ),
+	m_bBusy( true ),
+	m_bFirewalled( true ),
+	m_bUnstable( true ),
+	m_bDRM( true ),
+	m_bSuspicious( true ),
+	m_bNonMatching( true ),
+	m_bExistsInLibrary( true ),
+	m_bBogus( true ),
+	m_bAdult( true )
 {
 }
 
 bool SearchFilter::operator==(const SearchFilter& rOther)
 {
 	return m_sMatchString     == rOther.m_sMatchString     &&
-	       m_bRegExp          == rOther.m_bRegExp          &&
-	       m_nMinSize         == rOther.m_nMinSize         &&
-	       m_nMaxSize         == rOther.m_nMaxSize         &&
-	       m_nMinSources      == rOther.m_nMinSources      &&
-	       m_bBusy            == rOther.m_bBusy            &&
-	       m_bFirewalled      == rOther.m_bFirewalled      &&
-	       m_bUnstable        == rOther.m_bUnstable        &&
-	       m_bDRM             == rOther.m_bDRM             &&
-	       m_bSuspicious      == rOther.m_bSuspicious      &&
-	       m_bNonMatching     == rOther.m_bNonMatching     &&
-	       m_bExistsInLibrary == rOther.m_bExistsInLibrary &&
-	       m_bBogus           == rOther.m_bBogus           &&
-	       m_bAdult           == rOther.m_bAdult;
+		   m_bRegExp          == rOther.m_bRegExp          &&
+		   m_nMinSize         == rOther.m_nMinSize         &&
+		   m_nMaxSize         == rOther.m_nMaxSize         &&
+		   m_nMinSources      == rOther.m_nMinSources      &&
+		   m_bBusy            == rOther.m_bBusy            &&
+		   m_bFirewalled      == rOther.m_bFirewalled      &&
+		   m_bUnstable        == rOther.m_bUnstable        &&
+		   m_bDRM             == rOther.m_bDRM             &&
+		   m_bSuspicious      == rOther.m_bSuspicious      &&
+		   m_bNonMatching     == rOther.m_bNonMatching     &&
+		   m_bExistsInLibrary == rOther.m_bExistsInLibrary &&
+		   m_bBogus           == rOther.m_bBogus           &&
+		   m_bAdult           == rOther.m_bAdult;
 }
 
 bool SearchFilter::operator!=(const SearchFilter& rOther)
@@ -557,33 +597,33 @@ bool SearchFilter::operator!=(const SearchFilter& rOther)
 bool SearchFilter::operator<(const SearchFilter& rOther)
 {
 	return m_nMinSize         >  rOther.m_nMinSize         ||
-	       m_nMaxSize         <  rOther.m_nMaxSize         ||
-	       m_nMinSources      >  rOther.m_nMinSources      ||
-	      !m_bBusy            && rOther.m_bBusy            ||
-	      !m_bFirewalled      && rOther.m_bFirewalled      ||
-	      !m_bUnstable        && rOther.m_bUnstable        ||
-	      !m_bDRM             && rOther.m_bDRM             ||
-	      !m_bSuspicious      && rOther.m_bSuspicious      ||
-	      !m_bNonMatching     && rOther.m_bNonMatching     ||
-	      !m_bExistsInLibrary && rOther.m_bExistsInLibrary ||
-	      !m_bBogus           && rOther.m_bBogus           ||
-	      !m_bAdult           && rOther.m_bAdult;
+		   m_nMaxSize         <  rOther.m_nMaxSize         ||
+		   m_nMinSources      >  rOther.m_nMinSources      ||
+		  !m_bBusy            && rOther.m_bBusy            ||
+		  !m_bFirewalled      && rOther.m_bFirewalled      ||
+		  !m_bUnstable        && rOther.m_bUnstable        ||
+		  !m_bDRM             && rOther.m_bDRM             ||
+		  !m_bSuspicious      && rOther.m_bSuspicious      ||
+		  !m_bNonMatching     && rOther.m_bNonMatching     ||
+		  !m_bExistsInLibrary && rOther.m_bExistsInLibrary ||
+		  !m_bBogus           && rOther.m_bBogus           ||
+		  !m_bAdult           && rOther.m_bAdult;
 }
 
 // bigger amount of files
 bool SearchFilter::operator>(const SearchFilter& rOther)
 {
 	return m_nMinSize         <   rOther.m_nMinSize         ||
-	       m_nMaxSize         >   rOther.m_nMaxSize         ||
-	       m_nMinSources      <   rOther.m_nMinSources      ||
-	       m_bBusy            && !rOther.m_bBusy            ||
-	       m_bFirewalled      && !rOther.m_bFirewalled      ||
-	       m_bUnstable        && !rOther.m_bUnstable        ||
-	       m_bDRM             && !rOther.m_bDRM             ||
-	       m_bSuspicious      && !rOther.m_bSuspicious      ||
-	       m_bNonMatching     && !rOther.m_bNonMatching     ||
-	       m_bExistsInLibrary && !rOther.m_bExistsInLibrary ||
-	       m_bBogus           && !rOther.m_bBogus           ||
-	       m_bAdult           && !rOther.m_bAdult;
+		   m_nMaxSize         >   rOther.m_nMaxSize         ||
+		   m_nMinSources      <   rOther.m_nMinSources      ||
+		   m_bBusy            && !rOther.m_bBusy            ||
+		   m_bFirewalled      && !rOther.m_bFirewalled      ||
+		   m_bUnstable        && !rOther.m_bUnstable        ||
+		   m_bDRM             && !rOther.m_bDRM             ||
+		   m_bSuspicious      && !rOther.m_bSuspicious      ||
+		   m_bNonMatching     && !rOther.m_bNonMatching     ||
+		   m_bExistsInLibrary && !rOther.m_bExistsInLibrary ||
+		   m_bBogus           && !rOther.m_bBogus           ||
+		   m_bAdult           && !rOther.m_bAdult;
 }
 

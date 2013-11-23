@@ -47,7 +47,7 @@ public:
 	Fragments::List			m_lCompleted;
 	Fragments::List			m_lVerified;
 	Fragments::List			m_lActive;
-	QList<CHash>			m_lHashes; // hashes for whole download
+	HashVector				m_lHashes; // hashes for whole download
 
 	bool					m_bSignalSources;
 	quint8					m_nPriority; // 255: highest priority; 1: lowest priority; 0: temporary disabled

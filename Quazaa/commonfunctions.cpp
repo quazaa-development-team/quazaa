@@ -24,10 +24,6 @@
 
 #include <QDir>
 
-#if QT_VERSION >= 0x050000
-#include <QStandardPaths>
-#endif
-
 #include <QDesktopServices>
 #include <QUrl>
 #include <QtGlobal>
@@ -142,57 +138,27 @@ QString common::fixFileName(QString sName)
 QString common::getTempFileName(QString sName)
 {
 	CHash oHashName(CHash::SHA1);
-	oHashName.AddData(sName.toUtf8());
-	oHashName.AddData(QString().number(qrand() % qrand()).append(getDateTimeUTC().toString(Qt::ISODate)).toLocal8Bit());
-	oHashName.Finalize();
-	return oHashName.ToString();
+	oHashName.addData(sName.toUtf8());
+	oHashName.addData(QString().number(qrand() % qrand()).append(getDateTimeUTC().toString(Qt::ISODate)).toLocal8Bit());
+	oHashName.finalize();
+	return oHashName.toString();
 }
 
-QString common::getLocation(Location location)
+quint32 common::securedSaveFile(const QString& sPath, const QString& sFileName,
+								Components::Component oComponent, const void* const pManager,
+								quint32 (*writeData)(const void* const, QFile&))
 {
-#if QT_VERSION >= 0x050000
-	QString sDefaultDataPath = QString( "%1/%2/" ).arg(
-								   QStandardPaths::writableLocation(
-									   QStandardPaths::DataLocation   ), "Data" );
-#else
-	QString sDefaultDataPath = QString( "%1/%2/" ).arg(
-								   QDesktopServices::storageLocation(
-									   QDesktopServices::DataLocation ), "Data" );
-#endif
+	QString sCompletePath  = sPath + sFileName;
 
-	switch ( location )
-	{
-	case programLocation:
-	case globalDataFiles:
-	case userDataFiles:
-
-	// TODO: Handle the paths correctly once a decision has been made to use this globally or not.
-		return sDefaultDataPath;
-		break;
-	default:
-		// unknown path requested
-		Q_ASSERT( false );
-	}
-
-	return QString();
-}
-
-quint32 common::securredSaveFile(Location location, QString sFileName,
-								 Components::Component oComponent, const void* const pManager,
-								 quint32 (*writeData)(const void* const, QFile&))
-{
-	QString sPath          = getLocation( location );
-
-	QDir path = QDir( sPath );
+	QDir path = QDir( sCompletePath );
 	if ( !path.exists() )
-		path.mkpath( sPath );
+		path.mkpath( sCompletePath );
 
-	sPath                  = sPath + sFileName;
-	QString sBackupPath    = sPath + "_backup";
-	QString sTemporaryPath = sPath + "_tmp";
+	QString sBackupPath    = sCompletePath + "_backup";
+	QString sTemporaryPath = sCompletePath + "_tmp";
 
 	systemLog.postLog( LogSeverity::Debug, oComponent,
-					   QObject::tr( "Saving to File: %1" ).arg( sPath ) );
+					   QObject::tr( "Saving to File: %1" ).arg( sCompletePath ) );
 
 	if ( QFile::exists( sTemporaryPath ) && !QFile::remove( sTemporaryPath ) )
 	{
@@ -226,17 +192,17 @@ quint32 common::securredSaveFile(Location location, QString sFileName,
 
 	oFile.close();
 
-	if ( QFile::exists( sPath ) && !QFile::remove( sPath ) )
+	if ( QFile::exists( sCompletePath ) && !QFile::remove( sCompletePath ) )
 	{
 		systemLog.postLog( LogSeverity::Error, oComponent,
-						   QObject::tr( "Error: Could not remove old data file: " ) + sPath );
+						   QObject::tr( "Error: Could not remove old data file: " ) + sCompletePath );
 		return 0;
 	}
 
-	if ( !QFile::rename( sTemporaryPath, sPath ) )
+	if ( !QFile::rename( sTemporaryPath, sCompletePath ) )
 	{
 		systemLog.postLog( LogSeverity::Error, oComponent,
-						   QObject::tr( "Error: Could not rename data file: " ) + sPath );
+						   QObject::tr( "Error: Could not rename data file: " ) + sCompletePath );
 		return 0;
 	}
 
@@ -247,7 +213,7 @@ quint32 common::securredSaveFile(Location location, QString sFileName,
 						   + sBackupPath );
 	}
 
-	if ( !QFile::copy( sPath, sBackupPath ) )
+	if ( !QFile::copy( sCompletePath, sBackupPath ) )
 	{
 		systemLog.postLog( LogSeverity::Warning, oComponent,
 						   QObject::tr( "Warning: Could not create create new backup file: " )

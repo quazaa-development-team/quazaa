@@ -65,26 +65,27 @@ public:
 	CManagedSearch(CQuery* pQuery, QObject* parent = NULL);
 	~CManagedSearch();
 
-	void Start();
-	void Stop();
-	void Pause();
+	void start();
+	void stop();
+	void pause();
 
-	void Execute( const QDateTime& tNowDT,   quint32* pnMaxPackets);
-	void SearchG2(const QDateTime& tNowDT, quint32* pnMaxPackets);
-	void SearchNeighbours(const QDateTime& tNowDT);
+	void execute( const QDateTime& tNowDT, quint32* pnMaxPackets);
+	void searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets);
+	void searchNeighbours(const QDateTime& tNowDT);
 
-	void sendG2Query(CEndPoint pReceiver, CG2HostCacheHost* pHost, quint32* pnMaxPackets, const QDateTime& tNowDT);
+	void sendG2Query(CEndPoint pReceiver, CG2HostCacheHost* pHost,
+					 quint32* pnMaxPackets, const QDateTime& tNowDT);
 	void requestG2QueryKey(CG2HostCacheHost* pHost);
 	CG2Node* findBestHubForRoutingG2(const CG2Node* const pLastNeighbour);
 
-	void OnHostAcknowledge(QHostAddress nHost, const QDateTime& tNow);
-	void OnQueryHit(CQueryHit* pHits);
-	void SendHits();
+	void onHostAcknowledge(QHostAddress nHost, const QDateTime& tNow);
+	void onQueryHit(CQueryHit* pHits);
+	void sendHits();
 
 signals:
-	void OnHit(QueryHitSharedPtr);
-	void StatsUpdated();
-	void StateChanged();
+	void onHit(QueryHitSharedPtr);
+	void statsUpdated();
+	void stateChanged();
 
 public slots:
 

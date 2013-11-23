@@ -33,13 +33,15 @@ class CHash
 {
 
 public:
-	enum Algorithm {SHA1, MD5, MD4};
+	// When adding new hashes, make sure the values are assigned by hash importance.
+	// Exclude Algorithm::Null from NO_OF_HASH_TYPES
+	enum Algorithm { Null = 0, MD4 = 1, MD5 = 2, SHA1 = 10, NO_OF_HASH_TYPES = 3 };
 
 protected:
-	void*				m_pContext;
-	bool				m_bFinalized;
-	CHash::Algorithm	m_nHashAlgorithm;
-	QByteArray			m_baRawValue;
+	void*               m_pContext;
+	bool                m_bFinalized;
+	CHash::Algorithm    m_nHashAlgorithm;
+	QByteArray          m_baRawValue;
 
 public:
 	CHash(const CHash& rhs);
@@ -47,23 +49,25 @@ public:
 	CHash(QByteArray baRaw, CHash::Algorithm algo);
 	~CHash();
 
-	static int	ByteCount(int algo);
+	static int	byteCount(int algo);
 
-	static CHash* FromURN(QString sURN);
-	static CHash* FromRaw(QByteArray& baRaw, CHash::Algorithm algo);
+	static CHash* fromURN(QString sURN);
+	static CHash* fromRaw(QByteArray& baRaw, CHash::Algorithm algo);
 
-	QString ToURN() const;
-	QString ToString() const;
+	static int lengthForUrn(const QString& urn);
 
-	void AddData(const char* pData, quint32 nLength);
-	void AddData(QByteArray baData);
+	QString toURN() const;
+	QString toString() const;
 
-	QString GetFamilyName();
+	void addData(const char* pData, quint32 nLength);
+	void addData(QByteArray baData);
 
-	void Finalize();
+	QString getFamilyName();
+
+	void finalize();
 
 	inline CHash::Algorithm getAlgorithm() const;
-	inline QByteArray RawValue() const;
+	inline QByteArray rawValue() const;
 
 	inline bool operator==(const CHash& oHash) const;
 	inline bool operator!=(const CHash& oHash) const;
@@ -71,33 +75,45 @@ public:
 	inline bool operator<(const CHash& oHash) const;
 };
 
-bool CHash::operator ==(const CHash& oHash) const
-{
-	Q_ASSERT(oHash.m_bFinalized && m_bFinalized);
-	return (oHash.m_nHashAlgorithm == m_nHashAlgorithm && oHash.m_baRawValue == m_baRawValue);
-}
-bool CHash::operator !=(const CHash& oHash) const
-{
-	return !(*this == oHash);
-}
-bool CHash::operator <(const CHash& oHash) const
-{
-	return (m_baRawValue < oHash.m_baRawValue);
-}
-bool CHash::operator >(const CHash& oHash) const
-{
-	return (m_baRawValue > oHash.m_baRawValue);
-}
+typedef std::vector< CHash > HashVector;
 
 CHash::Algorithm CHash::getAlgorithm() const
 {
 	return m_nHashAlgorithm;
 }
-QByteArray CHash::RawValue() const
+
+QByteArray CHash::rawValue() const
 {
 	return m_baRawValue;
 }
+
+bool CHash::operator ==(const CHash& oHash) const
+{
+	Q_ASSERT(oHash.m_bFinalized && m_bFinalized);
+	return (oHash.m_nHashAlgorithm == m_nHashAlgorithm && oHash.m_baRawValue == m_baRawValue);
+}
+
+bool CHash::operator !=(const CHash& oHash) const
+{
+	return !(*this == oHash);
+}
+
+bool CHash::operator <(const CHash& oHash) const
+{
+	return (m_baRawValue < oHash.m_baRawValue);
+}
+
+bool CHash::operator >(const CHash& oHash) const
+{
+	return (m_baRawValue > oHash.m_baRawValue);
+}
+
 QDataStream& operator<<(QDataStream& s, const CHash& rhs);
 QDataStream& operator>>(QDataStream& s, CHash& rhs);
+
+QList<CHash>& operator<<(      QList<CHash>& list, const HashVector& vector);
+QList<CHash>& operator>>(const QList<CHash>& list,       HashVector& vector);
+HashVector&   operator<<(      HashVector& vector, const QList<CHash>& list);
+HashVector&   operator>>(const HashVector& vector,       QList<CHash>& list);
 
 #endif // HASH_H

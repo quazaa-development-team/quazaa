@@ -57,31 +57,31 @@ public:
 	CQueryHashGroup* 	m_pGroup;
 
 public:
-	static quint32 HashWord(const char* pSz, const quint32 nLength, qint32 nBits);
-	static quint32 HashNumber(quint32 nNumber, qint32 nBits);
+	static quint32 hashWord(const char* pSz, const quint32 nLength, qint32 nBits);
+	static quint32 hashNumber(quint32 nNumber, qint32 nBits);
 
 public:
-	static int MakeKeywords(QString sPhrase, QStringList& outList);
+	static int makeKeywords(QString sPhrase, QStringList& outList);
 
 public:
-	void	Create();
-	void	Clear();
-	bool	Merge(const CQueryHashTable* pSource);
-	bool	Merge(const CQueryHashGroup* pSource);
-	bool	PatchTo(const CQueryHashTable* pTarget, CG2Node* pNeighbour);
-	bool	OnPacket(G2Packet* pPacket);
-	void	AddString(const QString& strString);
-	void	AddExactString(const QString& strString);
-	void	AddWord(const QByteArray& sWord);
-	bool	CheckString(const QString& strString) const;
-	bool	CheckHash(const quint32 nHash) const;
-	bool	CheckQuery(CQueryPtr pQuery);
-	int		GetPercent() const;
+	void	create();
+	void	clear();
+	bool	merge(const CQueryHashTable* pSource);
+	bool	merge(const CQueryHashGroup* pSource);
+	bool	patchTo(const CQueryHashTable* pTarget, CG2Node* pNeighbour);
+	bool	onPacket(G2Packet* pPacket);
+	void	addString(const QString& strString);
+	void	addExactString(const QString& strString);
+	void	addWord(const QByteArray& sWord);
+	bool	checkString(const QString& strString) const;
+	bool	checkHash(const quint32 nHash) const;
+	bool	checkQuery(CQueryPtr pQuery);
+	int		getPercent() const;
 protected:
-	bool	OnReset(G2Packet* pPacket);
-	bool	OnPatch(G2Packet* pPacket);
-	void	Add(const char* pszString, quint32 nLength);
-	void	AddExact(const char* pszString, quint32 nLength);
+	bool	onReset(G2Packet* pPacket);
+	bool	onPatch(G2Packet* pPacket);
+	void	add(const char* pszString, quint32 nLength);
+	void	addExact(const char* pszString, quint32 nLength);
 };
 
 #pragma pack(push,1)

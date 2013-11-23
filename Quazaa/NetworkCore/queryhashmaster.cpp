@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -38,12 +38,12 @@ CQueryHashMaster::CQueryHashMaster()
 
 CQueryHashMaster::~CQueryHashMaster()
 {
-	Q_ASSERT(GetCount() == 0);
+	Q_ASSERT(getCount() == 0);
 }
 
-void CQueryHashMaster::Create()
+void CQueryHashMaster::create()
 {
-	CQueryHashTable::Create();
+	CQueryHashTable::create();
 
 	m_nPerGroup			= 100;
 	m_bValid			= false;
@@ -51,7 +51,7 @@ void CQueryHashMaster::Create()
 	m_nCookie			= 0;
 }
 
-void CQueryHashMaster::Add(CQueryHashTable* pTable)
+void CQueryHashMaster::add(CQueryHashTable* pTable)
 {
 	Q_ASSERT(m_nPerGroup > 0);
 	Q_ASSERT(pTable != 0);
@@ -63,9 +63,9 @@ void CQueryHashMaster::Add(CQueryHashTable* pTable)
 		CQueryHashGroup* pGroup = *itGroup;
 
 		if(pGroup->m_nHash == pTable->m_nHash &&
-		        pGroup->GetCount() < m_nPerGroup)
+				pGroup->getCount() < m_nPerGroup)
 		{
-			pGroup->Add(pTable);
+			pGroup->add(pTable);
 			m_bValid = false;
 			return;
 		}
@@ -73,11 +73,11 @@ void CQueryHashMaster::Add(CQueryHashTable* pTable)
 
 	CQueryHashGroup* pGroup = new CQueryHashGroup(pTable->m_nHash);
 	m_pGroups.append(pGroup);
-	pGroup->Add(pTable);
+	pGroup->add(pTable);
 	m_bValid = false;
 }
 
-void CQueryHashMaster::Remove(CQueryHashTable* pTable)
+void CQueryHashMaster::remove(CQueryHashTable* pTable)
 {
 	Q_ASSERT(pTable != 0);
 	if(pTable->m_pGroup == 0)
@@ -86,9 +86,9 @@ void CQueryHashMaster::Remove(CQueryHashTable* pTable)
 	}
 
 	CQueryHashGroup* pGroup = pTable->m_pGroup;
-	pGroup->Remove(pTable);
+	pGroup->remove(pTable);
 
-	if(pGroup->GetCount() == 0)
+	if(pGroup->getCount() == 0)
 	{
 		int pos = m_pGroups.indexOf(pGroup);
 		Q_ASSERT(pos >= 0);
@@ -99,7 +99,7 @@ void CQueryHashMaster::Remove(CQueryHashTable* pTable)
 	m_bValid = false;
 }
 
-void CQueryHashMaster::Build()
+void CQueryHashMaster::build()
 {
 	quint32 tNow = time(0);
 
@@ -120,7 +120,7 @@ void CQueryHashMaster::Build()
 
 	ShareManager.m_oSection.lock();
 
-	const CQueryHashTable* pLocalTable = ShareManager.GetHashTable();
+	const CQueryHashTable* pLocalTable = ShareManager.getHashTable();
 
 	if(!pLocalTable)
 	{
@@ -128,15 +128,15 @@ void CQueryHashMaster::Build()
 		return;
 	}
 
-	Clear();
-	Merge(pLocalTable);
+	clear();
+	merge(pLocalTable);
 
 	ShareManager.m_oSection.unlock();
 
 	for(QList<CQueryHashGroup*>::iterator itGroup = m_pGroups.begin(); itGroup != m_pGroups.end(); itGroup++)
 	{
 		CQueryHashGroup* pGroup = *itGroup;
-		Merge(pGroup);
+		merge(pGroup);
 	}
 
 	m_bValid	= true;

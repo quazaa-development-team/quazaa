@@ -38,11 +38,14 @@
 #include "datagrams.h"
 #include "neighbourstablemodel.h"
 
+#include "securitymanager.h"
+
 #include "chatsessiong2.h"
 
 #include "debug_new.h"
 
 #include <QMenu>
+#include <QInputDialog>
 
 CWidgetNeighbours::CWidgetNeighbours(QWidget* parent) :
 	QMainWindow(parent),
@@ -128,13 +131,13 @@ void CWidgetNeighbours::updateG2()
 		nHubsConnected = Neighbours.m_nHubsConnectedG2;
 		nLeavesConnected = Neighbours.m_nLeavesConnectedG2;
 
-		nTCPInSpeed = Neighbours.DownloadSpeed();
-		nTCPOutSpeed = Neighbours.UploadSpeed();
+		nTCPInSpeed = Neighbours.downloadSpeed();
+		nTCPOutSpeed = Neighbours.uploadSpeed();
 
 		if(Network.m_pSection.tryLock(50))
 		{
-			nUDPInSpeed = Datagrams.DownloadSpeed();
-			nUDPOutSpeed = Datagrams.UploadSpeed();
+			nUDPInSpeed = Datagrams.downloadSpeed();
+			nUDPOutSpeed = Datagrams.uploadSpeed();
 
 			Network.m_pSection.unlock();
 		}
@@ -157,7 +160,7 @@ void CWidgetNeighbours::updateEDonkey()
 
 void CWidgetNeighbours::onTimer()
 {
-	neighboursList->UpdateAll();
+	neighboursList->updateAll();
 	updateG2();
 }
 
@@ -174,7 +177,7 @@ void CWidgetNeighbours::on_actionNeighbourConnectTo_triggered()
 		{
 		case CDialogConnectTo::G2:
 			Neighbours.m_pSection.lock();
-			Neighbours.ConnectTo(ip, dpG2, false);
+			Neighbours.connectTo(ip, dpG2, false);
 			Neighbours.m_pSection.unlock();
 			break;
 		case CDialogConnectTo::eDonkey:
@@ -190,18 +193,18 @@ void CWidgetNeighbours::on_actionNeighbourConnectTo_triggered()
 void CWidgetNeighbours::on_actionNeighbourDisconnect_triggered()
 {
 	QModelIndex idx = ui->tableViewNeighbours->currentIndex();
-	CNeighbour* pNode = neighboursList->NodeFromIndex(idx);
+	CNeighbour* pNode = neighboursList->nodeFromIndex(idx);
 
 	if( pNode == 0 )
 		return;
 
 	Neighbours.m_pSection.lock();
-	if ( Neighbours.NeighbourExists(pNode) )
+	if ( Neighbours.neighbourExists(pNode) )
 	{
 		systemLog.postLog( LogSeverity::Information, Components::Network,
-		                   qPrintable( tr( "Closing connection to neighbour %s" ) ),
-		                   qPrintable( pNode->m_oAddress.toStringWithPort() ) );
-		pNode->Close();
+						   qPrintable( tr( "Closing connection to neighbour %s" ) ),
+						   qPrintable( pNode->m_oAddress.toStringWithPort() ) );
+		pNode->close();
 	}
 	Neighbours.m_pSection.unlock();
 }
@@ -222,7 +225,7 @@ void CWidgetNeighbours::on_actionNetworkChatWith_triggered()
 	if (ui->tableViewNeighbours->currentIndex().isValid())
 	{
 		QModelIndex idx = ui->tableViewNeighbours->currentIndex();
-		CNeighbour* pNode = neighboursList->NodeFromIndex(idx);
+		CNeighbour* pNode = neighboursList->nodeFromIndex(idx);
 
 		if( pNode == 0 )
 			return;
@@ -231,15 +234,15 @@ void CWidgetNeighbours::on_actionNetworkChatWith_triggered()
 		{
 		case dpG2:
 		{
-			CChatSessionG2* pS = new CChatSessionG2(pNode->m_oAddress);
-			pS->Connect();
+			CChatSessionG2* pSession = new CChatSessionG2(pNode->m_oAddress);
+			pSession->connectNode();
 			break;
 		}
 		default:
 			break;
 
 		}
-    }
+	}
 }
 
 void CWidgetNeighbours::setSkin()
@@ -249,7 +252,19 @@ void CWidgetNeighbours::setSkin()
 
 void CWidgetNeighbours::on_tableViewNeighbours_doubleClicked(const QModelIndex &index)
 {
-    CNeighboursTableModel::Neighbour* pNbr = static_cast<CNeighboursTableModel::Neighbour*>(index.internalPointer());
-    CDialogNeighbourInfo* dlgNeighbourInfo = new CDialogNeighbourInfo(pNbr, this);
-    dlgNeighbourInfo->exec();
+	CNeighboursTableModel::Neighbour* pNbr = static_cast<CNeighboursTableModel::Neighbour*>(index.internalPointer());
+	CDialogNeighbourInfo* dlgNeighbourInfo = new CDialogNeighbourInfo(pNbr, this);
+	dlgNeighbourInfo->exec();
+}
+
+void CWidgetNeighbours::on_actionNetworkBan_triggered()
+{
+	CNeighboursTableModel::Neighbour* pNbr = static_cast<CNeighboursTableModel::Neighbour*>(ui->tableViewNeighbours->currentIndex().internalPointer());
+	bool ok;
+	QString reason = QInputDialog::getText( this, tr("Ban Reason"), tr("Please enter a ban reason."), QLineEdit::Normal, "", &ok );
+	if ( ok && !reason.isEmpty() )
+	{
+		securityManager.ban( pNbr->oAddress, Security::RuleTime::SixMonths, false, reason, false );
+		on_actionNeighbourDisconnect_triggered();
+	}
 }

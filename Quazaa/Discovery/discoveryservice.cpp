@@ -92,12 +92,7 @@ CDiscoveryService::CDiscoveryService(const CDiscoveryService& pService) :
  */
 CDiscoveryService::~CDiscoveryService()
 {
-	// Set all pointers to this rule to NULL to notify them about the deletion of this object.
-	for ( std::list<const CDiscoveryService**>::iterator i = m_lPointers.begin();
-		  i != m_lPointers.end(); ++i )
-	{
-		*(*i) = NULL;
-	}
+
 }
 
 /**

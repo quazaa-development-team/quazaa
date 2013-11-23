@@ -23,7 +23,7 @@
 			<value type="bool" key="EditorConfiguration.addFinalNewLine">true</value>
             <value type="bool" key="EditorConfiguration.AutoIndent">true</value>
             <value type="int" key="EditorConfiguration.SmartBackspaceBehavior">0</value> <!-- 0="None", 1="Follows Previous Indents", 2="Unindents" -->
-            <value type="int" key="EditorConfiguration.TabKeyBehavior">1</value> <!-- 0="Never", 1="Always", 2="In Leading White Space" -->
+            <value type="int" key="EditorConfiguration.TabKeyBehavior">0</value> <!-- 0="Never", 1="Always", 2="In Leading White Space" -->
 
             <!-- "Cleanups Upon Saving" section -->
             <value type="bool" key="EditorConfiguration.cleanWhitespace">true</value>

@@ -61,7 +61,7 @@ QDataStream& operator<<(QDataStream& s, const CDownload& rhs)
 		s << "eo" << i.nEndOffset;
 		foreach(CHash h, i.lHashes)
 		{
-			s << "hash" << h.ToURN();
+			s << "hash" << h.toURN();
 		}
 		s << "file-end";
 	}
@@ -170,7 +170,7 @@ QDataStream& operator>>(QDataStream& s, CDownload& rhs)
 						{
 							QString sHash;
 							s >> sHash;
-							CHash* pHash = CHash::FromURN(sHash);
+							CHash* pHash = CHash::fromURN(sHash);
 							item.lHashes.append(*pHash);
 							delete pHash;
 						}
@@ -222,6 +222,8 @@ CDownload::CDownload(CQueryHit* pHit, QObject *parent) :
 	m_nCompletedSize = 0;
 	m_sTempName = getTempFileName(m_sDisplayName);
 
+	m_lHashes.reserve( CHash::NO_OF_HASH_TYPES );
+
 	FileListItem oFile;
 	oFile.sFileName = fixFileName(m_sDisplayName);
 	oFile.sTempName = m_sTempName;
@@ -236,8 +238,8 @@ CDownload::CDownload(CQueryHit* pHit, QObject *parent) :
 	setState( dsQueued );
 
 	systemLog.postLog( LogSeverity::Notice, Components::Downloads,
-	                   qPrintable( tr( "Created download for %s with %d sources." ) ),
-	                   qPrintable( m_sDisplayName ), nSources );
+					   qPrintable( tr( "Created download for %s with %d sources." ) ),
+					   qPrintable( m_sDisplayName ), nSources );
 }
 
 CDownload::~CDownload()
@@ -278,31 +280,38 @@ bool CDownload::addSource(CDownloadSource *pSource)
 }
 int CDownload::addSource(CQueryHit *pHit)
 {
-	CQueryHit* pThis = pHit;
+	CQueryHit* pCurrentHit = pHit;
 	int nSources = 0;
 
-	while(pThis != NULL)
+	while( pCurrentHit )
 	{
 		// add hashes
-		for(QList<CHash>::const_iterator it = pThis->m_lHashes.begin(); it != pThis->m_lHashes.end(); ++it)
+		CHash* pNewHashes                      = &pCurrentHit->m_lHashes[0];
+		const HashVector::size_type nNewHashes =  pCurrentHit->m_lHashes.size();
+
+		for ( HashVector::size_type n = 0; n < nNewHashes; ++n )
 		{
-			bool bFound = false;
-			for(QList<CHash>::const_iterator it2 = m_lHashes.begin(); it2 != m_lHashes.end(); ++it)
+			bool bNew = true;
+
+			CHash* pExistingHashes                      = &m_lHashes[0];
+			const HashVector::size_type nExistingHashes =  m_lHashes.size();
+
+			for ( HashVector::size_type i = 0; i < nExistingHashes; ++i )
 			{
-				if(*it == *it2)
+				if ( pNewHashes[n] == pExistingHashes[i] )
 				{
-					bFound = true;
+					bNew = false;
 					break;
 				}
 			}
 
-			if( !bFound )
+			if ( bNew )
 			{
-				m_lHashes.append(*it);
+				m_lHashes.push_back( pNewHashes[n] );
 			}
 		}
 
-		CDownloadSource* pSource = new CDownloadSource(this, pThis);
+		CDownloadSource* pSource = new CDownloadSource(this, pCurrentHit);
 		if( addSource(pSource) )
 		{
 			nSources++;
@@ -311,7 +320,7 @@ int CDownload::addSource(CQueryHit *pHit)
 		{
 			delete pSource;
 		}
-		pThis = pThis->m_pNext;
+		pCurrentHit = pCurrentHit->m_pNext;
 	}
 
 	return nSources;

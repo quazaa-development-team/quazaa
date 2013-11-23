@@ -30,9 +30,11 @@
 
 CSystemLog systemLog;
 
-CSystemLog::CSystemLog()
+CSystemLog::CSystemLog() :
+m_pSection(QMutex::Recursive)
 {
 	m_pComponents = new QString[Components::NoComponents];
+	m_bProcessingMessage = false;
 
 	qRegisterMetaType<LogSeverity::Severity>( "LogSeverity::Severity" );
 	qRegisterMetaType<Components::Component>( "Components::Component" );
@@ -63,19 +65,21 @@ void CSystemLog::start()
 	m_pComponents[Components::HostCache]  = tr( "[HostCache] "  );
 }
 
-QString CSystemLog::msgFromComponent(Components::Component eComponent)
+QString CSystemLog::msgFromComponent(Components::Component nComponent)
 {
-	return m_pComponents[eComponent];
+	return m_pComponents[nComponent];
 }
 
-void CSystemLog::postLog(LogSeverity::Severity severity, QString message)
+void CSystemLog::postLog(LogSeverity::Severity nSeverity, const QString& sMessage)
 {
-	postLog( severity, Components::None, message );
+	postLog( nSeverity, Components::None, sMessage );
 }
 
-void CSystemLog::postLog(LogSeverity::Severity severity, Components::Component component,
-						 QString message)
+void CSystemLog::postLog(LogSeverity::Severity nSeverity, Components::Component nComponent,
+						 const QString& sMessage)
 {
+	QMutexLocker locker(&m_pSection);
+
 	static LogSeverity::Severity lastSeverity  = LogSeverity::Information;
 	static Components::Component lastComponent = Components::None;
 	static QString lastMessage;
@@ -84,7 +88,7 @@ void CSystemLog::postLog(LogSeverity::Severity severity, Components::Component c
 
 	if ( bCheck )
 	{
-		if ( severity == lastSeverity && component == lastComponent && message == lastMessage )
+		if ( nSeverity == lastSeverity && nComponent == lastComponent && sMessage == lastMessage )
 		{
 			++suppressed;
 			return;
@@ -98,37 +102,37 @@ void CSystemLog::postLog(LogSeverity::Severity severity, Components::Component c
 						 tr( "Suppressed %n identical message(s).", 0, suppressed ) );
 				bCheck = true;
 			}
-			lastMessage   = message;
-			lastSeverity  = severity;
-			lastComponent = component;
+			lastMessage   = sMessage;
+			lastSeverity  = nSeverity;
+			lastComponent = nComponent;
 			suppressed = 0;
 		}
 	}
 
-	message = msgFromComponent( component ) + message;
+	const QString sComponentMessage = msgFromComponent( nComponent ) + sMessage;
 
-	switch ( severity )
+	switch ( nSeverity )
 	{
 		case LogSeverity::Debug:
 		case LogSeverity::Warning:
 		case LogSeverity::Critical:
 		case LogSeverity::Error:
-			qCritical() << qPrintable(message);
+			qDebug() << qPrintable(sComponentMessage);
 			break;
 		default:
 			break;
 	}
 
-	emit logPosted( message, severity );
+	emit logPosted( sComponentMessage, nSeverity );
 }
 
-void CSystemLog::postLog(LogSeverity::Severity severity, Components::Component component,
+void CSystemLog::postLog(LogSeverity::Severity nSeverity, Components::Component nComponent,
 						 const char* format, ...)
 {
 	va_list argList;
 	va_start( argList, format );
 	QString message = QString().vsprintf( format, argList );
-	postLog( severity, component, message );
+	postLog( nSeverity, nComponent, message );
 	va_end( argList );
 }
 

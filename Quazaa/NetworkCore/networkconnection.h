@@ -76,36 +76,32 @@ public:
 	void moveToThread(QThread* thread);
 
 public:
-	virtual void ConnectTo(CEndPoint oAddress);
-	virtual void AttachTo(CNetworkConnection* pOther);
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-	virtual void AcceptFrom(int nHandle);
-#else
-	virtual void AcceptFrom(qintptr nHandle);
-#endif
-	virtual void Close(bool bDelayed = false);
+	virtual void connectTo(CEndPoint oAddress);
+	virtual void attachTo(CNetworkConnection* pOther);
+	virtual void acceptFrom(qintptr nHandle);
+	virtual void close(bool bDelayed = false);
 
 private:
 	Q_INVOKABLE void closeImplementation(bool bDelayed);
 
 public:
-	void Write(QByteArray& baData)
+	void write(QByteArray& baData)
 	{
-		Write(baData.constData(), baData.size());
+		write(baData.constData(), baData.size());
 	}
 
-	inline void Write(const char* szData, quint32 nLength)
+	inline void write(const char* szData, quint32 nLength)
 	{
 		writeData(szData, nLength);
 	}
 
-	inline qint64 Read(char* pData, qint64 nMaxSize = 0)
+	inline qint64 read(char* pData, qint64 nMaxSize = 0)
 	{
 		return readData(pData, nMaxSize);
 	}
 
-	QByteArray Read(qint64 nMaxSize = 0);
-	QByteArray Peek(qint64 nMaxLength = 0);
+	QByteArray read(qint64 nMaxSize = 0);
+	QByteArray peek(qint64 nMaxLength = 0);
 
 protected:
 	virtual qint64 readFromNetwork(qint64 nBytes);
@@ -130,7 +126,7 @@ public:
 		return m_oAddress;
 	}
 
-	inline virtual bool HasData()
+	inline virtual bool hasData()
 	{
 		if(!m_pSocket)
 		{
@@ -153,13 +149,13 @@ public:
 		return false;
 	}
 
-	inline virtual CBuffer* GetInputBuffer()
+	inline virtual CBuffer* getInputBuffer()
 	{
 		Q_ASSERT(m_pInput != 0);
 
 		return m_pInput;
 	}
-	inline virtual CBuffer* GetOutputBuffer()
+	inline virtual CBuffer* getOutputBuffer()
 	{
 		Q_ASSERT(m_pOutput != 0);
 
@@ -176,15 +172,15 @@ signals:
 	void readyToTransfer();
 
 public slots:
-	void OnDisconnectInt();
-	void OnErrorInt(QAbstractSocket::SocketError e);
+	void onDisconnectInt();
+	void onErrorInt(QAbstractSocket::SocketError e);
 
 public slots:
-	virtual void OnConnect() = 0;
-	virtual void OnDisconnect() = 0;
-	virtual void OnRead() = 0;
-	virtual void OnError(QAbstractSocket::SocketError e) = 0;
-	virtual void OnStateChange(QAbstractSocket::SocketState s);
+	virtual void onConnectNode() = 0;
+	virtual void onDisconnectNode() = 0;
+	virtual void onRead() = 0;
+	virtual void onError(QAbstractSocket::SocketError e) = 0;
+	virtual void onStateChange(QAbstractSocket::SocketState s);
 
 public:
 	TCPBandwidthMeter m_mInput;

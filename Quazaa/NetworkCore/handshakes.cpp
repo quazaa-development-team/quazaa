@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -27,7 +27,7 @@
 #include "handshake.h"
 #include "ratecontroller.h"
 #include "neighbours.h"
-#include "Security/securitymanager.h"
+#include "securitymanager.h"
 
 #include <QTimer>
 
@@ -47,11 +47,11 @@ CHandshakes::~CHandshakes()
 {
 	if(m_bActive)
 	{
-		Disconnect();
+		stop();
 	}
 }
 
-void CHandshakes::Listen()
+void CHandshakes::listen()
 {
 	QMutexLocker l(&m_pSection);
 
@@ -65,7 +65,7 @@ void CHandshakes::Listen()
 
 	HandshakesThread.start("Handshakes", &m_pSection, this);
 }
-void CHandshakes::Disconnect()
+void CHandshakes::stop()
 {
 	QMutexLocker l(&m_pSection);
 
@@ -76,29 +76,25 @@ void CHandshakes::Disconnect()
 	Q_ASSERT(m_lHandshakes.isEmpty());
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-void CHandshakes::incomingConnection(int handle)
-#else
 void CHandshakes::incomingConnection(qintptr handle)
-#endif
 {
 	QMutexLocker l(&m_pSection);
 
 	CHandshake* pNew = new CHandshake();
 	m_lHandshakes.insert(pNew);
-	pNew->AcceptFrom(handle);
+	pNew->acceptFrom(handle);
 	pNew->moveToThread(&HandshakesThread);
-	m_pController->AddSocket(pNew);
+	m_pController->addSocket(pNew);
 	m_nAccepted++;
 
-    if( securityManager.isDenied(pNew->m_oAddress) )
-    {
-        pNew->Close();
-        pNew->deleteLater();
-    }
+	if( securityManager.isDenied(pNew->m_oAddress) )
+	{
+		pNew->close();
+		pNew->deleteLater();
+	}
 }
 
-void CHandshakes::OnTimer()
+void CHandshakes::onTimer()
 {
 	QMutexLocker l(&m_pSection);
 
@@ -106,54 +102,55 @@ void CHandshakes::OnTimer()
 
 	foreach(CHandshake * pHs, m_lHandshakes)
 	{
-		pHs->OnTimer(tNow);
+		pHs->onTimer(tNow);
 	}
 }
-void CHandshakes::RemoveHandshake(CHandshake* pHs)
+
+void CHandshakes::removeHandshake(CHandshake* pHs)
 {
 	ASSUME_LOCK(Handshakes.m_pSection);
 
 	m_lHandshakes.remove(pHs);
 	if(m_pController)
 	{
-		m_pController->RemoveSocket(pHs);
+		m_pController->removeSocket(pHs);
 	}
 }
 
 void CHandshakes::processNeighbour(CHandshake* pHs)
 {
-	RemoveHandshake(pHs);
-	Neighbours.OnAccept(pHs);
+	removeHandshake(pHs);
+	Neighbours.onAccept(pHs);
 }
 
-void CHandshakes::SetupThread()
+void CHandshakes::setupThread()
 {
 	m_pController = new CRateController(&m_pSection);
 
 	m_pController->moveToThread(&HandshakesThread); // should not be necesarry
 
-	m_pController->SetDownloadLimit(4096);
-	m_pController->SetUploadLimit(4096);
+	m_pController->setDownloadLimit(4096);
+	m_pController->setUploadLimit(4096);
 
-	bool bOK = QTcpServer::listen(QHostAddress::Any, Network.GetLocalAddress().port());
+	bool bOK = QTcpServer::listen(QHostAddress::Any, Network.getLocalAddress().port());
 
 	if ( bOK )
 	{
 		systemLog.postLog( LogSeverity::Notice, Components::G2,
-		                   "Handshakes: listening on port %d.", Network.GetLocalAddress().port() );
+						   "Handshakes: listening on port %d.", Network.getLocalAddress().port() );
 	}
 	else
 	{
 		systemLog.postLog( LogSeverity::Error, Components::G2,
-		                   "Handshakes: cannot listen on port %d, incoming connections will be unavailable.",
-		                   Network.GetLocalAddress().port() );
+						   "Handshakes: cannot listen on port %d, incoming connections will be unavailable.",
+						   Network.getLocalAddress().port() );
 	}
 
 	m_pTimer = new QTimer(this);
-	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(OnTimer()));
+	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(onTimer()));
 	m_pTimer->start(1000);
 }
-void CHandshakes::CleanupThread()
+void CHandshakes::cleanupThread()
 {
 	if(isListening())
 	{
@@ -163,9 +160,9 @@ void CHandshakes::CleanupThread()
 		{
 			CHandshake* pHs = *itHs;
 
-			pHs->Close();
+			pHs->close();
 
-			m_pController->RemoveSocket(pHs);
+			m_pController->removeSocket(pHs);
 			itHs = m_lHandshakes.erase(itHs);
 
 			delete pHs;

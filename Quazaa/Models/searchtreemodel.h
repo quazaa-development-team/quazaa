@@ -94,6 +94,7 @@ public:
 	QVariant data(int column) const;
 	int row() const;
 	SearchTreeItem* parent();
+	void removeChild(int position);
 
 private:
 	QList<SearchTreeItem*> childItems;
@@ -122,6 +123,7 @@ public:
 	QModelIndex index(int row, int column,
 					  const QModelIndex& parent = QModelIndex()) const;
 	QModelIndex parent(const QModelIndex& index) const;
+	SearchTreeItem* topLevelItemFromIndex(QModelIndex index);
 	SearchTreeItem* itemFromIndex(QModelIndex index);
 	int rowCount(const QModelIndex& parent = QModelIndex()) const;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const;
@@ -137,6 +139,7 @@ private:
 public slots:
 	void clear();
 	bool isRoot(QModelIndex index);
+	void removeQueryHit(int position, const QModelIndex &parent);
 
 private slots:
 	void addQueryHit(QueryHitSharedPtr pHit);

@@ -91,8 +91,8 @@ CTimerObject::CTimerObject(QObject* obj, const char* member, quint32 tDelaySec,
 	m_tTime = tDelay64 + signalQueue.getRelativeTimeInMs();
 
 #ifdef _DEBUG
-	qint64 tTest = (m_tTime + signalQueue.m_tTimerStartUTCInMSec) / 1000 - common::getTNowUTC();
 #if ENABLE_SIGNAL_QUEUE_DEBUGGING
+	qint64 tTest = (m_tTime + signalQueue.m_tTimerStartUTCInMSec) / 1000 - common::getTNowUTC();
 	systemLog.postLog( LogSeverity::Debug, Components::SignalQueue,
 					   QString( "Added event with %1s delay to signal queue."
 								).arg( QString::number( tTest ) ) );

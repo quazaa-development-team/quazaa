@@ -139,6 +139,23 @@ void CGeoIPList::loadGeoIP()
 	m_bListLoaded = !m_lDatabase.isEmpty();
 }
 
+QString CGeoIPList::findCountryCode(const QString& sIP) const
+{
+	CEndPoint ipAddress( sIP );
+	return findCountryCode( ipAddress );
+}
+
+QString CGeoIPList::findCountryCode(const QHostAddress& ip) const
+{
+	if ( ip.protocol() == 1 ) // IPv6
+	{
+		return "ZZ";
+	}
+
+	const quint32 ip4 = ip.toIPv4Address();
+	return findCountryCode( ip4 );
+}
+
 QString CGeoIPList::findCountryCode(const quint32 nIp) const
 {
 	if ( !m_bListLoaded )

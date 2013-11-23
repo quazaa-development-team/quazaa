@@ -1,0 +1,22 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+before_install:
+  - git submodule update --init --recursive
+  - sudo apt-add-repository -y ppa:ubuntu-sdk-team/ppa
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq p7zip-full libpulse-dev qtdeclarative5-dev qt5-default qtmultimedia5-dev qttools5-dev-tools qtbase5-dev libqt5core5 qtbase5-dev-tools
+script:
+  - qmake -v
+  - qmake
+  - make -j 16
+notifications:
+  email: false
+  irc:
+    channels:
+      - "irc.paradoxirc.net#quazaa-dev"
+    template:
+      - "%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message} - %{build_url}"
+    use_notice: false
+    skip_join: false

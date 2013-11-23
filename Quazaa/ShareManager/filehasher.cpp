@@ -54,7 +54,7 @@ CFileHasher::~CFileHasher()
 	}
 }
 
-CFileHasher* CFileHasher::HashFile(CSharedFilePtr pFile)
+CFileHasher* CFileHasher::hashFile(CSharedFilePtr pFile)
 {
 	m_pSection.lock();
 
@@ -83,8 +83,8 @@ CFileHasher* CFileHasher::HashFile(CSharedFilePtr pFile)
 				m_pHashers[i] = new CFileHasher();
 				pHasher = m_pHashers[i];
 				pHasher->m_nId = i;
-				connect(pHasher, SIGNAL(QueueEmpty()), &ShareManager, SLOT(RunHashing()), Qt::UniqueConnection);
-				connect(pHasher, SIGNAL(FileHashed(CSharedFilePtr)), &ShareManager, SLOT(OnFileHashed(CSharedFilePtr)), Qt::UniqueConnection);
+				connect(pHasher, SIGNAL(queueEmpty()), &ShareManager, SLOT(RunHashing()), Qt::UniqueConnection);
+				connect(pHasher, SIGNAL(fileHashed(CSharedFilePtr)), &ShareManager, SLOT(OnFileHashed(CSharedFilePtr)), Qt::UniqueConnection);
 				connect(pHasher, SIGNAL(hasherStarted(int)), &ShareManager, SIGNAL(hasherStarted(int)));
 				connect(pHasher, SIGNAL(hasherFinished(int)), &ShareManager, SIGNAL(hasherFinished(int)));
 				connect(pHasher, SIGNAL(hashingProgress(int,QString,double,int)), &ShareManager, SIGNAL(hashingProgress(int,QString,double,int)));
@@ -167,7 +167,7 @@ void CFileHasher::run()
 
 				for(int i = 0; i < lHashes.size(); i++)
 				{
-					lHashes[i]->AddData(baBuffer);
+					lHashes[i]->addData(baBuffer);
 				}
 
 				if( tTimer.elapsed() >= 1000 )
@@ -195,13 +195,13 @@ void CFileHasher::run()
 		{
 			for(int i = 0; i < lHashes.size(); i++)
 			{
-				lHashes[i]->Finalize();
-				systemLog.postLog(LogSeverity::Debug, QString("%1").arg(lHashes[i]->ToURN()));
+				lHashes[i]->finalize();
+				systemLog.postLog(LogSeverity::Debug, QString("%1").arg(lHashes[i]->toURN()));
 				//qDebug() << pFile->m_lHashes[i]->ToURN();
 			}
 
 			pFile->setHashes( lHashes );
-			emit FileHashed(pFile);
+			emit fileHashed(pFile);
 		}
 
 		qDeleteAll(lHashes);
@@ -217,7 +217,7 @@ void CFileHasher::run()
 
 		if(bHashed && m_lQueue.isEmpty())
 		{
-			emit QueueEmpty();
+			emit queueEmpty();
 			systemLog.postLog(LogSeverity::Debug, QString("Hasher waiting..."));
 			//qDebug() << "Hasher " << this << "waiting...";
 			CFileHasher::m_oWaitCond.wait(&m_pSection, 10000);

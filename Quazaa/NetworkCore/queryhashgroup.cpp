@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -50,7 +50,7 @@ CQueryHashGroup::~CQueryHashGroup()
 	delete [] m_pHash;
 }
 
-void CQueryHashGroup::Add(CQueryHashTable* pTable)
+void CQueryHashGroup::add(CQueryHashTable* pTable)
 {
 	Q_ASSERT(pTable != 0);
 	Q_ASSERT(pTable->m_pGroup == 0);
@@ -59,11 +59,11 @@ void CQueryHashGroup::Add(CQueryHashTable* pTable)
 	pTable->m_pGroup = this;
 	m_pTables.append(pTable);
 
-	Operate(pTable, true);
-	QueryHashMaster.Invalidate();
+	operate(pTable, true);
+	QueryHashMaster.invalidate();
 }
 
-void CQueryHashGroup::Remove(CQueryHashTable* pTable)
+void CQueryHashGroup::remove(CQueryHashTable* pTable)
 {
 	Q_ASSERT(pTable != 0);
 	Q_ASSERT(pTable->m_pGroup == this);
@@ -74,11 +74,11 @@ void CQueryHashGroup::Remove(CQueryHashTable* pTable)
 	m_pTables.removeAt(pos);
 	pTable->m_pGroup = 0;
 
-	Operate(pTable, false);
-	QueryHashMaster.Invalidate();
+	operate(pTable, false);
+	QueryHashMaster.invalidate();
 }
 
-void CQueryHashGroup::Operate(CQueryHashTable* pTable, bool bAdd)
+void CQueryHashGroup::operate(CQueryHashTable* pTable, bool bAdd)
 {
 	Q_ASSERT(m_pHash != 0);
 	Q_ASSERT(pTable->m_nHash == m_nHash);

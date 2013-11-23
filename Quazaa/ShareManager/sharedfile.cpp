@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -80,13 +80,13 @@ void CSharedFile::serialize(QSqlDatabase* pDatabase)
 		if ( !query.exec() )
 		{
 			systemLog.postLog( LogSeverity::Debug, QString( "SQL Query failed: %1" ).arg( query.lastError().text() ) );
-            return;
+			return;
 		}
 
 		if ( query.size() != 1 )
 		{
 			systemLog.postLog( LogSeverity::Debug, QString( "Bad record number: %1" ).arg( query.size() ) );
-            return;
+			return;
 		}
 
 		query.next();
@@ -111,7 +111,7 @@ void CSharedFile::serialize(QSqlDatabase* pDatabase)
 		if ( !query.exec() )
 		{
 			systemLog.postLog( LogSeverity::Debug, QString( "Cannot insert new record: %1" ).arg( query.lastError().text() ) );
-            return;
+			return;
 		}
 
 		qint64 nFileID = query.lastInsertId().toLongLong();
@@ -125,9 +125,9 @@ void CSharedFile::serialize(QSqlDatabase* pDatabase)
 
 		foreach ( CHash oHash, m_Hashes )
 		{
-			if ( pDatabase->record( "hashes" ).contains( oHash.GetFamilyName() ) )
+			if ( pDatabase->record( "hashes" ).contains( oHash.getFamilyName() ) )
 			{
-				mapValues.insert( oHash.GetFamilyName(), oHash.RawValue() );
+				mapValues.insert( oHash.getFamilyName(), oHash.rawValue() );
 			}
 		}
 
@@ -161,11 +161,11 @@ void CSharedFile::serialize(QSqlDatabase* pDatabase)
 			if ( !qh.exec() )
 			{
 				systemLog.postLog( LogSeverity::Debug, QString( "Cannot insert hashes: %1 %2" ).arg( qh.lastError().text() ).arg(qh.executedQuery() ) );
-            }
+			}
 		}
 
 		QStringList lKeywords;
-		CQueryHashTable::MakeKeywords( fileName(), lKeywords );
+		CQueryHashTable::makeKeywords( fileName(), lKeywords );
 
 		QSqlQuery qkw( *pDatabase );
 		qkw.prepare( "INSERT OR IGNORE INTO keywords (keyword) VALUES (?)" );

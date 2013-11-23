@@ -30,21 +30,21 @@
 #include <QEvent>
 #include <QMimeData>
 
-#include "completer.h"
-class Completer;
+#include "chatcompleter.h"
+class ChatCompleter;
 
 class CWidgetReturnEmitTextEdit : public QTextEdit
 {
 Q_OBJECT
 public:
 	explicit CWidgetReturnEmitTextEdit(QWidget *parent = 0);
-	Completer* completer() const;
+	ChatCompleter* completer() const;
 	QString textUnderCursor() const;
 	int currentWordStartIndex();
 
 private:
 	bool emitReturn;
-	Completer* m_oCompleter;
+	ChatCompleter* m_oCompleter;
 	QStringList m_lHistory;
 	QStringList m_lPlainTextHistory;
 	int m_iHistoryIndex;

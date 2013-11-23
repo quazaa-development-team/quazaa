@@ -24,10 +24,6 @@
 
 #include <QObject>
 
-#if QT_VERSION < 0x050000
-#include <QMetaType>
-#endif
-
 #include "networktype.h"
 
 CNetworkType::CNetworkType() :

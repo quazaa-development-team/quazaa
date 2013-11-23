@@ -129,7 +129,7 @@ bool CMagnet::parseMagnet(QString sMagnet)
 			}
 			else if ( sParam.startsWith( "xt" ) )	// EXect Topic
 			{
-				CHash* pHash = CHash::FromURN( sSubsection );
+				CHash* pHash = CHash::fromURN( sSubsection );
 
 				if ( pHash )
 				{

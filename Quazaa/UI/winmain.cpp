@@ -37,7 +37,7 @@
 #include "dialoglanguage.h"
 #include "dialogscheduler.h"
 #include "dialogprofile.h"
-#include "dialogaddrule.h"
+#include "dialogmodifyrule.h"
 #include "dialogsecuritysubscriptions.h"
 #include "dialoglibrarysearch.h"
 #include "dialogfiltersearch.h"
@@ -130,7 +130,7 @@ CWinMain::CWinMain(QWidget* parent) :
 	ui->stackedWidgetMain->addWidget(pageSecurity);
 	pageActivity = new CWidgetActivity();
 	ui->stackedWidgetMain->addWidget(pageActivity);
-    pageIrcMain = new CWidgetIrcMain();
+	pageIrcMain = new CWidgetIrcMain();
 	ui->stackedWidgetMain->addWidget(pageIrcMain);
 	pageHostCache = new CWidgetHostCache;
 	ui->stackedWidgetMain->addWidget(pageHostCache);
@@ -236,7 +236,7 @@ CWinMain::CWinMain(QWidget* parent) :
 	interfaceLoaded = true;
 
 	connect(&ChatCore, SIGNAL(openChatWindow(CChatSession*)), this, SLOT(OpenChat(CChatSession*)));
-	connect(&Network, SIGNAL(LocalAddressChanged()), this, SLOT(localAddressChanged()));
+	connect(&Network, SIGNAL(localAddressChanged()), this, SLOT(localAddressChanged()));
 	connect(&ShareManager, SIGNAL(hasherStarted(int)), this, SLOT(onHasherStarted(int)));
 	setSkin();
 }
@@ -245,6 +245,7 @@ CWinMain::~CWinMain()
 {
 	delete ui;
 }
+
 void CWinMain::loadTrayIcon()
 {
 	// Create the system tray right click menu.
@@ -435,8 +436,8 @@ void CWinMain::quazaaShutdown()
 	neighboursRefresher->stop();
 	delete neighboursRefresher;
 	neighboursRefresher = 0;
-	Network.Disconnect();
-	ShareManager.Stop();
+	Network.stop();
+	ShareManager.stop();
 
 	dlgSplash->updateProgress(65, tr("Saving Security Manager..."));
 	qApp->processEvents();
@@ -454,7 +455,8 @@ void CWinMain::quazaaShutdown()
 
 	dlgSplash->updateProgress(30, tr("Removing Tray Icon..."));
 	qApp->processEvents();
-	delete trayIcon;
+	trayIcon->hide();
+	trayIcon->deleteLater();
 
 	dlgSplash->updateProgress(15, tr("Stopping transfers..."));
 	qApp->processEvents();
@@ -756,14 +758,14 @@ void CWinMain::on_actionConnect_triggered()
 {
 	ui->actionConnect->setEnabled(false);
 	ui->actionDisconnect->setEnabled(true);
-	Network.Connect();
+	Network.start();
 }
 
 void CWinMain::on_actionDisconnect_triggered()
 {
 	ui->actionConnect->setEnabled(true);
 	ui->actionDisconnect->setEnabled(false);
-	Network.Disconnect();
+	Network.stop();
 }
 
 void CWinMain::on_actionEDonkey_triggered(bool checked)
@@ -784,7 +786,7 @@ void CWinMain::on_actionAres_triggered(bool checked)
 void CWinMain::startNewSearch(QString* searchString)
 {
 	ui->stackedWidgetMain->setCurrentIndex(3);
-    ui->actionSearch->setChecked(true);
+	ui->actionSearch->setChecked(true);
 	pageSearch->startNewSearch(searchString);
 }
 
@@ -802,7 +804,7 @@ void CWinMain::updateStatusBar()
 
 	if(Handshakes.m_pSection.tryLock(50))
 	{
-		if(!Handshakes.IsFirewalled())
+		if(!Handshakes.isFirewalled())
 		{
 			tcpFirewalled = ":/Resource/Network/CheckedShieldGreen.png";
 		}
@@ -815,14 +817,14 @@ void CWinMain::updateStatusBar()
 
 	if(Neighbours.m_pSection.tryLock(50))
 	{
-		nTCPInSpeed = Neighbours.DownloadSpeed();
-		nTCPOutSpeed = Neighbours.UploadSpeed();
+		nTCPInSpeed = Neighbours.downloadSpeed();
+		nTCPOutSpeed = Neighbours.uploadSpeed();
 		Neighbours.m_pSection.unlock();
 	}
 
 	if(Datagrams.m_pSection.tryLock(50))
 	{
-		if(!Datagrams.IsFirewalled())
+		if(!Datagrams.isFirewalled())
 		{
 			udpFirewalled = ":/Resource/Network/CheckedShieldGreen.png";
 		}
@@ -831,8 +833,8 @@ void CWinMain::updateStatusBar()
 			udpFirewalled = ":/Resource/Network/ShieldRed.png";
 		}
 
-		nUDPInSpeed = Datagrams.DownloadSpeed();
-		nUDPOutSpeed = Datagrams.UploadSpeed();
+		nUDPInSpeed = Datagrams.downloadSpeed();
+		nUDPOutSpeed = Datagrams.uploadSpeed();
 
 		Datagrams.m_pSection.unlock();
 	}
@@ -854,7 +856,7 @@ void CWinMain::on_actionConnectTo_triggered()
 		{
 		case CDialogConnectTo::G2:
 			Neighbours.m_pSection.lock();
-			Neighbours.ConnectTo(ip, dpG2, false);
+			Neighbours.connectTo(ip, dpG2, false);
 			Neighbours.m_pSection.unlock();
 			break;
 		case CDialogConnectTo::eDonkey:
@@ -893,8 +895,8 @@ void CWinMain::on_actionChatWith_triggered()
 		{
 		case CDialogConnectTo::G2:
 		{
-			CChatSessionG2* pS = new CChatSessionG2(ip);
-			pS->Connect();
+			CChatSessionG2* pSession = new CChatSessionG2(ip);
+			pSession->connectNode();
 			break;
 		}
 		case CDialogConnectTo::eDonkey:
@@ -909,7 +911,7 @@ void CWinMain::on_actionChatWith_triggered()
 void CWinMain::localAddressChanged()
 {
 	Network.m_pSection.lock();
-	labelCurrentIPAddress->setText(Network.GetLocalAddress().toStringWithPort());
+	labelCurrentIPAddress->setText(Network.getLocalAddress().toStringWithPort());
 	Network.m_pSection.unlock();
 }
 

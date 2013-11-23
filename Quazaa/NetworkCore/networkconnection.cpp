@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -67,7 +67,7 @@ CNetworkConnection::~CNetworkConnection()
 	}
 }
 
-void CNetworkConnection::ConnectTo(CEndPoint oAddress)
+void CNetworkConnection::connectTo(CEndPoint oAddress)
 {
 	m_oAddress = oAddress;
 
@@ -87,7 +87,7 @@ void CNetworkConnection::ConnectTo(CEndPoint oAddress)
 
 }
 
-void CNetworkConnection::AttachTo(CNetworkConnection* pOther)
+void CNetworkConnection::attachTo(CNetworkConnection* pOther)
 {
 	Q_ASSERT(m_pSocket == 0);
 	m_pSocket = pOther->m_pSocket;
@@ -116,13 +116,9 @@ void CNetworkConnection::AttachTo(CNetworkConnection* pOther)
 	initializeSocket();
 
 	emit readyRead();
-
 }
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-void CNetworkConnection::AcceptFrom(int nHandle)
-#else
-void CNetworkConnection::AcceptFrom(qintptr nHandle)
-#endif
+
+void CNetworkConnection::acceptFrom(qintptr nHandle)
 {
 	Q_ASSERT(m_pSocket == 0);
 	m_pSocket = new QTcpSocket();
@@ -153,10 +149,10 @@ void CNetworkConnection::AcceptFrom(qintptr nHandle)
 
 }
 
-void CNetworkConnection::Close(bool bDelayed)
+void CNetworkConnection::close(bool bDelayed)
 {
 	systemLog.postLog( LogSeverity::Information, Components::Network,
-	                   "Closing connection to %s.", qPrintable( m_oAddress.toStringWithPort() ) );
+					   "Closing connection to %s.", qPrintable( m_oAddress.toStringWithPort() ) );
 
 	QMetaObject::invokeMethod(this, "closeImplementation", Q_ARG(bool, bDelayed));
 }
@@ -165,9 +161,9 @@ void CNetworkConnection::closeImplementation(bool bDelayed)
 {
 	if( bDelayed )
 	{
-		if(!GetOutputBuffer()->isEmpty() || !m_pOutput->isEmpty())
+		if(!getOutputBuffer()->isEmpty() || !m_pOutput->isEmpty())
 		{
-			writeToNetwork(m_pOutput->size() + GetOutputBuffer()->size());
+			writeToNetwork(m_pOutput->size() + getOutputBuffer()->size());
 			m_pSocket->disconnectFromHost();
 			return;
 		}
@@ -190,27 +186,27 @@ void CNetworkConnection::initializeSocket()
 	m_pSocket->disconnect();
 
 	connect(m_pSocket, SIGNAL(connected()),
-	        this, SIGNAL(connected()));
+			this, SIGNAL(connected()));
 	connect(m_pSocket, SIGNAL(connected()),
-	        this, SIGNAL(readyToTransfer()));
+			this, SIGNAL(readyToTransfer()));
 	connect(m_pSocket, SIGNAL(readyRead()),
-	        this, SIGNAL(readyToTransfer()));
+			this, SIGNAL(readyToTransfer()));
 	connect(m_pSocket, SIGNAL(disconnected()),
-			this, SLOT(OnDisconnectInt()));
+			this, SLOT(onDisconnectInt()));
 	connect(m_pSocket, SIGNAL(error(QAbstractSocket::SocketError)),
-			this, SLOT(OnErrorInt(QAbstractSocket::SocketError)));
+			this, SLOT(onErrorInt(QAbstractSocket::SocketError)));
 	connect(m_pSocket, SIGNAL(bytesWritten(qint64)),
-	        this, SIGNAL(bytesWritten(qint64)));
+			this, SIGNAL(bytesWritten(qint64)));
 	connect(m_pSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
-	        this, SIGNAL(stateChanged(QAbstractSocket::SocketState)));
+			this, SIGNAL(stateChanged(QAbstractSocket::SocketState)));
 	connect(m_pSocket, SIGNAL(aboutToClose()),
-	        this, SIGNAL(aboutToClose()));
+			this, SIGNAL(aboutToClose()));
 
-	connect(this, SIGNAL(connected()), this, SLOT(OnConnect()), Qt::QueuedConnection);
-	connect(this, SIGNAL(disconnected()), this, SLOT(OnDisconnect()), Qt::QueuedConnection);
-	connect(this, SIGNAL(readyRead()), this, SLOT(OnRead()), Qt::QueuedConnection);
-	connect(this, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(OnError(QAbstractSocket::SocketError)), Qt::QueuedConnection);
-	connect(this, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(OnStateChange(QAbstractSocket::SocketState)), Qt::QueuedConnection);
+	connect(this, SIGNAL(connected()), this, SLOT(onConnectNode()), Qt::QueuedConnection);
+	connect(this, SIGNAL(disconnected()), this, SLOT(onDisconnectNode()), Qt::QueuedConnection);
+	connect(this, SIGNAL(readyRead()), this, SLOT(onRead()), Qt::QueuedConnection);
+	connect(this, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onError(QAbstractSocket::SocketError)), Qt::QueuedConnection);
+	connect(this, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(onStateChange(QAbstractSocket::SocketState)), Qt::QueuedConnection);
 
 }
 
@@ -337,18 +333,18 @@ void CNetworkConnection::setReadBufferSize(qint64 nSize)
 	m_pSocket->setReadBufferSize(nSize);
 }
 
-QByteArray CNetworkConnection::Read(qint64 nMaxSize)
+QByteArray CNetworkConnection::read(qint64 nMaxSize)
 {
 	QByteArray baRet;
 
-	baRet.resize(qMin<qint64>(nMaxSize, GetInputBuffer()->size()));
+	baRet.resize(qMin<qint64>(nMaxSize, getInputBuffer()->size()));
 	readData(baRet.data(), baRet.size());
 	return baRet;
 }
 
-QByteArray CNetworkConnection::Peek(qint64 nMaxLength)
+QByteArray CNetworkConnection::peek(qint64 nMaxLength)
 {
-	CBuffer* pBuffer = GetInputBuffer();
+	CBuffer* pBuffer = getInputBuffer();
 
 	return QByteArray::fromRawData(pBuffer->data(), qMin<qint64>(nMaxLength > 0 ? nMaxLength : pBuffer->size(), pBuffer->size()));
 }
@@ -425,7 +421,7 @@ quint32 TCPBandwidthMeter::Usage()
 	return nUsage;
 }
 
-void CNetworkConnection::OnDisconnectInt()
+void CNetworkConnection::onDisconnectInt()
 {
 	readFromNetwork(m_pSocket->bytesAvailable());
 
@@ -433,13 +429,13 @@ void CNetworkConnection::OnDisconnectInt()
 	emit disconnected();
 }
 
-void CNetworkConnection::OnErrorInt(QAbstractSocket::SocketError e)
+void CNetworkConnection::onErrorInt(QAbstractSocket::SocketError e)
 {
 	//qDebug() << m_pSocket << e;
 	emit error(e);
 }
 
-void CNetworkConnection::OnStateChange(QAbstractSocket::SocketState s)
+void CNetworkConnection::onStateChange(QAbstractSocket::SocketState s)
 {
 	Q_UNUSED(s)
 }

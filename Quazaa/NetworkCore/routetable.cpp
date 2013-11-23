@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -35,7 +35,7 @@ CRouteTable::~CRouteTable()
 	m_lRoutes.clear();
 }
 
-bool CRouteTable::Add(QUuid& pGUID, CG2Node* pNeighbour, CEndPoint* pEndpoint, bool bNoExpire)
+bool CRouteTable::add(QUuid& pGUID, CG2Node* pNeighbour, CEndPoint* pEndpoint, bool bNoExpire)
 {
 
 	//qDebug() << "CRouteTable::Add " << pGUID << pNeighbour << pEndpoint << bNoExpire;
@@ -47,7 +47,7 @@ bool CRouteTable::Add(QUuid& pGUID, CG2Node* pNeighbour, CEndPoint* pEndpoint, b
 
 	if((quint32)m_lRoutes.size() >= MaxRoutes)
 	{
-		ExpireOldRoutes(true);
+		expireOldRoutes(true);
 	}
 
 	G2RouteItem* pRoute = 0;
@@ -87,16 +87,16 @@ bool CRouteTable::Add(QUuid& pGUID, CG2Node* pNeighbour, CEndPoint* pEndpoint, b
 	return true;
 
 }
-bool CRouteTable::Add(QUuid& pGUID, CG2Node* pNeighbour, bool bNoExpire)
+bool CRouteTable::add(QUuid& pGUID, CG2Node* pNeighbour, bool bNoExpire)
 {
-	return Add(pGUID, pNeighbour, 0, bNoExpire);
+	return add(pGUID, pNeighbour, 0, bNoExpire);
 }
-bool CRouteTable::Add(QUuid& pGUID, CEndPoint& pEndpoint, bool bNoExpire)
+bool CRouteTable::add(QUuid& pGUID, CEndPoint& pEndpoint, bool bNoExpire)
 {
-	return Add(pGUID, 0, &pEndpoint, bNoExpire);
+	return add(pGUID, 0, &pEndpoint, bNoExpire);
 }
 
-void CRouteTable::Remove(QUuid& pGUID)
+void CRouteTable::remove(QUuid& pGUID)
 {
 	G2RouteItem* pRoute = m_lRoutes.value(pGUID, 0);
 	if( pRoute )
@@ -105,7 +105,7 @@ void CRouteTable::Remove(QUuid& pGUID)
 		delete pRoute;
 	}
 }
-void CRouteTable::Remove(CG2Node* pNeighbour)
+void CRouteTable::remove(CG2Node* pNeighbour)
 {
 	for(QHash<QUuid, G2RouteItem*>::iterator itRoute = m_lRoutes.begin(); itRoute != m_lRoutes.end();)
 	{
@@ -121,7 +121,7 @@ void CRouteTable::Remove(CG2Node* pNeighbour)
 	}
 }
 
-bool CRouteTable::Find(QUuid& pGUID, CG2Node** ppNeighbour, CEndPoint* pEndpoint)
+bool CRouteTable::find(QUuid& pGUID, CG2Node** ppNeighbour, CEndPoint* pEndpoint)
 {
 	Q_ASSERT_X(ppNeighbour || pEndpoint, Q_FUNC_INFO, "Invalid arguments");
 
@@ -146,11 +146,11 @@ bool CRouteTable::Find(QUuid& pGUID, CG2Node** ppNeighbour, CEndPoint* pEndpoint
 	return false;
 }
 
-void CRouteTable::ExpireOldRoutes(bool bForce)
+void CRouteTable::expireOldRoutes(bool bForce)
 {
 	quint32 tNow = time(0);
 
-    // First expired.
+	// First expired.
 	for(QHash<QUuid, G2RouteItem*>::iterator itRoute = m_lRoutes.begin(); itRoute != m_lRoutes.end();)
 	{
 		if(itRoute.value()->nExpireTime < tNow)
@@ -164,8 +164,8 @@ void CRouteTable::ExpireOldRoutes(bool bForce)
 		}
 	}
 
-    // Now, we are forced to clean something
-    // only if the list is full at 75%
+	// Now, we are forced to clean something
+	// only if the list is full at 75%
 
 	if(bForce && m_lRoutes.size() >= MaxRoutes * 0.75)
 	{
@@ -186,7 +186,7 @@ void CRouteTable::ExpireOldRoutes(bool bForce)
 				tExpire = -10;
 			}
 
-            // We reduce the hash to three quarters of its value.
+			// We reduce the hash to three quarters of its value.
 			for( QHash<QUuid, G2RouteItem*>::iterator itRoute = m_lRoutes.begin(); itRoute != m_lRoutes.end() && m_lRoutes.size() > MaxRoutes * 0.75; )
 			{
 				if( itRoute.value()->nExpireTime < tNow + tExpire )
@@ -203,20 +203,20 @@ void CRouteTable::ExpireOldRoutes(bool bForce)
 	}
 }
 
-void CRouteTable::Clear()
+void CRouteTable::clear()
 {
 	qDeleteAll(m_lRoutes);
 	m_lRoutes.clear();
 }
 
-void CRouteTable::Dump()
+void CRouteTable::dump()
 {
 
 	quint32 tNow = time(0);
 
-    systemLog.postLog(LogSeverity::Debug, "----------------------------------");
-    systemLog.postLog(LogSeverity::Debug, "Dumping routing table:");
-    systemLog.postLog(LogSeverity::Debug, QString("Table size: ").arg(m_lRoutes.size()));
+	systemLog.postLog(LogSeverity::Debug, "----------------------------------");
+	systemLog.postLog(LogSeverity::Debug, "Dumping routing table:");
+	systemLog.postLog(LogSeverity::Debug, QString("Table size: ").arg(m_lRoutes.size()));
 
 	for(QHash<QUuid, G2RouteItem*>::iterator itRoute = m_lRoutes.begin(); itRoute != m_lRoutes.end(); itRoute++)
 	{
@@ -226,11 +226,11 @@ void CRouteTable::Dump()
 			nExpire = 0;
 		}
 		systemLog.postLog( LogSeverity::Debug, Components::G2, "%s %i %s TTL %i",
-		                   qPrintable( itRoute.key().toString() ), itRoute.value()->pNeighbour,
-                           qPrintable( itRoute.value()->pEndpoint.toString() ), nExpire );
+						   qPrintable( itRoute.key().toString() ), itRoute.value()->pNeighbour,
+						   qPrintable( itRoute.value()->pEndpoint.toString() ), nExpire );
 	}
 
-    systemLog.postLog(LogSeverity::Debug, "End of data");
-    systemLog.postLog(LogSeverity::Debug, "----------------------------------");
+	systemLog.postLog(LogSeverity::Debug, "End of data");
+	systemLog.postLog(LogSeverity::Debug, "----------------------------------");
 }
 

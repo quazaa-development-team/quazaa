@@ -31,7 +31,7 @@
 
 namespace Parser
 {
-	QString GetHeaderValue(QString& headers, QString headerName)
+	QString getHeaderValue(QString& headers, QString headerName)
 	{
 		qint32 nStart;
 		qint32 nEnd;

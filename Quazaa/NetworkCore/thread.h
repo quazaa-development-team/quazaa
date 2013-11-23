@@ -94,10 +94,10 @@ protected:
 
 		if(m_pTargetObject)
 		{
-			if(!QMetaObject::invokeMethod(m_pTargetObject, "SetupThread", Qt::DirectConnection))
+			if(!QMetaObject::invokeMethod(m_pTargetObject, "setupThread", Qt::DirectConnection))
 			{
-				systemLog.postLog(LogSeverity::Warning, "Failed to call target's SetupThread method");
-				//qWarning() << "Failed to call target's SetupThread method";
+				systemLog.postLog(LogSeverity::Warning, "Failed to call target's setupThread method");
+				//qWarning() << "Failed to call target's setupThread method";
 			}
 		}
 
@@ -114,10 +114,10 @@ protected:
 
 		if(m_pTargetObject)
 		{
-			if(!QMetaObject::invokeMethod(m_pTargetObject, "CleanupThread", Qt::DirectConnection))
+			if(!QMetaObject::invokeMethod(m_pTargetObject, "cleanupThread", Qt::DirectConnection))
 			{
-				systemLog.postLog(LogSeverity::Warning, "Failed to call target's CleanupThread method");
-				//qWarning() << "Failed to call target's CleanupThread method";
+				systemLog.postLog(LogSeverity::Warning, "Failed to call target's cleanupThread method");
+				//qWarning() << "Failed to call target's cleanupThread method";
 			}
 		}
 

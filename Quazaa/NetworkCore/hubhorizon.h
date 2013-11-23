@@ -52,8 +52,8 @@ protected:
 	quint32				m_nBuffer;
 
 public:
-	void		Add(CEndPoint oAddress);
-	void		Clear();
+	void		add(CEndPoint oAddress);
+	void		clear();
 
 };
 
@@ -72,12 +72,12 @@ protected:
 	quint32				m_nActive;
 
 public:
-	void				Setup();
-	void				Clear();
-	CHubHorizonHub*		Add(CEndPoint oAddress);
-	void				Remove(CHubHorizonHub* pHub);
-	CHubHorizonHub*		Find(CEndPoint oAddress);
-	int					AddHorizonHubs(G2Packet* pPacket);
+	void				setup();
+	void				clear();
+	CHubHorizonHub*		add(CEndPoint oAddress);
+	void				remove(CHubHorizonHub* pHub);
+	CHubHorizonHub*		find(CEndPoint oAddress);
+	int					addHorizonHubs(G2Packet* pPacket);
 
 };
 

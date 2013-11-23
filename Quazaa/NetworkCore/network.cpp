@@ -61,11 +61,11 @@ CNetwork::~CNetwork()
 {
 	if(m_bActive)
 	{
-		Disconnect();
+		stop();
 	}
 }
 
-void CNetwork::Connect()
+void CNetwork::start()
 {
 	QMutexLocker l(&m_pSection);
 
@@ -78,22 +78,21 @@ void CNetwork::Connect()
 	m_bActive = true;
 	m_oAddress.setPort(quazaaSettings.Connection.Port);
 
-	Handshakes.Listen();
+	Handshakes.listen();
 
-	m_oRoutingTable.Clear();
+	m_oRoutingTable.clear();
 
-	connect(&ShareManager, SIGNAL(sharesReady()), this, SLOT(OnSharesReady()), Qt::UniqueConnection);
+	connect(&ShareManager, SIGNAL(sharesReady()), this, SLOT(onSharesReady()), Qt::UniqueConnection);
 
 	NetworkThread.start("Network", &m_pSection, this);
 
 	Datagrams.moveToThread(&NetworkThread);
 	SearchManager.moveToThread(&NetworkThread);
 	Neighbours.moveToThread(&NetworkThread);
-
-	Neighbours.Connect();
+	Neighbours.connectNode();
 }
 
-void CNetwork::Disconnect()
+void CNetwork::stop()
 {
 	QMutexLocker l(&m_pSection);
 
@@ -104,20 +103,20 @@ void CNetwork::Disconnect()
 	}
 
 }
-void CNetwork::SetupThread()
+void CNetwork::setupThread()
 {
 	Q_ASSERT(m_pSecondTimer == 0);
 
 	m_pSecondTimer = new QTimer();
-	connect(m_pSecondTimer, SIGNAL(timeout()), this, SLOT(OnSecondTimer()));
+	connect(m_pSecondTimer, SIGNAL(timeout()), this, SLOT(onSecondTimer()));
 	m_pSecondTimer->start(1000);
 
-	Datagrams.Listen();
-	Handshakes.Listen();
+	Datagrams.listen();
+	Handshakes.listen();
 
-	m_bSharesReady = ShareManager.SharesReady();
+	m_bSharesReady = ShareManager.sharesAreReady();
 }
-void CNetwork::CleanupThread()
+void CNetwork::cleanupThread()
 {
 	qDebug() << "Starting Cleanup...";
 
@@ -126,18 +125,18 @@ void CNetwork::CleanupThread()
 	m_pSecondTimer = 0;
 
 	qDebug() << "Shutting down Handshakes...";
-	Handshakes.Disconnect();
+	Handshakes.stop();
 	qDebug() << "Shutting down Datagrams...";
-	Datagrams.Disconnect();
+	Datagrams.disconnectNode();
 	qDebug() << "Shutting down Neighbours...";
-	Neighbours.Disconnect();
+	Neighbours.disconnectNode();
 
 	moveToThread(qApp->thread());
 
 	qDebug() << "Cleanup complete.";
 }
 
-void CNetwork::OnSecondTimer()
+void CNetwork::onSecondTimer()
 {
 	if(!m_pSection.tryLock(150))
 	{
@@ -158,35 +157,35 @@ void CNetwork::OnSecondTimer()
 	else
 	{
 		//m_oRoutingTable.Dump();
-		m_oRoutingTable.ExpireOldRoutes();
+		m_oRoutingTable.expireOldRoutes();
 		m_tCleanRoutesNext = 60;
 	}
 
-	if(!QueryHashMaster.IsValid())
+	if(!QueryHashMaster.isValid())
 	{
-		QueryHashMaster.Build();
+		QueryHashMaster.build();
 	}
 
-	Neighbours.Maintain();
+	Neighbours.maintain();
 
-	SearchManager.OnTimer();
+	SearchManager.onTimer();
 
 	m_pSection.unlock();
 
-	emit Datagrams.SendQueueUpdated();
+	emit Datagrams.sendQueueUpdated();
 }
 
-bool CNetwork::IsListening()
+bool CNetwork::isListening()
 {
 	return Handshakes.isListening() && Datagrams.isListening();
 }
 
-bool CNetwork::IsFirewalled()
+bool CNetwork::isFirewalled()
 {
-	return Datagrams.IsFirewalled() || Handshakes.IsFirewalled();
+	return Datagrams.isFirewalled() || Handshakes.isFirewalled();
 }
 
-void CNetwork::AcquireLocalAddress(QString& sHeader)
+void CNetwork::acquireLocalAddress(QString& sHeader)
 {
 	CEndPoint hostAddr(sHeader, m_oAddress.port());
 
@@ -195,21 +194,22 @@ void CNetwork::AcquireLocalAddress(QString& sHeader)
 		if( hostAddr != m_oAddress )
 		{
 			m_oAddress = hostAddr;
-			emit LocalAddressChanged();
+			emit localAddressChanged();
 		}
 	}
 }
-bool CNetwork::IsConnectedTo(CEndPoint /*addr*/)
+
+bool CNetwork::isConnectedTo(CEndPoint /*addr*/)
 {
 	return false;
 }
 
-bool CNetwork::RoutePacket(QUuid& pTargetGUID, G2Packet* pPacket, bool bLockNeighbours, bool bBuffered)
+bool CNetwork::routePacket(QUuid& pTargetGUID, G2Packet* pPacket, bool bLockNeighbours, bool bBuffered)
 {
 	CG2Node* pNode = 0;
 	CEndPoint pAddr;
 
-	if(m_oRoutingTable.Find(pTargetGUID, &pNode, &pAddr))
+	if(m_oRoutingTable.find(pTargetGUID, &pNode, &pAddr))
 	{
 		if(pNode)
 		{
@@ -218,9 +218,9 @@ bool CNetwork::RoutePacket(QUuid& pTargetGUID, G2Packet* pPacket, bool bLockNeig
 				Neighbours.m_pSection.lock();
 			}
 
-			if( Neighbours.NeighbourExists(pNode) )
+			if( Neighbours.neighbourExists(pNode) )
 			{
-				pNode->SendPacket(pPacket, bBuffered, false);
+				pNode->sendPacket(pPacket, bBuffered, false);
 #if LOG_ROUTED_PACKETS
 				systemLog.postLog(LogSeverity::Debug, QString("CNetwork::RoutePacket %1 Packet: %2 routed to neighbour: %3").arg(pTargetGUID.toString()).arg(pPacket->GetType()).arg(pNode->m_oAddress.toString().toLocal8Bit().constData()));
 #endif
@@ -234,7 +234,7 @@ bool CNetwork::RoutePacket(QUuid& pTargetGUID, G2Packet* pPacket, bool bLockNeig
 		}
 		else if(pAddr.isValid())
 		{
-			Datagrams.SendPacket(pAddr, pPacket, true);
+			Datagrams.sendPacket(pAddr, pPacket, true);
 
 #if LOG_ROUTED_PACKETS
 			systemLog.postLog(LogSeverity::Debug, QString("CNetwork::RoutePacket %1 Packet: %2 routed to remote node: %3").arg(pTargetGUID.toString()).arg(pPacket->GetType()).arg(pAddr.toString().toLocal8Bit().constData()));
@@ -252,16 +252,16 @@ bool CNetwork::RoutePacket(QUuid& pTargetGUID, G2Packet* pPacket, bool bLockNeig
 #endif
 	return false;
 }
-bool CNetwork::RoutePacket(G2Packet* pPacket, CG2Node* pNbr)
+bool CNetwork::routePacket(G2Packet* pPacket, CG2Node* pNbr)
 {
 	QUuid pGUID;
 
-	if(pPacket->GetTo(pGUID) && pGUID != quazaaSettings.Profile.GUID)   // No and address != my address
+	if(pPacket->getTo(pGUID) && pGUID != quazaaSettings.Profile.GUID)   // No and address != my address
 	{
 		CG2Node* pNode = 0;
 		CEndPoint pAddr;
 
-		if(m_oRoutingTable.Find(pGUID, &pNode, &pAddr))
+		if(m_oRoutingTable.find(pGUID, &pNode, &pAddr))
 		{
 			bool bForwardTCP = false;
 			bool bForwardUDP = false;
@@ -287,12 +287,12 @@ bool CNetwork::RoutePacket(G2Packet* pPacket, CG2Node* pNbr)
 
 			if(pNode && bForwardTCP)
 			{
-				pNode->SendPacket(pPacket, true, false);
+				pNode->sendPacket(pPacket, true, false);
 				return true;
 			}
 			else if(pAddr.isValid() && bForwardUDP)
 			{
-				Datagrams.SendPacket(pAddr, pPacket, true);
+				Datagrams.sendPacket(pAddr, pPacket, true);
 				return true;
 			}
 			// drop
@@ -302,7 +302,7 @@ bool CNetwork::RoutePacket(G2Packet* pPacket, CG2Node* pNbr)
 	return false;
 }
 
-void CNetwork::ConnectTo(CEndPoint& /*addr*/)
+void CNetwork::connectToNode(CEndPoint& /*addr*/)
 {
 	// TODO: Verify network is connected before attempting connection and create connection if it is not
 	/*CG2Node* pNew = Neighbours.ConnectTo(addr);
@@ -313,7 +313,7 @@ void CNetwork::ConnectTo(CEndPoint& /*addr*/)
 	}*/
 }
 
-void CNetwork::OnSharesReady()
+void CNetwork::onSharesReady()
 {
 	m_bSharesReady = true;
 }

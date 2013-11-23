@@ -38,9 +38,9 @@ public:
 	CQueryKeys();
 	~CQueryKeys();
 
-	void Prepare();
-	quint32 Create(QHostAddress pAddr);
-	bool Check(QHostAddress pAddr, quint32 nKey);
+	void prepare();
+	quint32 create(QHostAddress pAddr);
+	bool check(QHostAddress pAddr, quint32 nKey);
 };
 
 extern CQueryKeys QueryKeys;

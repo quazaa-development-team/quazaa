@@ -38,7 +38,7 @@ CWidgetDiscovery::CWidgetDiscovery(QWidget* parent) :
 	QMainWindow(parent),
 	ui(new Ui::CWidgetDiscovery)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 
 	m_pDiscoveryMenu = new QMenu( this );
 	m_pDiscoveryMenu->addAction( ui->actionDiscoveryAddService );
@@ -52,25 +52,12 @@ CWidgetDiscovery::CWidgetDiscovery(QWidget* parent) :
 	tableViewDiscovery->verticalHeader()->setVisible( false );
 	ui->verticalLayoutDiscoveryTable->addWidget( tableViewDiscovery );
 
-#if QT_VERSION >= 0x050000
-
 	connect( tableViewDiscovery, &CTableView::clicked,
 			 this, &CWidgetDiscovery::tableViewDiscovery_clicked );
 	connect( tableViewDiscovery, &CTableView::doubleClicked,
 			 this, &CWidgetDiscovery::tableViewDiscovery_doubleClicked );
 	connect( tableViewDiscovery, &CTableView::customContextMenuRequested,
 			 this, &CWidgetDiscovery::tableViewDiscovery_customContextMenuRequested );
-
-#else	// Qt4 code
-
-	connect( tableViewDiscovery, SIGNAL( clicked(QModelIndex) ),
-			 this, SLOT( tableViewDiscovery_clicked(QModelIndex) ) );
-	connect( tableViewDiscovery, SIGNAL( doubleClicked(QModelIndex) ),
-			 this, SLOT( tableViewDiscovery_doubleClicked(QModelIndex) ) );
-	connect( tableViewDiscovery, SIGNAL( customContextMenuRequested(QPoint) ),
-			 this, SLOT( tableViewDiscovery_customContextMenuRequested(QPoint) ) );
-
-#endif
 
 	m_pDiscoveryList = new CDiscoveryTableModel( this, tableView() );
 	setModel( m_pDiscoveryList );
@@ -334,9 +321,9 @@ void CWidgetDiscovery::on_actionDiscoveryProperties_triggered()
 
 	if ( index.isValid() )
 	{
-	
+
 	//see https://qt-project.org/wiki/New_Signal_Slot_Syntax
-	
+
 // TODO: Pop up dialog to edit service
 	}
 }

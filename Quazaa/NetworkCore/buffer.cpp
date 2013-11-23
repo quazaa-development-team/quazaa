@@ -36,6 +36,7 @@ CBuffer::CBuffer(quint32 nMinimum) :
 {
 	m_nMinimum = nMinimum;
 }
+
 CBuffer::~CBuffer()
 {
 	if(m_pBuffer)
@@ -59,23 +60,32 @@ CBuffer& CBuffer::append(const void* pData, const quint32 nLength)
 
 	return *this;
 }
+
 CBuffer& CBuffer::append(const char* pStr)
 {
 	return append(pStr, qstrlen(pStr));
 }
+
 CBuffer& CBuffer::append(QByteArray& baData)
 {
 	return append(baData.data(), baData.size());
 }
+
 CBuffer& CBuffer::append(CBuffer& pOther)
 {
 	return append(pOther.data(), pOther.size());
+}
+
+CBuffer &CBuffer::append(CBuffer *pOther)
+{
+	return append(pOther->data(), pOther->size());
 }
 
 CBuffer& CBuffer::prepend(const void* pData, const quint32 nLength)
 {
 	return insert(0, pData, nLength);
 }
+
 CBuffer& CBuffer::prepend(const char* pStr)
 {
 	return prepend(pStr, qstrlen(pStr));
@@ -98,6 +108,7 @@ CBuffer& CBuffer::insert(const quint32 i, const void* pData, const quint32 nLeng
 
 	return *this;
 }
+
 CBuffer& CBuffer::insert(const quint32 i, const char* pStr)
 {
 	return insert(i, pStr, qstrlen(pStr));
@@ -121,6 +132,7 @@ CBuffer& CBuffer::remove(const quint32 nPos, const quint32 nLength)
 
 	return *this;
 }
+
 CBuffer& CBuffer::remove(const quint32 nLength)
 {
 	return remove(0, nLength);
@@ -136,7 +148,7 @@ void CBuffer::ensure(const quint32 nLength)
 
 	if(m_nBuffer - m_nLength > nLength)
 	{
-        // We shrink the buffer if we allocated twice the minimum and we actually need less than minimum
+		// We shrink the buffer if we allocated twice the minimum and we actually need less than minimum
 		if(m_nBuffer > m_nMinimum * 2 && m_nLength + nLength < m_nMinimum)
 		{
 			const quint32 nBuffer = m_nMinimum;
@@ -196,3 +208,64 @@ void CBuffer::resize(const quint32 nLength)
 	}
 }
 
+QString CBuffer::toHex() const
+{
+	const char* pszHex = "0123456789ABCDEF";
+	QByteArray strDump;
+
+	strDump.resize(m_nLength * 3);
+	char* pszDump = strDump.data();
+
+	for(quint32 i = 0 ; i < m_nLength ; i++)
+	{
+		int nChar = *reinterpret_cast<uchar*>(&m_pBuffer[i]);
+		if(i)
+		{
+			*pszDump++ = ' ';
+		}
+		*pszDump++ = pszHex[ nChar >> 4 ];
+		*pszDump++ = pszHex[ nChar & 0x0F ];
+	}
+
+	*pszDump = 0;
+
+	return strDump;
+}
+
+QString CBuffer::toAscii() const
+{
+	QByteArray strDump;
+
+	strDump.resize(m_nLength + 1);
+	char* pszDump = strDump.data();
+
+	for(uint i = 0 ; i < m_nLength ; i++)
+	{
+		int nChar = *reinterpret_cast<uchar*>(&m_pBuffer[i]);
+		*pszDump++ = (nChar >= 32 ? nChar : '.');
+	}
+
+	*pszDump = 0;
+
+	return strDump;
+}
+
+QString CBuffer::dump() const
+{
+	QString sHex = toHex();
+	QString sAscii = toAscii();
+	QString sRet;
+
+	int nOffset = 0;
+
+	sRet = QString("Length: %1 \nOffset      Hex                             ASCII\n------------------------------------------------------\n").arg(m_nLength);
+
+	for( ; nOffset < sAscii.length(); nOffset += 10 )
+	{
+		QString sLine("0x%1  %2  %3\n");
+
+		sRet += sLine.arg(nOffset, 8, 16, QLatin1Char('0')).arg(sHex.mid(nOffset * 3, 10 * 3), -30, QLatin1Char(' ')).arg(sAscii.mid(nOffset, 10));
+	}
+
+	return sRet;
+}

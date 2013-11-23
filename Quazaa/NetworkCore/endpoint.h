@@ -26,13 +26,13 @@
 #define ENDPOINT_H
 
 #include <QHostAddress>
+#include "geoiplist.h"
 
 class CEndPoint : public QHostAddress
 {
 protected:
 	quint16	m_nPort;
-	mutable QString m_sCountry;
-	// TODO: security debugging
+	mutable QString m_sCountryCode;
 
 public:
 	CEndPoint();
@@ -45,100 +45,41 @@ public:
 	explicit CEndPoint(const QHostAddress& address, quint16 nPort);
 	CEndPoint(const CEndPoint& copy);
 	CEndPoint(SpecialAddress address, quint16 nPort = 0);
-	void setAddressWithPort(const QString& address);
 
 	CEndPoint& operator=(const CEndPoint& rhs);
-	inline bool operator ==(const CEndPoint& rhs) const;
-	inline bool operator !=(const CEndPoint& rhs) const;
-	inline bool operator ==(const QHostAddress& rhs) const;
-	inline bool operator !=(const QHostAddress& rhs) const;
+	CEndPoint& operator++();
+	CEndPoint& operator--();
+	CEndPoint operator++(int);
+	CEndPoint operator--(int);
 
-public:
-	void clear();
+	bool operator==(const CEndPoint& rhs) const;
+	bool operator!=(const CEndPoint& rhs) const;
+	bool operator<(const CEndPoint& rhs) const;
+	bool operator>(const CEndPoint& rhs) const;
+	bool operator<=(const CEndPoint& rhs) const;
+	bool operator>=(const CEndPoint& rhs) const;
+
+	bool operator==(const QHostAddress& rhs) const;
+	bool operator!=(const QHostAddress& rhs) const;
+
+	void setAddressWithPort(const QString& address);
 	QString toStringWithPort() const;
 
-	inline quint16 port() const;
-	inline void setPort(const quint16 nPort);
+	quint16 port() const;
+	void setPort(const quint16 nPort);
+
+	bool isFirewalled() const;
+	bool isValid() const;
 
 	QString country() const;
 
-	bool isFirewalled() const;
-	inline bool isValid() const;
-
-	inline void setAddress(quint32 ip4Addr);
-	inline void setAddress(quint8* ip6Addr);
-	inline void setAddress(const Q_IPV6ADDR& ip6Addr);
-	inline bool setAddress(const QString& address);
-	inline void setAddress(const sockaddr* sockaddr);
+	void clear();
 
 	friend QDataStream &operator<<(QDataStream &, const CEndPoint &);
 	friend QDataStream &operator>>(QDataStream &, CEndPoint &);
 };
 
-bool CEndPoint::operator ==(const CEndPoint& rhs) const
-{
-	return ( QHostAddress::operator ==( rhs ) && m_nPort == rhs.m_nPort );
-}
-bool CEndPoint::operator !=(const CEndPoint& rhs) const
-{
-	return !operator==( rhs );
-}
-bool CEndPoint::operator ==(const QHostAddress& rhs) const
-{
-	return QHostAddress::operator ==( rhs );
-}
-bool CEndPoint::operator !=(const QHostAddress& rhs) const
-{
-	return QHostAddress::operator !=( rhs );
-}
-
-quint16 CEndPoint::port() const
-{
-	return m_nPort;
-}
-
-void CEndPoint::setPort(const quint16 nPort)
-{
-	m_nPort = nPort;
-}
-
-bool CEndPoint::isValid() const
-{
-	return ( !isNull() && m_nPort  &&
-			 QHostAddress::operator !=( QHostAddress::Any ) &&
-			QHostAddress::operator !=( QHostAddress::AnyIPv6 ) );
-}
-
-void CEndPoint::setAddress(quint32 ip4Addr)
-{
-	m_sCountry.clear();
-	QHostAddress::setAddress(ip4Addr);
-}
-
-void CEndPoint::setAddress(quint8 *ip6Addr)
-{
-	m_sCountry.clear();
-	QHostAddress::setAddress(ip6Addr);
-}
-
-void CEndPoint::setAddress(const Q_IPV6ADDR &ip6Addr)
-{
-	m_sCountry.clear();
-	QHostAddress::setAddress(ip6Addr);
-}
-
-bool CEndPoint::setAddress(const QString &address)
-{
-	m_sCountry.clear();
-	return QHostAddress::setAddress(address);
-}
-
-void CEndPoint::setAddress(const sockaddr *sockaddr)
-{
-	m_sCountry.clear();
-	QHostAddress::setAddress(sockaddr);
-}
-
 QDataStream &operator<<(QDataStream &s, const CEndPoint &rhs);
 QDataStream &operator>>(QDataStream &s, CEndPoint &rhs);
+
 #endif // ENDPOINT_H

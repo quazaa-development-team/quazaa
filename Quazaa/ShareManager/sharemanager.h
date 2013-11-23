@@ -57,29 +57,29 @@ protected:
 public:
 	explicit CShareManager(QObject* parent = 0);
 
-	void Start();
-	void Stop();
+	void start();
+	void stop();
 
-	void AddDir(QString sPath);
+	void addDir(QString sPath);
 
-	void RemoveDir(QString sPath);
-	void RemoveDir(quint64 nId);
-	void RemoveFile(QString sPath);
-	void RemoveFile(quint64 nFileId);
+	void removeDir(QString sPath);
+	void removeDir(quint64 nId);
+	void removeFile(QString sPath);
+	void removeFile(quint64 nFileId);
 
-	void ScanFolder(QString sPath, qint64 nParentID = 0);
+	void scanFolder(QString sPath, qint64 nParentID = 0);
 
-	CQueryHashTable* GetHashTable();
+	CQueryHashTable* getHashTable();
 
-	bool SharesReady()
+	bool sharesAreReady()
 	{
 		return m_bReady;
 	}
 
-	QList<QSqlRecord> Query(const QString sQuery);
+	QList<QSqlRecord> query(const QString sQuery);
 
 protected:
-	void BuildHashTable();
+	void buildHashTable();
 signals:
 	void sharesReady();
 	void executeQuery(const QString& sQuery);
@@ -91,14 +91,14 @@ signals:
 	void remainingFilesChanged(qint32);
 
 public slots:
-	void SetupThread();
-	void CleanupThread();
+	void setupThread();
+	void cleanupThread();
 
-	void RunHashing();
-	void OnFileHashed(CSharedFilePtr pFile);
+	void runHashing();
+	void onFileHashed(CSharedFilePtr pFile);
 
 protected slots:
-	void SyncShares();
+	void syncShares();
 	void execQuery(const QString& sQuery);
 };
 

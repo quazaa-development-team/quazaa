@@ -11,10 +11,7 @@
 #define BUFSIZE 80
 
 // Preventing redefinition warnings on Windows using MinGW toolchain.
-// The QT_VERSION check is used as a substitute for checking against MinGW >= v4.7, as the Qt4.8 SDK
-// is delivered bundled with MinGW4.4 by default. This is a result of __MINGW32_MAJOR_VERSION and
-// __MINGW32_MINOR_VERSION being set to useless values for some reason.
-#if !( defined(Q_OS_WIN) && defined(Q_CC_GNU) && QT_VERSION >= 0x050000 )
+// [cedric] mingw xcompiler toolchain gives still problems though
 
 #ifndef Q_CC_MSVC
 #define VER_SUITE_WH_SERVER 0x8000
@@ -92,9 +89,6 @@
 #define PRODUCT_PROFESSIONAL_E                      0x00000045
 #define PRODUCT_ENTERPRISE_E                        0x00000046
 #define PRODUCT_ULTIMATE_E                          0x00000047
-
-#endif // !defined(Q_OS_WIN) || !defined(Q_CC_GNU) || QT_VERSION < 0x050000
-
 #define PRODUCT_ENTERPRISE_EVALUATION               0x00000048
 #define PRODUCT_MULTIPOINT_STANDARD_SERVER          0x0000004C
 #define PRODUCT_MULTIPOINT_PREMIUM_SERVER           0x0000004D
@@ -213,10 +207,8 @@ OSVersion::OSVersion CQuazaaSysInfo::osVersion()
 		return OSVersion::WinVista;
 	case QSysInfo::WV_WINDOWS7:
 		return OSVersion::Win7;
-#if QT_VERSION >= 0x050000
 	case QSysInfo::WV_WINDOWS8: // not yet defined in Qt4.8
 		return OSVersion::Win8;
-#endif
 	default:
 		return OSVersion::Win7;
 	}
@@ -295,12 +287,12 @@ QString CQuazaaSysInfo::osVersionToString()
 	case WindowsVersion::Windows7:
 		sVersion = "Windows 7";
 		break;
-    case WindowsVersion::WindowsServer2012:
-        sVersion = "Windows Server 2012";
-        break;
-    case WindowsVersion::Windows8:
-        sVersion = "Windows 8";
-        break;
+	case WindowsVersion::WindowsServer2012:
+		sVersion = "Windows Server 2012";
+		break;
+	case WindowsVersion::Windows8:
+		sVersion = "Windows 8";
+		break;
 	default:
 		sVersion = "Unknown Windows Version";
 		break;
@@ -335,119 +327,119 @@ QString CQuazaaSysInfo::osVersionToString()
 	case WindowsEdition::Enterprise:
 		sEdition = "Enterprise";
 		break;
-    case WindowsEdition::HomeBasicN:
+	case WindowsEdition::HomeBasicN:
 		sEdition = "Home Basic N";
 		break;
 	case WindowsEdition::Business:
 		sEdition = "Business";
 		break;
 	case WindowsEdition::StandardServer:
-        sEdition = "Server Standard";
+		sEdition = "Server Standard";
 		break;
-    case WindowsEdition::DatacenterServer:
-        sEdition = "Server Datacenter (full installation)";
-        break;
-    case WindowsEdition::SmallBusinessServer:
-        sEdition = "Small Business Server";
-        break;
-    case WindowsEdition::EnterpriseServer:
-        sEdition = "Server Enterprise (full installation)";
-        break;
-    case WindowsEdition::Starter:
-        sEdition = "Starter";
-        break;
-    case WindowsEdition::DatacenterServerCore:
-        sEdition = "Server Datacenter (core installation)";
-        break;
-    case WindowsEdition::StandardServerCore:
-        sEdition = "Server Standard (core installation)";
-        break;
+	case WindowsEdition::DatacenterServer:
+		sEdition = "Server Datacenter (full installation)";
+		break;
+	case WindowsEdition::SmallBusinessServer:
+		sEdition = "Small Business Server";
+		break;
+	case WindowsEdition::EnterpriseServer:
+		sEdition = "Server Enterprise (full installation)";
+		break;
+	case WindowsEdition::Starter:
+		sEdition = "Starter";
+		break;
+	case WindowsEdition::DatacenterServerCore:
+		sEdition = "Server Datacenter (core installation)";
+		break;
+	case WindowsEdition::StandardServerCore:
+		sEdition = "Server Standard (core installation)";
+		break;
 	case WindowsEdition::EnterpriseServerCore:
-        sEdition = "Server Enterprise (core installation)";
+		sEdition = "Server Enterprise (core installation)";
 		break;
 	case WindowsEdition::EnterpriseServerIA64:
-        sEdition = "Server Enterprise for Itanium-based Systems";
+		sEdition = "Server Enterprise for Itanium-based Systems";
 		break;
-    case WindowsEdition::BusinessN:
+	case WindowsEdition::BusinessN:
 		sEdition = "Business N";
 		break;
 	case WindowsEdition::WebServer:
-        sEdition = "Web Server (full installation)";
+		sEdition = "Web Server (full installation)";
 		break;
 	case WindowsEdition::ClusterServer:
-        sEdition = "High Performance Computing Edition";
+		sEdition = "High Performance Computing Edition";
 		break;
 	case WindowsEdition::HomeServer:
-        sEdition = "Storage Server 2008 R2 Essentials";
+		sEdition = "Storage Server 2008 R2 Essentials";
 		break;
 	case WindowsEdition::StorageExpressServer:
-        sEdition = "Storage Server Express";
+		sEdition = "Storage Server Express";
 		break;
 	case WindowsEdition::StorageStandardServer:
-        sEdition = "Storage Server Standard";
+		sEdition = "Storage Server Standard";
 		break;
 	case WindowsEdition::StorageWorkgroupServer:
-        sEdition = "Storage Server Workgroup";
+		sEdition = "Storage Server Workgroup";
 		break;
 	case WindowsEdition::StorageEnterpriseServer:
-        sEdition = "Storage Server Enterprise";
+		sEdition = "Storage Server Enterprise";
 		break;
 	case WindowsEdition::ServerForSmallBusiness:
-        sEdition = "for Windows Essential Server Solutions";
+		sEdition = "for Windows Essential Server Solutions";
 		break;
 	case WindowsEdition::SmallBusinessServerPremium:
 		sEdition = "Small Business Server Premium";
 		break;
-    case WindowsEdition::HomePremiumN:
+	case WindowsEdition::HomePremiumN:
 		sEdition = "Home Premium N";
 		break;
-    case WindowsEdition::EnterpriseN:
+	case WindowsEdition::EnterpriseN:
 		sEdition = "Enterprise N";
 		break;
-    case WindowsEdition::UltimateN:
+	case WindowsEdition::UltimateN:
 		sEdition = "Ultimate N";
 		break;
 	case WindowsEdition::WebServerCore:
-        sEdition = "Web Server (core installation)";
+		sEdition = "Web Server (core installation)";
 		break;
 	case WindowsEdition::MediumBusinessServerManagement:
-        sEdition = "Essential Business Server Management Server";
+		sEdition = "Essential Business Server Management Server";
 		break;
 	case WindowsEdition::MediumBusinessServerSecurity:
-        sEdition = "Essential Business Server Security Server";
+		sEdition = "Essential Business Server Security Server";
 		break;
 	case WindowsEdition::MediumBusinessServerMessaging:
-        sEdition = "Essential Business Server Messaging Server";
+		sEdition = "Essential Business Server Messaging Server";
 		break;
 	case WindowsEdition::ServerFoundation:
 		sEdition = "Server Foundation";
 		break;
 	case WindowsEdition::HomePremiumServer:
-        sEdition = "Home Server 2011";
+		sEdition = "Home Server 2011";
 		break;
-    case WindowsEdition::ServerForSmallBusinessV:
-        sEdition = "without Hyper-V for Windows Essential Server Solutions";
+	case WindowsEdition::ServerForSmallBusinessV:
+		sEdition = "without Hyper-V for Windows Essential Server Solutions";
 		break;
-    case WindowsEdition::StandardServerV:
-        sEdition = "Server Standard without Hyper-V";
+	case WindowsEdition::StandardServerV:
+		sEdition = "Server Standard without Hyper-V";
 		break;
-    case WindowsEdition::DatacenterServerV:
-        sEdition = "Server Datacenter without Hyper-V (full installation)";
+	case WindowsEdition::DatacenterServerV:
+		sEdition = "Server Datacenter without Hyper-V (full installation)";
 		break;
-    case WindowsEdition::EnterpriseServerV:
-        sEdition = "Server Enterprise without Hyper-V (full installation)";
+	case WindowsEdition::EnterpriseServerV:
+		sEdition = "Server Enterprise without Hyper-V (full installation)";
 		break;
-    case WindowsEdition::DatacenterServerCoreV:
-        sEdition = "Server Datacenter without Hyper-V (core installation)";
+	case WindowsEdition::DatacenterServerCoreV:
+		sEdition = "Server Datacenter without Hyper-V (core installation)";
 		break;
-    case WindowsEdition::StandardServerCoreV:
-        sEdition = "Server Standard without Hyper-V (core installation)";
+	case WindowsEdition::StandardServerCoreV:
+		sEdition = "Server Standard without Hyper-V (core installation)";
 		break;
-    case WindowsEdition::EnterpriseServerCoreV:
-        sEdition = "Server Enterprise without Hyper-V (core installation) ";
+	case WindowsEdition::EnterpriseServerCoreV:
+		sEdition = "Server Enterprise without Hyper-V (core installation) ";
 		break;
 	case WindowsEdition::HyperV:
-        sEdition = "Hyper-V Server";
+		sEdition = "Hyper-V Server";
 		break;
 	case WindowsEdition::StorageExpressServerCore:
 		sEdition = "Storage Express Server Core";
@@ -461,119 +453,119 @@ QString CQuazaaSysInfo::osVersionToString()
 	case WindowsEdition::StorageEnterpriseServerCore:
 		sEdition = "Storage Enterprise Server Core";
 		break;
-    case WindowsEdition::StarterN:
+	case WindowsEdition::StarterN:
 		sEdition = "Starter N";
 		break;
 	case WindowsEdition::Professional:
 		sEdition = "Professional";
 		break;
-    case WindowsEdition::ProfessionalN:
+	case WindowsEdition::ProfessionalN:
 		sEdition = "Professional N";
 		break;
 	case WindowsEdition::SBSolutionServer:
-        sEdition = "Windows Small Business Server 2011 Essentials";
+		sEdition = "Windows Small Business Server 2011 Essentials";
 		break;
-    case WindowsEdition::ServerForSBSolutions:
-        sEdition = "Server For Small Business Solutions";
+	case WindowsEdition::ServerForSBSolutions:
+		sEdition = "Server For Small Business Solutions";
 		break;
 	case WindowsEdition::StandardServerSolutions:
-        sEdition = "Server Solutions Premium";
+		sEdition = "Server Solutions Premium";
 		break;
 	case WindowsEdition::StandardServerSolutionsCore:
-        sEdition = "Server Solutions Premium (core installation)";
+		sEdition = "Server Solutions Premium (core installation)";
 		break;
-    case WindowsEdition::SBSolutionServerEM:
-        sEdition = "Server For Small Business Solutions EM";
+	case WindowsEdition::SBSolutionServerEM:
+		sEdition = "Server For Small Business Solutions EM";
 		break;
-    case WindowsEdition::ServerForSBSolutionsEM:
-        sEdition = "Server For Small Business Solutions EM";
+	case WindowsEdition::ServerForSBSolutionsEM:
+		sEdition = "Server For Small Business Solutions EM";
 		break;
 	case WindowsEdition::SolutionEmbeddedServer:
-        sEdition = "MultiPoint Server";
+		sEdition = "MultiPoint Server";
 		break;
 	case WindowsEdition::SolutionEmbeddedServerCore:
-        sEdition = "MultiPoint Server (core installation)";
-        break;
+		sEdition = "MultiPoint Server (core installation)";
+		break;
 	case WindowsEdition::EssentialBusinessServerMGMT:
-        sEdition = "Essential Server Solution Management";
+		sEdition = "Essential Server Solution Management";
 		break;
 	case WindowsEdition::EssentialBusinessServerADDL:
-        sEdition = "Essential Server Solution Additional";
+		sEdition = "Essential Server Solution Additional";
 		break;
 	case WindowsEdition::EssentialBusinessServerMGMTSVC:
-        sEdition = "Essential Server Solution Management Service";
+		sEdition = "Essential Server Solution Management Service";
 		break;
 	case WindowsEdition::EssentialBusinessServerADDLSVC:
-        sEdition = "Essential Server Solution Additional Service";
+		sEdition = "Essential Server Solution Additional Service";
 		break;
-    case WindowsEdition::SmallBusinessServerPremiumCore:
-        sEdition = "Small Business Server Premium (core installation)";
-        break;
-    case WindowsEdition::ClusterServerV:
-        sEdition = "Server Hyper Core V";
+	case WindowsEdition::SmallBusinessServerPremiumCore:
+		sEdition = "Small Business Server Premium (core installation)";
+		break;
+	case WindowsEdition::ClusterServerV:
+		sEdition = "Server Hyper Core V";
 		break;
 	case WindowsEdition::Embedded:
 		sEdition = "Embedded Standard";
 		break;
-    case WindowsEdition::StarterE:
-        sEdition = "Starter E";
+	case WindowsEdition::StarterE:
+		sEdition = "Starter E";
 		break;
-    case WindowsEdition::HomeBasicE:
-        sEdition = "Home Basic E";
+	case WindowsEdition::HomeBasicE:
+		sEdition = "Home Basic E";
 		break;
-    case WindowsEdition::HomePremiumE:
-        sEdition = "Home Premium E";
+	case WindowsEdition::HomePremiumE:
+		sEdition = "Home Premium E";
 		break;
-    case WindowsEdition::ProfessionalE:
-        sEdition = "Professional E";
+	case WindowsEdition::ProfessionalE:
+		sEdition = "Professional E";
 		break;
-    case WindowsEdition::EnterpriseE:
-        sEdition = "Enterprise E";
+	case WindowsEdition::EnterpriseE:
+		sEdition = "Enterprise E";
 		break;
-    case WindowsEdition::UltimateE:
-        sEdition = "Ultimate E";
+	case WindowsEdition::UltimateE:
+		sEdition = "Ultimate E";
 		break;
-    case WindowsEdition::EnterpriseEvaluation:
-        sEdition = "Server Enterprise (evaluation installation)";
-        break;
-    case WindowsEdition::MultipointStandardServer:
-        sEdition = "MultiPoint Server Standard (full installation)";
-        break;
-    case WindowsEdition::MultipointPremiumServer:
-        sEdition = "MultiPoint Server Premium (full installation)";
-        break;
-    case WindowsEdition::StandardEvaluationServer:
-        sEdition = "Server Standard (evaluation installation)";
-        break;
-    case WindowsEdition::DatacenterEvaluationServer:
-        sEdition = "Server Datacenter (evaluation installation)";
-        break;
-    case WindowsEdition::EnterpriseNEvaluation:
-        sEdition = "Enterprise N (evaluation installation)";
-        break;
-    case WindowsEdition::StorageWorkgroupEvaluationServer:
-        sEdition = "Storage Server Workgroup (evaluation installation)";
-        break;
-    case WindowsEdition::StorageStandardEvaluationServer:
-        sEdition = "Storage Server Standard (evaluation installation)";
-        break;
-    case WindowsEdition::CoreN:
-        sEdition = "Core N";
-        break;
-    case WindowsEdition::CoreCountrySpecific:
-        sEdition = "Core China";
-        break;
-    case WindowsEdition::CoreSingleLanguage:
-        sEdition = "Core Single Language";
-        break;
-    case WindowsEdition::Core:
-        sEdition = "Core";
-        break;
-    case WindowsEdition::ProfessionalWindowsMediaCenter:
-        sEdition = "Professional Windows Media Center";
-        break;
+	case WindowsEdition::EnterpriseEvaluation:
+		sEdition = "Server Enterprise (evaluation installation)";
+		break;
+	case WindowsEdition::MultipointStandardServer:
+		sEdition = "MultiPoint Server Standard (full installation)";
+		break;
+	case WindowsEdition::MultipointPremiumServer:
+		sEdition = "MultiPoint Server Premium (full installation)";
+		break;
+	case WindowsEdition::StandardEvaluationServer:
+		sEdition = "Server Standard (evaluation installation)";
+		break;
+	case WindowsEdition::DatacenterEvaluationServer:
+		sEdition = "Server Datacenter (evaluation installation)";
+		break;
+	case WindowsEdition::EnterpriseNEvaluation:
+		sEdition = "Enterprise N (evaluation installation)";
+		break;
+	case WindowsEdition::StorageWorkgroupEvaluationServer:
+		sEdition = "Storage Server Workgroup (evaluation installation)";
+		break;
+	case WindowsEdition::StorageStandardEvaluationServer:
+		sEdition = "Storage Server Standard (evaluation installation)";
+		break;
+	case WindowsEdition::CoreN:
+		sEdition = "Core N";
+		break;
+	case WindowsEdition::CoreCountrySpecific:
+		sEdition = "Core China";
+		break;
+	case WindowsEdition::CoreSingleLanguage:
+		sEdition = "Core Single Language";
+		break;
+	case WindowsEdition::Core:
+		sEdition = "Core";
+		break;
+	case WindowsEdition::ProfessionalWindowsMediaCenter:
+		sEdition = "Professional Windows Media Center";
+		break;
 	default:
-        sEdition = "Unknown Edition";
+		sEdition = "Unknown Edition";
 	}
 
 	sServicePack = GetServicePackInfo();
@@ -616,15 +608,15 @@ QString CQuazaaSysInfo::osVersionToString()
 		case QSysInfo::MV_10_6 :
 			operatingSystemString = "Mac OS X 10.6 Snow Leopard";
 			break;
-        case QSysInfo::MV_10_7 :
-            operatingSystemString = "Mac OS X 10.7 Lion";
-            break;
-        case QSysInfo::MV_10_8 :
-            operatingSystemString = "Mac OS X 10.8 Mountain Lion";
-            break;
-        case QSysInfo::MV_10_9 :
-            operatingSystemString = "Mac OS X 10.9 Mavericks";
-            break;
+		case QSysInfo::MV_10_7 :
+			operatingSystemString = "Mac OS X 10.7 Lion";
+			break;
+		case QSysInfo::MV_10_8 :
+			operatingSystemString = "Mac OS X 10.8 Mountain Lion";
+			break;
+		case QSysInfo::MV_10_9 :
+			operatingSystemString = "Mac OS X 10.9 Mavericks";
+			break;
 		case QSysInfo::MV_Unknown :
 			operatingSystemString = "An unknown and currently unsupported Mac platform";
 			break;
@@ -890,14 +882,14 @@ void CQuazaaSysInfo::DetectWindowsVersion()
 					 }
 					 break;
 
-                  case 2:
-                    {
-                        m_nWindowsVersion = m_osvi.wProductType == VER_NT_WORKSTATION ?
-                        WindowsVersion::Windows8 :
-                        WindowsVersion::WindowsServer2012;
-                    }
-                    break;
-                  }
+				  case 2:
+					{
+						m_nWindowsVersion = m_osvi.wProductType == VER_NT_WORKSTATION ?
+						WindowsVersion::Windows8 :
+						WindowsVersion::WindowsServer2012;
+					}
+					break;
+				  }
 			   }
 			   break;
 			}
@@ -1069,7 +1061,7 @@ void CQuazaaSysInfo::DetectWindowsEdition()
 			   m_nWindowsEdition = WindowsEdition::Enterprise;
 			   break;
 			case PRODUCT_HOME_BASIC_N:
-               m_nWindowsEdition = WindowsEdition::HomeBasicN;
+			   m_nWindowsEdition = WindowsEdition::HomeBasicN;
 			   break;
 			case PRODUCT_BUSINESS:
 			   m_nWindowsEdition = WindowsEdition::Business;
@@ -1102,7 +1094,7 @@ void CQuazaaSysInfo::DetectWindowsEdition()
 			   m_nWindowsEdition = WindowsEdition::EnterpriseServerIA64;
 			   break;
 			case PRODUCT_BUSINESS_N:
-               m_nWindowsEdition = WindowsEdition::BusinessN;
+			   m_nWindowsEdition = WindowsEdition::BusinessN;
 			   break;
 			case PRODUCT_WEB_SERVER:
 			   m_nWindowsEdition = WindowsEdition::WebServer;
@@ -1131,181 +1123,181 @@ void CQuazaaSysInfo::DetectWindowsEdition()
 			case PRODUCT_SMALLBUSINESS_SERVER_PREMIUM:
 			   m_nWindowsEdition = WindowsEdition::SmallBusinessServerPremium;
 			   break;
-            case PRODUCT_HOME_PREMIUM_N:
-                m_nWindowsEdition = WindowsEdition::HomePremiumN;
-                break;
-            case PRODUCT_ENTERPRISE_N:
-                m_nWindowsEdition = WindowsEdition::EnterpriseN;
-                break;
-            case PRODUCT_ULTIMATE_N:
-                m_nWindowsEdition = WindowsEdition::UltimateN;
-                break;
-            case PRODUCT_WEB_SERVER_CORE:
-                m_nWindowsEdition = WindowsEdition::WebServerCore;
-                break;
-            case PRODUCT_MEDIUMBUSINESS_SERVER_MANAGEMENT:
-                m_nWindowsEdition = WindowsEdition::MediumBusinessServerManagement;
-                break;
-            case PRODUCT_MEDIUMBUSINESS_SERVER_SECURITY:
-                m_nWindowsEdition = WindowsEdition::MediumBusinessServerSecurity;
-                break;
-            case PRODUCT_MEDIUMBUSINESS_SERVER_MESSAGING:
-                m_nWindowsEdition = WindowsEdition::MediumBusinessServerMessaging;
-                break;
-            case PRODUCT_SERVER_FOUNDATION:
-                m_nWindowsEdition = WindowsEdition::ServerFoundation;
-                break;
-            case PRODUCT_HOME_PREMIUM_SERVER:
-                m_nWindowsEdition = WindowsEdition::HomePremiumServer;
-                break;
-            case PRODUCT_SERVER_FOR_SMALLBUSINESS_V:
-                m_nWindowsEdition = WindowsEdition::ServerForSmallBusinessV;
-                break;
-            case PRODUCT_STANDARD_SERVER_V:
-                m_nWindowsEdition = WindowsEdition::StandardServerV;
-                break;
-            case PRODUCT_DATACENTER_SERVER_V:
-                m_nWindowsEdition = WindowsEdition::DatacenterServerV;
-                break;
-            case PRODUCT_ENTERPRISE_SERVER_V:
-                m_nWindowsEdition = WindowsEdition::EnterpriseServerV;
-                break;
-            case PRODUCT_DATACENTER_SERVER_CORE_V:
-                m_nWindowsEdition = WindowsEdition::DatacenterServerCoreV;
-                break;
-            case PRODUCT_STANDARD_SERVER_CORE_V:
-                m_nWindowsEdition = WindowsEdition::StandardServerCoreV;
-                break;
-            case PRODUCT_ENTERPRISE_SERVER_CORE_V:
-                m_nWindowsEdition = WindowsEdition::EnterpriseServerCoreV;
-                break;
-            case PRODUCT_HYPERV:
-                m_nWindowsEdition = WindowsEdition::HyperV;
-                break;
-            case PRODUCT_STORAGE_EXPRESS_SERVER_CORE:
-                m_nWindowsEdition = WindowsEdition::StorageExpressServerCore;
-                break;
-            case PRODUCT_STORAGE_STANDARD_SERVER_CORE:
-                m_nWindowsEdition = WindowsEdition::StorageStandardServerCore;
-                break;
-            case PRODUCT_STORAGE_WORKGROUP_SERVER_CORE:
-                m_nWindowsEdition = WindowsEdition::StorageWorkgroupServerCore;
-                break;
-            case PRODUCT_STORAGE_ENTERPRISE_SERVER_CORE:
-                m_nWindowsEdition = WindowsEdition::StorageEnterpriseServerCore;
-                break;
-            case PRODUCT_STARTER_N:
-                m_nWindowsEdition = WindowsEdition::StarterN;
-                break;
-            case PRODUCT_PROFESSIONAL:
-                m_nWindowsEdition = WindowsEdition::Professional;
-                break;
-            case PRODUCT_PROFESSIONAL_N:
-                m_nWindowsEdition = WindowsEdition::ProfessionalN;
-                break;
-            case PRODUCT_SB_SOLUTION_SERVER:
-                m_nWindowsEdition = WindowsEdition::SBSolutionServer;
-                break;
-            case PRODUCT_SERVER_FOR_SB_SOLUTIONS:
-                m_nWindowsEdition = WindowsEdition::ServerForSBSolutions;
-                break;
-            case PRODUCT_STANDARD_SERVER_SOLUTIONS:
-                m_nWindowsEdition = WindowsEdition::StandardServerSolutions;
-                break;
-            case PRODUCT_STANDARD_SERVER_SOLUTIONS_CORE:
-                m_nWindowsEdition = WindowsEdition::StandardServerSolutionsCore;
-                break;
-            case PRODUCT_SB_SOLUTION_SERVER_EM:
-                m_nWindowsEdition = WindowsEdition::SBSolutionServerEM;
-                break;
-            case PRODUCT_SERVER_FOR_SB_SOLUTIONS_EM:
-                m_nWindowsEdition = WindowsEdition::ServerForSBSolutionsEM;
-                break;
-            case PRODUCT_SOLUTION_EMBEDDEDSERVER:
-                m_nWindowsEdition = WindowsEdition::SolutionEmbeddedServer;
-                break;
-            case PRODUCT_SOLUTION_EMBEDDEDSERVER_CORE:
-                m_nWindowsEdition = WindowsEdition::SolutionEmbeddedServerCore;
-                break;
-            case PRODUCT_ESSENTIALBUSINESS_SERVER_MGMT:
-                m_nWindowsEdition = WindowsEdition::EssentialBusinessServerMGMT;
-                break;
-            case PRODUCT_ESSENTIALBUSINESS_SERVER_ADDL:
-                m_nWindowsEdition = WindowsEdition::EssentialBusinessServerADDL;
-                break;
-            case PRODUCT_ESSENTIALBUSINESS_SERVER_MGMTSVC:
-                m_nWindowsEdition = WindowsEdition::EssentialBusinessServerMGMTSVC;
-                break;
-            case PRODUCT_ESSENTIALBUSINESS_SERVER_ADDLSVC:
-                m_nWindowsEdition = WindowsEdition::EssentialBusinessServerADDLSVC;
-                break;
-            case PRODUCT_SMALLBUSINESS_SERVER_PREMIUM_CORE:
-                m_nWindowsEdition = WindowsEdition::SmallBusinessServerPremiumCore;
-                break;
-            case PRODUCT_CLUSTER_SERVER_V:
-                m_nWindowsEdition = WindowsEdition::ClusterServerV;
-                break;
-            case PRODUCT_EMBEDDED:
-                m_nWindowsEdition = WindowsEdition::Embedded;
-                break;
-            case PRODUCT_STARTER_E:
-                m_nWindowsEdition = WindowsEdition::StarterE;
-                break;
-            case PRODUCT_HOME_BASIC_E:
-                m_nWindowsEdition = WindowsEdition::HomeBasicE;
-                break;
-            case PRODUCT_HOME_PREMIUM_E:
-                m_nWindowsEdition = WindowsEdition::HomePremiumE;
-                break;
-            case PRODUCT_PROFESSIONAL_E:
-                m_nWindowsEdition = WindowsEdition::ProfessionalE;
-                break;
-            case PRODUCT_ENTERPRISE_E:
-                m_nWindowsEdition = WindowsEdition::EnterpriseE;
-                break;
-            case PRODUCT_ULTIMATE_E:
-                m_nWindowsEdition = WindowsEdition::UltimateE;
-                break;
-            case PRODUCT_ENTERPRISE_EVALUATION:
-                m_nWindowsEdition = WindowsEdition::EnterpriseEvaluation;
-                break;
-            case PRODUCT_MULTIPOINT_STANDARD_SERVER:
-                m_nWindowsEdition = WindowsEdition::MultipointStandardServer;
-                break;
-            case PRODUCT_MULTIPOINT_PREMIUM_SERVER:
-                m_nWindowsEdition = WindowsEdition::MultipointPremiumServer;
-                break;
-            case PRODUCT_STANDARD_EVALUATION_SERVER:
-                m_nWindowsEdition = WindowsEdition::StandardEvaluationServer;
-                break;
-            case PRODUCT_DATACENTER_EVALUATION_SERVER:
-                m_nWindowsEdition = WindowsEdition::DatacenterEvaluationServer;
-                break;
-            case PRODUCT_ENTERPRISE_N_EVALUATION:
-                m_nWindowsEdition = WindowsEdition::EnterpriseNEvaluation;
-                break;
-            case PRODUCT_STORAGE_WORKGROUP_EVALUATION_SERVER:
-                m_nWindowsEdition = WindowsEdition::StorageWorkgroupEvaluationServer;
-                break;
-            case PRODUCT_STORAGE_STANDARD_EVALUATION_SERVER:
-                m_nWindowsEdition = WindowsEdition::StorageStandardEvaluationServer;
-                break;
-            case PRODUCT_CORE_N:
-                m_nWindowsEdition = WindowsEdition::CoreN;
-                break;
-            case PRODUCT_CORE_COUNTRYSPECIFIC:
-                m_nWindowsEdition = WindowsEdition::CoreCountrySpecific;
-                break;
-            case PRODUCT_CORE_SINGLELANGUAGE:
-                m_nWindowsEdition = WindowsEdition::CoreSingleLanguage;
-                break;
-            case PRODUCT_CORE:
-                m_nWindowsEdition = WindowsEdition::Core;
-                break;
-            case PRODUCT_PROFESSIONAL_WMC:
-                m_nWindowsEdition = WindowsEdition::ProfessionalWindowsMediaCenter;
-                break;
-            }
+			case PRODUCT_HOME_PREMIUM_N:
+				m_nWindowsEdition = WindowsEdition::HomePremiumN;
+				break;
+			case PRODUCT_ENTERPRISE_N:
+				m_nWindowsEdition = WindowsEdition::EnterpriseN;
+				break;
+			case PRODUCT_ULTIMATE_N:
+				m_nWindowsEdition = WindowsEdition::UltimateN;
+				break;
+			case PRODUCT_WEB_SERVER_CORE:
+				m_nWindowsEdition = WindowsEdition::WebServerCore;
+				break;
+			case PRODUCT_MEDIUMBUSINESS_SERVER_MANAGEMENT:
+				m_nWindowsEdition = WindowsEdition::MediumBusinessServerManagement;
+				break;
+			case PRODUCT_MEDIUMBUSINESS_SERVER_SECURITY:
+				m_nWindowsEdition = WindowsEdition::MediumBusinessServerSecurity;
+				break;
+			case PRODUCT_MEDIUMBUSINESS_SERVER_MESSAGING:
+				m_nWindowsEdition = WindowsEdition::MediumBusinessServerMessaging;
+				break;
+			case PRODUCT_SERVER_FOUNDATION:
+				m_nWindowsEdition = WindowsEdition::ServerFoundation;
+				break;
+			case PRODUCT_HOME_PREMIUM_SERVER:
+				m_nWindowsEdition = WindowsEdition::HomePremiumServer;
+				break;
+			case PRODUCT_SERVER_FOR_SMALLBUSINESS_V:
+				m_nWindowsEdition = WindowsEdition::ServerForSmallBusinessV;
+				break;
+			case PRODUCT_STANDARD_SERVER_V:
+				m_nWindowsEdition = WindowsEdition::StandardServerV;
+				break;
+			case PRODUCT_DATACENTER_SERVER_V:
+				m_nWindowsEdition = WindowsEdition::DatacenterServerV;
+				break;
+			case PRODUCT_ENTERPRISE_SERVER_V:
+				m_nWindowsEdition = WindowsEdition::EnterpriseServerV;
+				break;
+			case PRODUCT_DATACENTER_SERVER_CORE_V:
+				m_nWindowsEdition = WindowsEdition::DatacenterServerCoreV;
+				break;
+			case PRODUCT_STANDARD_SERVER_CORE_V:
+				m_nWindowsEdition = WindowsEdition::StandardServerCoreV;
+				break;
+			case PRODUCT_ENTERPRISE_SERVER_CORE_V:
+				m_nWindowsEdition = WindowsEdition::EnterpriseServerCoreV;
+				break;
+			case PRODUCT_HYPERV:
+				m_nWindowsEdition = WindowsEdition::HyperV;
+				break;
+			case PRODUCT_STORAGE_EXPRESS_SERVER_CORE:
+				m_nWindowsEdition = WindowsEdition::StorageExpressServerCore;
+				break;
+			case PRODUCT_STORAGE_STANDARD_SERVER_CORE:
+				m_nWindowsEdition = WindowsEdition::StorageStandardServerCore;
+				break;
+			case PRODUCT_STORAGE_WORKGROUP_SERVER_CORE:
+				m_nWindowsEdition = WindowsEdition::StorageWorkgroupServerCore;
+				break;
+			case PRODUCT_STORAGE_ENTERPRISE_SERVER_CORE:
+				m_nWindowsEdition = WindowsEdition::StorageEnterpriseServerCore;
+				break;
+			case PRODUCT_STARTER_N:
+				m_nWindowsEdition = WindowsEdition::StarterN;
+				break;
+			case PRODUCT_PROFESSIONAL:
+				m_nWindowsEdition = WindowsEdition::Professional;
+				break;
+			case PRODUCT_PROFESSIONAL_N:
+				m_nWindowsEdition = WindowsEdition::ProfessionalN;
+				break;
+			case PRODUCT_SB_SOLUTION_SERVER:
+				m_nWindowsEdition = WindowsEdition::SBSolutionServer;
+				break;
+			case PRODUCT_SERVER_FOR_SB_SOLUTIONS:
+				m_nWindowsEdition = WindowsEdition::ServerForSBSolutions;
+				break;
+			case PRODUCT_STANDARD_SERVER_SOLUTIONS:
+				m_nWindowsEdition = WindowsEdition::StandardServerSolutions;
+				break;
+			case PRODUCT_STANDARD_SERVER_SOLUTIONS_CORE:
+				m_nWindowsEdition = WindowsEdition::StandardServerSolutionsCore;
+				break;
+			case PRODUCT_SB_SOLUTION_SERVER_EM:
+				m_nWindowsEdition = WindowsEdition::SBSolutionServerEM;
+				break;
+			case PRODUCT_SERVER_FOR_SB_SOLUTIONS_EM:
+				m_nWindowsEdition = WindowsEdition::ServerForSBSolutionsEM;
+				break;
+			case PRODUCT_SOLUTION_EMBEDDEDSERVER:
+				m_nWindowsEdition = WindowsEdition::SolutionEmbeddedServer;
+				break;
+			case PRODUCT_SOLUTION_EMBEDDEDSERVER_CORE:
+				m_nWindowsEdition = WindowsEdition::SolutionEmbeddedServerCore;
+				break;
+			case PRODUCT_ESSENTIALBUSINESS_SERVER_MGMT:
+				m_nWindowsEdition = WindowsEdition::EssentialBusinessServerMGMT;
+				break;
+			case PRODUCT_ESSENTIALBUSINESS_SERVER_ADDL:
+				m_nWindowsEdition = WindowsEdition::EssentialBusinessServerADDL;
+				break;
+			case PRODUCT_ESSENTIALBUSINESS_SERVER_MGMTSVC:
+				m_nWindowsEdition = WindowsEdition::EssentialBusinessServerMGMTSVC;
+				break;
+			case PRODUCT_ESSENTIALBUSINESS_SERVER_ADDLSVC:
+				m_nWindowsEdition = WindowsEdition::EssentialBusinessServerADDLSVC;
+				break;
+			case PRODUCT_SMALLBUSINESS_SERVER_PREMIUM_CORE:
+				m_nWindowsEdition = WindowsEdition::SmallBusinessServerPremiumCore;
+				break;
+			case PRODUCT_CLUSTER_SERVER_V:
+				m_nWindowsEdition = WindowsEdition::ClusterServerV;
+				break;
+			case PRODUCT_EMBEDDED:
+				m_nWindowsEdition = WindowsEdition::Embedded;
+				break;
+			case PRODUCT_STARTER_E:
+				m_nWindowsEdition = WindowsEdition::StarterE;
+				break;
+			case PRODUCT_HOME_BASIC_E:
+				m_nWindowsEdition = WindowsEdition::HomeBasicE;
+				break;
+			case PRODUCT_HOME_PREMIUM_E:
+				m_nWindowsEdition = WindowsEdition::HomePremiumE;
+				break;
+			case PRODUCT_PROFESSIONAL_E:
+				m_nWindowsEdition = WindowsEdition::ProfessionalE;
+				break;
+			case PRODUCT_ENTERPRISE_E:
+				m_nWindowsEdition = WindowsEdition::EnterpriseE;
+				break;
+			case PRODUCT_ULTIMATE_E:
+				m_nWindowsEdition = WindowsEdition::UltimateE;
+				break;
+			case PRODUCT_ENTERPRISE_EVALUATION:
+				m_nWindowsEdition = WindowsEdition::EnterpriseEvaluation;
+				break;
+			case PRODUCT_MULTIPOINT_STANDARD_SERVER:
+				m_nWindowsEdition = WindowsEdition::MultipointStandardServer;
+				break;
+			case PRODUCT_MULTIPOINT_PREMIUM_SERVER:
+				m_nWindowsEdition = WindowsEdition::MultipointPremiumServer;
+				break;
+			case PRODUCT_STANDARD_EVALUATION_SERVER:
+				m_nWindowsEdition = WindowsEdition::StandardEvaluationServer;
+				break;
+			case PRODUCT_DATACENTER_EVALUATION_SERVER:
+				m_nWindowsEdition = WindowsEdition::DatacenterEvaluationServer;
+				break;
+			case PRODUCT_ENTERPRISE_N_EVALUATION:
+				m_nWindowsEdition = WindowsEdition::EnterpriseNEvaluation;
+				break;
+			case PRODUCT_STORAGE_WORKGROUP_EVALUATION_SERVER:
+				m_nWindowsEdition = WindowsEdition::StorageWorkgroupEvaluationServer;
+				break;
+			case PRODUCT_STORAGE_STANDARD_EVALUATION_SERVER:
+				m_nWindowsEdition = WindowsEdition::StorageStandardEvaluationServer;
+				break;
+			case PRODUCT_CORE_N:
+				m_nWindowsEdition = WindowsEdition::CoreN;
+				break;
+			case PRODUCT_CORE_COUNTRYSPECIFIC:
+				m_nWindowsEdition = WindowsEdition::CoreCountrySpecific;
+				break;
+			case PRODUCT_CORE_SINGLELANGUAGE:
+				m_nWindowsEdition = WindowsEdition::CoreSingleLanguage;
+				break;
+			case PRODUCT_CORE:
+				m_nWindowsEdition = WindowsEdition::Core;
+				break;
+			case PRODUCT_PROFESSIONAL_WMC:
+				m_nWindowsEdition = WindowsEdition::ProfessionalWindowsMediaCenter;
+				break;
+			}
 		 }
 		 break;
 	  }

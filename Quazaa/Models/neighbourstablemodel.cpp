@@ -43,15 +43,15 @@ CNeighboursTableModel::Neighbour::Neighbour(CNeighbour* pNeighbour) : pNode( pNe
 {
 	quint32 tNow = time(0);
 
-    sHandshake      = pNode->m_sHandshake;
+	sHandshake      = pNode->m_sHandshake;
 	oAddress        = pNode->address();
 	tConnected      = tNow - pNode->m_tConnected;
 	nBandwidthIn    = pNode->m_mInput.Usage();
 	nBandwidthOut   = pNode->m_mOutput.Usage();
 	nBytesReceived  = pNode->m_mInput.m_nTotal;
 	nBytesSent      = pNode->m_mOutput.m_nTotal;
-	nCompressionIn  = pNode->GetTotalInDecompressed();
-	nCompressionOut = pNode->GetTotalOutCompressed();
+	nCompressionIn  = pNode->getTotalInDecompressed();
+	nCompressionOut = pNode->getTotalOutCompressed();
 	nLeafCount      = 0;
 	nLeafMax        = 0;
 	nPacketsIn      = pNode->m_nPacketsIn;
@@ -60,20 +60,20 @@ CNeighboursTableModel::Neighbour::Neighbour(CNeighbour* pNeighbour) : pNode( pNe
 	nState          = pNode->m_nState;
 	nType           = G2_UNKNOWN;
 	sUserAgent      = pNode->m_sUserAgent;
-    sCountryCode    = oAddress.country();
-    sCountry        = geoIP.countryNameFromCode( sCountryCode );
-    iCountry        = QIcon(":/Resource/Flags/" + sCountryCode.toLower() + ".png");
+	sCountryCode    = geoIP.findCountryCode(oAddress);
+	sCountry        = geoIP.countryNameFromCode( sCountryCode );
+	iCountry        = QIcon(":/Resource/Flags/" + sCountryCode.toLower() + ".png");
 
 	switch( pNode->m_nProtocol )
 	{
 	case dpG2:
-        nDiscoveryProtocol = dpG2;
+		nDiscoveryProtocol = dpG2;
 		nLeafCount = ((CG2Node*)pNode)->m_nLeafCount;
 		nLeafMax   = ((CG2Node*)pNode)->m_nLeafMax;
 		nType      = ((CG2Node*)pNode)->m_nType;
 		break;
 
-    default:
+	default:
 		break;
 	}
 
@@ -83,7 +83,7 @@ CNeighboursTableModel::Neighbour::Neighbour(CNeighbour* pNeighbour) : pNode( pNe
 bool CNeighboursTableModel::Neighbour::update(int row, int col, QModelIndexList& to_update,
 											  CNeighboursTableModel* model)
 {
-	if ( !Neighbours.NeighbourExists( pNode ) )
+	if ( !Neighbours.neighbourExists( pNode ) )
 	{
 		return false;
 	}
@@ -92,7 +92,7 @@ bool CNeighboursTableModel::Neighbour::update(int row, int col, QModelIndexList&
 
 	quint32 tNow = time(0);
 
-    sHandshake = pNode->m_sHandshake;
+	sHandshake = pNode->m_sHandshake;
 
 	if ( oAddress != pNode->address() )
 	{
@@ -137,8 +137,8 @@ bool CNeighboursTableModel::Neighbour::update(int row, int col, QModelIndexList&
 
 	nBytesReceived  = pNode->m_mInput.m_nTotal;
 	nBytesSent      = pNode->m_mOutput.m_nTotal;
-	nCompressionIn  = pNode->GetTotalInDecompressed();
-	nCompressionOut = pNode->GetTotalOutCompressed();
+	nCompressionIn  = pNode->getTotalInDecompressed();
+	nCompressionOut = pNode->getTotalOutCompressed();
 	to_update.append( model->index(row, BYTES));
 
 	if ( col == BYTES )
@@ -225,7 +225,7 @@ QVariant CNeighboursTableModel::Neighbour::data(int col) const
 				return QString().sprintf( "%.2u:%.2u:%.2u", tConnected / 3600,
 										  tConnected % 3600 / 60, ( tConnected % 3600 ) % 60 );
 			else
-				return StateToString(nState);
+				return stateToString(nState);
 
 		case BANDWIDTH:
 			return QString().sprintf( "%1.3f / %1.3f", nBandwidthIn / 1024.0f,
@@ -241,7 +241,7 @@ QVariant CNeighboursTableModel::Neighbour::data(int col) const
 			return QString().sprintf( "%u - %u", nPacketsIn, nPacketsOut );
 
 		case MODE:
-			return TypeToString( nType );
+			return typeToString( nType );
 
 		case LEAVES:
 			if ( nType == G2_HUB )
@@ -263,7 +263,7 @@ QVariant CNeighboursTableModel::Neighbour::data(int col) const
 			return sUserAgent;
 
 		case COUNTRY:
-            return sCountry;
+			return sCountry;
 	}
 
 	return QVariant();
@@ -276,9 +276,9 @@ bool CNeighboursTableModel::Neighbour::lessThan( int col,
 	{
 	case ADDRESS:
 		if ( oAddress.protocol() == QAbstractSocket::IPv4Protocol )
-			return oAddress.toIPv4Address() < pOther->oAddress.toIPv4Address();
+			return oAddress < pOther->oAddress;
 		else
-			return oAddress.toString() < pOther->oAddress.toString();
+			return oAddress < pOther->oAddress;
 
 	case TIME:
 		if ( nState != nsConnected )
@@ -297,10 +297,13 @@ bool CNeighboursTableModel::Neighbour::lessThan( int col,
 		return ( nPacketsIn + nPacketsOut ) < ( pOther->nPacketsIn + pOther->nPacketsOut );
 
 	case MODE:
-		return TypeToString( nType ) < TypeToString( pOther->nType );
+		return typeToString( nType ) < typeToString( pOther->nType );
 
 	case LEAVES:
-        return nLeafCount + nLeafMax < pOther->nLeafCount + pOther->nLeafMax;
+		if(nLeafCount == pOther->nLeafCount)
+			return nLeafMax < pOther->nLeafMax;
+
+		return nLeafCount < pOther->nLeafCount;
 
 	case PING:
 		if ( nState < nsConnected )
@@ -318,14 +321,14 @@ bool CNeighboursTableModel::Neighbour::lessThan( int col,
 		return sUserAgent < pOther->sUserAgent;
 
 	case COUNTRY:
-        return geoIP.countryNameFromCode( sCountry ) <
-                geoIP.countryNameFromCode( pOther->sCountry );
+		return geoIP.countryNameFromCode( sCountry ) <
+				geoIP.countryNameFromCode( pOther->sCountry );
 	default:
 		return false;
 	}
 
 }
-QString CNeighboursTableModel::Neighbour::StateToString(int s) const
+QString CNeighboursTableModel::Neighbour::stateToString(int s) const
 {
 	switch ( s )
 	{
@@ -345,7 +348,7 @@ QString CNeighboursTableModel::Neighbour::StateToString(int s) const
 		return QString();
 	}
 }
-QString CNeighboursTableModel::Neighbour::TypeToString(G2NodeType t) const
+QString CNeighboursTableModel::Neighbour::typeToString(G2NodeType t) const
 {
 	if ( t == G2_HUB )
 	{
@@ -368,10 +371,10 @@ CNeighboursTableModel::CNeighboursTableModel(QObject* parent, QWidget* container
 	m_nSortColumn  = -1;
 	m_bNeedSorting = false;
 
-	connect( &Neighbours, SIGNAL( NeighbourAdded(CNeighbour*) ),
-			 this, SLOT( AddNode(CNeighbour*) ), Qt::QueuedConnection );
-	connect( &Neighbours, SIGNAL(NeighbourRemoved(CNeighbour*) ),
-			 this, SLOT( RemoveNode(CNeighbour*) ), Qt::QueuedConnection );
+	connect( &Neighbours, SIGNAL( neighbourAdded(CNeighbour*) ),
+			 this, SLOT( addNode(CNeighbour*) ), Qt::QueuedConnection );
+	connect( &Neighbours, SIGNAL(neighbourRemoved(CNeighbour*) ),
+			 this, SLOT( removeNode(CNeighbour*) ), Qt::QueuedConnection );
 }
 
 CNeighboursTableModel::~CNeighboursTableModel()
@@ -433,7 +436,7 @@ QVariant CNeighboursTableModel::data(const QModelIndex& index, int role) const
 			return nbr->iCountry;
 		}
 	}
-    // TODO: Reimplement formatting options and use them for models.
+	// TODO: Reimplement formatting options and use them for models.
 	else if ( role == Qt::ForegroundRole )
 	{
 		switch ( nbr->nState )
@@ -614,7 +617,7 @@ void CNeighboursTableModel::sort(int column, Qt::SortOrder order)
 	emit layoutChanged();
 }
 
-CNeighbour* CNeighboursTableModel::NodeFromIndex(const QModelIndex& index)
+CNeighbour* CNeighboursTableModel::nodeFromIndex(const QModelIndex& index)
 {
 	if ( index.isValid() && index.row() < m_lNodes.count() && index.row() >= 0 )
 	{
@@ -626,10 +629,10 @@ CNeighbour* CNeighboursTableModel::NodeFromIndex(const QModelIndex& index)
 	}
 }
 
-void CNeighboursTableModel::AddNode(CNeighbour* pNode)
+void CNeighboursTableModel::addNode(CNeighbour* pNode)
 {
 	Neighbours.m_pSection.lock();
-	if ( Neighbours.NeighbourExists( pNode ) )
+	if ( Neighbours.neighbourExists( pNode ) )
 	{
 		beginInsertRows( QModelIndex(), m_lNodes.size(), m_lNodes.size() );
 		m_lNodes.append( new Neighbour( pNode ) );
@@ -639,7 +642,7 @@ void CNeighboursTableModel::AddNode(CNeighbour* pNode)
 	Neighbours.m_pSection.unlock();
 }
 
-void CNeighboursTableModel::RemoveNode(CNeighbour* pNode)
+void CNeighboursTableModel::removeNode(CNeighbour* pNode)
 {
 	for ( int i = 0, nMax = m_lNodes.size(); i < nMax; i++ )
 	{
@@ -675,7 +678,7 @@ void CNeighboursTableModel::RemoveNode(CNeighbour* pNode)
 	}
 }
 
-void CNeighboursTableModel::UpdateAll()
+void CNeighboursTableModel::updateAll()
 {
 	QModelIndexList uplist;
 	bool bSort = m_bNeedSorting;

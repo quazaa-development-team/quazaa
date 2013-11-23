@@ -1,9 +1,6 @@
-[submodule "Quazaa/3rdparty/libcommuni"]
-	path = Quazaa/3rdparty/libcommuni
+[submodule "Quazaa/3rdparty/communi-desktop/src/backend"]
+	path = Quazaa/3rdparty/communi-desktop/src/backend
 	url = https://github.com/communi/libcommuni.git
-[submodule "Quazaa/3rdparty/qtping"]
-	path = Quazaa/3rdparty/qtping
-	url = git://gitorious.org/neoframework/qtping.git
 [submodule "Quazaa/Security"]
 	path = Quazaa/Security
 	url = git://git.code.sf.net/p/quazaasecuritylibrary/code

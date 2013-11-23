@@ -52,9 +52,9 @@ static QString getGitShortVersionHash()
   result = process.waitForFinished(1000);
 
   if (result)
-    return process.readAllStandardOutput().trimmed();
+	return process.readAllStandardOutput().trimmed();
   else
-      return "unknown";
+	  return "unknown";
 }
 
 static QByteArray readFile(const QString& fileName)
@@ -83,21 +83,11 @@ static int writeFile(const QString& fileName, const int major, const int minor, 
 	out << "\tstatic const int MINOR = " << minor << ";\r\n";
 
 // Note: this only works for newer versions of gcc/MinGW
-// The QT_VERSION check is used as a substitute for checking against MinGW >= v4.7, as the Qt4.8 SDK
-// is delivered bundled with MinGW4.4 by default. This is a result of __MINGW32_MAJOR_VERSION and
-// __MINGW32_MINOR_VERSION being set to useless values for some reason.
-#if defined(Q_CC_GNU) && QT_VERSION >= 0x050000
 	out << "#pragma GCC diagnostic push\r\n";                         // save diagnostic settings
 	out << "#pragma GCC diagnostic ignored \"-Wunused-variable\"\r\n";// suppress unused var warning
-#endif
-
 	out << "\tstatic const char* REVISION = \"" << revision << "\";\r\n";
 	out << "\tstatic const char* BUILD_DATE = \"" << build << "\";\r\n";
-
-#if defined(Q_CC_GNU) && QT_VERSION >= 0x050000
 	out << "#pragma GCC diagnostic pop\r\n";                          // restore diagnostic settings
-#endif
-
 	out << "}\r\n\r\n";
 	out << "#endif // VERSION_H\r\n";
 

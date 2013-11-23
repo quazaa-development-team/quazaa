@@ -34,7 +34,7 @@ public:
 	CNeighbours(QObject* parent = 0);
 	virtual ~CNeighbours();
 
-	void Maintain();
+	void maintain();
 };
 
 extern CNeighbours Neighbours;

@@ -62,8 +62,8 @@ public:
 		CEndPoint     oAddress;
 		G2NodeType    nType;
 		int           nState;
-        QString       sHandshake;
-        int           nDiscoveryProtocol;
+		QString       sHandshake;
+		int           nDiscoveryProtocol;
 		quint32       tConnected;
 		quint32       nPacketsIn;
 		quint32       nPacketsOut;
@@ -77,9 +77,9 @@ public:
 		quint32       nLeafMax;
 		qint64        nRTT;
 		QString       sUserAgent;
-        QString		  sCountryCode;
-        QString       sCountry;
-        QIcon		  iNetwork;
+		QString		  sCountryCode;
+		QString       sCountry;
+		QIcon		  iNetwork;
 		QIcon		  iCountry;
 
 		Neighbour(CNeighbour* pNeighbour);
@@ -87,8 +87,8 @@ public:
 		QVariant data(int col) const;
 		bool lessThan(int col, CNeighboursTableModel::Neighbour* pOther) const;
 
-		QString StateToString(int s) const;
-		QString TypeToString(G2NodeType t) const;
+		QString stateToString(int s) const;
+		QString typeToString(G2NodeType t) const;
 
 	};
 
@@ -106,7 +106,7 @@ public:
 
 	void sort(int column, Qt::SortOrder order);
 
-	CNeighbour* NodeFromIndex(const QModelIndex& index);
+	CNeighbour* nodeFromIndex(const QModelIndex& index);
 protected:
 
 private:
@@ -116,9 +116,9 @@ private:
 	bool			m_bNeedSorting;
 
 public slots:
-	void AddNode(CNeighbour* pNode);
-	void RemoveNode(CNeighbour* pNode);
-	void UpdateAll();
+	void addNode(CNeighbour* pNode);
+	void removeNode(CNeighbour* pNode);
+	void updateAll();
 };
 
 #endif // NEIGHBOURSTABLEMODELL_H

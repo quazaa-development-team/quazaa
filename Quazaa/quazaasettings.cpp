@@ -28,27 +28,44 @@
 #include <QSettings>
 #include <QUuid>
 
-#if QT_VERSION >= 0x050000
-#include <QStandardPaths>
-#else
-#include <QDesktopServices>
-#endif
-
 #include "debug_new.h"
 
+
+/*!
+	\file quazaasettings.h
+	\brief \#include &qout;quazaasettings.h&quot;
+ */
+
+/*!
+	\class CQuazaaSettings quazaasettings.h
+	\ingroup base
+	\brief Persistent settings used throughout quazaa.
+
+	The CQuazaaSettings class provides a single place to store, save and load
+	persistent settings used throughout Quazaa.
+
+	\section Accessing CQuazaaSettings
+
+	It is recommended to access CQuazaaSettings via the extern
+	quazaaSettings.Struct.Variable and quazaaSettings.function methods.
+ */
+
+// This is the extern declaration used everywhere else in quazaa.
 CQuazaaSettings quazaaSettings;
 
+/*!
+	Creates a quazaaSettings object. Generally not necessary.
+ */
 CQuazaaSettings::CQuazaaSettings()
 {
 }
 
+/*!
+	Saves most of Quazaa's settings to persistent .ini file.
+ */
 void CQuazaaSettings::saveSettings()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Ares");
 	m_qSettings.setValue("Enable", quazaaSettings.Ares.Enable);
@@ -108,7 +125,6 @@ void CQuazaaSettings::saveSettings()
 
 	m_qSettings.beginGroup("Discovery");
 	m_qSettings.setValue("AccessThrottle",            quazaaSettings.Discovery.AccessThrottle);
-	m_qSettings.setValue("DataPath",                  quazaaSettings.Discovery.DataPath);
 	m_qSettings.setValue("FailureLimit",              quazaaSettings.Discovery.FailureLimit);
 	m_qSettings.setValue("MaximalServiceRating",      quazaaSettings.Discovery.MaximumServiceRating);
 	m_qSettings.setValue("ServiceTimeout",            quazaaSettings.Discovery.ServiceTimeout);
@@ -375,13 +391,12 @@ void CQuazaaSettings::saveSettings()
 	m_qSettings.setValue("RemoteEnable", quazaaSettings.Security.RemoteEnable);
 	m_qSettings.setValue("RemotePassword", quazaaSettings.Security.RemotePassword);
 	m_qSettings.setValue("RemoteUsername", quazaaSettings.Security.RemoteUsername);
-	m_qSettings.setValue("SearchIgnoreLocalIP", quazaaSettings.Security.SearchIgnoreLocalIP);
+	m_qSettings.setValue("SearchIgnoreLocalIP", quazaaSettings.Security.IgnorePrivateIP);
 	m_qSettings.setValue("SearchIgnoreOwnIP", quazaaSettings.Security.SearchIgnoreOwnIP);
 	m_qSettings.setValue("SearchSpamFilterThreshold", quazaaSettings.Security.SearchSpamFilterThreshold);
 	m_qSettings.setValue("UPnPSkipWANIPSetup", quazaaSettings.Security.UPnPSkipWANIPSetup);
 	m_qSettings.setValue("UPnPSkipWANPPPSetup", quazaaSettings.Security.UPnPSkipWANPPPSetup);
 
-	m_qSettings.setValue("DataPath", quazaaSettings.Security.DataPath);
 	m_qSettings.setValue("LogIPCheckHits", quazaaSettings.Security.LogIPCheckHits);
 	m_qSettings.setValue("MaxUnsavedRules", quazaaSettings.Security.MaxUnsavedRules);
 	m_qSettings.setValue("MissCacheExpiryInterval", quazaaSettings.Security.MissCacheExpiryInterval);
@@ -460,15 +475,12 @@ void CQuazaaSettings::saveSettings()
 	m_qSettings.endGroup();
 }
 
+/*!
+	Loads most of Quazaa's settings from persistent .ini file.
+ */
 void CQuazaaSettings::loadSettings()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-	QString sDefaultDataPath = QString( "%1/%2/" ).arg( QStandardPaths::writableLocation( QStandardPaths::DataLocation ), "Data" );
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-	QString sDefaultDataPath = QString( "%1/%2/" ).arg( QDesktopServices::storageLocation( QDesktopServices::DataLocation ), "Data" );
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Ares");
 	quazaaSettings.Ares.Enable = m_qSettings.value("Enable", true).toBool();
@@ -502,11 +514,7 @@ void CQuazaaSettings::loadSettings()
 	quazaaSettings.BitTorrent.SourceExchangePeriod = m_qSettings.value("SourceExchangePeriod", 10).toInt();
 	quazaaSettings.BitTorrent.StartPaused = m_qSettings.value("StartPaused", false).toBool();
 	quazaaSettings.BitTorrent.TestPartials = m_qSettings.value("TestPartials", true).toBool();
-#if QT_VERSION >= 0x050000
-	quazaaSettings.BitTorrent.TorrentPath = m_qSettings.value("TorrentPath", QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/Quazaa/Torrents").toString();
-#else
-	quazaaSettings.BitTorrent.TorrentPath = m_qSettings.value("TorrentPath", QDesktopServices::storageLocation(QDesktopServices::HomeLocation) + "/Quazaa/Torrents").toString();
-#endif
+	quazaaSettings.BitTorrent.TorrentPath = m_qSettings.value("TorrentPath", CQuazaaGlobals::STORAGE_PATH() + "Torrents").toString();
 	quazaaSettings.BitTorrent.TrackerKey = m_qSettings.value("TrackerKey", true).toBool();
 	quazaaSettings.BitTorrent.UploadCount = m_qSettings.value("UploadCount", 4).toInt();
 	quazaaSettings.BitTorrent.UseKademlia = m_qSettings.value("UseKademlia", true).toBool();
@@ -534,21 +542,12 @@ void CQuazaaSettings::loadSettings()
 
 	m_qSettings.beginGroup("Discovery");
 	quazaaSettings.Discovery.AccessThrottle            = m_qSettings.value("AccessThrottle", 60).toUInt();
-	quazaaSettings.Discovery.DataPath                  = m_qSettings.value("DataPath", sDefaultDataPath).toString();
 	quazaaSettings.Discovery.FailureLimit              = m_qSettings.value("FailureLimit", 2).toUInt();
 	quazaaSettings.Discovery.MaximumServiceRating      = m_qSettings.value("MaximalServiceRating", 10).toUInt();
 	quazaaSettings.Discovery.ServiceTimeout            = m_qSettings.value("ServiceTimeout", 10).toUInt();
 	quazaaSettings.Discovery.ZeroRatingRevivalInterval = m_qSettings.value("ZeroRatingRevivalInterval", 60 * 24 * 10).toUInt();
 	quazaaSettings.Discovery.ZeroRatingRevivalTries    = m_qSettings.value("ZeroRatingRevivalTries", 2 ).toUInt();
 	m_qSettings.endGroup();
-
-
-
-
-//TODO: Move this to a more appropriate place.
-
-	QDir dir;
-	/*bool bOK = */dir.mkpath( quazaaSettings.Discovery.DataPath );
 
 	m_qSettings.beginGroup("Downloads");
 	quazaaSettings.Downloads.AllowBackwards = m_qSettings.value("AllowBackwards", true).toBool();
@@ -557,20 +556,12 @@ void CQuazaaSettings::loadSettings()
 	quazaaSettings.Downloads.ChunkSize = m_qSettings.value("ChunkSize", 524288).toInt();
 	quazaaSettings.Downloads.ChunkStrap = m_qSettings.value("ChunkStrap", 131072).toInt();
 	quazaaSettings.Downloads.ClearDelay = m_qSettings.value("ClearDelay", 30000).toInt();
-#if QT_VERSION >= 0x050000
-	quazaaSettings.Downloads.CompletePath = m_qSettings.value("CompletePath", QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Quazaa Downloads").toString();
-#else
-	quazaaSettings.Downloads.CompletePath = m_qSettings.value("CompletePath", QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation) + "/Quazaa Downloads").toString();
-#endif
+	quazaaSettings.Downloads.CompletePath = m_qSettings.value("CompletePath", QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)).toString();
 	quazaaSettings.Downloads.ConnectThrottle = m_qSettings.value("ConnectThrottle", 800).toInt();
 	quazaaSettings.Downloads.DropFailedSourcesThreshold = m_qSettings.value("DropFailedSourcesThreshold", 20).toInt();
 	quazaaSettings.Downloads.ExpandDownloads = m_qSettings.value("ExpandDownloads", false).toBool();
 	quazaaSettings.Downloads.FlushSD = m_qSettings.value("FlushSD", true).toBool();
-#if QT_VERSION >= 0x050000
-	quazaaSettings.Downloads.IncompletePath = m_qSettings.value("IncompletePath", QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/Quazaa/Incomplete").toString();
-#else
-	quazaaSettings.Downloads.IncompletePath = m_qSettings.value("IncompletePath", QDesktopServices::storageLocation(QDesktopServices::HomeLocation) + "/Quazaa/Incomplete").toString();
-#endif
+	quazaaSettings.Downloads.IncompletePath = m_qSettings.value("IncompletePath", CQuazaaGlobals::STORAGE_PATH() + "Incomplete").toString();
 	quazaaSettings.Downloads.MaxAllowedFailures = m_qSettings.value("MaxAllowedFailures", 10).toInt();
 	quazaaSettings.Downloads.MaxConnectingSources = m_qSettings.value("MaxConnectingSources", 8).toInt();
 	quazaaSettings.Downloads.MaxFiles = m_qSettings.value("MaxFiles", 26).toInt();
@@ -731,13 +722,8 @@ void CQuazaaSettings::loadSettings()
 	quazaaSettings.Library.ScanOGG = m_qSettings.value("ScanOGG", true).toBool();
 	quazaaSettings.Library.ScanPDF = m_qSettings.value("ScanPDF", true).toBool();
 	quazaaSettings.Library.SchemaURI = m_qSettings.value("SchemaURI", "http://www.limewire.com/schemas/audio.xsd").toString();
-#if QT_VERSION >= 0x050000
-	quazaaSettings.Library.Shares = m_qSettings.value("Shares", QStringList() << QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Quazaa Downloads"
-									<< QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/Quazaa/Torrents").toStringList();
-#else
-	quazaaSettings.Library.Shares = m_qSettings.value("Shares", QStringList() << QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation) + "/Quazaa Downloads"
-									<< QDesktopServices::storageLocation(QDesktopServices::HomeLocation) + "/Quazaa/Torrents").toStringList();
-#endif
+	quazaaSettings.Library.Shares = m_qSettings.value("Shares", QStringList() << quazaaSettings.Downloads.CompletePath
+									<< quazaaSettings.BitTorrent.TorrentPath).toStringList();
 	quazaaSettings.Library.ShowCoverArt = m_qSettings.value("ShowCoverArt", true).toBool();
 	quazaaSettings.Library.SmartSeriesDetection = m_qSettings.value("SmartSeriesDetection", false).toBool();
 	quazaaSettings.Library.SourceExpire = m_qSettings.value("SourceExpire", 86400).toInt();
@@ -772,11 +758,7 @@ void CQuazaaSettings::loadSettings()
 									 << "m1v" << "mp2" << "mpa" << "mpe").toStringList();
 	quazaaSettings.Media.ListVisible = m_qSettings.value("ListVisible", true).toBool();
 	quazaaSettings.Media.Mute = m_qSettings.value("Mute", false).toBool();
-#if QT_VERSION >= 0x050000
-	quazaaSettings.Media.OpenPath = m_qSettings.value("OpenPath", QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/Quazaa Downloads").toString();
-#else
-	quazaaSettings.Media.OpenPath = m_qSettings.value("OpenPath", QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation) + "/Quazaa Downloads").toString();
-#endif
+	quazaaSettings.Media.OpenPath = m_qSettings.value("OpenPath", quazaaSettings.Downloads.CompletePath).toString();
 	quazaaSettings.Media.Playlist = m_qSettings.value("Playlist", QStringList()).toStringList();
 	quazaaSettings.Media.Shuffle = m_qSettings.value("Shuffle", false).toBool();
 	quazaaSettings.Media.Repeat = m_qSettings.value("Repeat", false).toBool();
@@ -837,13 +819,11 @@ void CQuazaaSettings::loadSettings()
 	quazaaSettings.Security.RemoteEnable = m_qSettings.value("RemoteEnable", false).toBool();
 	quazaaSettings.Security.RemotePassword = m_qSettings.value("RemotePassword", "").toString();
 	quazaaSettings.Security.RemoteUsername = m_qSettings.value("RemoteUsername", "").toString();
-	quazaaSettings.Security.SearchIgnoreLocalIP = m_qSettings.value("SearchIgnoreLocalIP", true).toBool();
+	quazaaSettings.Security.IgnorePrivateIP = m_qSettings.value("SearchIgnoreLocalIP", true).toBool();
 	quazaaSettings.Security.SearchIgnoreOwnIP = m_qSettings.value("SearchIgnoreOwnIP", true).toBool();
 	quazaaSettings.Security.SearchSpamFilterThreshold = m_qSettings.value("SearchSpamFilterThreshold", 20).toInt();
 	quazaaSettings.Security.UPnPSkipWANIPSetup = m_qSettings.value("UPnPSkipWANIPSetup", false).toBool();
 	quazaaSettings.Security.UPnPSkipWANPPPSetup = m_qSettings.value("UPnPSkipWANPPPSetup", false).toBool();
-
-	quazaaSettings.Security.DataPath = m_qSettings.value( "DataPath", sDefaultDataPath ).toString();
 	quazaaSettings.Security.LogIPCheckHits = m_qSettings.value("LogIPCheckHits", false).toBool();
 	quazaaSettings.Security.MaxUnsavedRules = m_qSettings.value("MaxUnsavedRules", 100).toUInt();
 	quazaaSettings.Security.MissCacheExpiryInterval = m_qSettings.value("MissCacheExpiryInterval", 600).toUInt();
@@ -929,39 +909,36 @@ void CQuazaaSettings::loadSettings()
 	m_qSettings.endGroup();
 }
 
+/*!
+	Saves the IRC chat connections to persistent .ini file.
+ */
 void CQuazaaSettings::saveChatConnections()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Chat");
 	m_qSettings.setValue("Connections", quazaaSettings.Chat.Connections);
 	m_qSettings.endGroup();
 }
 
+/*!
+	Loads the IRC chat connections from persistent .ini file.
+ */
 void CQuazaaSettings::loadChatConnections()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Chat");
 	quazaaSettings.Chat.Connections = m_qSettings.value("Connections");
 	m_qSettings.endGroup();
 }
 
+/*!
+	Saves the IRC chat connection dialog's autocomplete lists to persistent .ini file.
+ */
 void CQuazaaSettings::saveChatConnectionWizard()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Chat");
 	m_qSettings.setValue("Hosts", quazaaSettings.Chat.Hosts);
@@ -972,13 +949,12 @@ void CQuazaaSettings::saveChatConnectionWizard()
 	m_qSettings.endGroup();
 }
 
+/*!
+	Loads the IRC chat connection dialog's autocomplete lists from persistent .ini file.
+ */
 void CQuazaaSettings::loadChatConnectionWizard()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Chat");
 	quazaaSettings.Chat.Hosts = m_qSettings.value("Hosts", QStringList() << "irc.paradoxirc.net" << "us.paradoxirc.net"
@@ -992,33 +968,33 @@ void CQuazaaSettings::loadChatConnectionWizard()
 	m_qSettings.endGroup();
 }
 
+/*!
+	Saves the IRC chat settings to persistent .ini file.
+ */
 void CQuazaaSettings::saveChat()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Chat");
+	m_qSettings.setValue("Font", quazaaSettings.Chat.Font);
 	m_qSettings.setValue("ConnectOnStartup", quazaaSettings.Chat.ConnectOnStartup);
 	m_qSettings.setValue("EnableFileTransfers", quazaaSettings.Chat.EnableFileTransfers);
 	m_qSettings.setValue("ShowTimestamp", quazaaSettings.Chat.ShowTimestamp);
 	m_qSettings.setValue("TimeStampFormat", quazaaSettings.Chat.TimestampFormat);
-	m_qSettings.setValue("MaxBlockCount", quazaaSettings.Chat.MaxBlockCount);
-	m_qSettings.setValue("Layout", quazaaSettings.Chat.Layout);
+	m_qSettings.setValue("MaxBlockCount", quazaaSettings.Chat.Scrollback);
 	m_qSettings.setValue("StripNicks", quazaaSettings.Chat.StripNicks);
+	m_qSettings.setValue("HighlightSounds", quazaaSettings.Chat.HighlightSounds);
+	m_qSettings.setValue("DarkTheme", quazaaSettings.Chat.DarkTheme);
 
-
-	m_qSettings.setValue("ShortcutsNavigateUp", quazaaSettings.Chat.Shortcuts[IrcShortcutType::NavigateUp]);
-	m_qSettings.setValue("ShortcutsNavigateDown", quazaaSettings.Chat.Shortcuts[IrcShortcutType::NavigateDown]);
-	m_qSettings.setValue("ShortcutsNavigateLeft", quazaaSettings.Chat.Shortcuts[IrcShortcutType::NavigateLeft]);
-	m_qSettings.setValue("ShortcutsNavigateRight", quazaaSettings.Chat.Shortcuts[IrcShortcutType::NavigateRight]);
-
-	m_qSettings.setValue("ShortcutsNextUnreadUp", quazaaSettings.Chat.Shortcuts[IrcShortcutType::NextUnreadUp]);
-	m_qSettings.setValue("ShortcutsNextUnreadDown", quazaaSettings.Chat.Shortcuts[IrcShortcutType::NextUnreadDown]);
-	m_qSettings.setValue("ShortcutsNextUnreadLeft", quazaaSettings.Chat.Shortcuts[IrcShortcutType::NextUnreadLeft]);
-	m_qSettings.setValue("ShortcutsNextUnreadRight", quazaaSettings.Chat.Shortcuts[IrcShortcutType::NextUnreadRight]);
+	m_qSettings.setValue("ShortcutNextView", quazaaSettings.Chat.Shortcuts[IrcShortcutType::NextView]);
+	m_qSettings.setValue("ShortcutPreviousView", quazaaSettings.Chat.Shortcuts[IrcShortcutType::PreviousView]);
+	m_qSettings.setValue("ShortcutNextActiveView", quazaaSettings.Chat.Shortcuts[IrcShortcutType::NextActiveView]);
+	m_qSettings.setValue("ShortcutPreviousActiveView", quazaaSettings.Chat.Shortcuts[IrcShortcutType::PreviousActiveView]);
+	m_qSettings.setValue("ShortcutMostActiveView", quazaaSettings.Chat.Shortcuts[IrcShortcutType::MostActiveView]);
+	m_qSettings.setValue("ShortcutExpandView", quazaaSettings.Chat.Shortcuts[IrcShortcutType::ExpandView]);
+	m_qSettings.setValue("ShortcutCollapseView", quazaaSettings.Chat.Shortcuts[IrcShortcutType::CollapseView]);
+	m_qSettings.setValue("ShortcutSearchView", quazaaSettings.Chat.Shortcuts[IrcShortcutType::SearchView]);
+	m_qSettings.setValue("ShortcutResetViews", quazaaSettings.Chat.Shortcuts[IrcShortcutType::ResetViews]);
 
 	m_qSettings.setValue("MessagesJoins", quazaaSettings.Chat.Messages[IrcMessageType::Joins]);
 	m_qSettings.setValue("MessagesParts", quazaaSettings.Chat.Messages[IrcMessageType::Parts]);
@@ -1077,41 +1053,42 @@ void CQuazaaSettings::saveChat()
 	emit chatSettingsChanged();
 }
 
+/*!
+	Loads the IRC chat settings from persistent .ini file.
+ */
 void CQuazaaSettings::loadChat()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Chat");
 
+	quazaaSettings.Chat.Font = m_qSettings.value("Font", QFont()).value<QFont>();
 	quazaaSettings.Chat.ConnectOnStartup = m_qSettings.value("ConnectOnStartup", false).toBool();
 	quazaaSettings.Chat.EnableFileTransfers = m_qSettings.value("EnableFileTransfers", true).toBool();
 	quazaaSettings.Chat.ShowTimestamp = m_qSettings.value("ShowTimestamp", false).toBool();
 	quazaaSettings.Chat.TimestampFormat = m_qSettings.value("TimeStampFormat", "[hh:mm:ss]").toString();
-	quazaaSettings.Chat.MaxBlockCount = m_qSettings.value("MaxBlockCount", -1).toInt();
-	quazaaSettings.Chat.Layout = m_qSettings.value("Layout", "tree").toString();
+	quazaaSettings.Chat.Scrollback = m_qSettings.value("MaxBlockCount", -1).toInt();
 	quazaaSettings.Chat.StripNicks = m_qSettings.value("StripNicks", false).toBool();
+	quazaaSettings.Chat.HighlightSounds = m_qSettings.value("HighlightSounds", true).toBool();
+	quazaaSettings.Chat.DarkTheme = m_qSettings.value("DarkTheme", false).toBool();
 
 #ifdef Q_OS_MAC
 	QString navigate("Ctrl+Alt+%1");
-	QString nextUnread("Shift+Ctrl+Alt+%1");
+	QString nextActive("Shift+Ctrl+Alt+%1");
 #else
 	QString navigate("Alt+%1");
-	QString nextUnread("Shift+Alt+%1");
+	QString nextActive("Shift+Alt+%1");
 #endif
 
-	quazaaSettings.Chat.Shortcuts[IrcShortcutType::NavigateUp] = m_qSettings.value("ShortcutsNavigateUp", navigate.arg("Up")).toString();
-	quazaaSettings.Chat.Shortcuts[IrcShortcutType::NavigateDown] = m_qSettings.value("ShortcutsNavigateDown", navigate.arg("Down")).toString();
-	quazaaSettings.Chat.Shortcuts[IrcShortcutType::NavigateLeft] = m_qSettings.value("ShortcutsNavigateLeft", navigate.arg("Left")).toString();
-	quazaaSettings.Chat.Shortcuts[IrcShortcutType::NavigateRight] = m_qSettings.value("ShortcutsNavigateRight", navigate.arg("Right")).toString();
-
-	quazaaSettings.Chat.Shortcuts[IrcShortcutType::NextUnreadUp] = m_qSettings.value("ShortcutsNextUnreadUp", nextUnread.arg("Up")).toString();
-	quazaaSettings.Chat.Shortcuts[IrcShortcutType::NextUnreadDown] = m_qSettings.value("ShortcutsNextUnreadDown", nextUnread.arg("Down")).toString();
-	quazaaSettings.Chat.Shortcuts[IrcShortcutType::NextUnreadLeft] = m_qSettings.value("ShortcutsNextUnreadLeft", nextUnread.arg("Left")).toString();
-	quazaaSettings.Chat.Shortcuts[IrcShortcutType::NextUnreadRight] = m_qSettings.value("ShortcutsNextUnreadRight", nextUnread.arg("Right")).toString();
+	quazaaSettings.Chat.Shortcuts[IrcShortcutType::PreviousView] = m_qSettings.value("ShortcutPreviousView", navigate.arg("Up")).toString();
+	quazaaSettings.Chat.Shortcuts[IrcShortcutType::NextView] = m_qSettings.value("ShortcutNextView", navigate.arg("Down")).toString();
+	quazaaSettings.Chat.Shortcuts[IrcShortcutType::CollapseView] = m_qSettings.value("ShortcutCollapseView", navigate.arg("Left")).toString();
+	quazaaSettings.Chat.Shortcuts[IrcShortcutType::ExpandView] = m_qSettings.value("ShortcutExpandView", navigate.arg("Right")).toString();
+	quazaaSettings.Chat.Shortcuts[IrcShortcutType::PreviousActiveView] = m_qSettings.value("ShortcutPreviousActiveView", nextActive.arg("Up")).toString();
+	quazaaSettings.Chat.Shortcuts[IrcShortcutType::NextActiveView] = m_qSettings.value("ShortcutNextActiveView", nextActive.arg("Down")).toString();
+	quazaaSettings.Chat.Shortcuts[IrcShortcutType::MostActiveView] = m_qSettings.value("ShortcutMostActiveView", "Ctrl+L").toString();
+	quazaaSettings.Chat.Shortcuts[IrcShortcutType::SearchView] = m_qSettings.value("ShortcutSearchView", "Ctrl+S").toString();
+	quazaaSettings.Chat.Shortcuts[IrcShortcutType::ResetViews] = m_qSettings.value("ShortcutResetViews", "Ctrl+R").toString();
 
 	quazaaSettings.Chat.Messages[IrcMessageType::Joins] =  m_qSettings.value("MessagesJoins", true).toBool();
 	quazaaSettings.Chat.Messages[IrcMessageType::Parts] = m_qSettings.value("MessagesParts", true).toBool();
@@ -1189,13 +1166,12 @@ void CQuazaaSettings::loadChat()
 	m_qSettings.endGroup();
 }
 
+/*!
+	Saves the profile settings to persistent .ini file.
+ */
 void CQuazaaSettings::saveProfile()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Profile");
 	m_qSettings.setValue("Age", quazaaSettings.Profile.Age);
@@ -1226,13 +1202,12 @@ void CQuazaaSettings::saveProfile()
 	m_qSettings.endGroup();
 }
 
+/*!
+	Loads the profile settings from persistent .ini file.
+ */
 void CQuazaaSettings::loadProfile()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Profile");
 
@@ -1279,13 +1254,12 @@ void CQuazaaSettings::loadProfile()
 	m_qSettings.endGroup();
 }
 
+/*!
+	Saves the window settings to persistent .ini file.
+ */
 void CQuazaaSettings::saveWindowSettings(QMainWindow* window)
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.setValue("WindowGeometry", window->saveGeometry());
 	m_qSettings.setValue("WindowState", window->saveState());
@@ -1347,6 +1321,8 @@ void CQuazaaSettings::saveWindowSettings(QMainWindow* window)
 	m_qSettings.setValue("SearchSplitterRestoreRight", quazaaSettings.WinMain.SearchSplitterRestoreRight);
 	m_qSettings.setValue("SearchTaskVisible", quazaaSettings.WinMain.SearchTaskVisible);
 	m_qSettings.setValue("SearchToolbar", quazaaSettings.WinMain.SearchToolbar);
+	m_qSettings.setValue("SecurityAutomaticHeader", quazaaSettings.WinMain.SecurityAutomaticHeader);
+	m_qSettings.setValue("SecurityManualHeader", quazaaSettings.WinMain.SecurityManualHeader);
 	m_qSettings.setValue("SecurityToolbars", quazaaSettings.WinMain.SecurityToolbars);
 	m_qSettings.setValue("SystemLogToolbar", quazaaSettings.WinMain.SystemLogToolbar);
 	m_qSettings.setValue("TransfersSplitter", quazaaSettings.WinMain.TransfersSplitter);
@@ -1361,13 +1337,13 @@ void CQuazaaSettings::saveWindowSettings(QMainWindow* window)
 	m_qSettings.setValue("UploadsToolbar", quazaaSettings.WinMain.UploadsToolbar);
 }
 
+/*!
+	Loads the profile settings from persistent .ini file.
+ */
 void CQuazaaSettings::loadWindowSettings(QMainWindow* window)
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+
 	QList<QVariant> intListInitializer;
 	intListInitializer << 0 << 0;
 
@@ -1427,6 +1403,8 @@ void CQuazaaSettings::loadWindowSettings(QMainWindow* window)
 	quazaaSettings.WinMain.SearchSplitterRestoreLeft = m_qSettings.value("SearchSplitterRestoreLeft", 0).toInt();
 	quazaaSettings.WinMain.SearchSplitterRestoreRight = m_qSettings.value("SearchSplitterRestoreRight", 0).toInt();
 	quazaaSettings.WinMain.SearchToolbar = m_qSettings.value("SearchToolbar", QByteArray()).toByteArray();
+	quazaaSettings.WinMain.SecurityAutomaticHeader = m_qSettings.value("SecurityAutomaticHeader", QByteArray()).toByteArray();
+	quazaaSettings.WinMain.SecurityManualHeader = m_qSettings.value("SecurityManualHeader", QByteArray()).toByteArray();
 	quazaaSettings.WinMain.SecurityToolbars = m_qSettings.value("SecurityToolbars", QByteArray()).toByteArray();
 	quazaaSettings.WinMain.SystemLogToolbar = m_qSettings.value("SystemLogToolbar", QByteArray()).toByteArray();
 	quazaaSettings.WinMain.TransfersSplitter = m_qSettings.value("TransfersSplitter", QByteArray()).toByteArray();
@@ -1441,82 +1419,76 @@ void CQuazaaSettings::loadWindowSettings(QMainWindow* window)
 	quazaaSettings.WinMain.UploadsToolbar = m_qSettings.value("UploadsToolbar", QByteArray()).toByteArray();
 }
 
+/*!
+	Saves the language settings to persistent .ini file.
+ */
 void CQuazaaSettings::saveLanguageSettings()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+
 	m_qSettings.beginGroup("Language");
 	m_qSettings.setValue("LanguageFile", quazaaSettings.Language.File);
 	m_qSettings.endGroup();
 }
 
+/*!
+	Loads the language settings from persistent .ini file.
+ */
 void CQuazaaSettings::loadLanguageSettings()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Language");
 	quazaaSettings.Language.File = m_qSettings.value("LanguageFile", ("quazaa_default_en")).toString();
 	m_qSettings.endGroup();
 }
 
+/*!
+	Saves if this is Quazaa's first run to persistent .ini file.
+ */
 void CQuazaaSettings::saveFirstRun(bool firstRun)
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.setValue("FirstRun", firstRun);
 }
 
+/*!
+	Loads if this is Quazaa's first run from persistent .ini file.
+ */
 bool CQuazaaSettings::isFirstRun()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	return m_qSettings.value("FirstRun", true).toBool();
 }
 
+/*!
+	Saves Quazaa's skin settings to persistent .ini file.
+ */
 void CQuazaaSettings::saveSkinSettings()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.setValue("SkinFile", Skin.File);
 }
 
+/*!
+	Loads Quazaa's skin settings from persistent .ini file.
+ */
 void CQuazaaSettings::loadSkinSettings()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	Skin.File = m_qSettings.value("SkinFile", qApp->applicationDirPath() + "/Skin/Greenery/Greenery.qsk").toString();
 }
 
+/*!
+	Saves Quazaa's log settings to persistent .ini file.
+ */
 void CQuazaaSettings::saveLogSettings()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Logging");
 	m_qSettings.setValue("SaveLog", Logging.SaveLog);
@@ -1532,13 +1504,12 @@ void CQuazaaSettings::saveLogSettings()
 	m_qSettings.endGroup();
 }
 
+/*!
+	Loads Quazaa's log settings from persistent .ini file.
+ */
 void CQuazaaSettings::loadLogSettings()
 {
-#if QT_VERSION >= 0x050000
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-	QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Logging");
 	Logging.SaveLog = m_qSettings.value("SaveLog", false).toBool();

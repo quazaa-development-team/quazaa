@@ -29,9 +29,7 @@
 #include <QDebug>
 #include <QApplication>
 
-#if QT_VERSION >= 0x050000
 #include <QTextDocument> //For Qt::escape()
-#endif
 
 #include "debug_new.h"
 
@@ -39,9 +37,9 @@ CWidgetReturnEmitTextEdit::CWidgetReturnEmitTextEdit(QWidget *parent)
 {
 	Q_UNUSED(parent);
 	resetHistoryIndex();
-	m_oCompleter = new Completer(this);
+	m_oCompleter = new ChatCompleter(this);
 	m_oCompleter->setWidget(this);
-    m_oCompleter->setTextEdit(this);
+	m_oCompleter->setTextEdit(this);
 
 	emitReturn = true;
 	connect(this, SIGNAL(textChanged()), this, SLOT(onTextChanged()));
@@ -54,37 +52,39 @@ CWidgetReturnEmitTextEdit::CWidgetReturnEmitTextEdit(QWidget *parent)
 
 bool CWidgetReturnEmitTextEdit::event(QEvent* event)
 {
-    if (event->type() == QEvent::ShortcutOverride) {
-        QKeyEvent* ke = static_cast<QKeyEvent*>(event);
-        if (ke == QKeySequence::MoveToStartOfDocument) {
-            emit scrollToTop();
-            event->accept();
-            return true;
-        } else if (ke == QKeySequence::MoveToEndOfDocument) {
-            emit scrollToBottom();
-            event->accept();
-            return true;
-        } else if (ke == QKeySequence::MoveToNextPage) {
-            emit scrollToNextPage();
-            event->accept();
-            return true;
-        } else if (ke == QKeySequence::MoveToPreviousPage) {
-            emit scrollToPreviousPage();
-            event->accept();
-            return true;
-        }
-    }
-    return QTextEdit::event(event);
+	if (event->type() == QEvent::ShortcutOverride) {
+		QKeyEvent* ke = static_cast<QKeyEvent*>(event);
+		if (ke == QKeySequence::MoveToStartOfDocument) {
+			emit scrollToTop();
+			event->accept();
+			return true;
+		} else if (ke == QKeySequence::MoveToEndOfDocument) {
+			emit scrollToBottom();
+			event->accept();
+			return true;
+		} else if (ke == QKeySequence::MoveToNextPage) {
+			emit scrollToNextPage();
+			event->accept();
+			return true;
+		} else if (ke == QKeySequence::MoveToPreviousPage) {
+			emit scrollToPreviousPage();
+			event->accept();
+			return true;
+		}
+	}
+	return QTextEdit::event(event);
 }
 
 void CWidgetReturnEmitTextEdit::keyPressEvent(QKeyEvent *event)
 {
 	if (event->key() == Qt::Key_Return)
 	{
-        if (event->modifiers() & Qt::ShiftModifier) {
-            QTextEdit::keyPressEvent(event);
+		if (event->modifiers() & Qt::ShiftModifier) {
+			QTextCursor tc = textCursor();
+			tc.insertText(QChar(QChar::CarriageReturn));
+			setTextCursor(tc);
 		} else {
-            emit returnPressed();
+			emit returnPressed();
 		}
 	} else if (event->key() == Qt::Key_Up) {
 		if (!m_lHistory.isEmpty())
@@ -118,7 +118,7 @@ void CWidgetReturnEmitTextEdit::keyPressEvent(QKeyEvent *event)
 	}
 }
 
-Completer* CWidgetReturnEmitTextEdit::completer() const
+ChatCompleter* CWidgetReturnEmitTextEdit::completer() const
 {
 	return m_oCompleter;
 }
@@ -148,16 +148,16 @@ QString CWidgetReturnEmitTextEdit::textUnderCursor() const
 		tc.setPosition(selectionStart, QTextCursor::MoveAnchor);
 		tc.setPosition(selectionEnd, QTextCursor::KeepAnchor);
 		return tc.selectedText();
-    }
+	}
 }
 
 int CWidgetReturnEmitTextEdit::currentWordStartIndex()
 {
-    QTextCursor tc = textCursor();
-    tc.select(QTextCursor::WordUnderCursor);
+	QTextCursor tc = textCursor();
+	tc.select(QTextCursor::WordUnderCursor);
 
-    // Return start position of current word.
-    return tc.selectionStart();
+	// Return start position of current word.
+	return tc.selectionStart();
 }
 
 void CWidgetReturnEmitTextEdit::onTextChanged()
@@ -172,18 +172,18 @@ void CWidgetReturnEmitTextEdit::setSkin()
 
 bool CWidgetReturnEmitTextEdit::focusNextPrevChild(bool next)
 {
-    if (!tabChangesFocus() && (textInteractionFlags() & Qt::TextEditable))
+	if (!tabChangesFocus() && (textInteractionFlags() & Qt::TextEditable))
 	{
 		emit tabPressed();
 		return true;
 	} else {
 		return QAbstractScrollArea::focusNextPrevChild(next);
-    }
+	}
 }
 
 void CWidgetReturnEmitTextEdit::insertFromMimeData(const QMimeData *source)
 {
-    insertPlainText( source->text() );
+	insertPlainText( source->text() );
 }
 
 void CWidgetReturnEmitTextEdit::addHistory(QTextDocument* document)
@@ -204,12 +204,7 @@ void CWidgetReturnEmitTextEdit::addHistory(QTextDocument* document)
 void CWidgetReturnEmitTextEdit::addHistory(QString* text)
 {
 	QTextDocument* document = new QTextDocument();
-#if QT_VERSION >= 0x050000
 	document->setHtml(text->toHtmlEscaped());
-#else
-	QString escapeText = text->toLocal8Bit();
-	document->setHtml(Qt::escape(escapeText));
-#endif
 	addHistory(document);
 }
 

@@ -50,12 +50,12 @@ public:
 public:
 	CFileHasher(QObject* parent = 0);
 	~CFileHasher();
-	static CFileHasher* HashFile(CSharedFilePtr pFile);
+	static CFileHasher* hashFile(CSharedFilePtr pFile);
 	void run();
 
 signals:
-	void FileHashed(CSharedFilePtr);
-	void QueueEmpty();
+	void fileHashed(CSharedFilePtr);
+	void queueEmpty();
 	void hasherStarted(int); // int - hasher id
 	void hasherFinished(int); // int - hasher id
 	void hashingProgress(int, QString, double, int); // hasher id, filename, percent, rate

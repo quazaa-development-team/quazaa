@@ -40,7 +40,7 @@ public:
 	CNeighboursRouting(QObject* parent = 0);
 	virtual ~CNeighboursRouting();
 
-	void RouteQuery(CQueryPtr pQuery, G2Packet* pPacket, CNeighbour* pFrom = 0, bool bToHubs = true);
+	void routeQuery(CQueryPtr pQuery, G2Packet* pPacket, CNeighbour* pFrom = 0, bool bToHubs = true);
 
 signals:
 

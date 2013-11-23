@@ -27,7 +27,7 @@
 #include "quazaasettings.h"
 #include "hostcache.h"
 #include <QTcpSocket>
-#include "Security/securitymanager.h"
+#include "securitymanager.h"
 
 #include "debug_new.h"
 
@@ -49,10 +49,10 @@ CNeighbour::CNeighbour(QObject* parent) :
 CNeighbour::~CNeighbour()
 {
 	ASSUME_LOCK(Neighbours.m_pSection);
-	Neighbours.RemoveNode(this);
+	Neighbours.removeNode(this);
 }
 
-void CNeighbour::OnTimer(quint32 tNow)
+void CNeighbour::onTimer(quint32 tNow)
 {
 	if ( m_nState < nsConnected )
 	{
@@ -72,7 +72,7 @@ void CNeighbour::OnTimer(quint32 tNow)
 								   qPrintable( tr( "Timed out handshaking with %s." ) ),
 								   qPrintable( m_oAddress.toStringWithPort() ) );
 
-			Close();
+			close();
 			return;
 		}
 	}
@@ -82,44 +82,45 @@ void CNeighbour::OnTimer(quint32 tNow)
 		{
 			systemLog.postLog(LogSeverity::Error, tr("Closing connection to %1 due to lack of traffic.").arg(m_oAddress.toString()));
 			systemLog.postLog(LogSeverity::Debug, QString("Conn %1, Packet %2, bytes avail %3, net bytes avail %4, ping %5").arg(tNow - m_tConnected).arg(tNow - m_tLastPacketIn).arg(bytesAvailable()).arg(networkBytesAvailable()).arg(tNow - m_tLastPingOut));
-			Close();
+			close();
 			return;
 		}
 
 		if(m_nPingsWaiting > 0 && tNow - m_tLastPingOut > quazaaSettings.Gnutella2.PingTimeout && tNow - m_tLastPacketIn > quazaaSettings.Connection.TimeoutTraffic)
 		{
 			systemLog.postLog(LogSeverity::Debug, QString("Closing connection with %1 ping timed out").arg(m_oAddress.toString()));
-			Close();
+			close();
 			return;
 		}
 	}
 }
 
-void CNeighbour::Close(bool bDelayed)
+void CNeighbour::close(bool bDelayed)
 {
 	m_nState = nsClosing;
-	CCompressedConnection::Close(bDelayed);
+	CCompressedConnection::close(bDelayed);
 }
 
-void CNeighbour::OnDisconnect()
+void CNeighbour::onDisconnectNode()
 {
 	Neighbours.m_pSection.lock();
 	delete this;
 	Neighbours.m_pSection.unlock();
 }
-void CNeighbour::OnError(QAbstractSocket::SocketError e)
+
+void CNeighbour::onError(QAbstractSocket::SocketError e)
 {
 	if ( e == QAbstractSocket::RemoteHostClosedError )
 	{
 		if ( m_nState != nsHandshaking )
 			systemLog.postLog( LogSeverity::Information, Components::Network,
-							   "Neighbour %s dropped connection unexpectedly.",
-							   qPrintable( m_oAddress.toStringWithPort() ) );
+							   QString("Neighbour %1 dropped connection unexpectedly.")
+							   .arg( m_oAddress.toString().toLocal8Bit().constData() ) );
 		else
 		{
 			systemLog.postLog( LogSeverity::Information, Components::Network,
-							   "Neighbour %s dropped connection during handshake.",
-							   qPrintable( m_oAddress.toStringWithPort() ) );
+							   QString("Neighbour %1 dropped connection during handshake.")
+							   .arg( m_oAddress.toString().toLocal8Bit().constData() ) );
 
 			if ( m_bInitiated )
 			{
@@ -129,8 +130,8 @@ void CNeighbour::OnError(QAbstractSocket::SocketError e)
 				hostCache.m_pSection.unlock();*/
 
 				// for some bad clients that drop connections too early
-				securityManager.ban( m_oAddress, Security::ban5Mins,
-									 true, "[AUTO] Dropped handshake"
+				securityManager.ban( m_oAddress, Security::RuleTime::FiveMinutes, true,
+									 "[AUTO] Dropped handshake", true
 #ifdef _DEBUG
 									 , QString( "neighbour.cpp line 134" )
 #endif

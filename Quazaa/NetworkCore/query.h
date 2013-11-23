@@ -51,27 +51,27 @@ public:
 
 public:
 	CQuery();
-	QString DescriptiveName()
+	QString descriptiveName()
 	{
 		return m_sDescriptiveName;
 	}
 
-	void SetGUID(QUuid& guid);
+	void setGUID(QUuid& guid);
 
-	void AddURN(const CHash& pHash);
-	void SetDescriptiveName(QString sDN);
-	void SetSizeRestriction(quint64 nMin, quint64 nMax);
-	void SetMetadata(QString sMeta);
+	void addURN(const CHash& pHash);
+	void setDescriptiveName(QString sDN);
+	void setSizeRestriction(quint64 nMin, quint64 nMax);
+	void setMetadata(QString sMeta);
 
-	bool CheckValid();
+	bool checkValid();
 
-	G2Packet* ToG2Packet(CEndPoint* pAddr = 0, quint32 nKey = 0);
+	G2Packet* toG2Packet(CEndPoint* pAddr = 0, quint32 nKey = 0);
 
-	static CQueryPtr FromPacket(G2Packet* pPacket, CEndPoint* pEndpoint = 0);
+	static CQueryPtr fromPacket(G2Packet* pPacket, CEndPoint* pEndpoint = 0);
 
 private:
-	void BuildG2Keywords(QString strPhrase);
-	bool FromG2Packet(G2Packet* pPacket, CEndPoint* pEndpoint);
+	void buildG2Keywords(QString strPhrase);
+	bool fromG2Packet(G2Packet* pPacket, CEndPoint* pEndpoint);
 };
 
 #endif // QUERY_H

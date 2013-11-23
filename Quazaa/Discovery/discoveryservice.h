@@ -29,7 +29,7 @@
 #include <QReadWriteLock>
 #include <QUrl>
 
-//#include "Misc/debugrwlock.h"
+//#include "debugrwlock.h"
 #include "discovery.h"
 
 // Requirements of all subclasses
@@ -87,10 +87,6 @@ private:
 	bool            m_bRunning;     // service is currently doing network communication
 
 	QUuid           m_oSQCancelRequestID; // ID of cancel request (signal queue)
-
-	// List of pointers that will be set to 0 if this instance of CDiscoveryService is deleted.
-	// Note that the content of this list is not forwarded to copies of this service.
-	std::list<const CDiscoveryService**> m_lPointers;
 
 	/* ========================================================================================== */
 	/* ====================================== Construction ====================================== */

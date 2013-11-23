@@ -73,6 +73,7 @@ private slots:
 	void updateEDonkey();
 	void setSkin();
 	void on_tableViewNeighbours_doubleClicked(const QModelIndex &index);
+	void on_actionNetworkBan_triggered();
 };
 
 #endif // WIDGETNEIGHBORS_H

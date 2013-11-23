@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -32,12 +32,15 @@
 
 #include "debug_new.h"
 
+#include <stdexcept>
+
 DatagramIn::DatagramIn()
 {
 	m_pBuffer = 0;
 	m_bLocked = 0;
 	m_nBuffer = 0;
 }
+
 DatagramIn::~DatagramIn()
 {
 	if(m_pBuffer)
@@ -50,7 +53,7 @@ DatagramIn::~DatagramIn()
 	}
 }
 
-void DatagramIn::Create(CEndPoint pHost, quint8 nFlags, quint16 nSequence, quint8 nCount)
+void DatagramIn::create(CEndPoint pHost, quint8 nFlags, quint16 nSequence, quint8 nCount)
 {
 	m_oAddress = pHost;
 
@@ -79,9 +82,9 @@ void DatagramIn::Create(CEndPoint pHost, quint8 nFlags, quint16 nSequence, quint
 
 	memset(m_bLocked, 0x00, sizeof(bool) * m_nBuffer);
 	memset(m_pBuffer, 0x00, sizeof(CBuffer*) * m_nBuffer);
-
 }
-bool DatagramIn::Add(quint8 nPart, const void* pData, qint32 nLength)
+
+bool DatagramIn::add(quint8 nPart, const void* pData, qint32 nLength)
 {
 	if(nPart < 1 || nPart > m_nCount)
 	{
@@ -106,22 +109,24 @@ bool DatagramIn::Add(quint8 nPart, const void* pData, qint32 nLength)
 
 	return false;
 }
-G2Packet* DatagramIn::ToG2Packet()
+
+G2Packet* DatagramIn::toG2Packet()
 {
 	if(m_nCount > 1)
 	{
 		for(qint32 i = 1; i < m_nCount; i++)
 		{
-			m_pBuffer[0]->append(*m_pBuffer[i]);
+			m_pBuffer[0]->append(m_pBuffer[i]);
 		}
 	}
 
-	if(m_bCompressed && !ZLibUtils::Uncompress(*m_pBuffer[0]))
+
+	if(m_bCompressed && !ZLibUtils::uncompressBuffer(*m_pBuffer[0]))
 	{
-		throw packet_error();
+		throw std::logic_error("Unable to uncompress compressed packet.");
 	}
 
-	return G2Packet::ReadBuffer(m_pBuffer[0]);
+	return G2Packet::readBuffer(m_pBuffer[0]);
 }
 
 DatagramOut::DatagramOut()
@@ -131,6 +136,7 @@ DatagramOut::DatagramOut()
 	m_nLocked = 0;
 	m_bAck = false;
 }
+
 DatagramOut::~DatagramOut()
 {
 	if(m_pLocked)
@@ -138,7 +144,8 @@ DatagramOut::~DatagramOut()
 		delete[] m_pLocked;
 	}
 }
-void DatagramOut::Create(CEndPoint oAddr, G2Packet* pPacket, quint16 nSequence, CBuffer* pBuffer, bool bAck)
+
+void DatagramOut::create(CEndPoint oAddr, G2Packet* pPacket, quint16 nSequence, CBuffer* pBuffer, bool bAck)
 {
 	Q_ASSERT(m_pBuffer == 0);
 
@@ -146,9 +153,9 @@ void DatagramOut::Create(CEndPoint oAddr, G2Packet* pPacket, quint16 nSequence, 
 	m_nSequence = nSequence;
 	m_pBuffer = pBuffer;
 
-	pPacket->ToBuffer(m_pBuffer);
+	pPacket->toBuffer(m_pBuffer);
 
-	m_bCompressed = ZLibUtils::Compress(*m_pBuffer, true);
+	m_bCompressed = ZLibUtils::compressBuffer(*m_pBuffer, true);
 
 	m_nPacket = quazaaSettings.Gnutella2.UdpMTU;
 	m_nCount = quint8((m_pBuffer->size() + m_nPacket - 1) / m_nPacket);
@@ -188,7 +195,8 @@ void DatagramOut::Create(CEndPoint oAddr, G2Packet* pPacket, quint16 nSequence, 
 
 	m_tSent = time(0);
 }
-bool DatagramOut::GetPacket(quint32 tNow, char** ppPacket, quint32* pnPacket, bool bResend)
+
+bool DatagramOut::getPacket(quint32 tNow, char** ppPacket, quint32* pnPacket, bool bResend)
 {
 	Q_ASSERT(m_pBuffer != 0);
 
@@ -226,9 +234,9 @@ bool DatagramOut::GetPacket(quint32 tNow, char** ppPacket, quint32* pnPacket, bo
 	*pnPacket = qMin(nPacket, m_pBuffer->size() - (nPart * nPacket));
 
 	return true;
-
 }
-bool DatagramOut::Acknowledge(quint8 nPart)
+
+bool DatagramOut::acknowledge(quint8 nPart)
 {
 	if(nPart > 0 && nPart <= m_nCount && m_nAcked > 0)
 	{
@@ -245,4 +253,3 @@ bool DatagramOut::Acknowledge(quint8 nPart)
 
 	return false;
 }
-

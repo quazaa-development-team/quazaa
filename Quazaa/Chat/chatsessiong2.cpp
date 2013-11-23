@@ -68,13 +68,13 @@ CChatSessionG2::CChatSessionG2(CEndPoint oRemoteHost, QObject *parent) :
 	m_oRemoteHost = m_oAddress = oRemoteHost;
 }
 
-void CChatSessionG2::Connect()
+void CChatSessionG2::connectNode()
 {
-	CNetworkConnection::ConnectTo(m_oRemoteHost);
-	CChatSession::Connect();
+	CNetworkConnection::connectTo(m_oRemoteHost);
+	CChatSession::connectNode();
 }
 
-void CChatSessionG2::OnConnect()
+void CChatSessionG2::onConnectNode()
 {
 	qDebug() << "OnConnect";
 
@@ -88,25 +88,25 @@ void CChatSessionG2::OnConnect()
 	baHs = "CHAT CONNECT/0.2\r\n";
 	baHs+= "Accept: application/x-gnutella2\r\n";
 		baHs+= "User-Agent: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
-	baHs+= "Listen-IP: " + Network.GetLocalAddress().toStringWithPort() + "\r\n\r\n";
+	baHs+= "Listen-IP: " + Network.getLocalAddress().toStringWithPort() + "\r\n\r\n";
 
-	Write(baHs);
+	write(baHs);
 
 	qDebug() << "Chat send:\n" << baHs;
 }
-void CChatSessionG2::OnDisconnect()
+void CChatSessionG2::onDisconnectNode()
 {
-	CChatSession::OnDisconnect();
+	CChatSession::onDisconnectNode();
 }
-void CChatSessionG2::OnRead()
+void CChatSessionG2::onRead()
 {
 	if( m_nState == csHandshaking )
 	{
-		if(Peek(bytesAvailable()).indexOf("\r\n\r\n") != -1)
+		if(peek(bytesAvailable()).indexOf("\r\n\r\n") != -1)
 		{
 			if(m_bInitiated)
 			{
-				ParseOutgoingHandshake();
+				parseOutgoingHandshake();
 			}
 			else
 			{
@@ -119,70 +119,70 @@ void CChatSessionG2::OnRead()
 		G2Packet* pPacket = 0;
 		try
 		{
-			while((pPacket = G2Packet::ReadBuffer(GetInputBuffer())))
+			while((pPacket = G2Packet::readBuffer(getInputBuffer())))
 			{
-				OnPacket(pPacket);
+				onPacket(pPacket);
 
-				pPacket->Release();
+				pPacket->release();
 			}
 		}
 		catch(...)
 		{
 			if(pPacket)
 			{
-				pPacket->Release();
+				pPacket->release();
 			}
 
 			emit systemMessage("Received corrupted G2 packet, connection lost.");
 
-			CNetworkConnection::Close();
+			CNetworkConnection::close();
 		}
 	}
 }
 
-void CChatSessionG2::ParseOutgoingHandshake()
+void CChatSessionG2::parseOutgoingHandshake()
 {
-	QString sHs = Read(Peek(bytesAvailable()).indexOf("\r\n\r\n") + 4);
+	QString sHs = read(peek(bytesAvailable()).indexOf("\r\n\r\n") + 4);
 
 	qDebug() << "Chat received:\n" << sHs;
 
 	if( sHs.left(12) == "CHAT/0.2 200" )
 	{
-		QString sAccept = Parser::GetHeaderValue(sHs, "Accept");
+		QString sAccept = Parser::getHeaderValue(sHs, "Accept");
 		if( !sAccept.contains("application/x-gnutella2") )
 		{
-			Send_ChatError("503 Required protocol not accepted");
-			CNetworkConnection::Close(true);
+			send_ChatError("503 Required protocol not accepted");
+			CNetworkConnection::close(true);
 			emit systemMessage("Remote host does not support Gnutella2");
 			return;
 		}
 
-		QString sContentType = Parser::GetHeaderValue(sHs, "Content-Type");
+		QString sContentType = Parser::getHeaderValue(sHs, "Content-Type");
 		if( !sContentType.contains("application/x-gnutella2") )
 		{
-			Send_ChatError("503 Required protocol not provided");
-			CNetworkConnection::Close(true);
+			send_ChatError("503 Required protocol not provided");
+			CNetworkConnection::close(true);
 			emit systemMessage("Remote host does not support Gnutella2");
 			return;
 		}
 
-		QString sUA = Parser::GetHeaderValue(sHs, "User-Agent");
+		QString sUA = Parser::getHeaderValue(sHs, "User-Agent");
 		if( sUA.indexOf("shareaza", 0, Qt::CaseInsensitive) != -1 )
 			m_bShareaza = true;
 
 		emit systemMessage("Exchanging profile information...");
 		m_nState = csConnected;
-		Send_ChatOK(true);
-		SendStartups();
+		send_ChatOK(true);
+		sendStartups();
 		return;
 	}
 
 	qDebug() << m_oAddress.toStringWithPort() << "does not accept chat";
 
-	Close();
+	close();
 }
 
-void CChatSessionG2::Send_ChatOK(bool bReply)
+void CChatSessionG2::send_ChatOK(bool bReply)
 {
 	QByteArray sHs;
 
@@ -192,75 +192,75 @@ void CChatSessionG2::Send_ChatOK(bool bReply)
 		// 2nd header
 		sHs+= "Accept: application/x-gnutella2\r\n";
 				sHs+= "User-Agent: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
-		sHs+= "Listen-IP: " + Network.GetLocalAddress().toStringWithPort() + "\r\n";
+		sHs+= "Listen-IP: " + Network.getLocalAddress().toStringWithPort() + "\r\n";
 	}
 	sHs+= "Content-Type: application/x-gnutella2\r\n\r\n";
 
-	Write(sHs);
+	write(sHs);
 
 	qDebug() << "Chat send:\n" << sHs;
 
 }
 
-void CChatSessionG2::Send_ChatError(QString sReason)
+void CChatSessionG2::send_ChatError(QString sReason)
 {
 	QByteArray sHs;
 
 	sHs = "CHAT/0.2 " + sReason.toLocal8Bit() + "\r\n";
 		sHs+= "User-Agent: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n\r\n";
 
-	Write(sHs);
+	write(sHs);
 }
 
-void CChatSessionG2::SendStartups()
+void CChatSessionG2::sendStartups()
 {
 	qDebug() << "sending startups";
-	G2Packet* pPacket = G2Packet::New("UPROC", false);
+	G2Packet* pPacket = G2Packet::newPacket("UPROC", false);
 
 	// A dirty workaround for Shareaza bug...
 	if( m_bShareaza )
-		pPacket->WriteString("dupa");
+		pPacket->writeString("dupa");
 
-	SendPacket(pPacket);
+	sendPacket(pPacket);
 }
 
-void CChatSessionG2::SendPacket(G2Packet *pPacket, bool bRelease)
+void CChatSessionG2::sendPacket(G2Packet *pPacket, bool bRelease)
 {
-	qDebug() << "Sending packet" << pPacket->GetType();
-	pPacket->ToBuffer(GetOutputBuffer());
+	qDebug() << "Sending packet" << pPacket->getType();
+	pPacket->toBuffer(getOutputBuffer());
 	if(bRelease)
-		pPacket->Release();
+		pPacket->release();
 	emit readyToTransfer();
 }
 
-void CChatSessionG2::OnPacket(G2Packet *pPacket)
+void CChatSessionG2::onPacket(G2Packet *pPacket)
 {
-	qDebug() << "Received chat packet: " << pPacket->GetType();
+	qDebug() << "Received chat packet: " << pPacket->getType();
 
-	if( pPacket->IsType("UPROC") )
+	if( pPacket->isType("UPROC") )
 	{
-		OnUPROC(pPacket);
+		onUPROC(pPacket);
 	}
-	else if( pPacket->IsType("UPROD") )
+	else if( pPacket->isType("UPROD") )
 	{
-		OnUPROD(pPacket);
+		onUPROD(pPacket);
 	}
-	else if( pPacket->IsType("CHATANS") )
+	else if( pPacket->isType("CHATANS") )
 	{
-		OnCHATANS(pPacket);
+		onCHATANS(pPacket);
 	}
-	else if( pPacket->IsType("CMSG") )
+	else if( pPacket->isType("CMSG") )
 	{
-		OnCMSG(pPacket);
+		onCMSG(pPacket);
 	}
 	else
 	{
-		qDebug() << "Received unknown chat packet: " << pPacket->GetType();
+		qDebug() << "Received unknown chat packet: " << pPacket->getType();
 	}
 
 }
 
-void CChatSessionG2::OnUPROC(G2Packet *pPacket)
+void CChatSessionG2::onUPROC(G2Packet *pPacket)
 {
 	Q_UNUSED(pPacket);
 
@@ -269,14 +269,14 @@ void CChatSessionG2::OnUPROC(G2Packet *pPacket)
 	QString sXML = "<?xml version=\"1.0\"?><gprofile xmlns=\"http://www.shareaza.com/schemas/GProfile.xsd\"><gnutella guid=\"%1\"/><identity><handle primary=\"%2\"/></identity></gprofile>";
 	sXML = sXML.arg(quazaaSettings.Profile.GUID.toString().toUpper().replace("{", "").replace("}", "")).arg(quazaaSettings.Profile.GnutellaScreenName);
 
-	G2Packet* pD = G2Packet::New("UPROD", true);
-	pD->WritePacket("XML", sXML.toUtf8().size());
-	pD->WriteString(sXML);
+	G2Packet* pD = G2Packet::newPacket("UPROD", true);
+	pD->writePacket("XML", sXML.toUtf8().size());
+	pD->writeString(sXML);
 
-	SendPacket(pD);
+	sendPacket(pD);
 }
 
-void CChatSessionG2::OnUPROD(G2Packet *pPacket)
+void CChatSessionG2::onUPROD(G2Packet *pPacket)
 {
 	qDebug() << "OnUPROD";
 
@@ -289,7 +289,7 @@ void CChatSessionG2::OnUPROD(G2Packet *pPacket)
 	char szType[9];
 	quint32 nLength = 0, nNext = 0;
 
-	while(pPacket->ReadPacket(&szType[0], nLength))
+	while(pPacket->readPacket(&szType[0], nLength))
 	{
 		nNext = pPacket->m_nPosition + nLength;
 
@@ -301,7 +301,7 @@ void CChatSessionG2::OnUPROD(G2Packet *pPacket)
 			bool hasGUID = false;
 			bool hasIdentity = false;
 			bool hasNick = false;
-			oXML.addData(pPacket->ReadString(nLength));
+			oXML.addData(pPacket->readString(nLength));
 
 			while(!oXML.atEnd() && !oXML.hasError())
 			{
@@ -367,29 +367,29 @@ void CChatSessionG2::OnUPROD(G2Packet *pPacket)
 
 	if( m_bInitiated ) // TODO PUSH handling
 	{
-		G2Packet* pReq = G2Packet::New("CHATREQ", true);
-		pReq->WritePacket("USERGUID", 16);
-		pReq->WriteGUID(m_oGUID);
+		G2Packet* pReq = G2Packet::newPacket("CHATREQ", true);
+		pReq->writePacket("USERGUID", 16);
+		pReq->writeGUID(m_oGUID);
 
-		SendPacket(pReq);
+		sendPacket(pReq);
 	}
 }
 
-void CChatSessionG2::OnCHATANS(G2Packet *pPacket)
+void CChatSessionG2::onCHATANS(G2Packet *pPacket)
 {
 	char szType[9];
 	quint32 nLength = 0, nNext = 0;
 
 	bool bAccepted = false;
 
-	while(pPacket->ReadPacket(&szType[0], nLength))
+	while(pPacket->readPacket(&szType[0], nLength))
 	{
 		nNext = pPacket->m_nPosition + nLength;
 
 		if(strcmp("USERGUID", szType) == 0 && nLength >= 16)
 		{
 			QUuid oGUID;
-			oGUID = pPacket->ReadGUID();
+			oGUID = pPacket->readGUID();
 			if( !oGUID.isNull() )
 			{
 				m_oGUID = oGUID;
@@ -406,7 +406,7 @@ void CChatSessionG2::OnCHATANS(G2Packet *pPacket)
 		{
 			emit systemMessage("Private conversation denied by remote host, sorry.");
 			qDebug() << "chat denied";
-			CNetworkConnection::Close();
+			CNetworkConnection::close();
 			return;
 		}
 		else if( strcmp("AWAY", szType) == 0 )
@@ -423,7 +423,7 @@ void CChatSessionG2::OnCHATANS(G2Packet *pPacket)
 		m_nState = csActive;
 }
 
-void CChatSessionG2::OnCMSG(G2Packet *pPacket)
+void CChatSessionG2::onCMSG(G2Packet *pPacket)
 {
 	if( !pPacket->m_bCompound || m_nState < csConnected )
 		return;
@@ -434,13 +434,13 @@ void CChatSessionG2::OnCMSG(G2Packet *pPacket)
 	QString sMessage;
 	bool bAction = false;
 
-	while(pPacket->ReadPacket(&szType[0], nLength))
+	while(pPacket->readPacket(&szType[0], nLength))
 	{
 		nNext = pPacket->m_nPosition + nLength;
 
 		if(strcmp("BODY", szType) == 0)
 		{
-			sMessage = pPacket->ReadString(nLength);
+			sMessage = pPacket->readString(nLength);
 		}
 		else if (strcmp("ACT", szType) == 0 )
 		{
@@ -456,26 +456,26 @@ void CChatSessionG2::OnCMSG(G2Packet *pPacket)
 	}
 }
 
-void CChatSessionG2::SendMessage(QString sMessage, bool bAction)
+void CChatSessionG2::sendMessage(QString sMessage, bool bAction)
 {
 	qDebug() << "Send message:" << sMessage << bAction;
 
-	G2Packet* pPacket = G2Packet::New("CMSG", true);
+	G2Packet* pPacket = G2Packet::newPacket("CMSG", true);
 	if( bAction )
-		pPacket->WritePacket("ACT", 0);
+		pPacket->writePacket("ACT", 0);
 
-	G2Packet* pBody = G2Packet::New("BODY");
-	pBody->WriteString(sMessage);
-	pPacket->WritePacket(pBody);
-	pBody->Release();
+	G2Packet* pBody = G2Packet::newPacket("BODY");
+	pBody->writeString(sMessage);
+	pPacket->writePacket(pBody);
+	pBody->release();
 
-	SendPacket(pPacket);
+	sendPacket(pPacket);
 }
-void CChatSessionG2::SendMessage(QTextDocument *pMessage, bool bAction)
+void CChatSessionG2::sendMessage(QTextDocument *pMessage, bool bAction)
 {
 	CChatConverter oConv(pMessage);
 
-	SendMessage(oConv.toBBCode(), bAction);
+	sendMessage(oConv.toBBCode(), bAction);
 
 	delete pMessage;
 }

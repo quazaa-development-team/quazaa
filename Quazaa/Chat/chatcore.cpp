@@ -52,7 +52,7 @@ void CChatCore::Add(CChatSession *pSession)
 
 	Start();
 
-	m_pController->AddSocket(pSession);
+	m_pController->addSocket(pSession);
 }
 void CChatCore::Remove(CChatSession *pSession)
 {
@@ -61,7 +61,7 @@ void CChatCore::Remove(CChatSession *pSession)
 	if( int nSession = m_lSessions.indexOf(pSession) != -1 )
 	{
 		m_lSessions.removeAt(nSession);
-		m_pController->RemoveSocket(pSession);
+		m_pController->removeSocket(pSession);
 	}
 }
 
@@ -74,8 +74,8 @@ void CChatCore::Start()
 	m_bActive = true;
 
 	m_pController = new CRateController(&m_pSection);
-	m_pController->SetDownloadLimit(8192);
-	m_pController->SetUploadLimit(8192);
+	m_pController->setDownloadLimit(8192);
+	m_pController->setUploadLimit(8192);
 	m_pController->moveToThread(&ChatThread);
 }
 void CChatCore::Stop()

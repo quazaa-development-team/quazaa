@@ -69,56 +69,56 @@ public:
 	CG2Node(QObject* parent = NULL);
 	virtual ~CG2Node();
 
-	void AttachTo(CNetworkConnection* pOther)
+	void attachTo(CNetworkConnection* pOther)
 	{
-		CNeighbour::AttachTo(pOther);
+		CNeighbour::attachTo(pOther);
 	}
 
-	void SendPacket(G2Packet* pPacket, bool bBuffered = false, bool bRelease = false);
+	void sendPacket(G2Packet* pPacket, bool bBuffered = false, bool bRelease = false);
 
 protected:
-	void ParseOutgoingHandshake();
-	void ParseIncomingHandshake();
+	void parseOutgoingHandshake();
+	void parseIncomingHandshake();
 
-	void Send_ConnectError(QString sReason);
-	void Send_ConnectOK(bool bReply, bool bDeflated = false);
-	void SendStartups();
+	void send_ConnectError(QString sReason);
+	void send_ConnectOK(bool bReply, bool bDeflated = false);
+	void sendStartups();
 
 public:
-	void OnTimer(quint32 tNow);
+	void onTimer(quint32 tNow);
 signals:
-	void NodeStateChanged();
+	void nodeStateChanged();
 public slots:
-	void OnConnect();
-	void OnRead();
+	void onConnectNode();
+	void onRead();
 
 public:
-	void SendLNI();
-	void SendHAW();
+	void sendLNI();
+	void sendHAW();
 protected:
-	void OnPacket(G2Packet* pPacket);
-	void OnPing(G2Packet* pPacket);
-	void OnPong(G2Packet* pPacket);
-	void OnLNI(G2Packet* pPacket);
-	void OnKHL(G2Packet* pPacket);
-	void OnQHT(G2Packet* pPacket);
-	void OnQKR(G2Packet* pPacket);
-	void OnQKA(G2Packet* pPacket);
-	void OnQA(G2Packet* pPacket);
-	void OnQH2(G2Packet* pPacket);
-	void OnQuery(G2Packet* pPacket);
-	void OnHaw(G2Packet* pPacket);
+	void onPacket(G2Packet* pPacket);
+	void onPing(G2Packet* pPacket);
+	void onPong(G2Packet* pPacket);
+	void onLNI(G2Packet* pPacket);
+	void onKHL(G2Packet* pPacket);
+	void onQHT(G2Packet* pPacket);
+	void onQKR(G2Packet* pPacket);
+	void onQKA(G2Packet* pPacket);
+	void onQA(G2Packet* pPacket);
+	void onQH2(G2Packet* pPacket);
+	void onQuery(G2Packet* pPacket);
+	void onHaw(G2Packet* pPacket);
 
 protected:
 	qint64 writeToNetwork(qint64 nBytes);
-	bool HasData()
+	bool hasData()
 	{
 		if ( !m_lSendQueue.isEmpty() )
 		{
 			return true;
 		}
 
-		return CNeighbour::HasData();
+		return CNeighbour::hasData();
 	}
 
 	friend class CNetwork;

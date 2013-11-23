@@ -52,33 +52,33 @@ public:
 
 public:
 	CRateController(QMutex* pMutex, QObject* parent = 0);
-	void AddSocket(CNetworkConnection* pSock);
-	void RemoveSocket(CNetworkConnection* pSock);
+	void addSocket(CNetworkConnection* pSock);
+	void removeSocket(CNetworkConnection* pSock);
 
-	void SetDownloadLimit(qint32 nLimit)
+	void setDownloadLimit(qint32 nLimit)
 	{
 		systemLog.postLog(LogSeverity::Debug, QString("New download limit: %1").arg(nLimit));
 		m_nDownloadLimit = nLimit;
 	}
-	void SetUploadLimit(qint32 nLimit)
+	void setUploadLimit(qint32 nLimit)
 	{
 		systemLog.postLog(LogSeverity::Debug, QString("New upload limit: %1").arg(nLimit));
 		m_nUploadLimit = nLimit;
 	}
-	qint32 UploadLimit() const
+	qint32 uploadLimit() const
 	{
 		return m_nUploadLimit;
 	}
-	qint32 DownloadLimit() const
+	qint32 downloadLimit() const
 	{
 		return m_nDownloadLimit;
 	}
 
-	quint32 DownloadSpeed()
+	quint32 downloadSpeed()
 	{
 		return m_mDownload.AvgUsage();
 	}
-	quint32 UploadSpeed()
+	quint32 uploadSpeed()
 	{
 		return m_mUpload.AvgUsage();
 	}

@@ -22,12 +22,13 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "securitytablemodel.h"
-
 #include "widgetsecurity.h"
 #include "ui_widgetsecurity.h"
-#include "dialogaddrule.h"
+
+#include "securitytablemodel.h"
+#include "dialogmodifyrule.h"
 #include "dialogsecuritysubscriptions.h"
+#include "dialogimportsecurity.h"
 
 #include "quazaasettings.h"
 #include "skinsettings.h"
@@ -50,18 +51,36 @@ CWidgetSecurity::CWidgetSecurity(QWidget* parent) :
 
 	restoreState( quazaaSettings.WinMain.SecurityToolbars );
 
-	tableViewSecurity = new CTableView();
-	tableViewSecurity->verticalHeader()->setVisible( false );
-	ui->verticalLayoutSecurityTable->addWidget( tableViewSecurity );
+	m_pTableViewSecurity = new CTableView();
+	m_pTableViewSecurity->verticalHeader()->setVisible( false );
+	ui->verticalLayoutManual->addWidget(m_pTableViewSecurity);
 
-	connect(tableViewSecurity, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tableViewSecurity_customContextMenuRequested(QPoint)));
-	connect(tableViewSecurity, SIGNAL(clicked(QModelIndex)), this, SLOT(tableViewSecurity_clicked(QModelIndex)));
-	connect(tableViewSecurity, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(tableViewSecurity_doubleClicked(QModelIndex)));
+	connect(m_pTableViewSecurity, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tableViewSecurity_customContextMenuRequested(QPoint)));
+	connect(m_pTableViewSecurity, SIGNAL(clicked(QModelIndex)), this, SLOT(tableViewSecurity_clicked(QModelIndex)));
+	connect(m_pTableViewSecurity, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(tableViewSecurity_doubleClicked(QModelIndex)));
 
-	m_pSecurityList = new CSecurityTableModel( this, tableView() );
-	setModel( m_pSecurityList );
-	m_pSecurityList->sort( tableViewSecurity->horizontalHeader()->sortIndicatorSection(),
-						   tableViewSecurity->horizontalHeader()->sortIndicatorOrder()    );
+	m_pTableViewSecurityAuto = new CTableView();
+	m_pTableViewSecurityAuto->verticalHeader()->setVisible( false );
+	ui->verticalLayoutAuto->addWidget(m_pTableViewSecurityAuto);
+
+	connect(m_pTableViewSecurityAuto, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tableViewSecurityAuto_customContextMenuRequested(QPoint)));
+	connect(m_pTableViewSecurityAuto, SIGNAL(clicked(QModelIndex)), this, SLOT(tableViewSecurity_clicked(QModelIndex)));
+	connect(m_pTableViewSecurityAuto, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(tableViewSecurity_doubleClicked(QModelIndex)));
+
+	m_pTableViewSecurity->horizontalHeader()->restoreState(quazaaSettings.WinMain.SecurityManualHeader);
+	m_pTableViewSecurityAuto->horizontalHeader()->restoreState(quazaaSettings.WinMain.SecurityAutomaticHeader);
+
+	m_lSecurity = new SecurityTableModel( this );
+
+	m_lManual = new SecurityFilterModel(m_lSecurity, false);
+	m_lAutomatic = new SecurityFilterModel(m_lSecurity, true);
+
+	m_pTableViewSecurity->setModel( m_lManual );
+	m_pTableViewSecurityAuto->setModel( m_lAutomatic );
+	m_lManual->sort( m_pTableViewSecurity->horizontalHeader()->sortIndicatorSection(),
+						   m_pTableViewSecurity->horizontalHeader()->sortIndicatorOrder()    );
+	m_lAutomatic->sort( m_pTableViewSecurityAuto->horizontalHeader()->sortIndicatorSection(),
+							m_pTableViewSecurityAuto->horizontalHeader()->sortIndicatorOrder()    );
 	setSkin();
 }
 
@@ -70,19 +89,11 @@ CWidgetSecurity::~CWidgetSecurity()
 	delete ui; // Note: This does also take care of m_pSecurityMenu and m_pSecurityList.
 }
 
-void CWidgetSecurity::setModel(QAbstractItemModel* model)
-{
-	tableViewSecurity->setModel( model );
-}
-
-QWidget* CWidgetSecurity::tableView()
-{
-	return tableViewSecurity;
-}
-
 void CWidgetSecurity::saveWidget()
 {
 	quazaaSettings.WinMain.SecurityToolbars = saveState();
+	quazaaSettings.WinMain.SecurityManualHeader = m_pTableViewSecurity->horizontalHeader()->saveState();
+	quazaaSettings.WinMain.SecurityAutomaticHeader = m_pTableViewSecurityAuto->horizontalHeader()->saveState();
 }
 
 void CWidgetSecurity::changeEvent(QEvent* e)
@@ -120,7 +131,7 @@ void CWidgetSecurity::keyPressEvent(QKeyEvent *e)
 
 	case Qt::Key_F5:
 	{
-		m_pSecurityList->completeRefresh();
+		m_lSecurity->completeRefresh();
 		break;
 	}
 	}
@@ -130,39 +141,68 @@ void CWidgetSecurity::keyPressEvent(QKeyEvent *e)
 
 void CWidgetSecurity::update()
 {
-	m_pSecurityList->updateAll();
+	// TODO: Test whether this is needed.
+	//m_lSecurity->updateAll();
 }
 
 void CWidgetSecurity::on_actionSecurityAddRule_triggered()
 {
-	CDialogAddRule* dlgAddRule = new CDialogAddRule( this );
+	CDialogModifyRule* dlgAddRule = new CDialogModifyRule( this );
+	// connect(dlgAddRule, SIGNAL(accepted()), SLOT(update())); // not required
 	dlgAddRule->show();
 }
 
 void CWidgetSecurity::on_actionSecurityRemoveRule_triggered()
 {
-	QModelIndexList selection = tableViewSecurity->selectionModel()->selectedRows();
-
-	// Lock security manager while fiddling with rules.
-	QWriteLocker l( &securityManager.m_pRWLock );
-
-	foreach( QModelIndex i, selection )
+	if ( ui->tabWidgetSecurity->currentIndex() == 1 )
 	{
-		if ( i.isValid() )
+		QModelIndexList lSelection = m_pTableViewSecurityAuto->selectionModel()->selectedRows();
+
+		foreach( QModelIndex i, lSelection )
 		{
-			Security::CSecureRule* pRule = m_pSecurityList->nodeFromIndex( i );
-			securityManager.remove( pRule, false );
+			if ( i.isValid() )
+			{
+				// map filter model index to table model index and request rule removal
+				m_lSecurity->triggerRuleRemoval( m_lAutomatic->mapToSource( i ).row() );
+			}
+		}
+	}
+	else
+	{
+		QModelIndexList selection = m_pTableViewSecurity->selectionModel()->selectedRows();
+
+		foreach( QModelIndex i, selection )
+		{
+			if ( i.isValid() )
+			{
+				// map filter model index to table model index and request rule removal
+				m_lSecurity->triggerRuleRemoval( m_lManual->mapToSource( i ).row() );
+			}
 		}
 	}
 }
 
 void CWidgetSecurity::on_actionSecurityModifyRule_triggered()
 {
-	QModelIndexList selection = tableViewSecurity->selectionModel()->selectedRows();
+	CTableView* pTableView;
+	SecurityFilterModel* pFilterModel;
+
+	if ( ui->tabWidgetSecurity->currentIndex() == 1 )
+	{
+		pTableView = m_pTableViewSecurityAuto;
+		pFilterModel = m_lAutomatic;
+	}
+	else
+	{
+		pTableView = m_pTableViewSecurity;
+		pFilterModel = m_lManual;
+	}
+
+	QModelIndexList lSelection = pTableView->selectionModel()->selectedRows();
 	QModelIndex index = QModelIndex();
 
 	// Get the highest selected row.
-	foreach( QModelIndex i, selection )
+	foreach( QModelIndex i, lSelection )
 	{
 		if ( index.isValid() )
 		{
@@ -177,21 +217,26 @@ void CWidgetSecurity::on_actionSecurityModifyRule_triggered()
 
 	if ( index.isValid() )
 	{
-		// Lock security manager while fiddling with rule.
-		QReadLocker lock( &securityManager.m_pRWLock );
+		QModelIndex i = pFilterModel->mapToSource( index );
 
-		Security::CSecureRule* pRule = m_pSecurityList->nodeFromIndex( index );
-		CDialogAddRule* dlgAddRule = new CDialogAddRule( this, pRule );
+		Q_ASSERT( i.isValid()  &&
+				  i.row() >= 0 &&
+				  i.row() < m_lSecurity->rowCount() );
 
-		lock.unlock(); // Make the Security Manager available again.
+		RuleDataPtr pData = m_lSecurity->dataFromRow( i.row() );
 
-		dlgAddRule->show();
+		Q_ASSERT( !pData.isNull() );
+
+		CDialogModifyRule* dlgModifyRule = new CDialogModifyRule( this, pData );
+		//connect(dlgAddRule, SIGNAL(accepted()), SLOT(update())); //not required/handled by manager
+		dlgModifyRule->show();
 	}
 }
 
 void CWidgetSecurity::on_actionSecurityImportRules_triggered()
 {
-	// TODO: Implement.
+	CDialogImportSecurity* dlgImportSecurity = new CDialogImportSecurity( this );
+	dlgImportSecurity->exec();
 }
 
 void CWidgetSecurity::on_actionSecurityExportRules_triggered()
@@ -203,26 +248,6 @@ void CWidgetSecurity::on_actionSubscribeSecurityList_triggered()
 {
 	CDialogSecuritySubscriptions* dlgSecuritySubscriptions = new CDialogSecuritySubscriptions( this );
 	dlgSecuritySubscriptions->show();
-}
-
-void CWidgetSecurity::tableViewSecurity_customContextMenuRequested(const QPoint& point)
-{
-	QModelIndex index = tableViewSecurity->indexAt( point );
-
-	if ( index.isValid() )
-	{
-		ui->actionSecurityExportRules->setEnabled( true );
-		ui->actionSecurityModifyRule->setEnabled( true );
-		ui->actionSecurityRemoveRule->setEnabled( true );
-	}
-	else
-	{
-		ui->actionSecurityExportRules->setEnabled( false );
-		ui->actionSecurityModifyRule->setEnabled( false );
-		ui->actionSecurityRemoveRule->setEnabled( false );
-	}
-
-	m_pSecurityMenu->popup( QCursor::pos() );
 }
 
 void CWidgetSecurity::tableViewSecurity_doubleClicked(const QModelIndex& index)
@@ -257,5 +282,46 @@ void CWidgetSecurity::tableViewSecurity_clicked(const QModelIndex& index)
 
 void CWidgetSecurity::setSkin()
 {
-	tableViewSecurity->setStyleSheet( skinSettings.listViews );
+	m_pTableViewSecurity->setStyleSheet( skinSettings.listViews );
+	m_pTableViewSecurityAuto->setStyleSheet( skinSettings.listViews );
+}
+
+void CWidgetSecurity::tableViewSecurity_customContextMenuRequested(const QPoint &pos)
+{
+	QModelIndex index = m_pTableViewSecurity->indexAt( pos );
+
+	if ( index.isValid() )
+	{
+		ui->actionSecurityExportRules->setEnabled( true );
+		ui->actionSecurityModifyRule->setEnabled( true );
+		ui->actionSecurityRemoveRule->setEnabled( true );
+	}
+	else
+	{
+		ui->actionSecurityExportRules->setEnabled( false );
+		ui->actionSecurityModifyRule->setEnabled( false );
+		ui->actionSecurityRemoveRule->setEnabled( false );
+	}
+
+	m_pSecurityMenu->popup( QCursor::pos() );
+}
+
+void CWidgetSecurity::tableViewSecurityAuto_customContextMenuRequested(const QPoint &pos)
+{
+	QModelIndex index = m_pTableViewSecurityAuto->indexAt( pos );
+
+	if ( index.isValid() )
+	{
+		ui->actionSecurityExportRules->setEnabled( true );
+		ui->actionSecurityModifyRule->setEnabled( true );
+		ui->actionSecurityRemoveRule->setEnabled( true );
+	}
+	else
+	{
+		ui->actionSecurityExportRules->setEnabled( false );
+		ui->actionSecurityModifyRule->setEnabled( false );
+		ui->actionSecurityRemoveRule->setEnabled( false );
+	}
+
+	m_pSecurityMenu->popup( QCursor::pos() );
 }

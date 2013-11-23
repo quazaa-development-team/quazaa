@@ -132,7 +132,7 @@ CDialogSettings::CDialogSettings(QWidget* parent, SettingsPage::settingsPage pag
 	ui->checkBoxRemoteEnable->setChecked(quazaaSettings.Security.RemoteEnable);
 	ui->lineEditRemoteUserName->setText(quazaaSettings.Security.RemoteUsername);
 	ui->lineEditRemotePassword->setText(quazaaSettings.Security.RemotePassword);
-	ui->checkBoxIgnoreLocalIP->setChecked(quazaaSettings.Security.SearchIgnoreLocalIP);
+	ui->checkBoxIgnoreLocalIP->setChecked(quazaaSettings.Security.IgnorePrivateIP);
 	ui->checkBoxEnableUPnP->setChecked(quazaaSettings.Security.EnableUPnP);
 	ui->checkBoxAllowBrowseShares->setChecked(quazaaSettings.Security.AllowSharesBrowse);
 	ui->listWidgetUserAgents->addItems(quazaaSettings.Security.BlockedAgentUploadFilter);
@@ -669,7 +669,7 @@ void CDialogSettings::on_pushButtonApply_clicked()
 	quazaaSettings.Security.RemoteEnable = ui->checkBoxRemoteEnable->isChecked();
 	quazaaSettings.Security.RemoteUsername = ui->lineEditRemoteUserName->text();
 	quazaaSettings.Security.RemotePassword = ui->lineEditRemotePassword->text();
-	quazaaSettings.Security.SearchIgnoreLocalIP = ui->checkBoxIgnoreLocalIP->isChecked();
+	quazaaSettings.Security.IgnorePrivateIP = ui->checkBoxIgnoreLocalIP->isChecked();
 	quazaaSettings.Security.EnableUPnP = ui->checkBoxEnableUPnP->isChecked();
 	quazaaSettings.Security.AllowSharesBrowse = ui->checkBoxAllowBrowseShares->isChecked();
 	quazaaSettings.Security.BlockedAgentUploadFilter.clear();

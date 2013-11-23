@@ -56,7 +56,7 @@ CNeighboursG2::~CNeighboursG2()
 {
 }
 
-void CNeighboursG2::Connect()
+void CNeighboursG2::connectNode()
 {
 	if(quazaaSettings.Gnutella2.ClientMode < 2)
 	{
@@ -72,7 +72,7 @@ void CNeighboursG2::Connect()
 	m_nLNIWait = quazaaSettings.Gnutella2.LNIMinimumUpdate;
 	m_tLastModeChange = common::getTNowUTC();
 
-	CNeighboursConnections::Connect();
+	CNeighboursConnections::connectNode();
 
 	// Only query service if we're not already querying and we actually need fresh hosts.
 	if ( !discoveryManager.isActive( Discovery::stGWC ) &&
@@ -81,16 +81,16 @@ void CNeighboursG2::Connect()
 		discoveryManager.queryService( CNetworkType( dpG2 ) );
 	}
 
-	HubHorizonPool.Setup();
+	HubHorizonPool.setup();
 }
 
-void CNeighboursG2::Maintain()
+void CNeighboursG2::maintain()
 {
 	ASSUME_LOCK(m_pSection);
 
 	quint32 nNodes = m_nHubsConnectedG2 + m_nLeavesConnectedG2;
 
-	CNeighboursConnections::Maintain();
+	CNeighboursConnections::maintain();
 
 	if(m_nHubsConnectedG2 + m_nLeavesConnectedG2 != nNodes)
 	{
@@ -132,7 +132,7 @@ void CNeighboursG2::Maintain()
 
 	if(m_nNextKHL == 0)
 	{
-		DispatchKHL();
+		dispatchKHL();
 		m_nNextKHL = quazaaSettings.Gnutella2.KHLPeriod;
 	}
 	else
@@ -151,7 +151,7 @@ void CNeighboursG2::Maintain()
 			{
 				if(pNode->m_nProtocol == dpG2 && pNode->m_nState == nsConnected)
 				{
-					((CG2Node*)pNode)->SendLNI();
+					((CG2Node*)pNode)->sendLNI();
 				}
 			}
 		}
@@ -167,7 +167,7 @@ void CNeighboursG2::Maintain()
 
 		if(m_nSecsTrying / 60 > 10 && quazaaSettings.Gnutella2.ClientMode == 0)
 		{
-			SwitchG2ClientMode(G2_HUB);
+			switchG2ClientMode(G2_HUB);
 			m_nSecsTrying = 0;
 		}
 	}
@@ -176,11 +176,19 @@ void CNeighboursG2::Maintain()
 		m_nSecsTrying = 0;
 	}
 
+	if ( (quazaaSettings.Gnutella2.ClientMode == G2_LEAF) && (m_nClientMode != G2_LEAF) ) {
+		systemLog.postLog(LogSeverity::Notice, "Switching to G2 LEAF mode (Manual switch)");
+		switchG2ClientMode(G2_LEAF);
+	} else if ( (quazaaSettings.Gnutella2.ClientMode == G2_HUB) && (m_nClientMode != G2_HUB) ) {
+		systemLog.postLog(LogSeverity::Notice, "Switching to G2 HUB mode (Manual switch)");
+		switchG2ClientMode(G2_HUB);
+	}
+
 	if(time(0) - m_tLastModeChange > quazaaSettings.Gnutella2.HubBalanceGrace)
 	{
 		if(m_nHubBalanceWait == 0)
 		{
-			HubBalancing();
+			hubBalancing();
 			m_nHubBalanceWait = quazaaSettings.Gnutella2.HubBalancePeriod;
 		}
 		else
@@ -189,8 +197,7 @@ void CNeighboursG2::Maintain()
 		}
 	}
 
-
-	if ( IsG2Hub() && Network.GetLocalAddress().isValid()
+	if ( isG2Hub() && Network.getLocalAddress().isValid()
 		 && !discoveryManager.isActive( Discovery::stGWC )
 		 && m_nUpdateWait-- == 0 )
 	{
@@ -202,7 +209,7 @@ void CNeighboursG2::Maintain()
 	}
 }
 
-void CNeighboursG2::DispatchKHL()
+void CNeighboursG2::dispatchKHL()
 {
 	ASSUME_LOCK( m_pSection );
 
@@ -211,11 +218,11 @@ void CNeighboursG2::DispatchKHL()
 		return;
 	}
 
-	G2Packet* pKHL = G2Packet::New( "KHL" );
+	G2Packet* pKHL = G2Packet::newPacket( "KHL" );
 
 	const quint32 tNow = common::getTNowUTC();
 
-	pKHL->WritePacket( "TS", 4 )->WriteIntLE<quint32>( tNow );
+	pKHL->writePacket( "TS", 4 )->writeIntLE<quint32>( tNow );
 
 	foreach ( CNeighbour * pNode, m_lNodes )
 	{
@@ -228,11 +235,11 @@ void CNeighboursG2::DispatchKHL()
 		{
 			if ( pNode->m_oAddress.protocol() == QAbstractSocket::IPv4Protocol )
 			{
-				pKHL->WritePacket( "NH", 6 )->WriteHostAddress( pNode->m_oAddress );
+				pKHL->writePacket( "NH", 6 )->writeHostAddress( pNode->m_oAddress );
 			}
 			else
 			{
-				pKHL->WritePacket( "NH", 18 )->WriteHostAddress( pNode->m_oAddress );
+				pKHL->writePacket( "NH", 18 )->writeHostAddress( pNode->m_oAddress );
 			}
 		}
 	}
@@ -254,13 +261,13 @@ void CNeighboursG2::DispatchKHL()
 		{
 			if ( (*itHost)->address().protocol() == QAbstractSocket::IPv4Protocol )
 			{
-				pKHL->WritePacket( "CH", 10 )->WriteHostAddress( (*itHost)->address() );
-				pKHL->WriteIntLE<quint32>( (*itHost)->timestamp() );
+				pKHL->writePacket( "CH", 10 )->writeHostAddress( (*itHost)->address() );
+				pKHL->writeIntLE<quint32>( (*itHost)->timestamp() );
 			}
 			else
 			{
-				pKHL->WritePacket( "CH", 22 )->WriteHostAddress( (*itHost)->address() );
-				pKHL->WriteIntLE<quint32>( (*itHost)->timestamp() );
+				pKHL->writePacket( "CH", 22 )->writeHostAddress( (*itHost)->address() );
+				pKHL->writeIntLE<quint32>( (*itHost)->timestamp() );
 			}
 			--nCount;
 		}
@@ -277,14 +284,14 @@ void CNeighboursG2::DispatchKHL()
 	{
 		if ( pNode->m_nState == nsConnected && pNode->m_nProtocol == dpG2 )
 		{
-			((CG2Node*)pNode)->SendPacket( pKHL, false, false );
+			((CG2Node*)pNode)->sendPacket( pKHL, false, false );
 		}
 	}
 
-	pKHL->Release();
+	pKHL->release();
 }
 
-bool CNeighboursG2::SwitchG2ClientMode(G2NodeType nRequestedMode)
+bool CNeighboursG2::switchG2ClientMode(G2NodeType nRequestedMode)
 {
 	if(!m_bActive)
 	{
@@ -303,7 +310,7 @@ bool CNeighboursG2::SwitchG2ClientMode(G2NodeType nRequestedMode)
 	{
 		if(pNode->m_nProtocol == dpG2)
 		{
-			pNode->Close();
+			pNode->close();
 		}
 	}
 
@@ -311,16 +318,16 @@ bool CNeighboursG2::SwitchG2ClientMode(G2NodeType nRequestedMode)
 	m_nUpdateWait = 0;
 
 	systemLog.postLog( LogSeverity::Notice, Components::G2,
-					   "Hub Balancing: Switched to %s mode.", ( IsG2Hub() ? "HUB" : "LEAF" ) );
+					   "Hub Balancing: Switched to %s mode.", ( isG2Hub() ? "HUB" : "LEAF" ) );
 
 	return true;
 }
 
-bool CNeighboursG2::NeedMoreG2(G2NodeType nType)
+bool CNeighboursG2::needMoreG2(G2NodeType nType)
 {
 	if(nType == G2_HUB)   // Need hubs?
 	{
-		if(IsG2Hub())   // If we are a hub.
+		if(isG2Hub())   // If we are a hub.
 		{
 			return (m_nHubsConnectedG2 < quazaaSettings.Gnutella2.NumPeers);
 		}
@@ -331,7 +338,7 @@ bool CNeighboursG2::NeedMoreG2(G2NodeType nType)
 	}
 	else // Need leaves?
 	{
-		if(IsG2Hub())      // If we are a hub.
+		if(isG2Hub())      // If we are a hub.
 		{
 			return (m_nLeavesConnectedG2 < quazaaSettings.Gnutella2.NumLeafs);
 		}
@@ -340,7 +347,7 @@ bool CNeighboursG2::NeedMoreG2(G2NodeType nType)
 	return false;
 }
 
-void CNeighboursG2::HubBalancing()
+void CNeighboursG2::hubBalancing()
 {
 	// NOT TESTED
 	ASSUME_LOCK(m_pSection);
@@ -362,7 +369,7 @@ void CNeighboursG2::HubBalancing()
 		// we're a leaf
 		// TODO: Check capabilities
 
-		if( Network.IsFirewalled() )
+		if( Network.isFirewalled() )
 			return;
 
 		quint32 nLeaves = 0, nCapacity = 0;
@@ -381,7 +388,7 @@ void CNeighboursG2::HubBalancing()
 		{
 			// Switch to G2 Hub mode if there are no other Quazaa hubs
 			systemLog.postLog(LogSeverity::Notice, "Switching to G2 HUB mode (no Quazaa hubs)");
-			SwitchG2ClientMode(G2_HUB);
+			switchG2ClientMode(G2_HUB);
 			return;
 		}
 
@@ -392,7 +399,7 @@ void CNeighboursG2::HubBalancing()
 			if(m_nPeriodsHigh >= quazaaSettings.Gnutella2.HubBalanceHighTime)
 			{
 				systemLog.postLog(LogSeverity::Notice, "Switching to G2 HUB mode");
-				SwitchG2ClientMode(G2_HUB);
+				switchG2ClientMode(G2_HUB);
 				return;
 			}
 		}
@@ -426,7 +433,7 @@ void CNeighboursG2::HubBalancing()
 			if(m_nPeriodsLow >= quazaaSettings.Gnutella2.HubBalanceLowTime)
 			{
 				systemLog.postLog(LogSeverity::Notice, "Switching to G2 LEAF mode.");
-				SwitchG2ClientMode(G2_LEAF);
+				switchG2ClientMode(G2_LEAF);
 				return;
 			}
 		}
@@ -438,33 +445,33 @@ void CNeighboursG2::HubBalancing()
 	}
 }
 
-G2Packet* CNeighboursG2::CreateQueryAck(QUuid oGUID, bool bWithHubs, CNeighbour* pExcept, bool bDone)
+G2Packet* CNeighboursG2::createQueryAck(QUuid oGUID, bool bWithHubs, CNeighbour* pExcept, bool bDone)
 {
-	G2Packet* pPacket = G2Packet::New("QA", true);
+	G2Packet* pPacket = G2Packet::newPacket("QA", true);
 
-	pPacket->WritePacket("TS", 4)->WriteIntLE<quint32>( common::getTNowUTC() );
-	pPacket->WritePacket("FR", (Network.m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 6 : 18))->WriteHostAddress(Network.m_oAddress);
-	pPacket->WritePacket("RA", 4)->WriteIntLE<quint32>(30 + 30 * m_nHubsConnectedG2);
-	pPacket->WritePacket("V", 4)->WriteString(CQuazaaGlobals::VENDOR_CODE(), false);
+	pPacket->writePacket("TS", 4)->writeIntLE<quint32>( common::getTNowUTC() );
+	pPacket->writePacket("FR", (Network.m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 6 : 18))->writeHostAddress(Network.m_oAddress);
+	pPacket->writePacket("RA", 4)->writeIntLE<quint32>(30 + 30 * m_nHubsConnectedG2);
+	pPacket->writePacket("V", 4)->writeString(CQuazaaGlobals::VENDOR_CODE(), false);
 
 	if(bDone)
 	{
-		pPacket->WritePacket("D", (Network.m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 8 : 20))->WriteHostAddress(Network.m_oAddress);
+		pPacket->writePacket("D", (Network.m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 8 : 20))->writeHostAddress(Network.m_oAddress);
 
 		if(bWithHubs)
 		{
-			pPacket->WriteIntLE<quint16>(m_nLeavesConnectedG2);
+			pPacket->writeIntLE<quint16>(m_nLeavesConnectedG2);
 
 			foreach(CNeighbour * pNode, m_lNodes)
 			{
 				if(pNode->m_nProtocol == dpG2 && pNode->m_nState == nsConnected && ((CG2Node*)pNode)->m_nType == G2_HUB && pNode != pExcept)
 				{
-					pPacket->WritePacket("D", (pNode->m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 8 : 20))->WriteHostAddress(pNode->m_oAddress);
-					pPacket->WriteIntLE<quint16>(((CG2Node*)pNode)->m_nLeafCount);
+					pPacket->writePacket("D", (pNode->m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 8 : 20))->writeHostAddress(pNode->m_oAddress);
+					pPacket->writeIntLE<quint16>(((CG2Node*)pNode)->m_nLeafCount);
 				}
 			}
 
-			/*int nCount = */HubHorizonPool.AddHorizonHubs(pPacket);
+			/*int nCount = */HubHorizonPool.addHorizonHubs(pPacket);
 
 			// TODO Add hubs from HostCache
 			/*if( nCount < 10 )
@@ -481,12 +488,12 @@ G2Packet* CNeighboursG2::CreateQueryAck(QUuid oGUID, bool bWithHubs, CNeighbour*
 		}
 		else
 		{
-			pPacket->WriteIntLE<quint16>(0);
+			pPacket->writeIntLE<quint16>(0);
 		}
 	}
 
-	pPacket->WriteByte(0);
-	pPacket->WriteGUID(oGUID);
+	pPacket->writeByte(0);
+	pPacket->writeGUID(oGUID);
 
 	return pPacket;
 }

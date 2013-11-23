@@ -44,18 +44,18 @@ CHandshake::~CHandshake()
 {
 	ASSUME_LOCK(Handshakes.m_pSection);
 
-	Handshakes.RemoveHandshake(this);
+	Handshakes.removeHandshake(this);
 }
 
-void CHandshake::OnTimer(quint32 tNow)
+void CHandshake::onTimer(quint32 tNow)
 {
 	if(tNow - m_tConnected > 15)
 	{
 		systemLog.postLog(LogSeverity::Debug, Components::Network, QString("Timed out handshaking with  %1").arg(m_pSocket->peerAddress().toString().toLocal8Bit().constData()));
-		Close();
+		close();
 	}
 }
-void CHandshake::OnRead()
+void CHandshake::onRead()
 {
 	QMutexLocker l(&Handshakes.m_pSection);
 
@@ -66,7 +66,7 @@ void CHandshake::OnRead()
 		return;
 	}
 
-	if ( Peek(8).startsWith( "GNUTELLA" ) )
+	if ( peek(8).startsWith( "GNUTELLA" ) )
 	{
 #if LOG_CONNECTIONS
 		systemLog.postLog(LogSeverity::Debug, Components::Network, QString("Incoming connection from %1 is Gnutella Neighbour connection").arg(m_pSocket->peerAddress().toString().toLocal8Bit().constData()));
@@ -74,14 +74,14 @@ void CHandshake::OnRead()
 		Handshakes.processNeighbour(this);
 		delete this;
 	}
-	else if ( Peek( 5 ).startsWith( "GET /" ) )
+	else if ( peek( 5 ).startsWith( "GET /" ) )
 	{
-		if ( Peek( bytesAvailable() ).indexOf( "\r\n\r\n" ) != -1 )
+		if ( peek( bytesAvailable() ).indexOf( "\r\n\r\n" ) != -1 )
 		{
 #if LOG_CONNECTIONS
 			systemLog.postLog(LogSeverity::Debug, Components::Network, QString("Incoming connection from %1 is a Web request").arg(m_pSocket->peerAddress().toString().toLocal8Bit().constData()));
 #endif
-			OnWebRequest();
+			onWebRequest();
 		}
 	}
 	else
@@ -94,22 +94,22 @@ void CHandshake::OnRead()
 		baResp += "Server: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
 		baResp += "\r\n";
 
-		Write(baResp);
-		Close(true);
+		write(baResp);
+		close(true);
 	}
 }
 
-void CHandshake::OnConnect()
+void CHandshake::onConnectNode()
 {
 
 }
-void CHandshake::OnDisconnect()
+void CHandshake::onDisconnectNode()
 {
 	Handshakes.m_pSection.lock();
 	delete this;
 	Handshakes.m_pSection.unlock();
 }
-void CHandshake::OnError(QAbstractSocket::SocketError e)
+void CHandshake::onError(QAbstractSocket::SocketError e)
 {
 	Q_UNUSED(e);
 	Handshakes.m_pSection.lock();
@@ -117,16 +117,16 @@ void CHandshake::OnError(QAbstractSocket::SocketError e)
 	Handshakes.m_pSection.unlock();
 }
 
-void CHandshake::OnStateChange(QAbstractSocket::SocketState s)
+void CHandshake::onStateChange(QAbstractSocket::SocketState s)
 {
 	Q_UNUSED(s);
 }
 
-void CHandshake::OnWebRequest()
+void CHandshake::onWebRequest()
 {
 	QString sRequest;
 
-	sRequest = Read(bytesAvailable());
+	sRequest = read(bytesAvailable());
 	sRequest = sRequest.left(sRequest.indexOf("\r\n\r\n"));
 
 	QStringList arrLines = sRequest.split("\r\n");
@@ -207,8 +207,8 @@ void CHandshake::OnWebRequest()
 		baResp += "Content-length: " + QString(baHtml.length()) + "\r\n";
 		baResp += "\r\n";
 
-		Write(baResp);
-		Write(baHtml);
+		write(baResp);
+		write(baHtml);
 	}
 	else
 	{
@@ -239,7 +239,7 @@ void CHandshake::OnWebRequest()
 					baResp += f.readAll();
 					f.close();
 
-					Write(baResp);
+					write(baResp);
 				}
 			}
 		}
@@ -257,9 +257,9 @@ void CHandshake::OnWebRequest()
 #ifdef _DEBUG
 			baResp += sPath;
 #endif
-			Write(baResp);
+			write(baResp);
 		}
 	}
-	Close(true);
+	close(true);
 
 }

@@ -49,7 +49,7 @@ CHubHorizonPool::~CHubHorizonPool()
 	}
 }
 
-void CHubHorizonPool::Setup()
+void CHubHorizonPool::setup()
 {
 	if(m_pBuffer != 0)
 	{
@@ -69,7 +69,7 @@ void CHubHorizonPool::Setup()
 	}
 }
 
-void CHubHorizonPool::Clear()
+void CHubHorizonPool::clear()
 {
 	m_pActive	= 0;
 	m_nActive	= 0;
@@ -82,7 +82,7 @@ void CHubHorizonPool::Clear()
 	}
 }
 
-CHubHorizonHub* CHubHorizonPool::Add(CEndPoint oAddress)
+CHubHorizonHub* CHubHorizonPool::add(CEndPoint oAddress)
 {
 	CHubHorizonHub* pHub = m_pActive;
 	for(; pHub ; pHub = pHub->m_pNext)
@@ -112,7 +112,7 @@ CHubHorizonHub* CHubHorizonPool::Add(CEndPoint oAddress)
 	return pHub;
 }
 
-void CHubHorizonPool::Remove(CHubHorizonHub* pHub)
+void CHubHorizonPool::remove(CHubHorizonHub* pHub)
 {
 	CHubHorizonHub** ppPrev = &m_pActive;
 
@@ -131,7 +131,7 @@ void CHubHorizonPool::Remove(CHubHorizonHub* pHub)
 	}
 }
 
-CHubHorizonHub* CHubHorizonPool::Find(CEndPoint oAddress)
+CHubHorizonHub* CHubHorizonPool::find(CEndPoint oAddress)
 {
 	for(CHubHorizonHub* pHub = m_pActive ; pHub ; pHub = pHub->m_pNext)
 	{
@@ -144,14 +144,14 @@ CHubHorizonHub* CHubHorizonPool::Find(CEndPoint oAddress)
 	return 0;
 }
 
-int CHubHorizonPool::AddHorizonHubs(G2Packet* pPacket)
+int CHubHorizonPool::addHorizonHubs(G2Packet* pPacket)
 {
 	int nCount = 0;
 
 	for(CHubHorizonHub* pHub = m_pActive ; pHub ; pHub = pHub->m_pNext)
 	{
-		pPacket->WritePacket("S", (pHub->m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 6 : 18));
-		pPacket->WriteHostAddress(pHub->m_oAddress);
+		pPacket->writePacket("S", (pHub->m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 6 : 18));
+		pPacket->writeHostAddress(pHub->m_oAddress);
 
 		nCount++;
 	}
@@ -168,14 +168,14 @@ CHubHorizonGroup::CHubHorizonGroup()
 
 CHubHorizonGroup::~CHubHorizonGroup()
 {
-	Clear();
+	clear();
 	if(m_pList != 0)
 	{
 		delete [] m_pList;
 	}
 }
 
-void CHubHorizonGroup::Add(CEndPoint oAddress)
+void CHubHorizonGroup::add(CEndPoint oAddress)
 {
 	CHubHorizonHub** ppHub = m_pList;
 
@@ -187,7 +187,7 @@ void CHubHorizonGroup::Add(CEndPoint oAddress)
 		}
 	}
 
-	CHubHorizonHub* pHub = HubHorizonPool.Add(oAddress);
+	CHubHorizonHub* pHub = HubHorizonPool.add(oAddress);
 	if(pHub == 0)
 	{
 		return;
@@ -213,7 +213,7 @@ void CHubHorizonGroup::Add(CEndPoint oAddress)
 	m_pList[ m_nCount++ ] = pHub;
 }
 
-void CHubHorizonGroup::Clear()
+void CHubHorizonGroup::clear()
 {
 	CHubHorizonHub** ppHub = m_pList;
 
@@ -221,7 +221,7 @@ void CHubHorizonGroup::Clear()
 	{
 		if(-- ((*ppHub)->m_nReference) == 0)
 		{
-			HubHorizonPool.Remove(*ppHub);
+			HubHorizonPool.remove(*ppHub);
 		}
 	}
 

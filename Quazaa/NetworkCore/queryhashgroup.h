@@ -44,13 +44,13 @@ protected:
 	QList< CQueryHashTable* > m_pTables;
 
 public:
-	void	Add(CQueryHashTable* pTable);
-	void	Remove(CQueryHashTable* pTable);
+	void	add(CQueryHashTable* pTable);
+	void	remove(CQueryHashTable* pTable);
 protected:
-	void	Operate(CQueryHashTable* pTable, bool nAdd);
+	void	operate(CQueryHashTable* pTable, bool nAdd);
 
 public:
-	int		GetCount()
+	int		getCount()
 	{
 		return m_pTables.size();
 	}

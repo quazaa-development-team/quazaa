@@ -488,9 +488,9 @@ void CG2HostCache::save(const quint32 tNow) const
 
 	ASSUME_LOCK( m_pSection );
 
-	quint32 nCount = common::securredSaveFile( common::globalDataFiles, "hostcache.dat",
-											   Components::HostCache, this,
-											   &CG2HostCache::writeToFile );
+	quint32 nCount = common::securedSaveFile( CQuazaaGlobals::DATA_PATH(), "hostcache.dat",
+											  Components::HostCache, this,
+											  &CG2HostCache::writeToFile );
 	if ( nCount )
 	{
 		m_tLastSave = tNow;
@@ -616,7 +616,7 @@ quint32 CG2HostCache::writeToFile(const void * const pManager, QFile& oFile)
 void CG2HostCache::localAddressChanged()
 {
 	Network.m_pSection.lock();
-	m_oLokalAddress = Network.GetLocalAddress();
+	m_oLokalAddress = Network.getLocalAddress();
 	Network.m_pSection.unlock();
 }
 
@@ -928,8 +928,8 @@ CG2HostCacheHost* CG2HostCache::addSyncHelper(const CEndPoint& host, quint32 tTi
 	}
 
 	// At this point the security check should already have been performed.
-	// Q_ASSERT( !securityManager.isDenied(host) );
-	if ( securityManager.isDenied(host) )
+	Q_ASSERT( !securityManager.isDenied( host ) );
+	if ( securityManager.isDenied( host ) )
 	{
 		return NULL;
 	}
@@ -1141,7 +1141,7 @@ void CG2HostCache::load()
 
 	m_pSection.lock();
 
-	QFile file( common::getLocation( common::globalDataFiles ) + "hostcache.dat" );
+	QFile file( CQuazaaGlobals::DATA_PATH() + "hostcache.dat" );
 
 	if ( !file.exists() || !file.open( QIODevice::ReadOnly ) )
 		return;
@@ -1220,7 +1220,7 @@ void CG2HostCache::asyncStartUpHelper()
 #endif //ENABLE_HOST_CACHE_DEBUGGING
 
 	connect( &securityManager, SIGNAL( performSanityCheck() ), this, SLOT( sanityCheck() ) );
-	connect( &Network, SIGNAL( LocalAddressChanged() ), this, SLOT( localAddressChanged() ) );
+	connect( &Network, SIGNAL( localAddressChanged() ), this, SLOT( localAddressChanged() ) );
 
 	m_nMaxFailures = quazaaSettings.Connection.FailureLimit;
 	m_pFailures    = new TG2HostCacheIterator[m_nMaxFailures + 2];

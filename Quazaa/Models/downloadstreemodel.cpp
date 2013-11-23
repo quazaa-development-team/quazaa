@@ -94,7 +94,7 @@ QVariant CDownloadsTreeModel::data(const QModelIndex &index, int role) const
 				CDownloadSourceItem *item = static_cast<CDownloadSourceItem*>(index.internalPointer());
 				if(item->m_nProtocol != tpNull)
 				{
-                    return QIcon(":/Resource/Flags/" + item->getCountryCode().toLower() + ".png");
+					return QIcon(":/Resource/Flags/" + item->getCountryCode().toLower() + ".png");
 				}
 			}
 		}
@@ -275,8 +275,8 @@ CDownloadItem::CDownloadItem(CDownload *download, CDownloadsItemBase *parent, CD
 	: CDownloadsItemBase(parentQObject),
 	  m_pDownload(download),
 	  m_oCompletedFrags(0),
-      m_oVerifiedFrags(0),
-      m_pModel(model)
+	  m_oVerifiedFrags(0),
+	  m_pModel(model)
 {
 	parentItem = parent;
 
@@ -418,8 +418,8 @@ void CDownloadItem::onStateChanged(int state)
 
 void CDownloadItem::onBytesReceived(quint64 offset, quint64 length, CDownloadSourceItem *source)
 {
-    Q_UNUSED(source);
-    //TODO: Make use of CDownloadSourceItem *source
+	Q_UNUSED(source);
+	//TODO: Make use of CDownloadSourceItem *source
 
 	qDebug() << "CDownloadItem::onBytesReceived()" << offset << length;
 	m_oCompletedFrags.insert(Fragments::Fragment(offset, offset + length));
@@ -428,10 +428,12 @@ void CDownloadItem::onBytesReceived(quint64 offset, quint64 length, CDownloadSou
 	emit progressChanged();
 }
 
-CDownloadSourceItem::CDownloadSourceItem(CDownloadSource *downloadSource, CDownloadsItemBase *parent, QObject *parentQObject)
-	: CDownloadsItemBase(parentQObject),
-	  m_pDownloadSource(downloadSource),
-	  m_oDownloaded(static_cast<CDownloadItem*>(parent)->m_nSize)
+CDownloadSourceItem::CDownloadSourceItem(CDownloadSource *downloadSource,
+										 CDownloadsItemBase *parent,
+										 QObject *parentQObject) :
+	CDownloadsItemBase( parentQObject ),
+	m_pDownloadSource( downloadSource ),
+	m_oDownloaded( static_cast<CDownloadItem*>(parent)->m_nSize )
 {
 	parentItem = parent;
 
@@ -444,15 +446,17 @@ CDownloadSourceItem::CDownloadSourceItem(CDownloadSource *downloadSource, CDownl
 	m_sClient = "";
 	m_nDownloaded = 0;
 
-    m_sCountryCode = downloadSource->m_oAddress.country();
-    m_sCountry = geoIP.countryNameFromCode(m_sCountryCode);
+	m_sCountryCode = downloadSource->m_oAddress.country();
+	m_sCountryName = geoIP.countryNameFromCode( m_sCountryCode );
 
 	m_nProtocol = downloadSource->m_nProtocol;
 
-	connect(downloadSource, SIGNAL(bytesReceived(quint64,quint64)), this, SLOT(onBytesReceived(quint64,quint64)));
+	connect( downloadSource, SIGNAL( bytesReceived(quint64,quint64) ),
+			 this, SLOT( onBytesReceived(quint64,quint64) ) );
 
 	//static int test = (srand(QDateTime::currentMSecsSinceEpoch()), 1);
-	onBytesReceived(common::getRandomNum<quint64>(0, ((CDownloadItem*)parent)->m_nSize), common::getRandomNum<quint64>(100, 1024 * 1024));
+	onBytesReceived( common::getRandomNum<quint64>( 0, ((CDownloadItem*)parent)->m_nSize ),
+					 common::getRandomNum<quint64>( 100, 1024 * 1024 ) );
 }
 
 CDownloadSourceItem::~CDownloadSourceItem()
@@ -467,53 +471,51 @@ void CDownloadSourceItem::appendChild(CDownloadsItemBase *child)
 
 QVariant CDownloadSourceItem::data(int column) const
 {
-	switch(column)
+	switch( column )
 	{
 	case CDownloadsTreeModel::NAME:
 			return m_sAddress;
-		break;
+
 	case CDownloadsTreeModel::SIZE:
-			return formatBytes(m_nSize);
-		break;
+			return formatBytes( m_nSize );
+
 	case CDownloadsTreeModel::PROGRESS:
 			return QVariant();
-		break;
+
 	case CDownloadsTreeModel::BANDWIDTH:
-			if(m_nBandwidth == 0)
-				return QVariant();
+			if ( m_nBandwidth )
+				return formatBytes( m_nBandwidth ).append( "/s" );
 			else
-				return formatBytes(m_nBandwidth).append("/s");
-		break;
+				return QVariant();
+
 	case CDownloadsTreeModel::STATUS:
 			return m_nStatus;
-		break;
+
 	case CDownloadsTreeModel::PRIORITY:
 			return QVariant();
-		break;
+
 	case CDownloadsTreeModel::CLIENT:
 			return m_sClient;
-		break;
+
 	case CDownloadsTreeModel::COMPLETED:
-			return formatBytes(m_nDownloaded);
-		break;
-    case CDownloadsTreeModel::COUNTRY:
-            return m_sCountry;
-		break;
+			return formatBytes( m_nDownloaded );
+
+	case CDownloadsTreeModel::COUNTRY:
+			return m_sCountryName;
+
 	default:
 			return QVariant();
-		break;
-
 	}
 }
 
 QString CDownloadSourceItem::getCountryCode()
 {
-    return m_sCountryCode;
+	return m_sCountryCode;
 }
 
 QString CDownloadSourceItem::getCountry()
 {
-    return m_sCountry;
+	return m_sCountryName;
 }
 
 void CDownloadSourceItem::onBytesReceived(quint64 offset, quint64 length)

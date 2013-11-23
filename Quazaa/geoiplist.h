@@ -49,29 +49,13 @@ public:
 
 	CGeoIPList();
 	void loadGeoIP();
-	inline QString findCountryCode(const QString& IP) const;
-	inline QString findCountryCode(const QHostAddress& ip) const;
 
+	QString findCountryCode(const QString& sIP) const;
+	QString findCountryCode(const QHostAddress& ip) const;
 	QString findCountryCode(const quint32 nIp) const;
+
 	QString countryNameFromCode(const QString& code) const;
 };
-
-QString CGeoIPList::findCountryCode(const QString& IP) const
-{
-	CEndPoint ipAddress( IP );
-	return findCountryCode( ipAddress );
-}
-
-QString CGeoIPList::findCountryCode(const QHostAddress& ip) const
-{
-	if ( ip.protocol() == 1 ) // IPv6
-	{
-		return "ZZ";
-	}
-
-	const quint32 ip4 = ip.toIPv4Address();
-	return findCountryCode( ip4 );
-}
 
 extern CGeoIPList geoIP;
 

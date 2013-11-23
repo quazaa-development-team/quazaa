@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>CWidgetSearchTemplate</class>
- <widget class="QWidget" name="WidgetSearchTemplate">
+ <widget class="QWidget" name="CWidgetSearchTemplate">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -21,7 +21,16 @@
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <property name="spacing">
@@ -90,6 +99,15 @@
    </property>
    <property name="text">
     <string>Virus Total Check</string>
+   </property>
+  </action>
+  <action name="actionBanNode">
+   <property name="icon">
+    <iconset resource="../Resource.qrc">
+     <normaloff>:/Resource/Generic/Ban.png</normaloff>:/Resource/Generic/Ban.png</iconset>
+   </property>
+   <property name="text">
+    <string>Ban Node</string>
    </property>
   </action>
  </widget>

@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -40,7 +40,7 @@ CNeighboursRouting::~CNeighboursRouting()
 {
 }
 
-void CNeighboursRouting::RouteQuery(CQueryPtr pQuery, G2Packet *pPacket, CNeighbour* pFrom, bool bToHubs)
+void CNeighboursRouting::routeQuery(CQueryPtr pQuery, G2Packet *pPacket, CNeighbour* pFrom, bool bToHubs)
 {
 	quint32 tNow = time(0);
 	quint32 nCount = 0, nHubs = 0, nLeaves = 0;
@@ -58,7 +58,7 @@ void CNeighboursRouting::RouteQuery(CQueryPtr pQuery, G2Packet *pPacket, CNeighb
 
 			if( pG2->m_pRemoteTable != 0 && pG2->m_pRemoteTable->m_bLive )
 			{
-				if( !pG2->m_pRemoteTable->CheckQuery(pQuery) )
+				if( !pG2->m_pRemoteTable->checkQuery(pQuery) )
 				{
 					continue;
 				}
@@ -68,7 +68,7 @@ void CNeighboursRouting::RouteQuery(CQueryPtr pQuery, G2Packet *pPacket, CNeighb
 				continue;
 			}
 
-			pG2->SendPacket(pPacket, true, false);
+			pG2->sendPacket(pPacket, true, false);
 			nCount++;
 
 			if( pG2->m_nType == G2_HUB )

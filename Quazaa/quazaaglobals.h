@@ -44,7 +44,11 @@ public:
 		static QString APPLICATION_ORGANIZATION_DOMAIN();
 		static QString USER_AGENT_STRING();
 		static QString VENDOR_CODE();
-		QString MEDIA_OPEN_FILTER();
+		static QString MEDIA_OPEN_FILTER();
+		static QString DATA_PATH();
+		static QString STORAGE_PATH();
+		static QString SETTINGS_PATH();
+		static QString INI_FILE();
 };
 
 #endif // QUAZAAGLOBALS_H

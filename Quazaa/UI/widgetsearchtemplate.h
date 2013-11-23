@@ -101,6 +101,7 @@ private slots:
 	void on_actionViewReviews_triggered();
 	void on_actionVirusTotalCheck_triggered();
 	void setSkin();
+	void on_actionBanNode_triggered();
 };
 
 #endif // WIDGETSEARCHTEMPLATE_H

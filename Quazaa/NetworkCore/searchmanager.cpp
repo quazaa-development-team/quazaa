@@ -30,7 +30,7 @@
 #include "hostcache.h"
 #include "network.h"
 #include <QMetaType>
-#include "Security/securitymanager.h"
+#include "securitymanager.h"
 
 #include "quazaasettings.h"
 #include "commonfunctions.h"
@@ -50,7 +50,7 @@ CSearchManager::CSearchManager(QObject* parent) :
 	qRegisterMetaType<QueryHitSharedPtr>("QueryHitSharedPtr");
 }
 
-void CSearchManager::Add(CManagedSearch* pSearch)
+void CSearchManager::add(CManagedSearch* pSearch)
 {
 	QMutexLocker l(&m_pSection);
 
@@ -62,7 +62,7 @@ void CSearchManager::Add(CManagedSearch* pSearch)
 	}
 }
 
-void CSearchManager::Remove(CManagedSearch* pSearch)
+void CSearchManager::remove(CManagedSearch* pSearch)
 {
 	QMutexLocker l(&m_pSection);
 
@@ -70,12 +70,12 @@ void CSearchManager::Remove(CManagedSearch* pSearch)
 	m_lSearches.remove(pSearch->m_oGUID);
 }
 
-CManagedSearch* CSearchManager::Find(QUuid& oGUID)
+CManagedSearch* CSearchManager::find(QUuid& oGUID)
 {
 	return m_lSearches.value(oGUID, 0);
 }
 
-void CSearchManager::OnTimer()
+void CSearchManager::onTimer()
 {
 	QMutexLocker l( &m_pSection );
 
@@ -83,7 +83,7 @@ void CSearchManager::OnTimer()
 
 	foreach ( CManagedSearch* pSearch, m_lSearches )
 	{
-		pSearch->SendHits();
+		pSearch->sendHits();
 		if ( pSearch->m_bPaused )
 			--nSearches;
 	}
@@ -113,7 +113,7 @@ void CSearchManager::OnTimer()
 		if ( pSearch->m_nCookie != m_nCookie )
 		{
 			quint32 nPacket = qMin( nPacketsPerSearch, nPacketsLeft );
-			pSearch->Execute( tNowDT, &nPacket );
+			pSearch->execute( tNowDT, &nPacket );
 			pSearch->m_nCookie = m_nCookie;
 			nPacketsLeft -= ( (nPacketsLeft < nPacketsPerSearch) ?
 							  (nPacketsLeft - nPacket) : (nPacketsPerSearch - nPacket) );
@@ -137,7 +137,7 @@ void CSearchManager::OnTimer()
  * @param oGUID will be overwritten with the search GUID contained in the packet.
  * @return true: the caller must route the packet; false otherwise
  */
-bool CSearchManager::OnQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSender, QUuid& oGUID)
+bool CSearchManager::onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSender, QUuid& oGUID)
 {
 	// Note: The query acknowledgement packet is used to inform a search client that a target hub
 	// has received its query and is processing it. It also provides information for the search
@@ -149,17 +149,17 @@ bool CSearchManager::OnQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSen
 		return false;
 	}
 
-	pPacket->SkipCompound();            // skip children to get search GUID
-	if ( pPacket->GetRemaining() < 16 ) // must be at least 16 bytes for GUID
+	pPacket->skipCompound();			// skip children to get search GUID
+	if ( pPacket->getRemaining() < 16 )	// must be at least 16 bytes for GUID
 	{
 		return false;
 	}
 
-	oGUID = pPacket->ReadGUID();        // Read search GUID
+	oGUID = pPacket->readGUID();		// Read search GUID
 
 	QMutexLocker l( &m_pSection );
 
-	if ( CManagedSearch* pSearch = Find( oGUID ) )	// is it our Query Ack?
+	if ( CManagedSearch* pSearch = find( oGUID ) )	// is it our Query Ack?
 	{
 		// YES, this is ours, let's parse the packet and process it
 
@@ -183,7 +183,7 @@ bool CSearchManager::OnQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSen
 		quint32 nLength = 0;    // child packet length
 		quint32 nNext   = 0;    // next child packet starting position
 
-		while ( pPacket->ReadPacket( &szType[0], nLength ) )
+		while ( pPacket->readPacket( &szType[0], nLength ) )
 		{
 			nNext = pPacket->m_nPosition + nLength;
 
@@ -206,35 +206,35 @@ bool CSearchManager::OnQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSen
 				{
 					// IPv6
 					Q_IPV6ADDR nIP;
-					pPacket->Read( &nIP, 16 );
+					pPacket->read( &nIP, 16 );
 					oSearchedHub.setAddress( nIP );
 
 					if ( nLength >= 18 )
 					{
-						quint16 nPort = pPacket->ReadIntLE<quint16>();
+						quint16 nPort = pPacket->readIntLE<quint16>();
 						oSearchedHub.setPort(nPort);
 					}
 
 					if ( nLength >= 20 )
 					{
-						nSearchedLeaves += pPacket->ReadIntLE<quint16>();
+						nSearchedLeaves += pPacket->readIntLE<quint16>();
 					}
 				}
 				else
 				{
 					// IPv4
-					quint32 nIP = pPacket->ReadIntBE<quint32>();
+					quint32 nIP = pPacket->readIntBE<quint32>();
 					oSearchedHub.setAddress( nIP );
 
 					if ( nLength >= 6 )
 					{
-						quint16 nPort = pPacket->ReadIntLE<quint16>();
+						quint16 nPort = pPacket->readIntLE<quint16>();
 						oSearchedHub.setPort(nPort);
 					}
 
 					if ( nLength >= 8 )
 					{
-						nSearchedLeaves += pPacket->ReadIntLE<quint16>();
+						nSearchedLeaves += pPacket->readIntLE<quint16>();
 					}
 				}
 
@@ -247,9 +247,9 @@ bool CSearchManager::OnQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSen
 				// hub suggestion
 
 				CEndPoint suggestion;
-				pPacket->ReadHostAddress( &suggestion, !( nLength >= 18 ) );
+				pPacket->readHostAddress( &suggestion, !( nLength >= 18 ) );
 				const quint32 tTimeStamp = ( nLength >= (suggestion.protocol() == 0 ? 10u : 22u) ) ?
-											 pPacket->ReadIntLE<quint32>() + tAdjust : tNow - 60;
+											 pPacket->readIntLE<quint32>() + tAdjust : tNow - 60;
 
 				lSuggestedHubs.insert(suggestion, tTimeStamp);
 
@@ -260,7 +260,7 @@ bool CSearchManager::OnQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSen
 				// UTC timestamp of the packet generation time
 
 				// TODO: this child packet should be read before parsing the other packets
-				tAdjust = tNow - pPacket->ReadIntLE<quint32>();
+				tAdjust = tNow - pPacket->readIntLE<quint32>();
 			}
 			else if ( strcmp("RA", szType) == 0 && nLength >= 2 )
 			{
@@ -270,11 +270,11 @@ bool CSearchManager::OnQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSen
 
 				if ( nLength >= 4 )
 				{
-					tRetryAfter = pPacket->ReadIntLE<quint32>();
+					tRetryAfter = pPacket->readIntLE<quint32>();
 				}
 				else if ( nLength >= 2 )
 				{
-					tRetryAfter = pPacket->ReadIntLE<quint16>();
+					tRetryAfter = pPacket->readIntLE<quint16>();
 				}
 
 				hostCache.m_pSection.lock();
@@ -292,18 +292,18 @@ bool CSearchManager::OnQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSen
 				if ( nLength >= 16 )
 				{
 					Q_IPV6ADDR ip;
-					pPacket->Read( &ip, 16 );
+					pPacket->read( &ip, 16 );
 					oQAOrigin.setAddress( ip );
 				}
 				else
 				{
-					quint32 nFromIp = pPacket->ReadIntBE<quint32>();
+					quint32 nFromIp = pPacket->readIntBE<quint32>();
 					oQAOrigin.setAddress( nFromIp );
 				}
 			}
 			else if ( strcmp("V", szType) == 0 && nLength >= 4 )
 			{
-				sVendor = pPacket->ReadString( 4 );
+				sVendor = pPacket->readString( 4 );
 			}
 			else
 			{
@@ -343,13 +343,13 @@ bool CSearchManager::OnQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSen
 		{
 			CEndPoint oBan = oSender;
 
-			if ( Network.IsFirewalled() && !lDoneHubs.isEmpty() )
+			if ( Network.isFirewalled() && !lDoneHubs.isEmpty() )
 			{
 				oBan = lDoneHubs[0]; // 1st done hub, Shareaza does not include /FR child packet
 			}
 
-			securityManager.ban( oBan, Security::ban6Hours, true,
-								 tr( "[AUTO] Likely Foxy client" )
+			securityManager.ban( oBan, Security::RuleTime::SixHours, true,
+								 tr( "[AUTO] Likely Foxy client" ), true
 #ifdef _DEBUG
 								 , QString( "searchmanager.cpp line 307" )
 #endif
@@ -366,14 +366,14 @@ bool CSearchManager::OnQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSen
 		pSearch->m_nLeaves += nSearchedLeaves;
 
 		const QDateTime tNowDT = common::getDateTimeUTC();
-		pSearch->OnHostAcknowledge( oQAOrigin, tNowDT );
+		pSearch->onHostAcknowledge( oQAOrigin, tNowDT );
 
 		for ( int i = 0; i < lDoneHubs.size(); ++i )
 		{
-			pSearch->OnHostAcknowledge( lDoneHubs[i], tNowDT );
+			pSearch->onHostAcknowledge( lDoneHubs[i], tNowDT );
 		}
 
-		emit pSearch->StatsUpdated();
+		emit pSearch->statsUpdated();
 
 		return false;
 	}
@@ -382,19 +382,19 @@ bool CSearchManager::OnQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSen
 	return true;
 }
 
-bool CSearchManager::OnQueryHit(G2Packet* pPacket, QueryHitInfo* pHitInfo)
+bool CSearchManager::onQueryHit(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 {
 	QMutexLocker l(&m_pSection);
 
-	if(CManagedSearch* pSearch = Find(pHitInfo->m_oGUID))
+	if(CManagedSearch* pSearch = find(pHitInfo->m_oGUID))
 	{
 		// our search
 
-		CQueryHit* pHit = CQueryHit::ReadPacket(pPacket, pHitInfo);
+		CQueryHit* pHit = CQueryHit::readPacket(pPacket, pHitInfo);
 
 		if(pHit)
 		{
-			pSearch->OnQueryHit(pHit);
+			pSearch->onQueryHit(pHit);
 		}
 
 		return false;

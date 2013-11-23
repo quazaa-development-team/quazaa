@@ -26,16 +26,19 @@
 #define SYSTEMLOG_H
 
 #include <QObject>
+#include <QMutex>
+#include <QWaitCondition>
+#include <QThread>
 
 namespace LogSeverity
 {
-enum Severity { Information, // Inform the user about something
-				Security,    // security related
-				Notice,      // Inform the user about something less important
-				Debug,       // Debugging output
-				Warning,
-				Error,
-				Critical };
+enum Severity { Information = 1, // Inform the user about something
+				Security    = 2, // security related
+				Notice      = 3, // Inform the user about something less important
+				Debug       = 4, // Debugging output
+				Warning     = 5,
+				Error       = 6,
+				Critical    = 7 };
 }
 
 namespace Components
@@ -63,7 +66,9 @@ class CSystemLog : public QObject
 {
 	Q_OBJECT
 private:
+	QMutex m_pSection;
 	QString* m_pComponents;
+	bool m_bProcessingMessage;
 
 public:
 	CSystemLog();
@@ -71,18 +76,17 @@ public:
 
 	void start();
 
-	QString msgFromComponent(Components::Component eComponent);
+	QString msgFromComponent(Components::Component nComponent);
 
 signals:
-	void logPosted(QString message, LogSeverity::Severity severity);
+	void logPosted(QString sMessage, LogSeverity::Severity nSeverity);
 
 public slots:
-	void postLog(LogSeverity::Severity severity, QString message);
+	void postLog(LogSeverity::Severity nSeverity, const QString& sMessage);
 
 public:
-	void postLog(LogSeverity::Severity severity, Components::Component component, QString message);
-	void postLog(LogSeverity::Severity severity, Components::Component component,
-				 const char* format, ...);
+	void postLog(LogSeverity::Severity nSeverity, Components::Component nComponent, const QString& sMessage);
+	void postLog(LogSeverity::Severity nSeverity, Components::Component nComponent, const char* format, ...);
 };
 
 extern CSystemLog systemLog;

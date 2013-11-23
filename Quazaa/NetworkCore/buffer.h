@@ -42,14 +42,17 @@ public:
 	{
 		return m_pBuffer;
 	}
+
 	inline quint32 size() const
 	{
 		return m_nLength;
 	}
+
 	inline quint32 capacity() const
 	{
 		return m_nBuffer;
 	}
+
 	inline bool isEmpty() const
 	{
 		return (m_nLength == 0);
@@ -74,6 +77,7 @@ public:
 	CBuffer& append(const char* pStr);
 	CBuffer& append(QByteArray& baData);
 	CBuffer& append(CBuffer& pOther);
+	CBuffer& append(CBuffer* pOther);
 
 	CBuffer& prepend(const void* pData, const quint32 nLength);
 	CBuffer& prepend(const char* pStr);
@@ -88,6 +92,9 @@ public:
 
 	void	 resize(const quint32 nLength);
 
+	QString toHex() const;
+	QString toAscii() const;
+	QString dump() const;
 };
 
 #endif // BUFFER_H

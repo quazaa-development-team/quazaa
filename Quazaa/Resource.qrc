@@ -138,7 +138,6 @@
         <file>Resource/Aero/transfersToolButtonPressed.png</file>
         <file>Resource/Aero/transparentToolbar.png</file>
         <file>Resource/Aero/transparentToolbarInactive.png</file>
-        <file>Resource/ajax-loader.gif</file>
         <file>Resource/Chat/Admin.png</file>
         <file>Resource/Chat/Chat.png</file>
         <file>Resource/Chat/ChatWelcome.png</file>
@@ -548,7 +547,6 @@
         <file>Resource/spinUpOff.png</file>
         <file>Resource/spinUpPressed.png</file>
         <file>Resource/splash.png</file>
-        <file>Resource/stylesheet.css</file>
         <file>Resource/toolbarGrip.png</file>
         <file>Resource/VLC.png</file>
         <file>Resource/welcome_footer.html</file>
@@ -1033,5 +1031,46 @@
         <file>Resource/Flags/eslang.png</file>
         <file>Resource/Credits/qBittorrent.png</file>
         <file>Resource/Credits/eMule.png</file>
+        <file>Resource/IconMonster/about-black.png</file>
+        <file>Resource/IconMonster/about-white.png</file>
+        <file>Resource/IconMonster/connect-black.png</file>
+        <file>Resource/IconMonster/connect-white.png</file>
+        <file>Resource/IconMonster/help-black.png</file>
+        <file>Resource/IconMonster/help-white.png</file>
+        <file>Resource/IconMonster/iconmonstr-gear-icon.svg</file>
+        <file>Resource/IconMonster/iconmonstr-help-2-icon.svg</file>
+        <file>Resource/IconMonster/iconmonstr-info-icon.svg</file>
+        <file>Resource/IconMonster/iconmonstr-plus-4-icon.svg</file>
+        <file>Resource/IconMonster/iconmonstr-refresh-3-icon.svg</file>
+        <file>Resource/IconMonster/iconmonstr-window-add-icon.svg</file>
+        <file>Resource/IconMonster/new-view-black.png</file>
+        <file>Resource/IconMonster/new-view-white.png</file>
+        <file>Resource/IconMonster/reconnect.png</file>
+        <file>Resource/IconMonster/settings-black.png</file>
+        <file>Resource/IconMonster/settings-white.png</file>
+        <file>Resource/chatbackground.png</file>
+        <file>Resource/dark.css</file>
+        <file>Resource/light.css</file>
+        <file>Resource/ajax-loader-dark.gif</file>
+        <file>Resource/ajax-loader-light.gif</file>
+        <file>Resource/Chat/AdminDark.png</file>
+        <file>Resource/Chat/VoiceDark.png</file>
+        <file>Resource/Generic/FormatTextBoldDark.png</file>
+        <file>Resource/Generic/FormatTextItalicDark.png</file>
+        <file>Resource/Generic/FormatTextUnderlineDark.png</file>
+        <file>Resource/Chat/HalfOpDark.png</file>
+        <file>Resource/Chat/ImmuneDark.png</file>
+        <file>Resource/Chat/NormalDark.png</file>
+        <file>Resource/Chat/OpDark.png</file>
+        <file>Resource/Chat/OwnerDark.png</file>
+        <file>Resource/Chat/Channel.png</file>
+        <file>Resource/Chat/ChannelDark.png</file>
+        <file>Resource/Chat/Network.png</file>
+        <file>Resource/Chat/NetworkDark.png</file>
+        <file>Resource/Chat/Palette.png</file>
+        <file>Resource/Chat/PaletteDark.png</file>
+        <file>Resource/Chat/SendDark.png</file>
+        <file>Resource/Chat/ServOp.png</file>
+        <file>Resource/Chat/ServOpDark.png</file>
     </qresource>
 </RCC>

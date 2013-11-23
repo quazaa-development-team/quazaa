@@ -88,7 +88,7 @@ void CDialogPrivateMessages::OpenChat(CChatSession* pSess)
 		ui->tabWidgetPrivateMessages->setCurrentIndex(idx);
 	}
 
-	pSess->SetupWidget(pWg);
+	pSess->setupWidget(pWg);
 	pWg->show();
 	ChatCore.m_pSection.unlock();
 	raise();

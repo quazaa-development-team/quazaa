@@ -52,19 +52,7 @@ namespace common
 	typedef enum { programLocation, globalDataFiles, userDataFiles } Location;
 
 	/**
-	 * @brief getLocation is currently a suggestion for a simplified path management in Quazaa.
-	 * Instead of concartinating their paths based on QStandardPaths::StandardLocation and having to
-	 * manage their own path settings per component, there should be one place where the most
-	 * important pats are managed.
-	 * For now, I've decided against making changes to quazaasettings.cpp/h until
-	 * a decision on whether to use this suggestion has been made.
-	 * @param location
-	 * @return
-	 */
-	QString getLocation(Location location);
-
-	/**
-	 * @brief securredSaveFile is designed to handle the saving of data files (such as the discovery
+	 * @brief securedSaveFile is designed to handle the saving of data files (such as the discovery
 	 * services list, the security rule list or the host cache file) to disk. It allows for
 	 * components to be designed in a way that allows to mostly ignore potential failures of writing
 	 * to disk process. In case of a failure, any previous file is left untouched, in case of a
@@ -77,9 +65,9 @@ namespace common
 	 * @param writeData(): Function pointer to the static function doing the actual writing to file.
 	 * @return true if successful, false otherwise.
 	 */
-	quint32 securredSaveFile(Location location, QString sFileName, Components::Component oComponent,
-							 const void * const pManager,
-							 quint32 (*writeData)(const void* const, QFile&));
+	quint32 securedSaveFile(const QString& sPath, const QString& sFileName,
+							Components::Component oComponent, const void* const pManager,
+							quint32 (*writeData)(const void* const, QFile&));
 
 	/**
 	 * @brief getRandomUnusedPort

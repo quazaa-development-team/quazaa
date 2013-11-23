@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -28,29 +28,30 @@
 
 #include "debug_new.h"
 
-CQueryHit::CQueryHit()
+CQueryHit::CQueryHit() :
+	m_pNext( NULL ),
+	m_lHashes( HashVector() ),
+	m_nObjectSize( 0 ),
+	m_nCachedSources( 0 ),
+	m_bIsPartial( false ),
+	m_nPartialBytesAvailable( 0 ),
+	m_bIsP2PIMCapable( false )
 {
-	m_pNext = 0;
-	m_nObjectSize = 0;
-	m_nCachedSources = 0;
-	m_bIsPartial = 0;
-	m_nPartialBytesAvailable = 0;
-	m_bIsP2PIMCapable = false;
 }
-CQueryHit::CQueryHit(CQueryHit *pHit):
-	m_pNext(NULL),
-	m_pHitInfo(pHit->m_pHitInfo),
-	m_lHashes(pHit->m_lHashes),
-	m_sDescriptiveName(pHit->m_sDescriptiveName),
-	m_sURL(pHit->m_sURL),
-	m_sMetadata(pHit->m_sMetadata),
-	m_nObjectSize(pHit->m_nObjectSize),
-	m_nCachedSources(pHit->m_nCachedSources),
-	m_bIsPartial(pHit->m_bIsPartial),
-	m_nPartialBytesAvailable(pHit->m_nPartialBytesAvailable),
-	m_sPreviewURL(pHit->m_sPreviewURL),
-	m_bIsP2PIMCapable(pHit->m_bIsP2PIMCapable)
 
+CQueryHit::CQueryHit(CQueryHit *pHit):
+	m_pNext( NULL ),
+	m_pHitInfo( pHit->m_pHitInfo ),
+	m_lHashes( pHit->m_lHashes ),
+	m_sDescriptiveName( pHit->m_sDescriptiveName ),
+	m_sURL( pHit->m_sURL ),
+	m_sMetadata( pHit->m_sMetadata ),
+	m_nObjectSize( pHit->m_nObjectSize ),
+	m_nCachedSources( pHit->m_nCachedSources ),
+	m_bIsPartial( pHit->m_bIsPartial ),
+	m_nPartialBytesAvailable( pHit->m_nPartialBytesAvailable ),
+	m_sPreviewURL( pHit->m_sPreviewURL ),
+	m_bIsP2PIMCapable( pHit->m_bIsP2PIMCapable )
 {
 }
 
@@ -64,7 +65,7 @@ CQueryHit::~CQueryHit()
 	}
 }
 
-QueryHitInfo* CQueryHit::ReadInfo(G2Packet* pPacket, CEndPoint* pSender)
+QueryHitInfo* CQueryHit::readInfo(G2Packet* pPacket, CEndPoint* pSender)
 {
 	// do a shallow parsing...
 
@@ -87,7 +88,7 @@ QueryHitInfo* CQueryHit::ReadInfo(G2Packet* pPacket, CEndPoint* pSender)
 			bHaveNA = true;
 		}
 
-		while(pPacket->ReadPacket(&szType[0], nLength, &bCompound))
+		while(pPacket->readPacket(&szType[0], nLength, &bCompound))
 		{
 			nNext = pPacket->m_nPosition + nLength;
 
@@ -99,13 +100,13 @@ QueryHitInfo* CQueryHit::ReadInfo(G2Packet* pPacket, CEndPoint* pSender)
 
 			if(bCompound)
 			{
-				pPacket->SkipCompound();
+				pPacket->skipCompound();
 			}
 
 			if(strcmp("NA", szType) == 0 && nLength >= 6)
 			{
 				CEndPoint oNodeAddr;
-				pPacket->ReadHostAddress(&oNodeAddr, !(nLength >= 18));
+				pPacket->readHostAddress(&oNodeAddr, !(nLength >= 18));
 				if(oNodeAddr.isValid())
 				{
 					pHitInfo->m_oNodeAddress = oNodeAddr;
@@ -114,7 +115,7 @@ QueryHitInfo* CQueryHit::ReadInfo(G2Packet* pPacket, CEndPoint* pSender)
 			}
 			else if(strcmp("GU", szType) == 0 && nLength >= 16)
 			{
-				QUuid oNodeGUID = pPacket->ReadGUID();
+				QUuid oNodeGUID = pPacket->readGUID();
 				if(!oNodeGUID.isNull())
 				{
 					pHitInfo->m_oNodeGUID = oNodeGUID;
@@ -124,7 +125,7 @@ QueryHitInfo* CQueryHit::ReadInfo(G2Packet* pPacket, CEndPoint* pSender)
 			else if(strcmp("NH", szType) == 0 && nLength >= 6)
 			{
 				CEndPoint oNH;
-				pPacket->ReadHostAddress(&oNH, !(nLength >= 18));
+				pPacket->readHostAddress(&oNH, !(nLength >= 18));
 				if(oNH.isValid())
 				{
 					pHitInfo->m_lNeighbouringHubs.append(oNH);
@@ -132,7 +133,7 @@ QueryHitInfo* CQueryHit::ReadInfo(G2Packet* pPacket, CEndPoint* pSender)
 			}
 			else if(strcmp("V", szType) == 0 && nLength >= 4)
 			{
-				pHitInfo->m_sVendor = pPacket->ReadString(4);
+				pHitInfo->m_sVendor = pPacket->readString(4);
 			}
 
 			pPacket->m_nPosition = nNext;
@@ -144,21 +145,21 @@ QueryHitInfo* CQueryHit::ReadInfo(G2Packet* pPacket, CEndPoint* pSender)
 		return 0;
 	}
 
-	if(pPacket->GetRemaining() < 17 || !bHaveHits || !bHaveNA || !bHaveGUID)
+	if(pPacket->getRemaining() < 17 || !bHaveHits || !bHaveNA || !bHaveGUID)
 	{
-		systemLog.postLog(LogSeverity::Debug, QString("Malformatted hit in CSearchManager %1 %2 %3 %4").arg(pPacket->GetRemaining()).arg(bHaveHits).arg(bHaveNA).arg(bHaveGUID));
+		systemLog.postLog(LogSeverity::Debug, QString("Malformatted hit in CSearchManager %1 %2 %3 %4").arg(pPacket->getRemaining()).arg(bHaveHits).arg(bHaveNA).arg(bHaveGUID));
 		//qDebug() << "Malformatted hit in CSearchManager" << pPacket->GetRemaining() << bHaveHits << bHaveNA << bHaveGUID;
 		delete pHitInfo;
 		return 0;
 	}
 
-	pHitInfo->m_nHops = pPacket->ReadByte();
-	pHitInfo->m_oGUID = pPacket->ReadGUID();
+	pHitInfo->m_nHops = pPacket->readByte();
+	pHitInfo->m_oGUID = pPacket->readGUID();
 
 	return pHitInfo;
 }
 
-CQueryHit* CQueryHit::ReadPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo)
+CQueryHit* CQueryHit::readPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 {
 	if(!pPacket->m_bCompound)
 	{
@@ -178,7 +179,7 @@ CQueryHit* CQueryHit::ReadPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 		quint32 nLength = 0, nLengthX = 0, nNext = 0, nNextX = 0;
 		bool bCompound = false;
 
-		while(pPacket->ReadPacket(&szType[0], nLength, &bCompound))
+		while(pPacket->readPacket(&szType[0], nLength, &bCompound))
 		{
 			nNext = pPacket->m_nPosition + nLength;
 
@@ -201,7 +202,7 @@ CQueryHit* CQueryHit::ReadPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 				bool bHaveDN = false;
 				bool bHaveURN = false;
 
-				while(pPacket->m_nPosition < nNext && pPacket->ReadPacket(&szTypeX[0], nLengthX))
+				while(pPacket->m_nPosition < nNext && pPacket->readPacket(&szTypeX[0], nLengthX))
 				{
 					nNextX = pPacket->m_nPosition + nLengthX;
 
@@ -209,59 +210,58 @@ CQueryHit* CQueryHit::ReadPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 					{
 						QString sURN;
 						QByteArray hashBuff;
-						sURN = pPacket->ReadString();
+						sURN = pPacket->readString();
 
 						if(nLengthX >= 44u && sURN.compare("bp") == 0)
 						{
-							hashBuff.resize(CHash::ByteCount(CHash::SHA1));
-							pPacket->Read(hashBuff.data(), CHash::ByteCount(CHash::SHA1));
-							CHash* pHash = CHash::FromRaw(hashBuff, CHash::SHA1);
-							if(pHash)
+							hashBuff.resize(CHash::byteCount(CHash::SHA1));
+							pPacket->read(hashBuff.data(), CHash::byteCount(CHash::SHA1));
+							CHash* pHash = CHash::fromRaw(hashBuff, CHash::SHA1);
+							if ( pHash )
 							{
-								pHit->m_lHashes.append(*pHash);
+								pHit->m_lHashes.push_back( *pHash );
 								bHaveURN = true;
 							}
 							delete pHash;
 							// TODO: Tiger
 						}
-						else if(nLengthX >= CHash::ByteCount(CHash::SHA1) + 5u && sURN.compare("sha1") == 0)
+						else if(nLengthX >= CHash::byteCount(CHash::SHA1) + 5u && sURN.compare("sha1") == 0)
 						{
-							hashBuff.resize(CHash::ByteCount(CHash::SHA1));
-							pPacket->Read(hashBuff.data(), CHash::ByteCount(CHash::SHA1));
-							CHash* pHash = CHash::FromRaw(hashBuff, CHash::SHA1);
-							if(pHash)
+							hashBuff.resize(CHash::byteCount(CHash::SHA1));
+							pPacket->read(hashBuff.data(), CHash::byteCount(CHash::SHA1));
+							CHash* pHash = CHash::fromRaw(hashBuff, CHash::SHA1);
+							if ( pHash )
 							{
-								pHit->m_lHashes.append(*pHash);
+								pHit->m_lHashes.push_back( *pHash );
 								bHaveURN = true;
 							}
 							delete pHash;
 						}
-
 					}
-					else if(strcmp("URL", szTypeX) == 0 && nLengthX)
+					else if ( !strcmp( "URL", szTypeX ) && nLengthX )
 					{
 						// if url empty - try uri-res resolver or a node do not have this object
 						// bez sensu...
-						pHit->m_sURL = pPacket->ReadString();
+						pHit->m_sURL = pPacket->readString();
 					}
-					else if(strcmp("DN", szTypeX) == 0)
+					else if ( !strcmp("DN", szTypeX) )
 					{
-						if(bHaveSize)
+						if ( bHaveSize )
 						{
-							pHit->m_sDescriptiveName = pPacket->ReadString(nLengthX);
+							pHit->m_sDescriptiveName = pPacket->readString( nLengthX );
 						}
-						else if(nLengthX > 4)
+						else if ( nLengthX > 4 )
 						{
 							baTemp.resize(4);
-							pPacket->Read(baTemp.data(), 4);
-							pHit->m_sDescriptiveName = pPacket->ReadString(nLengthX - 4);
+							pPacket->read(baTemp.data(), 4);
+							pHit->m_sDescriptiveName = pPacket->readString( nLengthX - 4 );
 						}
 
 						bHaveDN = true;
 					}
 					else if(strcmp("MD", szTypeX) == 0)
 					{
-						pHit->m_sMetadata = pPacket->ReadString();
+						pHit->m_sMetadata = pPacket->readString();
 					}
 					else if(strcmp("SZ", szTypeX) == 0 && nLengthX >= 4)
 					{
@@ -271,7 +271,7 @@ CQueryHit* CQueryHit::ReadPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 							{
 								pHit->m_sDescriptiveName.prepend(baTemp);
 							}
-							pHit->m_nObjectSize = pPacket->ReadIntLE<quint64>();
+							pHit->m_nObjectSize = pPacket->readIntLE<quint64>();
 							bHaveSize = true;
 						}
 						else if(nLengthX >= 4)
@@ -280,18 +280,18 @@ CQueryHit* CQueryHit::ReadPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 							{
 								pHit->m_sDescriptiveName.prepend(baTemp);
 							}
-							pHit->m_nObjectSize = pPacket->ReadIntLE<quint32>();
+							pHit->m_nObjectSize = pPacket->readIntLE<quint32>();
 							bHaveSize = true;
 						}
 					}
 					else if(strcmp("CSC", szTypeX) == 0 && nLengthX >= 2)
 					{
-						pHit->m_nCachedSources = pPacket->ReadIntLE<quint16>();
+						pHit->m_nCachedSources = pPacket->readIntLE<quint16>();
 					}
 					else if(strcmp("PART", szTypeX) == 0 && nLengthX >= 4)
 					{
 						pHit->m_bIsPartial = true;
-						pHit->m_nPartialBytesAvailable = pPacket->ReadIntLE<quint32>();
+						pHit->m_nPartialBytesAvailable = pPacket->readIntLE<quint32>();
 					}
 					pPacket->m_nPosition = nNextX;
 				}
@@ -367,28 +367,31 @@ CQueryHit* CQueryHit::ReadPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 
 	while(pHit != 0)
 	{
-		pHit->ResolveURLs();
+		pHit->resolveURLs();
 		pHit = pHit->m_pNext;
 	}
 
 	return pThisHit;
 }
 
-void CQueryHit::ResolveURLs()
+void CQueryHit::resolveURLs()
 {
 	if(!m_sURL.isEmpty())
 	{
 		return;
 	}
 
-	if( m_lHashes.isEmpty() )
+	if ( m_lHashes.empty() )
 		return;
 
-	m_sURL = QString("http://%1/uri-res/N2R?%2").arg(m_pHitInfo->m_oNodeAddress.toStringWithPort()).arg(m_lHashes[0].ToURN());
+	m_sURL = QString( "http://%1/uri-res/N2R?%2"
+					  ).arg( m_pHitInfo->m_oNodeAddress.toStringWithPort()
+							 ).arg( m_lHashes[0].toURN() );
 }
-bool CQueryHit::IsValid(CQuery* pQuery)
+
+bool CQueryHit::isValid(CQuery* pQuery) const
 {
-	if(pQuery)
+	if ( pQuery )
 	{
 		//
 	}

@@ -27,7 +27,7 @@
 
 #include "networkconnection.h"
 #include <QElapsedTimer>
-#include "zlib/zlib.h"
+#include "zlib.h"
 
 
 class CBuffer;
@@ -54,31 +54,31 @@ public:
 	CCompressedConnection(QObject* parent = 0);
 	virtual ~CCompressedConnection();
 
-	bool EnableInputCompression(bool bEnable = true);
-	bool EnableOutputCompression(bool bEnable = true);
+	bool enableInputCompression(bool bEnable = true);
+	bool enableOutputCompression(bool bEnable = true);
 
 	virtual qint64 readFromNetwork(qint64 nBytes);
 	virtual qint64 writeToNetwork(qint64 nBytes);
 
 protected:
-	bool SetupInputStream();
-	bool SetupOutputStream();
-	void CleanupInputStream();
-	void CleanupOutputStream();
+	bool setupInputStream();
+	bool setupOutputStream();
+	void cleanupInputStream();
+	void cleanupOutputStream();
 
-	void Inflate();
-	void Deflate();
+	void inflateInput();
+	void deflateOutput();
 
 public:
-	inline CBuffer* GetInputBuffer()
+	inline CBuffer* getInputBuffer()
 	{
 		return (m_bCompressedInput ? m_pZInput : m_pInput);
 	}
-	inline CBuffer* GetOutputBuffer()
+	inline CBuffer* getOutputBuffer()
 	{
 		return (m_bCompressedOutput ? m_pZOutput : m_pOutput);
 	}
-	inline virtual bool HasData()
+	inline virtual bool hasData()
 	{
 		if(m_bOutputPending)
 		{
@@ -94,10 +94,10 @@ public:
 			return true;
 		}
 
-		return CNetworkConnection::HasData();
+		return CNetworkConnection::hasData();
 	}
 
-	float GetTotalInDecompressed()
+	float getTotalInDecompressed()
 	{
 		if(m_nTotalInput == 0)
 		{
@@ -107,7 +107,7 @@ public:
 		float ret = 1.0f - (float)m_nTotalInputDec / (float)m_nTotalInput;
 		return ret;
 	}
-	float GetTotalOutCompressed()
+	float getTotalOutCompressed()
 	{
 		if(m_nTotalOutputCom == 0)
 		{

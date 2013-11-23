@@ -22,7 +22,7 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "application.h"
+#include "singleapplication.h"
 
 #include "winmain.h"
 #include "quazaaglobals.h"
@@ -41,12 +41,12 @@
 
 #include "Misc/timedsignalqueue.h"
 #include "Discovery/discovery.h"
-#include "Security/securitymanager.h"
+#include "securitymanager.h"
 
 #include <QNetworkProxy>
+#include <QFont>
 #include <QtPlugin>
 #include <QUrl>
-#include <Irc>
 #include <QIcon>
 
 #ifdef Q_OS_LINUX
@@ -81,7 +81,14 @@ CQuazaaGlobals quazaaGlobals;
 
 int main(int argc, char *argv[])
 {
-	CApplication theApp( argc, argv );
+#ifdef Q_OS_MAC
+	// QTBUG-32789 - GUI widgets use the wrong font on OS X Mavericks
+	QFont::insertSubstitution(".Lucida Grande UI", "Lucida Grande");
+#endif
+
+	SingleApplication theApp( argc, argv );
+
+	if(!theApp.shouldContinue())return 0;
 
 	QStringList args = theApp.arguments();
 
@@ -101,7 +108,7 @@ int main(int argc, char *argv[])
 	else if ( !qgetenv( "COMMUNI_ENCODING" ).isEmpty())
 		encoding = qgetenv( "COMMUNI_ENCODING" );
 	if ( !encoding.isEmpty() )
-		CApplication::setEncoding( encoding );
+		SingleApplication::setEncoding( encoding );
 
 
 // To enable this, run qmake with "DEFINES+=_SNAPSHOT_BUILD"
@@ -243,8 +250,8 @@ int main(int argc, char *argv[])
 	//Load the library
 	dlgSplash->updateProgress( 40, QObject::tr( "Loading Library..." ) );
 	qApp->processEvents();
-	QueryHashMaster.Create();
-	ShareManager.Start();
+	QueryHashMaster.create();
+	ShareManager.start();
 
 	// Load Download Manager
 	dlgSplash->updateProgress( 60, QObject::tr( "Loading Transfer Manager..." ) );
@@ -278,7 +285,7 @@ int main(int argc, char *argv[])
 	{
 		if ( quazaaSettings.Gnutella2.Enable )
 		{
-			Network.Connect();
+			Network.start();
 		}
 	}
 

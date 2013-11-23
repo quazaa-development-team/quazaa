@@ -24,18 +24,15 @@
 
 #include <QFile>
 #include <QDateTime>
-
-#if QT_VERSION >= 0x050000
+#include <QDir>
 #include <QRegularExpression>
-#else
-#include <QRegExp>
-#endif
 
 #include <QNetworkConfigurationManager>
 
 #include "discovery.h"
 #include "discoveryservice.h"
 
+#include "quazaaglobals.h"
 #include "quazaasettings.h"
 #include "debug_new.h"
 
@@ -490,8 +487,8 @@ bool CDiscovery::asyncSyncSavingHelper()
 
 	postLog( LogSeverity::Notice, tr( "Saving Discovery Services Manager state." ) );
 
-	QString sPath          = quazaaSettings.Discovery.DataPath + "discovery.dat";
-	QString sBackupPath    = quazaaSettings.Discovery.DataPath + "discovery_backup.dat";
+	QString sPath          = CQuazaaGlobals::DATA_PATH() + "discovery.dat";
+	QString sBackupPath    = CQuazaaGlobals::DATA_PATH() + "discovery_backup.dat";
 	QString sTemporaryPath = sBackupPath + "_tmp";
 
 #if ENABLE_DISCOVERY_DEBUGGING
@@ -883,7 +880,7 @@ bool CDiscovery::doRemove(TServiceID nID)
 // Called only from within startup sequence
 void CDiscovery::load()
 {
-	QString sPath = quazaaSettings.Discovery.DataPath + "discovery.dat";
+	QString sPath = CQuazaaGlobals::DATA_PATH() + "discovery.dat";
 
 #if ENABLE_DISCOVERY_DEBUGGING
 	postLog( LogSeverity::Debug, "Started loading services.", true );
@@ -899,7 +896,7 @@ void CDiscovery::load()
 	postLog( LogSeverity::Debug, "Failed primary attempt on loading services.", true );
 #endif
 
-		sPath = quazaaSettings.Discovery.DataPath + "discovery_backup.dat";
+		sPath = CQuazaaGlobals::DATA_PATH() + "discovery_backup.dat";
 
 		postLog( LogSeverity::Warning,
 				 tr( "Failed to load discovery services from primary file. Switching to backup: " )
@@ -1093,13 +1090,14 @@ bool CDiscovery::add(TServicePtr& pService)
 // Note: When modifying this method, compatibility to Shareaza should be maintained.
 void CDiscovery::addDefaults()
 {
-	QFile oFile( qApp->applicationDirPath() + "\\DefaultServices.dat" );
+	QString sPath = QDir::toNativeSeparators(QString("%1/DefaultServices.dat").arg(qApp->applicationDirPath()));
+	QFile oFile( sPath );
 
 	postLog( LogSeverity::Debug, tr( "Loading default services from file." ) );
 
 	if ( !oFile.open( QIODevice::ReadOnly ) )
 	{
-		postLog( LogSeverity::Error, tr( "Error: Could not open file: " ) + "DefaultServices.dat" );
+		postLog( LogSeverity::Error, tr( "Error: Could not open default services file: " ) + sPath );
 		return;
 	}
 
@@ -1451,13 +1449,8 @@ bool CDiscovery::normalizeURL(QString& sURL)
 	// Check it has a valid protocol
 	if ( sURL.startsWith( "http://" ) || sURL.startsWith("https://") )
 	{
-#if QT_VERSION >= 0x050000
 		sURL.remove( QRegularExpression( "/*$" ) );
 		sURL.remove( QRegularExpression( "\\.nyud\\.net:[0-9]+" ) );
-#else
-		sURL.remove( QRegExp( "/*$" ) );
-		sURL.remove( QRegExp( "\\.nyud\\.net:[0-9]+" ) );
-#endif
 
 		// First check whether the URL can be parsed at all.
 		QUrl oURL( sURL, QUrl::StrictMode );

@@ -31,6 +31,7 @@
 #include "NetworkCore/queryhit.h"
 #include "NetworkCore/Hashes/hash.h"
 #include "downloads.h"
+#include "securitymanager.h"
 
 #include "quazaasettings.h"
 #include "skinsettings.h"
@@ -39,6 +40,7 @@
 
 #include <QDesktopServices>
 #include <QUrl>
+#include <QInputDialog>
 
 CWidgetSearchTemplate::CWidgetSearchTemplate(QString searchString, QWidget* parent) :
 	QWidget(parent),
@@ -48,6 +50,7 @@ CWidgetSearchTemplate::CWidgetSearchTemplate(QString searchString, QWidget* pare
 	searchMenu = new QMenu(this);
 	searchMenu->addAction(ui->actionDownload);
 	searchMenu->addSeparator();
+	searchMenu->addAction(ui->actionBanNode);
 	searchMenu->addAction(ui->actionMarkAsJunk);
 	searchMenu->addAction(ui->actionClearResults);
 	searchMenu->addSeparator();
@@ -116,8 +119,8 @@ void CWidgetSearchTemplate::StartSearch(CQuery* pQuery)
 	}
 
 	m_searchState = SearchState::Searching;
-	m_pSearch->Start();
-	m_sSearchString = m_pSearch->m_pQuery->DescriptiveName();
+	m_pSearch->start();
+	m_sSearchString = m_pSearch->m_pQuery->descriptiveName();
 }
 
 void CWidgetSearchTemplate::StopSearch()
@@ -125,7 +128,7 @@ void CWidgetSearchTemplate::StopSearch()
 	Q_ASSERT(m_pSearch != 0);
 
 	m_searchState = SearchState::Stopped;
-	m_pSearch->Stop();
+	m_pSearch->stop();
 	delete m_pSearch;
 	m_pSearch = 0;
 }
@@ -135,7 +138,7 @@ void CWidgetSearchTemplate::PauseSearch()
 	Q_ASSERT(m_pSearch != 0);
 
 	m_searchState = SearchState::Paused;
-	m_pSearch->Pause();
+	m_pSearch->pause();
 }
 
 void CWidgetSearchTemplate::ClearSearch()
@@ -209,7 +212,7 @@ void CWidgetSearchTemplate::loadHeaderState()
 void CWidgetSearchTemplate::on_treeViewSearchResults_doubleClicked(const QModelIndex &index)
 {
 	Q_UNUSED(index);
-	SearchTreeItem* itemSearch = m_pSearchModel->itemFromIndex(CurrentItem());
+	SearchTreeItem* itemSearch = m_pSearchModel->topLevelItemFromIndex(CurrentItem());
 
 	if( itemSearch != NULL )
 	{
@@ -243,13 +246,18 @@ void CWidgetSearchTemplate::on_treeViewSearchResults_customContextMenuRequested(
 	QModelIndex currIndex = ui->treeViewSearchResults->indexAt(pos);
 	if( currIndex.isValid() )
 	{
+		if(m_pSearchModel->parent(CurrentItem()).isValid())
+			ui->actionBanNode->setVisible(true);
+		else
+			ui->actionBanNode->setVisible(false);
+
 		searchMenu->exec(QCursor::pos());
 	}
 }
 
 void CWidgetSearchTemplate::on_actionDownload_triggered()
 {
-	SearchTreeItem* itemSearch = m_pSearchModel->itemFromIndex(CurrentItem());
+	SearchTreeItem* itemSearch = m_pSearchModel->topLevelItemFromIndex(CurrentItem());
 
 	if( itemSearch != NULL )
 	{
@@ -259,24 +267,42 @@ void CWidgetSearchTemplate::on_actionDownload_triggered()
 
 void CWidgetSearchTemplate::on_actionViewReviews_triggered()
 {
-	SearchTreeItem* itemSearch = m_pSearchModel->itemFromIndex(CurrentItem());
+	SearchTreeItem* itemSearch = m_pSearchModel->topLevelItemFromIndex(CurrentItem());
 
 	if( itemSearch != NULL )
 	{
-		QDesktopServices::openUrl( QUrl(QString("http://bitzi.com/lookup/%1?v=detail&ref=quazaa").arg(itemSearch->HitData.lHashes.at(0).ToString()), QUrl::TolerantMode) );
+		QDesktopServices::openUrl( QUrl(QString("http://bitzi.com/lookup/%1?v=detail&ref=quazaa").arg(itemSearch->HitData.lHashes.at(0).toString()), QUrl::TolerantMode) );
 	}
 }
 
 void CWidgetSearchTemplate::on_actionVirusTotalCheck_triggered()
-{SearchTreeItem* itemSearch = m_pSearchModel->itemFromIndex(CurrentItem());
+{
+	SearchTreeItem* itemSearch = m_pSearchModel->topLevelItemFromIndex(CurrentItem());
 
 	if( itemSearch != NULL )
 	{
-		QDesktopServices::openUrl( QUrl(QString("www.virustotal.com/latest-report.html?resource=%1").arg(QString(itemSearch->HitData.lHashes.at(0).RawValue().toHex())), QUrl::TolerantMode) );
+		QDesktopServices::openUrl( QUrl(QString("www.virustotal.com/latest-report.html?resource=%1").arg(QString(itemSearch->HitData.lHashes.at(0).rawValue().toHex())), QUrl::TolerantMode) );
 	}
 }
 
 void CWidgetSearchTemplate::setSkin()
 {
 	ui->treeViewSearchResults->setStyleSheet(skinSettings.listViews);
+}
+
+void CWidgetSearchTemplate::on_actionBanNode_triggered()
+{
+	SearchTreeItem* itemSearch = m_pSearchModel->itemFromIndex(CurrentItem());
+
+	if( itemSearch != NULL )
+	{
+		bool ok;
+		QString reason = QInputDialog::getText( this, tr("Ban Reason"), tr("Please enter a ban reason."), QLineEdit::Normal, "", &ok );
+		if ( ok && !reason.isEmpty() )
+		{
+			CEndPoint address = itemSearch->HitData.pQueryHit.data()->m_pHitInfo.data()->m_oNodeAddress;
+			securityManager.ban( address, Security::RuleTime::Session, true, reason, false );
+			m_pSearchModel->removeQueryHit(CurrentItem().row(), m_pSearchModel->parent(CurrentItem()));
+		}
+	}
 }

@@ -40,7 +40,7 @@ CQueryKeys::~CQueryKeys()
 	delete [] m_pTable;
 }
 
-void CQueryKeys::Prepare()
+void CQueryKeys::prepare()
 {
 	m_nTable = 1u << 16;
 	m_pTable = new quint32[m_nTable];
@@ -51,19 +51,19 @@ void CQueryKeys::Prepare()
 	}
 }
 
-quint32 CQueryKeys::Create(QHostAddress pAddr)
+quint32 CQueryKeys::create(QHostAddress pAddr)
 {
 	if(!m_pTable)
 	{
-		Prepare();
+		prepare();
 	}
 
 	int nHash = qHash(pAddr) % m_nTable;
 
 	return m_pTable[nHash];
 }
-bool CQueryKeys::Check(QHostAddress pAddr, quint32 nKey)
+bool CQueryKeys::check(QHostAddress pAddr, quint32 nKey)
 {
-	return (nKey == Create(pAddr));
+	return (nKey == create(pAddr));
 }
 

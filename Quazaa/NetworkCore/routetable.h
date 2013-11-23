@@ -52,19 +52,19 @@ public:
 	CRouteTable();
 	~CRouteTable();
 
-	bool Add(QUuid& pGUID, CG2Node* pNeighbour = 0, CEndPoint* pEndpoint = 0, bool bNoExpire = false);
-	bool Add(QUuid& pGUID, CG2Node* pNeighbour, bool bNoExpire = false);
-	bool Add(QUuid& pGUID, CEndPoint& pEndpoint, bool bNoExpire = false);
+	bool add(QUuid& pGUID, CG2Node* pNeighbour = 0, CEndPoint* pEndpoint = 0, bool bNoExpire = false);
+	bool add(QUuid& pGUID, CG2Node* pNeighbour, bool bNoExpire = false);
+	bool add(QUuid& pGUID, CEndPoint& pEndpoint, bool bNoExpire = false);
 
-	void Remove(QUuid& pGUID);
-	void Remove(CG2Node* pNeighbour);
+	void remove(QUuid& pGUID);
+	void remove(CG2Node* pNeighbour);
 
-	bool Find(QUuid& pGUID, CG2Node** ppNeighbour = 0, CEndPoint* pEndpoint = 0);
+	bool find(QUuid& pGUID, CG2Node** ppNeighbour = 0, CEndPoint* pEndpoint = 0);
 
-	void ExpireOldRoutes(bool bForce = false);
-	void Clear();
+	void expireOldRoutes(bool bForce = false);
+	void clear();
 
-	void Dump();
+	void dump();
 };
 
 const quint32 MaxRoutes = 50000;

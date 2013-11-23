@@ -50,17 +50,8 @@ CDiscoveryTableModel::Service::Service(TConstServicePtr pService, CDiscoveryTabl
 {
 	refreshServiceIcon( model );
 
-#if QT_VERSION >= 0x050000
-
 	connect( m_pNode.data(), &Discovery::CDiscoveryService::updated, model,
 			 &CDiscoveryTableModel::update, Qt::QueuedConnection );
-
-#else	// Qt4 code
-
-	connect( m_pNode.data(), SIGNAL( updated( TServiceID ) ), model,
-			 SLOT( update( TServiceID ) ), Qt::QueuedConnection );
-
-#endif
 }
 
 CDiscoveryTableModel::Service::~Service()
@@ -226,7 +217,7 @@ bool CDiscoveryTableModel::Service::lessThan(int col, const CDiscoveryTableModel
 	{
 	case TYPE:
 		return (         m_bBanned ?         m_nType * -1 :         m_nType ) <
-		       ( pOther->m_bBanned ? pOther->m_nType * -1 : pOther->m_nType );
+			   ( pOther->m_bBanned ? pOther->m_nType * -1 : pOther->m_nType );
 
 	case URL:
 		return m_sURL  < pOther->m_sURL;
@@ -320,21 +311,10 @@ CDiscoveryTableModel::CDiscoveryTableModel(QObject *parent, QWidget* container) 
 	m_pIcons[GWC_BLUE]  = new QIcon( ":/Resource/Discovery/DiscoveryGWCBlue.ico"  );
 	m_pIcons[GWC_GRAY]  = new QIcon( ":/Resource/Discovery/DiscoveryGWCGray.ico"  );
 
-#if QT_VERSION >= 0x050000
-
 	connect( &discoveryManager, &Discovery::CDiscovery::serviceAdded, this,
 			 &CDiscoveryTableModel::addService, Qt::QueuedConnection );
 	connect( &discoveryManager, &Discovery::CDiscovery::serviceRemoved, this,
 			 &CDiscoveryTableModel::removeService, Qt::QueuedConnection );
-
-#else	// Qt4 code
-
-	connect( &discoveryManager, SIGNAL( serviceAdded( TConstServicePtr ) ), this,
-			 SLOT( addService( TConstServicePtr ) ), Qt::QueuedConnection );
-	connect( &discoveryManager, SIGNAL( serviceRemoved( TServiceID ) ), this,
-			 SLOT( removeService( TServiceID ) ), Qt::QueuedConnection );
-
-#endif
 
 	// This needs to be called to make sure that all rules added to the discoveryManager before this
 	// part of the GUI is loaded are properly added to the model.
@@ -398,7 +378,7 @@ QVariant CDiscoveryTableModel::data(const QModelIndex& index, int role) const
 			return *pService->m_piType;
 		}
 	}
-    // TODO: Add formatting options back to models
+	// TODO: Add formatting options back to models
 	/*else if ( role == Qt::ForegroundRole )
 	{
 		switch ( nbr->nState )

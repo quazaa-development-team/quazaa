@@ -16,19 +16,24 @@
 #ifndef WIDGETIRCMAIN_H
 #define WIDGETIRCMAIN_H
 
-#include <QWidget>
-#include <QSplitter>
+#include <QMainWindow>
+#include <QPointer>
 
-class MultiSessionTabWidget;
+class SessionStackView;
 class SessionTreeWidget;
+class SoundNotification;
 class SessionTreeItem;
 struct ConnectionInfo;
-class CWidgetIrcMessageView;
+class MessageView;
 class IrcMessage;
 class QtDockTile;
-class Session;
+class IrcConnection;
+class QShortcut;
+class HomePage;
+class Overlay;
+class QSplitter;
 
-class CWidgetIrcMain : public QWidget
+class CWidgetIrcMain : public QMainWindow
 {
 	Q_OBJECT
 
@@ -51,28 +56,36 @@ protected:
 
 private slots:
 	void initialize();
-	void editSession(Session* session);
+	void editConnection(IrcConnection* connection);
 	void applySettings();
-	void showSettings();
 	void highlighted(IrcMessage* message);
 	void missed(IrcMessage* message);
-	void viewAdded(CWidgetIrcMessageView* view);
-	void viewRemoved(CWidgetIrcMessageView* view);
-	void viewRenamed(CWidgetIrcMessageView* view);
-	void viewActivated(CWidgetIrcMessageView* view);
+	void viewAdded(MessageView* view);
+	void viewActivated(MessageView* view);
 	void closeTreeItem(SessionTreeItem* item);
-	void currentTreeItemChanged(Session* session, const QString& view);
+	void currentTreeItemChanged(IrcConnection* connection, const QString& view);
 	void splitterChanged(const QByteArray& state);
-	void updateSession(Session* session = 0);
+	void updateOverlay();
+	void reconnect();
 	void addView();
+	void closeView();
+	void searchView();
+	void showSettings();
+	void alert();
 
 private:
 	void createTree();
+	void createHome();
+	QString generateStyleSheet(bool dark);
 
 	QSplitter* splitterIrcMain;
 	SessionTreeWidget* treeWidget;
-	MultiSessionTabWidget* tabWidget;
+	SessionStackView* stackView;
 	QtDockTile* dockTile;
+	QShortcut* searchShortcut;
+	QPointer<Overlay> overlay;
+	SoundNotification* sound;
+	HomePage *homePage;
 };
 
 #endif // WIDGETIRCMAIN_H

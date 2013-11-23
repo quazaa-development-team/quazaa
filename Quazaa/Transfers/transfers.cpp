@@ -91,7 +91,7 @@ void CTransfers::add(CTransfer *pTransfer)
 	}
 
 	m_lTransfers.insert(pTransfer->m_pOwner, pTransfer);
-	m_pController->AddSocket(pTransfer);
+	m_pController->addSocket(pTransfer);
 	// start
 }
 
@@ -105,7 +105,7 @@ void CTransfers::remove(CTransfer *pTransfer)
 		return;
 	}
 
-	m_pController->RemoveSocket(pTransfer);
+	m_pController->removeSocket(pTransfer);
 	m_lTransfers.remove(pTransfer->m_pOwner, pTransfer);
 }
 

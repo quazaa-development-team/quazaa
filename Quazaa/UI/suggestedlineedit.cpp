@@ -24,6 +24,7 @@
 
 #include "suggestedlineedit.h"
 #include "skinsettings.h"
+#include "quazaaglobals.h"
 
 #include <QLineEdit>
 #include <QCompleter>
@@ -31,19 +32,11 @@
 #include <QSettings>
 #include <QAbstractItemView>
 #include <QUrl>
-#if QT_VERSION >= 0x050000
 #include <QUrlQuery>
-#endif
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QXmlStreamReader>
 #include <QTimer>
-
-#if QT_VERSION >= 0x050000
-#include <QStandardPaths>
-#else
-#include <QDesktopServices>
-#endif
 
 #include <QDebug>
 
@@ -94,30 +87,22 @@ CSuggestedLineEdit::~CSuggestedLineEdit()
 
 void CSuggestedLineEdit::load()
 {
-#if QT_VERSION >= 0x050000
-    QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-    QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
-    m_qSettings.beginGroup(objectName());
-    m_lRecent = m_qSettings.value("recent").toStringList();
-    m_nMaxRecent = m_qSettings.value("max", 10).toInt();
-    m_qSettings.endGroup();
+	m_qSettings.beginGroup(objectName());
+	m_lRecent = m_qSettings.value("recent").toStringList();
+	m_nMaxRecent = m_qSettings.value("max", 10).toInt();
+	m_qSettings.endGroup();
 }
 
 void CSuggestedLineEdit::save()
 {
-#if QT_VERSION >= 0x050000
-    QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)), QSettings::IniFormat);
-#else
-    QSettings m_qSettings(QString("%1/.quazaa/quazaa.ini").arg(QDesktopServices::storageLocation(QDesktopServices::HomeLocation)), QSettings::IniFormat);
-#endif
+	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
-    m_qSettings.beginGroup(objectName());
-    m_qSettings.setValue("recent", m_lRecent);
-    m_qSettings.setValue("max", m_nMaxRecent);
-    m_qSettings.endGroup();
+	m_qSettings.beginGroup(objectName());
+	m_qSettings.setValue("recent", m_lRecent);
+	m_qSettings.setValue("max", m_nMaxRecent);
+	m_qSettings.endGroup();
 }
 
 void CSuggestedLineEdit::setNetworkAccessManager(QNetworkAccessManager *pManager)
@@ -180,18 +165,13 @@ void CSuggestedLineEdit::getSuggestions()
 		}
 
 		QUrl url(QLatin1String("http://www.google.com/complete/search"));
-#if QT_VERSION >= 0x050000
 		QUrlQuery query;
 		query.setQuery(url.query());
 		query.addQueryItem(QUrl::toPercentEncoding(QLatin1String("q")),
 								QUrl::toPercentEncoding(text));
 		query.addQueryItem(QLatin1String("output"), QLatin1String("toolbar"));
 		url.setQuery(query);
-#else
-		url.addQueryItem(QUrl::toPercentEncoding(QLatin1String("q")),
-								QUrl::toPercentEncoding(text));
-		url.addQueryItem(QLatin1String("output"), QLatin1String("toolbar"));
-#endif
+
 		QNetworkRequest request(url);
 		request.setAttribute(QNetworkRequest::User, text);
 		QNetworkReply *reply = m_pNetworkAccessManager->get(request);

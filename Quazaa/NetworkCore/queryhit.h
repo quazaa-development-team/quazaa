@@ -26,10 +26,10 @@
 #define QUERYHIT_H
 
 #include "types.h"
+#include "NetworkCore/Hashes/hash.h"
 
 class G2Packet;
 class CQuery;
-class CHash;
 
 struct QueryHitInfo
 {
@@ -54,7 +54,8 @@ public:
 
 	QSharedPointer<QueryHitInfo>   m_pHitInfo;
 
-	QList<CHash>	m_lHashes;
+	// TODO: use everywhere. This is more efficient than a QList.
+	HashVector      m_lHashes;
 	QString         m_sDescriptiveName;         // File name
 	QString         m_sURL;                     // http://{IP}:{port}/uri-res/N2R?{URN}
 	QString         m_sMetadata;
@@ -63,7 +64,6 @@ public:
 	bool            m_bIsPartial;
 	quint64         m_nPartialBytesAvailable;
 	QString         m_sPreviewURL;
-
 	bool            m_bIsP2PIMCapable;
 
 public:
@@ -71,11 +71,11 @@ public:
 	CQueryHit(CQueryHit* pHit);
 	~CQueryHit();
 
-	static QueryHitInfo* ReadInfo(G2Packet* pPacket, CEndPoint* pSender = 0);
-	static CQueryHit*    ReadPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo);
+	static QueryHitInfo* readInfo(G2Packet* pPacket, CEndPoint* pSender = 0);
+	static CQueryHit*    readPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo);
 
-	void ResolveURLs();
-	bool IsValid(CQuery* pQuery = 0);
+	void resolveURLs();
+	bool isValid(CQuery* pQuery = NULL) const;
 };
 
 typedef QSharedPointer<CQueryHit> QueryHitSharedPtr;

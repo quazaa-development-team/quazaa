@@ -117,7 +117,7 @@ bool CMetalink4Handler::parseFile(QList<MetaFile> &lFiles, quint16 ID)
 			{
 				QString urn = "urn:" + vAttributes.value( "type" ).toString().trimmed() + ":" +
 								  m_oMetaLink.readElementText();
-				CHash* pHash = CHash::FromURN( urn );
+				CHash* pHash = CHash::fromURN( urn );
 
 				if ( pHash )
 				{

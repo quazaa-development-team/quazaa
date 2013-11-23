@@ -42,24 +42,24 @@ protected:
 	bool		m_bValid;
 
 public:
-	void		Create();
-	void		Add(CQueryHashTable* pTable);
-	void		Remove(CQueryHashTable* pTable);
+	void		create();
+	void		add(CQueryHashTable* pTable);
+	void		remove(CQueryHashTable* pTable);
 public slots:
-	void		Build();
+	void		build();
 
 public:
 
-	inline int GetCount() const
+	inline int getCount() const
 	{
 		return m_pGroups.size();
 	}
 
-	inline void Invalidate()
+	inline void invalidate()
 	{
 		m_bValid = false;
 	}
-	inline bool IsValid()
+	inline bool isValid()
 	{
 		return m_bValid;
 	}

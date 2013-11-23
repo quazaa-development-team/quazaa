@@ -35,24 +35,24 @@ CNeighboursBase::~CNeighboursBase()
 {
 	if(m_bActive)
 	{
-		Disconnect();
+		disconnectNode();
 	}
 }
 
-void CNeighboursBase::Connect()
+void CNeighboursBase::connectNode()
 {
 	ASSUME_LOCK(m_pSection);
 
 	m_bActive = true;
 }
-void CNeighboursBase::Disconnect()
+void CNeighboursBase::disconnectNode()
 {
 	ASSUME_LOCK(m_pSection);
 
 	m_bActive = false;
 }
 
-void CNeighboursBase::AddNode(CNeighbour* pNode)
+void CNeighboursBase::addNode(CNeighbour* pNode)
 {
 	ASSUME_LOCK(m_pSection);
 
@@ -60,9 +60,9 @@ void CNeighboursBase::AddNode(CNeighbour* pNode)
 	m_lNodesByAddr.insert(pNode->m_oAddress, pNode);
 	m_lNodesByPtr.insert(pNode);
 
-	emit NeighbourAdded(pNode);
+	emit neighbourAdded(pNode);
 }
-void CNeighboursBase::RemoveNode(CNeighbour* pNode)
+void CNeighboursBase::removeNode(CNeighbour* pNode)
 {
 	ASSUME_LOCK(m_pSection);
 
@@ -70,10 +70,10 @@ void CNeighboursBase::RemoveNode(CNeighbour* pNode)
 	m_lNodesByAddr.remove(pNode->m_oAddress);
 	m_lNodesByPtr.remove(pNode);
 
-	emit NeighbourRemoved(pNode);
+	emit neighbourRemoved(pNode);
 }
 
-CNeighbour* CNeighboursBase::Find(const QHostAddress& oAddress, DiscoveryProtocol nProtocol)
+CNeighbour* CNeighboursBase::find(const QHostAddress& oAddress, DiscoveryProtocol nProtocol)
 {
 	ASSUME_LOCK(m_pSection);
 
@@ -89,14 +89,14 @@ CNeighbour* CNeighboursBase::Find(const QHostAddress& oAddress, DiscoveryProtoco
 	}
 	return 0;
 }
-bool CNeighboursBase::NeighbourExists(const CNeighbour* pNode)
+bool CNeighboursBase::neighbourExists(const CNeighbour* pNode)
 {
 	ASSUME_LOCK(m_pSection);
 
 	return m_lNodesByPtr.contains(const_cast<CNeighbour * const&>(pNode));
 }
 
-void CNeighboursBase::Maintain()
+void CNeighboursBase::maintain()
 {
 	ASSUME_LOCK(m_pSection);
 
@@ -104,7 +104,7 @@ void CNeighboursBase::Maintain()
 
 	foreach(CNeighbour * pNode, m_lNodes)
 	{
-		pNode->OnTimer(tNow);
+		pNode->onTimer(tNow);
 	}
 }
 

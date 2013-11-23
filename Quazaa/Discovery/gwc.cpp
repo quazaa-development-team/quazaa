@@ -25,10 +25,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QStringList>
-
-#if QT_VERSION >= 0x050000
 #include <QUrlQuery>
-#endif
 
 #include "network.h"
 #include "quazaaglobals.h"
@@ -73,7 +70,6 @@ void CGWC::doQuery() throw()
 	QString sVersion = QString::number( Version::MAJOR ) + "." + QString::number( Version::MINOR );
 
 	// build query
-#if QT_VERSION >= 0x050000
 	{
 		QUrlQuery query;
 		query.addQueryItem( "ping", "1" );
@@ -83,13 +79,6 @@ void CGWC::doQuery() throw()
 		query.addQueryItem( "version", sVersion.toLocal8Bit().data() );
 		oURL.setQuery(query);
 	}
-#else
-	oURL.addQueryItem( "ping", "1" );
-	oURL.addQueryItem( "get", "1" );
-	oURL.addQueryItem( "net", "gnutella2" );
-	oURL.addQueryItem( "client", QuazaaGlobals::VENDOR_CODE() );
-	oURL.addQueryItem( "version", sVersion.toLocal8Bit().data() );
-#endif
 
 	// inform user
 	postLog( LogSeverity::Debug, QString( "Querying GWC: %1" ).arg( oURL.toString() ) );
@@ -103,13 +92,8 @@ void CGWC::doQuery() throw()
 	// obtain network access manager for query
 	m_pNAMgr = discoveryManager.requestNAM();
 
-#if QT_VERSION >= 0x050000
 	connect( m_pNAMgr.data(), &QNetworkAccessManager::finished,
 			 this, &CGWC::requestCompleted );
-#else
-	connect( m_pNAMgr.data(), SIGNAL( finished(QNetworkReply*) ),
-			 this, SLOT( requestCompleted(QNetworkReply*) ) );
-#endif
 
 	// do query
 	m_pNAMgr->get( *m_pRequest );
@@ -121,13 +105,12 @@ void CGWC::doUpdate() throw()
 	QString sVersion = QString::number( Version::MAJOR ) + "." + QString::number( Version::MINOR );
 
 	Network.m_pSection.lock();
-	QString sOwnIP = Network.GetLocalAddress().toStringWithPort();
+	QString sOwnIP = Network.getLocalAddress().toStringWithPort();
 	Network.m_pSection.unlock();
 
 	QString sPromoteURL = discoveryManager.getWorkingService( stGWC );
 
 	// build query
-#if QT_VERSION >= 0x050000
 	{
 		QUrlQuery query;
 		query.addQueryItem( "ping", "1" );
@@ -144,19 +127,6 @@ void CGWC::doUpdate() throw()
 
 		oURL.setQuery(query);
 	}
-#else
-	oURL.addQueryItem( "ping", "1" );
-	oURL.addQueryItem( "update", "1" );
-	oURL.addQueryItem( "net", "gnutella2" );
-	oURL.addQueryItem( "ip", sOwnIP );
-	oURL.addQueryItem( "client", QuazaaGlobals::VENDOR_CODE() );
-	oURL.addQueryItem( "version", sVersion );
-
-	if ( !sPromoteURL.isEmpty() )
-	{
-		oURL.addQueryItem( "url", QUrl::toPercentEncoding( sPromoteURL ) );
-	}
-#endif
 
 	// inform user
 	postLog( LogSeverity::Debug, QString( "Updating GWC: %1" ).arg( oURL.toString() ) );
@@ -170,13 +140,8 @@ void CGWC::doUpdate() throw()
 	// obtain network access manager for update
 	m_pNAMgr = discoveryManager.requestNAM();
 
-#if QT_VERSION >= 0x050000
 	connect( m_pNAMgr.data(), &QNetworkAccessManager::finished,
 			 this, &CGWC::requestCompleted );
-#else
-	connect( m_pNAMgr.data(), SIGNAL( finished(QNetworkReply*) ),
-			 this, SLOT( requestCompleted(QNetworkReply*) ) );
-#endif
 
 	// do query
 	m_pNAMgr->get( *m_pRequest );
@@ -184,13 +149,8 @@ void CGWC::doUpdate() throw()
 
 void CGWC::doCancelRequest() throw()
 {
-#if QT_VERSION >= 0x050000
 	disconnect( m_pNAMgr.data(), &QNetworkAccessManager::finished,
 				this, &CGWC::requestCompleted );
-#else
-	disconnect( m_pNAMgr.data(), SIGNAL( finished(QNetworkReply*) ),
-				this, SLOT( requestCompleted(QNetworkReply*) ) );
-#endif
 
 	delete m_pRequest;
 	m_pRequest = NULL;

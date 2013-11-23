@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>CWizardIrcConnection</class>
- <widget class="QWizard" name="WizardIrcConnection">
+ <widget class="QWizard" name="CWizardIrcConnection">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>214</height>
+    <height>221</height>
    </rect>
   </property>
   <property name="windowTitle">

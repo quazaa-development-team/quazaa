@@ -44,7 +44,7 @@ CRateController::CRateController(QMutex* pMutex, QObject* parent): QObject(paren
 	m_pMutex = pMutex;
 }
 
-void CRateController::AddSocket(CNetworkConnection* pSock)
+void CRateController::addSocket(CNetworkConnection* pSock)
 {
 	ASSUME_LOCK(*m_pMutex);
 
@@ -54,7 +54,7 @@ void CRateController::AddSocket(CNetworkConnection* pSock)
 
 	QMetaObject::invokeMethod(this, "sheduleTransfer", Qt::QueuedConnection);
 }
-void CRateController::RemoveSocket(CNetworkConnection* pSock)
+void CRateController::removeSocket(CNetworkConnection* pSock)
 {
 	ASSUME_LOCK(*m_pMutex);
 
@@ -99,7 +99,7 @@ void CRateController::transfer()
 	for(QSet<CNetworkConnection*>::const_iterator itSocket = m_lSockets.constBegin(); itSocket != m_lSockets.constEnd(); ++itSocket)
 	{
 		CNetworkConnection* pSock = *itSocket;
-		if(pSock->HasData())
+		if(pSock->hasData())
 		{
 			lSockets.insert(pSock);
 		}
@@ -162,7 +162,7 @@ void CRateController::transfer()
 				}
 			}
 
-			if(bDataTransferred && pConn->HasData())
+			if(bDataTransferred && pConn->hasData())
 			{
 				bCanTransferMore = true;
 			}

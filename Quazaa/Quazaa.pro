@@ -62,27 +62,23 @@ UI_DIR = temp/uic
 
 INCLUDEPATH += 3rdparty \
 		3rdparty/nvwa \
-		3rdparty/qtsingleapplication \
+		3rdparty/SingleApplication \
 		Chat \
-		Chat/IRC \
-		Chat/IRC/gui \
-		Chat/IRC/gui/3rdparty \
-		Chat/IRC/gui/util \
-		Chat/IRC/wizard \
 		Discovery \
 		FileFragments \
 		HostCache \
 		Misc \
 		Models \
 		NetworkCore \
+		Security \
 		ShareManager \
 		Skin \
 		Transfers \
 		UI \
 		.
 
-include(3rdparty/libcommuni/src/src.pri)
-include(3rdparty/qtdocktile/qtdocktile.pri)
+include(3rdparty/communi-desktop/src/src.pri)
+include(Security/security.pri)
 
 # Version stuff
 MAJOR = 0
@@ -226,43 +222,21 @@ contains(DEFINES, _USE_DEBUG_NEW){
 		!build_pass:message( "Building with DEBUG_NEW" )
 }
 
+# Use Qt's Zlib
+INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+
 # Headers
 HEADERS += \
+		$$[QT_INSTALL_HEADERS]/QtZlib/zlib.h \
 		3rdparty/CyoEncode/CyoDecode.h \
 		3rdparty/CyoEncode/CyoEncode.h \
 		3rdparty/nvwa/debug_new.h \
 		3rdparty/nvwa/fast_mutex.h \
 		3rdparty/nvwa/static_assert.h \
-		application.h \
 		Chat/chatconverter.h \
 		Chat/chatcore.h \
 		Chat/chatsession.h \
 		Chat/chatsessiong2.h \
-		Chat/IRC/channelinfo.h \
-		Chat/IRC/commandparser.h \
-		Chat/IRC/connectioninfo.h \
-		Chat/IRC/gui/3rdparty/fancylineedit.h \
-		Chat/IRC/gui/addviewdialog.h \
-		Chat/IRC/gui/lineeditor.h \
-		Chat/IRC/gui/menufactory.h \
-		Chat/IRC/gui/multisessiontabwidget.h \
-		Chat/IRC/gui/searcheditor.h \
-		Chat/IRC/gui/sessiontabwidget.h \
-		Chat/IRC/gui/sessiontreedelegate.h \
-		Chat/IRC/gui/sessiontreeitem.h \
-		Chat/IRC/gui/sessiontreewidget.h \
-		Chat/IRC/gui/util/completer.h \
-		Chat/IRC/gui/util/historylineedit.h \
-		Chat/IRC/gui/util/sharedtimer.h \
-		Chat/IRC/gui/util/textbrowser.h \
-		Chat/IRC/homepage.h \
-		Chat/IRC/messageformatter.h \
-		Chat/IRC/messagehandler.h \
-		Chat/IRC/messagereceiver.h \
-		Chat/IRC/overlay.h \
-		Chat/IRC/session.h \
-		Chat/IRC/streamer.h \
-		Chat/IRC/toolbar.h \
 		commonfunctions.h \
 		Discovery/banneddiscoveryservice.h \
 		Discovery/discovery.h \
@@ -292,7 +266,6 @@ HEADERS += \
 		Models/discoverytablemodel.h \
 		Models/downloadstreemodel.h \
 		Models/downloadspeermodel.h \
-		Models/ircuserlistmodel.h \
 		Models/neighbourstablemodel.h \
 		Models/searchtreemodel.h \
 		Models/securitytablemodel.h \
@@ -334,8 +307,6 @@ HEADERS += \
 		quazaaglobals.h \
 		quazaasettings.h \
 		quazaasysinfo.h \
-		Security/securerule.h \
-		Security/securitymanager.h \
 		ShareManager/file.h \
 		ShareManager/filehasher.h \
 		ShareManager/sharedfile.h \
@@ -351,7 +322,6 @@ HEADERS += \
 		UI/completerlineedit.h \
 		UI/dialogabout.h \
 		UI/dialogadddownload.h \
-		UI/dialogaddrule.h \
 		UI/dialogaddsecuritysubscription.h \
 		UI/dialogclosetype.h \
 		UI/dialogconnectto.h \
@@ -362,8 +332,6 @@ HEADERS += \
 		UI/dialogeditshares.h \
 		UI/dialogfiltersearch.h \
 		UI/dialoghashprogress.h \
-		UI/dialogirccolordialog.h \
-		UI/dialogircsettings.h \
 		UI/dialoglanguage.h \
 		UI/dialoglibrarysearch.h \
 		UI/dialogneighbourinfo.h \
@@ -378,7 +346,6 @@ HEADERS += \
 		UI/dialogsplash.h \
 		UI/dialogtorrentproperties.h \
 		UI/dialogtransferprogresstooltip.h \
-		UI/listviewircusers.h \
 		UI/suggestedlineedit.h \
 		UI/tableview.h \
 		UI/tabwidget.h \
@@ -392,7 +359,6 @@ HEADERS += \
 		UI/widgethome.h \
 		UI/widgethostcache.h \
 		UI/widgetircmain.h \
-		UI/widgetircmessageview.h \
 		UI/widgetlibrary.h \
 		UI/widgetlibraryview.h \
 		UI/widgetmedia.h \
@@ -411,56 +377,29 @@ HEADERS += \
 		UI/widgettransfers.h \
 		UI/widgetuploads.h \
 		UI/winmain.h \
-		UI/wizardircconnection.h \
 		UI/wizardquickstart.h \
-		UI/wizardtreewidget.h
-
-win32 {
-		HEADERS += \
-				3rdparty/zlib/crc32.h \
-				3rdparty/zlib/deflate.h \
-				3rdparty/zlib/gzguts.h \
-				3rdparty/zlib/inffast.h \
-				3rdparty/zlib/inffixed.h \
-				3rdparty/zlib/inflate.h \
-				3rdparty/zlib/inftrees.h \
-				3rdparty/zlib/trees.h \
-				3rdparty/zlib/zconf.h \
-				3rdparty/zlib/zlib.h \
-				3rdparty/zlib/zutil.h
-}
+		UI/wizardtreewidget.h \
+		Chat/chatcompleter.h \
+		UI/ircchannelstackview.h \
+		3rdparty/SingleApplication/singleapplication.h \
+		3rdparty/SingleApplication/localserver.h \
+		UI/dialogircsettings.h \
+		UI/dialogirccolordialog.h \
+		UI/wizardircconnection.h \
+		Models/ircuserlistmodel.h \
+		Models/securityfiltermodel.h \
+		UI/dialogimportsecurity.h \
+	UI/dialogmodifyrule.h
 
 # Sources
 SOURCES += \
 		3rdparty/CyoEncode/CyoDecode.c \
 		3rdparty/CyoEncode/CyoEncode.c \
 		3rdparty/nvwa/debug_new.cpp \
-		application.cpp \
 		Chat/chatconverter.cpp \
 		Chat/chatcore.cpp \
 		Chat/chatsession.cpp \
 		Chat/chatsessiong2.cpp \
-		Chat/IRC/commandparser.cpp \
-		Chat/IRC/gui/3rdparty/fancylineedit.cpp \
-		Chat/IRC/gui/addviewdialog.cpp \
-		Chat/IRC/gui/lineeditor.cpp \
-		Chat/IRC/gui/menufactory.cpp \
-		Chat/IRC/gui/multisessiontabwidget.cpp \
-		Chat/IRC/gui/searcheditor.cpp \
-		Chat/IRC/gui/sessiontabwidget.cpp \
-		Chat/IRC/gui/sessiontreedelegate.cpp \
-		Chat/IRC/gui/sessiontreeitem.cpp \
-		Chat/IRC/gui/sessiontreewidget.cpp \
-		Chat/IRC/gui/util/completer.cpp \
-		Chat/IRC/gui/util/historylineedit.cpp \
-		Chat/IRC/gui/util/sharedtimer.cpp \
-		Chat/IRC/gui/util/textbrowser.cpp \
-		Chat/IRC/homepage.cpp \
-		Chat/IRC/messageformatter.cpp \
-		Chat/IRC/messagehandler.cpp \
-		Chat/IRC/session.cpp \
-		Chat/IRC/toolbar.cpp \
-		Chat/IRC/overlay.cpp \
 		commonfunctions.cpp \
 		Discovery/banneddiscoveryservice.cpp \
 		Discovery/discovery.cpp \
@@ -482,7 +421,6 @@ SOURCES += \
 		Models/discoverytablemodel.cpp \
 		Models/downloadstreemodel.cpp \
 		Models/downloadspeermodel.cpp \
-		Models/ircuserlistmodel.cpp \
 		Models/neighbourstablemodel.cpp \
 		Models/searchtreemodel.cpp \
 		Models/securitytablemodel.cpp \
@@ -523,8 +461,6 @@ SOURCES += \
 		quazaaglobals.cpp \
 		quazaasettings.cpp \
 		quazaasysinfo.cpp \
-		Security/securerule.cpp \
-		Security/securitymanager.cpp \
 		ShareManager/file.cpp \
 		ShareManager/filehasher.cpp \
 		ShareManager/sharedfile.cpp \
@@ -540,7 +476,6 @@ SOURCES += \
 		UI/completerlineedit.cpp \
 		UI/dialogabout.cpp \
 		UI/dialogadddownload.cpp \
-		UI/dialogaddrule.cpp \
 		UI/dialogaddsecuritysubscription.cpp \
 		UI/dialogclosetype.cpp \
 		UI/dialogconnectto.cpp \
@@ -551,8 +486,6 @@ SOURCES += \
 		UI/dialogeditshares.cpp \
 		UI/dialogfiltersearch.cpp \
 		UI/dialoghashprogress.cpp \
-		UI/dialogirccolordialog.cpp \
-		UI/dialogircsettings.cpp \
 		UI/dialoglanguage.cpp \
 		UI/dialoglibrarysearch.cpp \
 		UI/dialogneighbourinfo.cpp \
@@ -567,7 +500,6 @@ SOURCES += \
 		UI/dialogsplash.cpp \
 		UI/dialogtorrentproperties.cpp \
 		UI/dialogtransferprogresstooltip.cpp \
-		UI/listviewircusers.cpp \
 		UI/suggestedlineedit.cpp \
 		UI/tableview.cpp \
 		UI/tabwidget.cpp \
@@ -580,7 +512,6 @@ SOURCES += \
 		UI/widgethome.cpp \
 		UI/widgethostcache.cpp \
 		UI/widgetircmain.cpp \
-		UI/widgetircmessageview.cpp \
 		UI/widgetlibrary.cpp \
 		UI/widgetlibraryview.cpp \
 		UI/widgetmedia.cpp \
@@ -599,33 +530,23 @@ SOURCES += \
 		UI/widgettransfers.cpp \
 		UI/widgetuploads.cpp \
 		UI/winmain.cpp \
-		UI/wizardircconnection.cpp \
 		UI/wizardtreewidget.cpp \
-		UI/wizardquickstart.cpp
-
-win32 {
-		SOURCES += \
-				3rdparty/zlib/adler32.c \
-				3rdparty/zlib/crc32.c \
-				3rdparty/zlib/compress.c \
-				3rdparty/zlib/deflate.c \
-				3rdparty/zlib/gzclose.c \
-				3rdparty/zlib/gzlib.c \
-				3rdparty/zlib/gzread.c \
-				3rdparty/zlib/gzwrite.c \
-				3rdparty/zlib/infback.c \
-				3rdparty/zlib/inffast.c \
-				3rdparty/zlib/inflate.c \
-				3rdparty/zlib/inftrees.c \
-				3rdparty/zlib/trees.c \
-				3rdparty/zlib/uncompr.c \
-				3rdparty/zlib/zutil.c
-}
+		UI/wizardquickstart.cpp \
+		Chat/chatcompleter.cpp \
+		UI/ircchannelstackview.cpp \
+		3rdparty/SingleApplication/singleapplication.cpp \
+		3rdparty/SingleApplication/localserver.cpp \
+		UI/dialogircsettings.cpp \
+		UI/dialogirccolordialog.cpp \
+		UI/wizardircconnection.cpp \
+		Models/ircuserlistmodel.cpp \
+		Models/securityfiltermodel.cpp \
+		UI/dialogimportsecurity.cpp \
+	UI/dialogmodifyrule.cpp
 
 FORMS += \
 		UI/dialogabout.ui \
 		UI/dialogadddownload.ui \
-		UI/dialogaddrule.ui \
 		UI/dialogaddsecuritysubscription.ui \
 		UI/dialogclosetype.ui \
 		UI/dialogconnectto.ui \
@@ -636,8 +557,6 @@ FORMS += \
 		UI/dialogeditshares.ui \
 		UI/dialogfiltersearch.ui \
 		UI/dialoghashprogress.ui \
-		UI/dialogirccolordialog.ui \
-		UI/dialogircsettings.ui \
 		UI/dialoglanguage.ui \
 		UI/dialoglibrarysearch.ui \
 		UI/dialogneighbourinfo.ui \
@@ -661,7 +580,6 @@ FORMS += \
 		UI/widgethitmonitor.ui \
 		UI/widgethome.ui \
 		UI/widgethostcache.ui \
-		UI/widgetircmessageview.ui \
 		UI/widgetlibrary.ui \
 		UI/widgetlibraryview.ui \
 		UI/widgetmedia.ui \
@@ -680,7 +598,11 @@ FORMS += \
 		UI/widgetuploads.ui \
 		UI/winmain.ui \
 		UI/wizardquickstart.ui \
-		UI/wizardircconnection.ui
+	UI/dialogircsettings.ui \
+	UI/dialogirccolordialog.ui \
+	UI/wizardircconnection.ui \
+	UI/dialogimportsecurity.ui \
+	UI/dialogmodifyrule.ui
 
 TRANSLATIONS = \
 		Language/quazaa_af.ts \
@@ -721,6 +643,10 @@ OTHER_FILES += LICENSE.GPL3
 
 mac {
 		QM_DATA.path = Contents/MacOS
+		QM_DATA.files += $$DESTDIR/DefaultSecurity.dat
+		QM_DATA.files += $$DESTDIR/DefaultServices.dat
+		QM_DATA.files += $$DESTDIR/notify.mp3
+		QM_DATA.files += $$DESTDIR/portable.ini
 		for(translation, TRANSLATIONS) {
 				translation ~= s/\\.ts$/.qm
 				QM_DATA.files += $$DESTDIR/$$basename(translation)

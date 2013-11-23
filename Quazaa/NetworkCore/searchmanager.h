@@ -48,16 +48,16 @@ public:
 public:
 	CSearchManager(QObject* parent = 0);
 
-	void OnTimer();
+	void onTimer();
 
-	void Add(CManagedSearch* pSearch);
-	void Remove(CManagedSearch* pSearch);
+	void add(CManagedSearch* pSearch);
+	void remove(CManagedSearch* pSearch);
 
-	CManagedSearch* Find(QUuid& oGUID);
+	CManagedSearch* find(QUuid& oGUID);
 
 	// Returns true if the packet is to be routed
-	bool OnQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSender, QUuid& oGUID);
-	bool OnQueryHit(G2Packet* pPacket, QueryHitInfo* pHitInfo);
+	bool onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSender, QUuid& oGUID);
+	bool onQueryHit(G2Packet* pPacket, QueryHitInfo* pHitInfo);
 
 signals:
 

@@ -30,14 +30,14 @@ void CDownloadTransfer::onTimer(quint32 tNow)
 			if( tNow - m_tConnected > quazaaSettings.Connection.TimeoutConnect )
 			{
 				systemLog.postLog(LogSeverity::Error, QString(tr("Timed out connecting to download host %1.")).arg(m_pSource->m_oAddress.toStringWithPort()));
-				Close();
+				close();
 			}
 			break;
 		case CDownloadTransfer::dtsDownloading:
 			if( tNow - m_tConnected > quazaaSettings.Connection.TimeoutTraffic )
 			{
 				systemLog.postLog(LogSeverity::Error, QString(tr("Closing download connection to %1 due to lack of traffic.")).arg(m_pSource->m_oAddress.toStringWithPort()));
-				Close();
+				close();
 			}
 			break;
 		default:
