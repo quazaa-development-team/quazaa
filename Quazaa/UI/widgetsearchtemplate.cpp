@@ -144,7 +144,7 @@ void CWidgetSearchTemplate::PauseSearch()
 void CWidgetSearchTemplate::ClearSearch()
 {
 	//qDebug() << "Clear search captured in widget search template.";
-		m_searchState = SearchState::Default;
+	m_searchState = SearchState::Default;
 	m_pSearchModel->clear();
 	qApp->processEvents();
 }

@@ -25,6 +25,9 @@
 #include "singleapplication.h"
 
 #include "winmain.h"
+
+#include "widgetmedia.h"
+
 #include "quazaaglobals.h"
 #include "quazaasettings.h"
 #include "timedsignalqueue.h"
@@ -88,7 +91,7 @@ int main(int argc, char *argv[])
 
 	SingleApplication theApp( argc, argv );
 
-	if(!theApp.shouldContinue())return 0;
+	//if(!theApp.shouldContinue())return 0;
 
 	QStringList args = theApp.arguments();
 
@@ -202,7 +205,7 @@ int main(int argc, char *argv[])
 	//Initialize Settings
 	quazaaSettings.loadSettings();
 
-	//Check if this is Quazaa's first run
+	/*Check if this is Quazaa's first run
 	dlgSplash->updateProgress( 8, QObject::tr( "Checking for first run..." ) );
 	qApp->processEvents();
 	bool bFirstRun = quazaaSettings.isFirstRun();
@@ -242,37 +245,38 @@ int main(int argc, char *argv[])
 	qApp->processEvents();
 	hostCache.m_pSection.lock();
 	hostCache.load();
-	hostCache.m_pSection.unlock();
+	hostCache.m_pSection.unlock();*/
 
 	//initialize geoip list
 	geoIP.loadGeoIP();
 
-	//Load the library
+	/*Load the library
 	dlgSplash->updateProgress( 38, QObject::tr( "Loading Library..." ) );
 	qApp->processEvents();
 	QueryHashMaster.create();
-	ShareManager.start();
+	ShareManager.start();*/
 
-	// Load Download Manager
+	/* Load Download Manager
 	dlgSplash->updateProgress( 60, QObject::tr( "Loading Transfer Manager..." ) );
 	qApp->processEvents();
-	Transfers.start();
+	Transfers.start();*/
 
 	dlgSplash->updateProgress( 80, QObject::tr( "Loading User Interface..." ) );
 	qApp->processEvents();
 
-	MainWindow = new CWinMain();
-	if ( quazaaSettings.WinMain.Visible )
+	CWidgetMedia MainWindow;
+	MainWindow.showMaximized();
+	/*if ( quazaaSettings.WinMain.Visible )
 	{
 		if(bFirstRun)
 			MainWindow->showMaximized();
 		else
 			MainWindow->show();
-	}
+	}*/
 
 	dlgSplash->updateProgress( 90, QObject::tr( "Loading Tray Icon..." ) );
 	qApp->processEvents();
-	MainWindow->loadTrayIcon();
+	//MainWindow->loadTrayIcon();
 
 	dlgSplash->updateProgress( 100, QObject::tr( "Welcome to Quazaa!" ) );
 	qApp->processEvents();
@@ -280,14 +284,14 @@ int main(int argc, char *argv[])
 	dlgSplash->deleteLater();
 	dlgSplash = 0;
 
-	// Start networks if needed
+	/* Start networks if needed
 	if ( quazaaSettings.System.ConnectOnStartup )
 	{
 		if ( quazaaSettings.Gnutella2.Enable )
 		{
 			Network.start();
 		}
-	}
+	}*/
 
 	return theApp.exec();
 }

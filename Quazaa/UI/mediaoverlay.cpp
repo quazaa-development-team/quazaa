@@ -6,6 +6,7 @@ MediaOverlay::MediaOverlay(QWidget *parent) :
 	ui(new Ui::MediaOverlay)
 {
 	ui->setupUi(this);
+
 	m_tMediaControls = new QTimer(this);
 	m_tMediaControls->setSingleShot(true);
 	connect(m_tMediaControls, SIGNAL(timeout()), ui->frameMediaControls, SLOT(hide()));

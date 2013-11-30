@@ -52,10 +52,9 @@ CWidgetMedia::CWidgetMedia(QWidget* parent) :
 	player->setPlaylist(playlist);
 
 	videoWidget = new VideoWidget(ui->videoContainerWidget);
-	//player->setVideoOutput(videoWidget);
+	player->setVideoOutput(videoWidget);
 
 	ui->verticalLayoutMedia->addWidget(videoWidget);
-
 
 	setSkin();
 }

@@ -90,7 +90,7 @@ MessageView* IrcChannelStackView::addView(const QString& receiver)
 	}
 	if (channel && !view->isActive())
 		openView(receiver);
-	qApp->processEvents();
+	qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 	return view;
 }
 

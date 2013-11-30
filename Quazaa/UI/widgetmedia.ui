@@ -10,9 +10,6 @@
     <height>361</height>
    </rect>
   </property>
-  <property name="mouseTracking">
-   <bool>true</bool>
-  </property>
   <property name="windowTitle">
    <string>Media</string>
   </property>
@@ -56,12 +53,6 @@
         <horstretch>1</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
-      </property>
-      <property name="mouseTracking">
-       <bool>false</bool>
-      </property>
-      <property name="autoFillBackground">
-       <bool>false</bool>
       </property>
       <layout class="QVBoxLayout" name="verticalLayoutMedia">
        <property name="spacing">

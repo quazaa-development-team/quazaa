@@ -13,7 +13,7 @@ QByteArray SingleApplication::ApplicationData::encoding("ISO-8859-15");
 SingleApplication::SingleApplication(int& argc, char* argv[]) :
   QApplication(argc, argv)
 {
-  _shouldContinue = false; // By default this is not the main process
+  _shouldContinue = true; // By default this is not the main process
 
   socket = new QLocalSocket();
 

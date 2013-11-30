@@ -1496,7 +1496,7 @@ bool CSecurity::fromXML(const QString& sPath)
 					 tr( "Unrecognized entry in XML file with name: " ) +
 					 xmlDocument.name().toString() );
 		}
-		qApp->processEvents(QEventLoop::AllEvents, 50);
+		qApp->processEvents(QEventLoop::ExcludeUserInputEvents, 50);
 	}
 
 	m_bIsLoading = false;
@@ -1556,7 +1556,7 @@ bool CSecurity::fromP2P(const QString &sFile)
 		}
 		++iGuiThrottle;
 		if(iGuiThrottle == 50) {
-			qApp->processEvents(QEventLoop::AllEvents, 50);
+			qApp->processEvents(QEventLoop::ExcludeUserInputEvents, 50);
 			iGuiThrottle = 0;
 		}
 	}
