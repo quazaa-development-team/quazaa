@@ -39,8 +39,8 @@
 
 CWidgetMedia::CWidgetMedia(QWidget* parent) :
 	QWidget(parent),
-	videoWidget(0),
-	ui(new Ui::CWidgetMedia)
+	ui(new Ui::CWidgetMedia),
+	videoWidget(0)
 {
 	ui->setupUi(this);
 

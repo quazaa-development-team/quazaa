@@ -187,14 +187,14 @@ int main(int argc, char *argv[])
 	systemLog.start();
 
 	// Setup Qt elements of signal queue necessary for operation
-	signalQueue.setup();
+	//signalQueue.setup();
 
 	//Initialize multilanguage support
 	quazaaSettings.loadLanguageSettings();
 	quazaaSettings.translator.load( quazaaSettings.Language.File );
 	qApp->installTranslator( &quazaaSettings.translator );
 
-	//Create splash window
+	/*Create splash window
 	CDialogSplash* dlgSplash = new CDialogSplash();
 	dlgSplash->show();
 	qApp->processEvents();
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
 	//Initialize Settings
 	quazaaSettings.loadSettings();
 
-	/*Check if this is Quazaa's first run
+	//Check if this is Quazaa's first run
 	dlgSplash->updateProgress( 8, QObject::tr( "Checking for first run..." ) );
 	qApp->processEvents();
 	bool bFirstRun = quazaaSettings.isFirstRun();
@@ -254,15 +254,15 @@ int main(int argc, char *argv[])
 	dlgSplash->updateProgress( 38, QObject::tr( "Loading Library..." ) );
 	qApp->processEvents();
 	QueryHashMaster.create();
-	ShareManager.start();*/
+	ShareManager.start();
 
-	/* Load Download Manager
+	// Load Download Manager
 	dlgSplash->updateProgress( 60, QObject::tr( "Loading Transfer Manager..." ) );
 	qApp->processEvents();
-	Transfers.start();*/
+	Transfers.start();
 
 	dlgSplash->updateProgress( 80, QObject::tr( "Loading User Interface..." ) );
-	qApp->processEvents();
+	qApp->processEvents();*/
 
 	CWidgetMedia MainWindow;
 	MainWindow.showMaximized();
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
 			MainWindow->showMaximized();
 		else
 			MainWindow->show();
-	}*/
+	}
 
 	dlgSplash->updateProgress( 90, QObject::tr( "Loading Tray Icon..." ) );
 	qApp->processEvents();
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
 	dlgSplash->deleteLater();
 	dlgSplash = 0;
 
-	/* Start networks if needed
+	// Start networks if needed
 	if ( quazaaSettings.System.ConnectOnStartup )
 	{
 		if ( quazaaSettings.Gnutella2.Enable )

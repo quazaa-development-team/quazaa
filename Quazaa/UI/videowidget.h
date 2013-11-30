@@ -18,7 +18,7 @@ protected:
 	void resizeEvent(QResizeEvent *event);
 
 private:
-	MediaOverlay *mediaOverlay;
+	//MediaOverlay *mediaOverlay;
 
 signals:
 

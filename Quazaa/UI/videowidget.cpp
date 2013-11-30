@@ -14,7 +14,7 @@ VideoWidget::VideoWidget(QWidget *parent) :
 
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
-	mediaOverlay = new MediaOverlay(this);
+	//mediaOverlay = new MediaOverlay(this);
 }
 
 VideoWidget::~VideoWidget()
@@ -48,6 +48,6 @@ void VideoWidget::mousePressEvent(QMouseEvent *event)
 
 void VideoWidget::resizeEvent(QResizeEvent *event)
 {
-	mediaOverlay->resize(event->size());
+	//mediaOverlay->resize(event->size());
 	event->accept();
 }

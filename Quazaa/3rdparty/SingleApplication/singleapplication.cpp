@@ -60,7 +60,7 @@ void SingleApplication::setEncoding(const QByteArray& encoding)
 SingleApplication::~SingleApplication()
 {
   if(_shouldContinue){
-	server->terminate();
+	//server->terminate();
   }
 }
 
