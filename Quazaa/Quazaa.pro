@@ -70,7 +70,6 @@ INCLUDEPATH += 3rdparty \
 		Misc \
 		Models \
 		NetworkCore \
-		Security \
 		ShareManager \
 		Skin \
 		Transfers \
@@ -233,6 +232,9 @@ HEADERS += \
 		3rdparty/nvwa/debug_new.h \
 		3rdparty/nvwa/fast_mutex.h \
 		3rdparty/nvwa/static_assert.h \
+		3rdparty/SingleApplication/localserver.h \
+		3rdparty/SingleApplication/singleapplication.h \
+		Chat/chatcompleter.h \
 		Chat/chatconverter.h \
 		Chat/chatcore.h \
 		Chat/chatsession.h \
@@ -266,8 +268,10 @@ HEADERS += \
 		Models/discoverytablemodel.h \
 		Models/downloadstreemodel.h \
 		Models/downloadspeermodel.h \
+		Models/ircuserlistmodel.h \
 		Models/neighbourstablemodel.h \
 		Models/searchtreemodel.h \
+		Models/securityfiltermodel.h \
 		Models/securitytablemodel.h \
 		Models/sharesnavigatortreemodel.h \
 		NetworkCore/buffer.h \
@@ -332,8 +336,12 @@ HEADERS += \
 		UI/dialogeditshares.h \
 		UI/dialogfiltersearch.h \
 		UI/dialoghashprogress.h \
+		UI/dialogimportsecurity.h \
+		UI/dialogirccolordialog.h \
+		UI/dialogircsettings.h \
 		UI/dialoglanguage.h \
 		UI/dialoglibrarysearch.h \
+		UI/dialogmodifyrule.h \
 		UI/dialogneighbourinfo.h \
 		UI/dialogopentorrent.h \
 		UI/dialogpreviewprepare.h \
@@ -346,6 +354,7 @@ HEADERS += \
 		UI/dialogsplash.h \
 		UI/dialogtorrentproperties.h \
 		UI/dialogtransferprogresstooltip.h \
+		UI/ircchannelstackview.h \
 		UI/suggestedlineedit.h \
 		UI/tableview.h \
 		UI/tabwidget.h \
@@ -377,25 +386,18 @@ HEADERS += \
 		UI/widgettransfers.h \
 		UI/widgetuploads.h \
 		UI/winmain.h \
-		UI/wizardquickstart.h \
-		UI/wizardtreewidget.h \
-		Chat/chatcompleter.h \
-		UI/ircchannelstackview.h \
-		3rdparty/SingleApplication/singleapplication.h \
-		3rdparty/SingleApplication/localserver.h \
-		UI/dialogircsettings.h \
-		UI/dialogirccolordialog.h \
 		UI/wizardircconnection.h \
-		Models/ircuserlistmodel.h \
-		Models/securityfiltermodel.h \
-		UI/dialogimportsecurity.h \
-	UI/dialogmodifyrule.h
+		UI/wizardquickstart.h \
+		UI/wizardtreewidget.h
 
 # Sources
 SOURCES += \
 		3rdparty/CyoEncode/CyoDecode.c \
 		3rdparty/CyoEncode/CyoEncode.c \
 		3rdparty/nvwa/debug_new.cpp \
+		3rdparty/SingleApplication/localserver.cpp \
+		3rdparty/SingleApplication/singleapplication.cpp \
+		Chat/chatcompleter.cpp \
 		Chat/chatconverter.cpp \
 		Chat/chatcore.cpp \
 		Chat/chatsession.cpp \
@@ -421,8 +423,10 @@ SOURCES += \
 		Models/discoverytablemodel.cpp \
 		Models/downloadstreemodel.cpp \
 		Models/downloadspeermodel.cpp \
+		Models/ircuserlistmodel.cpp \
 		Models/neighbourstablemodel.cpp \
 		Models/searchtreemodel.cpp \
+		Models/securityfiltermodel.cpp \
 		Models/securitytablemodel.cpp \
 		Models/sharesnavigatortreemodel.cpp \
 		NetworkCore/buffer.cpp \
@@ -486,8 +490,12 @@ SOURCES += \
 		UI/dialogeditshares.cpp \
 		UI/dialogfiltersearch.cpp \
 		UI/dialoghashprogress.cpp \
+		UI/dialogimportsecurity.cpp \
+		UI/dialogirccolordialog.cpp \
+		UI/dialogircsettings.cpp \
 		UI/dialoglanguage.cpp \
 		UI/dialoglibrarysearch.cpp \
+		UI/dialogmodifyrule.cpp \
 		UI/dialogneighbourinfo.cpp \
 		UI/dialogopentorrent.cpp \
 		UI/dialogpreviewprepare.cpp \
@@ -500,6 +508,7 @@ SOURCES += \
 		UI/dialogsplash.cpp \
 		UI/dialogtorrentproperties.cpp \
 		UI/dialogtransferprogresstooltip.cpp \
+		UI/ircchannelstackview.cpp \
 		UI/suggestedlineedit.cpp \
 		UI/tableview.cpp \
 		UI/tabwidget.cpp \
@@ -530,19 +539,9 @@ SOURCES += \
 		UI/widgettransfers.cpp \
 		UI/widgetuploads.cpp \
 		UI/winmain.cpp \
-		UI/wizardtreewidget.cpp \
-		UI/wizardquickstart.cpp \
-		Chat/chatcompleter.cpp \
-		UI/ircchannelstackview.cpp \
-		3rdparty/SingleApplication/singleapplication.cpp \
-		3rdparty/SingleApplication/localserver.cpp \
-		UI/dialogircsettings.cpp \
-		UI/dialogirccolordialog.cpp \
 		UI/wizardircconnection.cpp \
-		Models/ircuserlistmodel.cpp \
-		Models/securityfiltermodel.cpp \
-		UI/dialogimportsecurity.cpp \
-	UI/dialogmodifyrule.cpp
+		UI/wizardtreewidget.cpp \
+		UI/wizardquickstart.cpp
 
 FORMS += \
 		UI/dialogabout.ui \
@@ -557,8 +556,12 @@ FORMS += \
 		UI/dialogeditshares.ui \
 		UI/dialogfiltersearch.ui \
 		UI/dialoghashprogress.ui \
+		UI/dialogimportsecurity.ui \
+		UI/dialogirccolordialog.ui \
+		UI/dialogircsettings.ui \
 		UI/dialoglanguage.ui \
 		UI/dialoglibrarysearch.ui \
+		UI/dialogmodifyrule.ui \
 		UI/dialogneighbourinfo.ui \
 		UI/dialogopentorrent.ui \
 		UI/dialogpreviewprepare.ui \
@@ -597,12 +600,8 @@ FORMS += \
 		UI/widgettransfers.ui \
 		UI/widgetuploads.ui \
 		UI/winmain.ui \
-		UI/wizardquickstart.ui \
-	UI/dialogircsettings.ui \
-	UI/dialogirccolordialog.ui \
-	UI/wizardircconnection.ui \
-	UI/dialogimportsecurity.ui \
-	UI/dialogmodifyrule.ui
+		UI/wizardircconnection.ui \
+		UI/wizardquickstart.ui
 
 TRANSLATIONS = \
 		Language/quazaa_af.ts \
