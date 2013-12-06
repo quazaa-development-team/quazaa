@@ -306,6 +306,9 @@ SecurityTableModel::SecurityTableModel(QObject* parent, QWidget* container) :
 	m_pIcons[1] = new QIcon( ":/Resource/Security/Accept.ico" );
 	m_pIcons[2] = new QIcon( ":/Resource/Security/Deny.ico" );
 
+	// register necessary meta types before using them
+	securityManager.registerMetaTypes();
+
 	connect( &securityManager, SIGNAL( ruleAdded( Rule* ) ), this,
 			 SLOT( addRule( Rule* ) ), Qt::QueuedConnection );
 
