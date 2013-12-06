@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -30,26 +30,37 @@
 
 #include "debug_new.h"
 
+#include <QDebug>
+#include <QtMultimedia>
+#include <QDesktopWidget>
+
+#include <QFileDialog>
+
 // The Media Tab's Base Widget
 
 CWidgetMedia::CWidgetMedia(QWidget* parent) :
-	QMainWindow(parent),
+	QWidget(parent),
 	ui(new Ui::CWidgetMedia)
 {
 	ui->setupUi(this);
-	seekSlider = new QSlider();
-	seekSlider->setOrientation(Qt::Horizontal);
-	volumeSlider = new QSlider();
-	volumeSlider->setOrientation(Qt::Horizontal);
-	volumeSlider->setMaximumWidth(100);
-	ui->toolBarPlayControls->addWidget(seekSlider);
-	ui->toolBarPlayControls->addSeparator();
-	ui->toolBarPlayControls->addAction(ui->actionMediaMute);
-	ui->toolBarPlayControls->addWidget(volumeSlider);
-	restoreState(quazaaSettings.WinMain.MediaToolbars);
+
 	ui->splitterMedia->restoreState(quazaaSettings.WinMain.MediaSplitter);
-	ui->actionMediaRepeat->setChecked(quazaaSettings.Media.Repeat);
-	ui->actionMediaShuffle->setChecked(quazaaSettings.Media.Shuffle);
+
+	player = new QMediaPlayer(this);
+	// owned by PlaylistModel
+	playlist = new QMediaPlaylist();
+	player->setPlaylist(playlist);
+	videoContainer = new VideoContainer(this);
+
+	player->setVideoOutput(videoContainer->videoWidget());
+
+	connect(videoContainer, SIGNAL(doubleClicked()), SLOT(toggleFullScreen()));
+	connect(videoContainer->mediaControls()->fullScreenButton(), SIGNAL(clicked()), SLOT(toggleFullScreen()));
+
+	ui->verticalLayoutMedia->addWidget(videoContainer);
+
+	connect(videoContainer->mediaControls()->openButton(), SIGNAL(clicked()), SLOT(openMedia()));
+
 	setSkin();
 }
 
@@ -60,7 +71,7 @@ CWidgetMedia::~CWidgetMedia()
 
 void CWidgetMedia::changeEvent(QEvent* e)
 {
-	QMainWindow::changeEvent(e);
+	QWidget::changeEvent(e);
 	switch(e->type())
 	{
 		case QEvent::LanguageChange:
@@ -73,28 +84,7 @@ void CWidgetMedia::changeEvent(QEvent* e)
 
 void CWidgetMedia::saveWidget()
 {
-	quazaaSettings.WinMain.MediaToolbars = saveState();
 	quazaaSettings.WinMain.MediaSplitter = ui->splitterMedia->saveState();
-}
-
-/*void WidgetMedia::on_actionMediaOpen_triggered()
-{
-	mediaPlayer->openFile();
-}
-
-void WidgetMedia::on_volumeSlider_valueChanged(int value)
-{
-	quazaaSettings.Media.Volume = value;
-}*/
-
-void CWidgetMedia::on_actionMediaRepeat_triggered(bool checked)
-{
-	quazaaSettings.Media.Repeat = checked;
-}
-
-void CWidgetMedia::on_actionMediaShuffle_triggered(bool checked)
-{
-	quazaaSettings.Media.Shuffle = checked;
 }
 
 void CWidgetMedia::on_splitterMedia_customContextMenuRequested(QPoint pos)
@@ -144,11 +134,31 @@ void CWidgetMedia::on_toolButtonMediaPlaylistTaskHeader_clicked()
 
 void CWidgetMedia::setSkin()
 {
-	seekSlider->setStyleSheet(skinSettings.seekSlider);
-	volumeSlider->setStyleSheet(skinSettings.volumeSlider);
 	ui->toolButtonMediaPlaylistTaskHeader->setStyleSheet(skinSettings.taskHeader);
 	ui->frameMediaPlaylistTask->setStyleSheet(skinSettings.sidebarBackground);
-	ui->toolBarPlayControls->setStyleSheet(skinSettings.mediaToolbar);
-	ui->toolBarSettings->setStyleSheet(skinSettings.mediaToolbar);
 	ui->listViewMediaPlaylist->setStyleSheet(skinSettings.listViews);
+}
+
+void CWidgetMedia::openMedia()
+{
+	QString file = QFileDialog::getOpenFileName(this, tr("Open File"));
+
+	QUrl url = QUrl::fromLocalFile(file);
+
+	playlist->addMedia(url);
+
+	player->play();
+}
+
+void CWidgetMedia::toggleFullScreen()
+{
+	if(!ui->videoContainerWidget->isFullScreen()) {
+		ui->videoContainerWidget->setParent(0);
+		ui->videoContainerWidget->showFullScreen();
+		videoContainer->mediaControls()->fullScreenButton()->setIcon(QIcon(":/Resource/Media/NoFullScreen.png"));
+	} else {
+		ui->videoContainerWidget->setParent(this);
+		ui->splitterMedia->insertWidget(0,ui->videoContainerWidget);
+		videoContainer->mediaControls()->fullScreenButton()->setIcon(QIcon(":/Resource/Media/FullScreen.png"));
+	}
 }

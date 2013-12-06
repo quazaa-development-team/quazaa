@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>CWidgetTransfers</class>
- <widget class="QWidget" name="WidgetTransfers">
+ <widget class="QWidget" name="CWidgetTransfers">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -266,7 +266,7 @@
             </sizepolicy>
            </property>
            <property name="currentIndex">
-            <number>3</number>
+            <number>4</number>
            </property>
            <widget class="QWidget" name="tabGeneral">
             <attribute name="icon">
@@ -305,8 +305,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>377</width>
-                  <height>410</height>
+                  <width>383</width>
+                  <height>443</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -678,7 +678,7 @@
            <widget class="QWidget" name="tabFiles">
             <attribute name="icon">
              <iconset resource="../Resource.qrc">
-              <normaloff>:/Resource/Library/OpenDownloadFolder.png</normaloff>:/Resource/Library/OpenDownloadFolder.png</iconset>
+              <normaloff>:/Resource/Library/FolderOpen.png</normaloff>:/Resource/Library/FolderOpen.png</iconset>
             </attribute>
             <attribute name="title">
              <string>Files</string>

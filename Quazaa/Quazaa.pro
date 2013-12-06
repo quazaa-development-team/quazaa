@@ -30,9 +30,10 @@ QT_VER_MIN = $$member(QT_VERSION, 1)
 
 greaterThan(QT_VER_MAJ, 4) {
 		QT += widgets \
-				gui \
 				multimedia \
-				multimediawidgets
+				multimediawidgets \
+				network \
+				xml
 }
 
 QT += network \
@@ -355,10 +356,13 @@ HEADERS += \
 		UI/dialogtorrentproperties.h \
 		UI/dialogtransferprogresstooltip.h \
 		UI/ircchannelstackview.h \
+		UI/mediacontrols.h \
 		UI/suggestedlineedit.h \
 		UI/tableview.h \
 		UI/tabwidget.h \
 		UI/tabwidget_p.h \
+		UI/videocontainer.h \
+		UI/videowidget.h \
 		UI/widgetactivity.h \
 		UI/widgetchatinput.h \
 		UI/widgetdiscovery.h \
@@ -509,9 +513,12 @@ SOURCES += \
 		UI/dialogtorrentproperties.cpp \
 		UI/dialogtransferprogresstooltip.cpp \
 		UI/ircchannelstackview.cpp \
+		UI/mediacontrols.cpp \
 		UI/suggestedlineedit.cpp \
 		UI/tableview.cpp \
 		UI/tabwidget.cpp \
+		UI/videowidget.cpp \
+		UI/videocontainer.cpp \
 		UI/widgetactivity.cpp \
 		UI/widgetchatinput.cpp \
 		UI/widgetdiscovery.cpp \
@@ -574,7 +581,9 @@ FORMS += \
 		UI/dialogsplash.ui \
 		UI/dialogtorrentproperties.ui \
 		UI/dialogtransferprogresstooltip.ui \
+		UI/mediacontrols.ui \
 		UI/mediasettings.ui \
+		UI/videocontainer.ui \
 		UI/widgetactivity.ui \
 		UI/widgetchatinput.ui \
 		UI/widgetdiscovery.ui \

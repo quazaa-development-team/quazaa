@@ -243,7 +243,6 @@
         <file>Resource/Library/ImportPartials.png</file>
         <file>Resource/Library/Junk.png</file>
         <file>Resource/Library/Library.png</file>
-        <file>Resource/Library/OpenDownloadFolder.png</file>
         <file>Resource/Library/PlayAlbum.png</file>
         <file>Resource/Library/Presentation.png</file>
         <file>Resource/Library/ROMImage.png</file>
@@ -254,10 +253,6 @@
         <file>Resource/Library/TileView.png</file>
         <file>Resource/Load bar empty.png</file>
         <file>Resource/Load bar full no bg.png</file>
-        <file>Resource/LogIcon/Friends.png</file>
-        <file>Resource/LogIcon/Library.png</file>
-        <file>Resource/LogIcon/Media.png</file>
-        <file>Resource/LogIcon/Network.png</file>
         <file>Resource/Luna/addSearch.png</file>
         <file>Resource/Luna/button.png</file>
         <file>Resource/Luna/buttonDefault.png</file>
@@ -1072,5 +1067,42 @@
         <file>Resource/Chat/SendDark.png</file>
         <file>Resource/Chat/ServOp.png</file>
         <file>Resource/Chat/ServOpDark.png</file>
+        <file>Resource/Library/Folder.png</file>
+        <file>Resource/Library/FolderOpen.png</file>
+        <file>Resource/Library/Share.png</file>
+        <file>Resource/Media/FastForwardMediaD.png</file>
+        <file>Resource/Media/FastForwardMediaH.png</file>
+        <file>Resource/Media/NextMediaTrackD.png</file>
+        <file>Resource/Media/NextMediaTrackH.png</file>
+        <file>Resource/Media/OpenMediaD.png</file>
+        <file>Resource/Media/OpenMediaH.png</file>
+        <file>Resource/Media/PauseMediaD.png</file>
+        <file>Resource/Media/PauseMediaH.png</file>
+        <file>Resource/Media/PlayMediaD.png</file>
+        <file>Resource/Media/PlayMediaH.png</file>
+        <file>Resource/Media/PreviousMediaTrackD.png</file>
+        <file>Resource/Media/PreviousMediaTrackH.png</file>
+        <file>Resource/Media/RewindMediaD.png</file>
+        <file>Resource/Media/RewindMediaH.png</file>
+        <file>Resource/Media/StopMediaD.png</file>
+        <file>Resource/Media/StopMediaH.png</file>
+        <file>Resource/Media/FastForwardMediaP.png</file>
+        <file>Resource/Media/NextMediaTrackP.png</file>
+        <file>Resource/Media/OpenMediaP.png</file>
+        <file>Resource/Media/PauseMediaP.png</file>
+        <file>Resource/Media/PlayMediaP.png</file>
+        <file>Resource/Media/PreviousMediaTrackP.png</file>
+        <file>Resource/Media/RewindMediaP.png</file>
+        <file>Resource/Media/StopMediaP.png</file>
+        <file>Resource/Media/RepeatD.png</file>
+        <file>Resource/Media/RepeatH.png</file>
+        <file>Resource/Media/RepeatP.png</file>
+        <file>Resource/Media/ShuffleD.png</file>
+        <file>Resource/Media/ShuffleH.png</file>
+        <file>Resource/Media/ShuffleP.png</file>
+        <file>Resource/Media/MuteH.png</file>
+        <file>Resource/Media/MuteP.png</file>
+        <file>Resource/Media/UnmuteH.png</file>
+        <file>Resource/Media/UnmuteP.png</file>
     </qresource>
 </RCC>

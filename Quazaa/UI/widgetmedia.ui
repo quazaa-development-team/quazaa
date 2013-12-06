@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>CWidgetMedia</class>
- <widget class="QMainWindow" name="WidgetMedia">
+ <widget class="QWidget" name="CWidgetMedia">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>471</width>
-    <height>316</height>
+    <width>715</width>
+    <height>361</height>
    </rect>
+  </property>
+  <property name="mouseTracking">
+   <bool>true</bool>
   </property>
   <property name="windowTitle">
    <string>Media</string>
@@ -17,448 +20,306 @@
    <iconset resource="../Resource.qrc">
     <normaloff>:/Resource/Media/Media.png</normaloff>:/Resource/Media/Media.png</iconset>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="spacing">
-     <number>0</number>
-    </property>
-    <property name="margin">
-     <number>0</number>
-    </property>
-    <item>
-     <widget class="QSplitter" name="splitterMedia">
-      <property name="contextMenuPolicy">
-       <enum>Qt::CustomContextMenu</enum>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QSplitter" name="splitterMedia">
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::CustomContextMenu</enum>
+     </property>
+     <property name="autoFillBackground">
+      <bool>true</bool>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QWidget" name="videoContainerWidget" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>1</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <property name="autoFillBackground">
+      <property name="mouseTracking">
        <bool>true</bool>
       </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+      <property name="autoFillBackground">
+       <bool>false</bool>
       </property>
-      <widget class="QFrame" name="frameMediaWindow">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>1</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+      <property name="styleSheet">
+       <string notr="true">QWidget#videoContainerWidget {
+	background-color: black;
+}</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayoutMedia">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
+       <property name="leftMargin">
+        <number>0</number>
        </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(0, 0, 0);</string>
+       <property name="topMargin">
+        <number>0</number>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayoutVideoWidget">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="margin">
-         <number>0</number>
-        </property>
-       </layout>
-      </widget>
-      <widget class="QFrame" name="frameMediaPlaylistTask">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+       <property name="rightMargin">
+        <number>0</number>
        </property>
-       <property name="minimumSize">
-        <size>
-         <width>180</width>
-         <height>0</height>
-        </size>
+       <property name="bottomMargin">
+        <number>0</number>
        </property>
-       <property name="styleSheet">
-        <string notr="true">QFrame#frameMediaPlaylistTask {
+      </layout>
+     </widget>
+     <widget class="QFrame" name="frameMediaPlaylistTask">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>180</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QFrame#frameMediaPlaylistTask {
 	
 	background-color: black;
 }</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <property name="leftMargin">
+        <number>0</number>
        </property>
-       <layout class="QGridLayout" name="gridLayout">
-        <property name="margin">
-         <number>0</number>
-        </property>
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <item row="0" column="0" colspan="3">
-         <widget class="QToolButton" name="toolButtonMediaPlaylistTaskHeader">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Playlist</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../Resource.qrc">
-            <normaloff>:/Resource/Media/Playlist.png</normaloff>:/Resource/Media/Playlist.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="checkable">
-           <bool>false</bool>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
-          <property name="toolButtonStyle">
-           <enum>Qt::ToolButtonTextBesideIcon</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="3">
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QToolButton" name="toolButtonMediaPlaylistAdd">
-            <property name="toolTip">
-             <string>Add To Playlist</string>
-            </property>
-            <property name="text">
-             <string>Add To Playlist</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../Resource.qrc">
-              <normaloff>:/Resource/Generic/Add.png</normaloff>:/Resource/Generic/Add.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="toolButtonMediaPlaylistRemove">
-            <property name="toolTip">
-             <string>Remove From Playlist</string>
-            </property>
-            <property name="text">
-             <string>Remove From Playlist</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../Resource.qrc">
-              <normaloff>:/Resource/Generic/Remove.png</normaloff>:/Resource/Generic/Remove.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacerMediaPlaylist">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>33</width>
-              <height>24</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QToolButton" name="toolButtonMediaPlaylistClear">
-            <property name="toolTip">
-             <string>Clear Playlist</string>
-            </property>
-            <property name="text">
-             <string>Clear Playlist</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../Resource.qrc">
-              <normaloff>:/Resource/Generic/Clear.png</normaloff>:/Resource/Generic/Clear.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="toolButtonMediaPlaylistOpenPlaylist">
-            <property name="toolTip">
-             <string>Open Playlist</string>
-            </property>
-            <property name="text">
-             <string>Open Playlist</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../Resource.qrc">
-              <normaloff>:/Resource/Media/LoadPlaylist.png</normaloff>:/Resource/Media/LoadPlaylist.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="toolButtonMediaPlaylistAddPlaylist">
-            <property name="text">
-             <string>Add Playlist To Current Playlist</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../Resource.qrc">
-              <normaloff>:/Resource/Media/AddPlaylist.png</normaloff>:/Resource/Media/AddPlaylist.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="toolButtonMediaPlaylistSavePlaylist">
-            <property name="toolTip">
-             <string>Save Playlist</string>
-            </property>
-            <property name="text">
-             <string>Save Playlist</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../Resource.qrc">
-              <normaloff>:/Resource/Media/SavePlaylist.png</normaloff>:/Resource/Media/SavePlaylist.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="1" column="0" colspan="3">
-         <widget class="QListView" name="listViewMediaPlaylist">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="0" column="0" colspan="3">
+        <widget class="QToolButton" name="toolButtonMediaPlaylistTaskHeader">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Playlist</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../Resource.qrc">
+           <normaloff>:/Resource/Media/Playlist.png</normaloff>:/Resource/Media/Playlist.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextBesideIcon</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="3">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QToolButton" name="toolButtonMediaPlaylistAdd">
+           <property name="toolTip">
+            <string>Add To Playlist</string>
+           </property>
+           <property name="text">
+            <string>Add To Playlist</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../Resource.qrc">
+             <normaloff>:/Resource/Generic/Add.png</normaloff>:/Resource/Generic/Add.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="toolButtonMediaPlaylistRemove">
+           <property name="toolTip">
+            <string>Remove From Playlist</string>
+           </property>
+           <property name="text">
+            <string>Remove From Playlist</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../Resource.qrc">
+             <normaloff>:/Resource/Generic/Remove.png</normaloff>:/Resource/Generic/Remove.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacerMediaPlaylist">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>33</width>
+             <height>24</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QToolButton" name="toolButtonMediaPlaylistClear">
+           <property name="toolTip">
+            <string>Clear Playlist</string>
+           </property>
+           <property name="text">
+            <string>Clear Playlist</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../Resource.qrc">
+             <normaloff>:/Resource/Generic/Clear.png</normaloff>:/Resource/Generic/Clear.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="toolButtonMediaPlaylistOpenPlaylist">
+           <property name="toolTip">
+            <string>Open Playlist</string>
+           </property>
+           <property name="text">
+            <string>Open Playlist</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../Resource.qrc">
+             <normaloff>:/Resource/Media/LoadPlaylist.png</normaloff>:/Resource/Media/LoadPlaylist.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="toolButtonMediaPlaylistAddPlaylist">
+           <property name="text">
+            <string>Add Playlist To Current Playlist</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../Resource.qrc">
+             <normaloff>:/Resource/Media/AddPlaylist.png</normaloff>:/Resource/Media/AddPlaylist.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="toolButtonMediaPlaylistSavePlaylist">
+           <property name="toolTip">
+            <string>Save Playlist</string>
+           </property>
+           <property name="text">
+            <string>Save Playlist</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../Resource.qrc">
+             <normaloff>:/Resource/Media/SavePlaylist.png</normaloff>:/Resource/Media/SavePlaylist.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0" colspan="3">
+        <widget class="QListView" name="listViewMediaPlaylist">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QToolBar" name="toolBarPlayControls">
-   <property name="contextMenuPolicy">
-    <enum>Qt::PreventContextMenu</enum>
-   </property>
-   <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>BottomToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionMediaRewind"/>
-   <addaction name="actionMediaStop"/>
-   <addaction name="actionMediaPlay"/>
-   <addaction name="actionMediaNextTrack"/>
-   <addaction name="separator"/>
-   <addaction name="actionMediaOpen"/>
-   <addaction name="separator"/>
-   <addaction name="actionMediaRepeat"/>
-   <addaction name="actionMediaShuffle"/>
-  </widget>
-  <widget class="QToolBar" name="toolBarSettings">
-   <property name="contextMenuPolicy">
-    <enum>Qt::PreventContextMenu</enum>
-   </property>
-   <property name="windowTitle">
-    <string>toolBar_2</string>
-   </property>
-   <property name="floatable">
-    <bool>false</bool>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>BottomToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionMediaFullscreen"/>
-   <addaction name="actionMediaSettings"/>
-  </widget>
-  <action name="actionMediaPlay">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../Resource.qrc">
-     <normaloff>:/Resource/Media/PlayMedia.png</normaloff>
-     <normalon>:/Resource/Media/PauseMedia.png</normalon>:/Resource/Media/PlayMedia.png</iconset>
-   </property>
-   <property name="text">
-    <string>Play</string>
-   </property>
-   <property name="toolTip">
-    <string>Play</string>
-   </property>
-  </action>
-  <action name="actionMediaOpen">
-   <property name="icon">
-    <iconset resource="../Resource.qrc">
-     <normaloff>:/Resource/Media/OpenMedia.png</normaloff>:/Resource/Media/OpenMedia.png</iconset>
-   </property>
-   <property name="text">
-    <string>Open Media</string>
-   </property>
-  </action>
-  <action name="actionMediaRewind">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../Resource.qrc">
-     <normaloff>:/Resource/Media/PreviousMediaTrack.png</normaloff>:/Resource/Media/PreviousMediaTrack.png</iconset>
-   </property>
-   <property name="text">
-    <string>Rewind</string>
-   </property>
-   <property name="toolTip">
-    <string>Rewind</string>
-   </property>
-  </action>
-  <action name="actionMediaNextTrack">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../Resource.qrc">
-     <normaloff>:/Resource/Media/NextMediaTrack.png</normaloff>:/Resource/Media/NextMediaTrack.png</iconset>
-   </property>
-   <property name="text">
-    <string>Next Track</string>
-   </property>
-  </action>
-  <action name="actionMediaStop">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../Resource.qrc">
-     <normaloff>:/Resource/Media/StopMedia.png</normaloff>:/Resource/Media/StopMedia.png</iconset>
-   </property>
-   <property name="text">
-    <string>Stop Media</string>
-   </property>
-  </action>
-  <action name="actionMediaRepeat">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../Resource.qrc">
-     <normaloff>:/Resource/Media/Repeat.png</normaloff>:/Resource/Media/Repeat.png</iconset>
-   </property>
-   <property name="text">
-    <string>Repeat</string>
-   </property>
-   <property name="toolTip">
-    <string>Repeat</string>
-   </property>
-  </action>
-  <action name="actionMediaShuffle">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../Resource.qrc">
-     <normaloff>:/Resource/Media/Shuffle.png</normaloff>:/Resource/Media/Shuffle.png</iconset>
-   </property>
-   <property name="text">
-    <string>Shuffle</string>
-   </property>
-   <property name="toolTip">
-    <string>Shuffle</string>
-   </property>
-  </action>
-  <action name="actionMediaFullscreen">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="../Resource.qrc">
-     <normaloff>:/Resource/Media/FullScreen.png</normaloff>:/Resource/Media/FullScreen.png</iconset>
-   </property>
-   <property name="text">
-    <string>Fullscreen</string>
-   </property>
-   <property name="toolTip">
-    <string>Fullscreen</string>
-   </property>
-  </action>
-  <action name="actionMediaSettings">
-   <property name="icon">
-    <iconset resource="../Resource.qrc">
-     <normaloff>:/Resource/Generic/Settings.png</normaloff>:/Resource/Generic/Settings.png</iconset>
-   </property>
-   <property name="text">
-    <string>Settings</string>
-   </property>
-   <property name="toolTip">
-    <string>Settings</string>
-   </property>
-  </action>
-  <action name="actionMediaMute">
-   <property name="icon">
-    <iconset resource="../Resource.qrc">
-     <normaloff>:/Resource/Media/Unmute.png</normaloff>:/Resource/Media/Unmute.png</iconset>
-   </property>
-   <property name="text">
-    <string>Mute</string>
-   </property>
-   <property name="toolTip">
-    <string>Mute</string>
-   </property>
-  </action>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources>
   <include location="../Resource.qrc"/>

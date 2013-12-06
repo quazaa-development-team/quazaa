@@ -113,12 +113,8 @@ bool DatagramIn::add(quint8 nPart, const void* pData, qint32 nLength)
 G2Packet* DatagramIn::toG2Packet()
 {
 	if(m_nCount > 1)
-	{
 		for(qint32 i = 1; i < m_nCount; i++)
-		{
 			m_pBuffer[0]->append(m_pBuffer[i]);
-		}
-	}
 
 
 	if(m_bCompressed && !ZLibUtils::uncompressBuffer(*m_pBuffer[0]))

@@ -98,6 +98,7 @@ void CChatSessionG2::onDisconnectNode()
 {
 	CChatSession::onDisconnectNode();
 }
+
 void CChatSessionG2::onRead()
 {
 	if( m_nState == csHandshaking )

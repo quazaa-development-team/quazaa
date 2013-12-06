@@ -22,22 +22,25 @@
 #ifndef WIDGETMEDIA_H
 #define WIDGETMEDIA_H
 
-#include <QMainWindow>
+#include "videocontainer.h"
+
+#include <QWidget>
 #include <QSlider>
+#include <QEvent>
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 
 namespace Ui
 {
 	class CWidgetMedia;
 }
 
-class CWidgetMedia : public QMainWindow
+class CWidgetMedia : public QWidget
 {
 	Q_OBJECT
 public:
 	CWidgetMedia(QWidget* parent = 0);
 	~CWidgetMedia();
-	QSlider* seekSlider;
-	QSlider* volumeSlider;
 	void saveWidget();
 
 protected:
@@ -49,9 +52,14 @@ private:
 private slots:
 	void on_toolButtonMediaPlaylistTaskHeader_clicked();
 	void on_splitterMedia_customContextMenuRequested(QPoint pos);
-	void on_actionMediaShuffle_triggered(bool checked);
-	void on_actionMediaRepeat_triggered(bool checked);
 	void setSkin();
+	void openMedia();
+	void toggleFullScreen();
+
+private:
+	QMediaPlayer *player;
+	QMediaPlaylist *playlist;
+	VideoContainer *videoContainer;
 };
 
 #endif // WIDGETMEDIA_H

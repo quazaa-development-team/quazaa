@@ -15,6 +15,7 @@
 #include "overlay.h"
 #include <QResizeEvent>
 #include <QMovie>
+#include <QDebug>
 
 Overlay::Overlay(QWidget* parent) : QLabel(parent)
 {
@@ -46,6 +47,7 @@ void Overlay::setBusy(bool busy)
 	if (busy) {
 		if (!mov) {
 			mov = new QMovie(QString(":/Resource/ajax-loader-%1.gif").arg(d.dark ? "dark" : "light"), QByteArray(), this);
+			qDebug() << "QMovie supported formats: " << movie()->supportedFormats();
 			setMovie(mov);
 		}
 		mov->start();
@@ -63,8 +65,10 @@ void Overlay::setDark(bool dark)
 {
 	if (d.dark != dark) {
 		d.dark = dark;
-		if (movie())
+		if (movie()) {
+			qDebug() << "QMovie supported formats: " << movie()->supportedFormats();
 			movie()->setFileName(QString(":/Resource/ajax-loader-%1.gif").arg(d.dark ? "dark" : "light"));
+		}
 	}
 }
 
