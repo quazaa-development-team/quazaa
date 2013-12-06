@@ -1037,8 +1037,10 @@ void G2HostCache::insert(G2HostCacheHost* pNew, G2HostCacheIterator& it)
 
 	Q_ASSERT( it != m_lHosts.begin() && it != m_lHosts.end() );
 
-	// go 1 element back (to last element with higher timestamp) and insert after this element
-	it = m_lHosts.insert( --it, pNew );
+	// The iterator points now to the element after the last one with
+	// (*it)->timestamp() > pNew->timestamp().
+	// Insert between the current position and that position.
+	it = m_lHosts.insert( it, pNew );
 
 	// remember own position in list
 	pNew->setIterator( it );
