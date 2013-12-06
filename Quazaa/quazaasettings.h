@@ -534,7 +534,6 @@ namespace Settings
 		bool		RemoteEnable;							// Enable remote access?
 		QString		RemotePassword;							// Remote access password
 		QString		RemoteUsername;							// Remote access user name
-		bool		IgnorePrivateIP;					// Ingnore all 'local' (LAN) IPs
 		bool		SearchIgnoreOwnIP;						// Do not accept any ports on your external IP as a source
 		int			SearchSpamFilterThreshold;				// Percentage of spam hits which triggers file sources to be treated as spam
 		bool		UPnPSkipWANIPSetup;						// Skip WANIPConn1 device setup (UPnP)
@@ -543,8 +542,9 @@ namespace Settings
 		/* --- Settings used by security manager --- */
 // TODO: Make sure slot settingsChanged() is called if these settings are changed to inform security manager about the changes.
 		bool		LogIPCheckHits;							// Post log message on IsDenied( QHostAdress ) call
-		quint32		MaxUnsavedRules;						// Number of unsaved rules to accumulate before triggering an auntosave
-		quint32		MissCacheExpiryInterval;				// Clear the miss cache each x seconds
+		bool		IgnorePrivateIP;						// Ingnore all 'local' (LAN) IPs
+		//quint32		MaxUnsavedRules;						// Number of unsaved rules to accumulate before triggering an auntosave
+		//quint32		MissCacheExpiryInterval;				// Clear the miss cache each x seconds
 		quint32		RuleExpiryInterval;						// Check the security manager for expired hosts each x seconds
 	};
 

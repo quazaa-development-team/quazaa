@@ -398,8 +398,6 @@ void CQuazaaSettings::saveSettings()
 	m_qSettings.setValue("UPnPSkipWANPPPSetup", quazaaSettings.Security.UPnPSkipWANPPPSetup);
 
 	m_qSettings.setValue("LogIPCheckHits", quazaaSettings.Security.LogIPCheckHits);
-	m_qSettings.setValue("MaxUnsavedRules", quazaaSettings.Security.MaxUnsavedRules);
-	m_qSettings.setValue("MissCacheExpiryInterval", quazaaSettings.Security.MissCacheExpiryInterval);
 	m_qSettings.setValue("RuleExpiryInterval", quazaaSettings.Security.RuleExpiryInterval);
 	m_qSettings.endGroup();
 
@@ -825,10 +823,11 @@ void CQuazaaSettings::loadSettings()
 	quazaaSettings.Security.UPnPSkipWANIPSetup = m_qSettings.value("UPnPSkipWANIPSetup", false).toBool();
 	quazaaSettings.Security.UPnPSkipWANPPPSetup = m_qSettings.value("UPnPSkipWANPPPSetup", false).toBool();
 	quazaaSettings.Security.LogIPCheckHits = m_qSettings.value("LogIPCheckHits", false).toBool();
-	quazaaSettings.Security.MaxUnsavedRules = m_qSettings.value("MaxUnsavedRules", 100).toUInt();
-	quazaaSettings.Security.MissCacheExpiryInterval = m_qSettings.value("MissCacheExpiryInterval", 600).toUInt();
 	quazaaSettings.Security.RuleExpiryInterval = m_qSettings.value("RuleExpiryInterval", 60).toUInt();
 	m_qSettings.endGroup();
+
+	// notify Security manager about new settings
+	emit securitySettingsChanged();
 
 	m_qSettings.beginGroup("Scheduler");
 
