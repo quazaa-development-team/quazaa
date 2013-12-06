@@ -248,7 +248,7 @@ void CNeighboursG2::dispatchKHL()
 
 	quint32 nCount = quazaaSettings.Gnutella2.KHLHubCount;
 
-	for ( TG2HostCacheIterator itHost = hostCache.m_lHosts.begin(); // nCount == ( nCount > 0 )
+	for ( G2HostCacheIterator itHost = hostCache.m_lHosts.begin(); // nCount == ( nCount > 0 )
 		  nCount && itHost != hostCache.m_lHosts.end(); ++itHost )  // as nCount is a quint32
 	{
 		if ( !(*itHost) )

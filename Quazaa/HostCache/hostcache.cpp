@@ -40,12 +40,12 @@
 
 #include "debug_new.h"
 
-CG2HostCache hostCache;
+G2HostCache hostCache;
 
 /**
  * @brief CHostCache::CHostCache Constructor.
  */
-CG2HostCache::CG2HostCache() :
+G2HostCache::G2HostCache() :
 	m_pFailures( NULL ),
 	m_oLokalAddress( CEndPoint() ),
 #if ENABLE_HOST_CACHE_BENCHMARKING
@@ -66,7 +66,7 @@ CG2HostCache::CG2HostCache() :
 /**
  * @brief CHostCache::~CHostCache Destructor.
  */
-CG2HostCache::~CG2HostCache()
+G2HostCache::~G2HostCache()
 {
 	clear();
 }
@@ -76,7 +76,7 @@ CG2HostCache::~CG2HostCache()
  * instantiated.
  * Locking: YES (asynchronous)
  */
-void CG2HostCache::start()
+void G2HostCache::start()
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "start()" ) );
@@ -96,7 +96,7 @@ void CG2HostCache::start()
  * @param host: the CEndPoint
  * @param tTimeStamp: its timestamp
  */
-void CG2HostCache::add(const CEndPoint host, const quint32 tTimeStamp)
+void G2HostCache::add(const CEndPoint host, const quint32 tTimeStamp)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "add()" ) );
@@ -115,7 +115,7 @@ void CG2HostCache::add(const CEndPoint host, const quint32 tTimeStamp)
  * @param nKey
  * @param tNow
  */
-void CG2HostCache::addKey(const CEndPoint host, const quint32 tTimeStamp, CEndPoint* pKeyHost, const quint32 nKey, const quint32 tNow)
+void G2HostCache::addKey(const CEndPoint host, const quint32 tTimeStamp, CEndPoint* pKeyHost, const quint32 nKey, const quint32 tNow)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "addKey()" ) );
@@ -135,7 +135,7 @@ void CG2HostCache::addKey(const CEndPoint host, const quint32 tTimeStamp, CEndPo
  * @param tAck
  * @param tNow
  */
-void CG2HostCache::addAck(const CEndPoint host, const quint32 tTimeStamp, const quint32 tAck, const quint32 tNow)
+void G2HostCache::addAck(const CEndPoint host, const quint32 tTimeStamp, const quint32 tAck, const quint32 tNow)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "addAck()" ) );
@@ -147,12 +147,42 @@ void CG2HostCache::addAck(const CEndPoint host, const quint32 tTimeStamp, const 
 }
 
 /**
+ * @brief CHostCache::get allows you to access the CHostCacheHost object pertaining to a given CEndPoint.
+ * Locking: REQUIRED
+ * @param oHost: The CEndPoint.
+ * @return the CHostCacheHost; NULL if the CEndPoint has not been found in the cache.
+ */
+G2HostCacheHost* G2HostCache::get(const CEndPoint& oHost)
+{
+	ASSUME_LOCK( m_pSection );
+
+	G2HostCacheIterator it = find( oHost );
+	return ( ( it == m_lHosts.end() ) ? NULL : *it );
+}
+
+/**
+ * @brief CHostCache::check allows to verify if a given CHostCacheHost is part of the cache. The
+ * information is guaranteed to stay valid as long as the mutex is held.
+ * Locking: REQUIRED
+ * @param pHost: the CHostCacheHost to check.
+ * @return true if the host could be found in the cache, false otherwise.
+ */
+bool G2HostCache::check(const G2HostCacheHost* const pHost)
+{
+	ASSUME_LOCK( m_pSection );
+	Q_ASSERT( pHost->failures() <= m_nMaxFailures );
+
+	G2HostCacheIterator it = find( pHost );
+	return it != m_lHosts.end();
+}
+
+/**
  * @brief CHostCache::updateFailures updates the number of failures of a given host.
  * Locking: YES (asynchronous)
  * @param oAddress: the host
  * @param nFailures: its new failures
  */
-void CG2HostCache::updateFailures(const CEndPoint& oAddress, const quint32 nFailures)
+void G2HostCache::updateFailures(const CEndPoint& oAddress, const quint32 nFailures)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "updateFailures()" ) );
@@ -194,7 +224,7 @@ void CG2HostCache::updateFailures(const CEndPoint& oAddress, const quint32 nFail
  * @param nFailures: the new amount of failures
  * @return the CHostCacheHost pointer pertaining to the updated host.
  */
-CG2HostCacheHost* CG2HostCache::update(TG2HostCacheIterator& itHost, const quint32 tTimeStamp,
+G2HostCacheHost* G2HostCache::update(G2HostCacheIterator& itHost, const quint32 tTimeStamp,
 									   const quint32 nFailures)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
@@ -205,8 +235,8 @@ CG2HostCacheHost* CG2HostCache::update(TG2HostCacheIterator& itHost, const quint
 
 	Q_ASSERT( itHost !=  m_lHosts.end() );
 
-	CG2HostCacheHost* pHost = *itHost;
-	CG2HostCacheHost* pNew  = NULL;
+	G2HostCacheHost* pHost = *itHost;
+	G2HostCacheHost* pNew  = NULL;
 
 	// TODO: remove for Quazaa beta 1
 	Q_ASSERT( pHost->failures() <= m_nMaxFailures );
@@ -214,7 +244,7 @@ CG2HostCacheHost* CG2HostCache::update(TG2HostCacheIterator& itHost, const quint
 	if ( nFailures <= m_nMaxFailures )
 	{
 		// create new host with correct data
-		pNew = new CG2HostCacheHost( *pHost, tTimeStamp, nFailures );
+		pNew = new G2HostCacheHost( *pHost, tTimeStamp, nFailures );
 	}
 
 	m_nSizeAtomic.fetchAndAddRelaxed( -1 );
@@ -243,7 +273,7 @@ CG2HostCacheHost* CG2HostCache::update(TG2HostCacheIterator& itHost, const quint
  * Locking: YES (asynchronous)
  * @param oHost: the CEndPoint
  */
-void CG2HostCache::remove(const CEndPoint& oHost)
+void G2HostCache::remove(const CEndPoint& oHost)
 {
 	QMetaObject::invokeMethod( this, "removeSync", Qt::QueuedConnection, Q_ARG(CEndPoint, oHost) );
 }
@@ -255,7 +285,7 @@ void CG2HostCache::remove(const CEndPoint& oHost)
  * Locking: REQUIRED
  * @param pHost: the CHostCacheHost - is set to NULL on completion.
  */
-void CG2HostCache::remove(CG2HostCacheHost*& pHost)
+void G2HostCache::remove(G2HostCacheHost*& pHost)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "remove(CHCHost)" ) );
@@ -263,7 +293,7 @@ void CG2HostCache::remove(CG2HostCacheHost*& pHost)
 
 	ASSUME_LOCK( m_pSection );
 
-	TG2HostCacheIterator it = find( pHost );
+	G2HostCacheIterator it = find( pHost );
 
 	if ( it != m_lHosts.end() )
 	{
@@ -279,7 +309,7 @@ void CG2HostCache::remove(CG2HostCacheHost*& pHost)
  * Locking: YES (asynchronous)
  * @param sHeader: a string representation of the XTry header
  */
-void CG2HostCache::addXTry(QString sHeader)
+void G2HostCache::addXTry(QString sHeader)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "addXTry()" ) );
@@ -294,7 +324,7 @@ void CG2HostCache::addXTry(QString sHeader)
  * Locking: YES
  * @return the XTry header
  */
-QString CG2HostCache::getXTry() const
+QString G2HostCache::getXTry() const
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "getXTry()" ) );
@@ -315,7 +345,7 @@ QString CG2HostCache::getXTry() const
 	char nFailures     = -1;
 	QString sReturn;
 
-	foreach ( CG2HostCacheHost* pHost, m_lHosts )
+	foreach ( G2HostCacheHost* pHost, m_lHosts )
 	{
 		if ( !pHost )
 		{
@@ -358,7 +388,7 @@ QString CG2HostCache::getXTry() const
  * Locking: YES (asynchronous)
  * @param addr: the CEndPoint
  */
-void CG2HostCache::onFailure(const CEndPoint& addr)
+void G2HostCache::onFailure(const CEndPoint& addr)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "onFailure()" ) );
@@ -377,7 +407,7 @@ void CG2HostCache::onFailure(const CEndPoint& addr)
  * country or the country ZZ is specified, country information is ignored.
  * @return a connectable CHostCacheHost.
  */
-CG2HostCacheHost* CG2HostCache::getConnectable(const QSet<CG2HostCacheHost*>& oExcept,
+G2HostCacheHost* G2HostCache::getConnectable(const QSet<G2HostCacheHost*>& oExcept,
 											   QString sCountry)
 {
 /*#if ENABLE_HOST_CACHE_DEBUGGING
@@ -396,7 +426,7 @@ CG2HostCacheHost* CG2HostCache::getConnectable(const QSet<CG2HostCacheHost*>& oE
 
 	// First try untested or working hosts, then fall back to failed hosts to increase chances for
 	// successful connection
-	foreach ( CG2HostCacheHost * pHost, m_lHosts )
+	foreach ( G2HostCacheHost * pHost, m_lHosts )
 	{
 		if ( pHost )
 		{
@@ -412,7 +442,7 @@ CG2HostCacheHost* CG2HostCache::getConnectable(const QSet<CG2HostCacheHost*>& oE
 		}
 	}
 
-	CG2HostCacheHost* pReturn = NULL;
+	G2HostCacheHost* pReturn = NULL;
 
 	if ( bSecondAttempt )
 	{
@@ -435,7 +465,7 @@ CG2HostCacheHost* CG2HostCache::getConnectable(const QSet<CG2HostCacheHost*>& oE
  * Locking: YES
  * @return true if there are; false otherwise.
  */
-bool CG2HostCache::hasConnectable()
+bool G2HostCache::hasConnectable()
 {
 /*#if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "hasConnectable()" ) );
@@ -452,12 +482,12 @@ bool CG2HostCache::hasConnectable()
  * @brief CHostCache::clear removes all hosts and frees all memory.
  * Locking: YES
  */
-void CG2HostCache::clear()
+void G2HostCache::clear()
 {
 	m_pSection.lock();
 
 	// Make sure m_pFailures (contains iterators to NULL nodes) stays valid during removal.
-	TG2HostCacheIterator it = m_lHosts.begin();
+	G2HostCacheIterator it = m_lHosts.begin();
 	while ( it != m_lHosts.end() )
 	{
 		if ( *it )
@@ -480,7 +510,7 @@ void CG2HostCache::clear()
  * Locking: REQUIRED
  * @param tNow: the current time in sec since 1970-01-01 UTC.
  */
-void CG2HostCache::save(const quint32 tNow) const
+void G2HostCache::save(const quint32 tNow) const
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "save()" ) );
@@ -490,7 +520,7 @@ void CG2HostCache::save(const quint32 tNow) const
 
 	quint32 nCount = common::securedSaveFile( CQuazaaGlobals::DATA_PATH(), "hostcache.dat",
 											  Components::HostCache, this,
-											  &CG2HostCache::writeToFile );
+											  &G2HostCache::writeToFile );
 	if ( nCount )
 	{
 		m_tLastSave = tNow;
@@ -505,7 +535,7 @@ void CG2HostCache::save(const quint32 tNow) const
  * Locking: REQUIRED
  * @param tNow: the current time in sec since 1970-01-01 UTC.
  */
-void CG2HostCache::pruneOldHosts(const quint32 tNow)
+void G2HostCache::pruneOldHosts(const quint32 tNow)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "pruneOldHosts()" ) );
@@ -515,8 +545,8 @@ void CG2HostCache::pruneOldHosts(const quint32 tNow)
 
 	const quint32 tExpire = tNow - quazaaSettings.Gnutella2.HostExpire;
 
-	CG2HostCacheHost* pHost;
-	TG2HostCacheIterator it = --m_lHosts.end();
+	G2HostCacheHost* pHost;
+	G2HostCacheIterator it = --m_lHosts.end();
 
 	// TODO: improve this
 
@@ -545,7 +575,7 @@ void CG2HostCache::pruneOldHosts(const quint32 tNow)
  * Locking: YES
  * @param tNow: the current time in sec since 1970-01-01 UTC.
  */
-void CG2HostCache::pruneByQueryAck(const quint32 tNow)
+void G2HostCache::pruneByQueryAck(const quint32 tNow)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "pruneByQA()" ) );
@@ -554,7 +584,7 @@ void CG2HostCache::pruneByQueryAck(const quint32 tNow)
 	m_pSection.lock();
 
 	const quint32 tAckExpire = tNow - quazaaSettings.Gnutella2.QueryHostDeadline;
-	for ( TG2HostCacheIterator itHost = m_lHosts.begin(); itHost != m_lHosts.end(); ++itHost )
+	for ( G2HostCacheIterator itHost = m_lHosts.begin(); itHost != m_lHosts.end(); ++itHost )
 	{
 		if ( *itHost && (*itHost)->ack() && (*itHost)->ack() < tAckExpire )
 		{
@@ -575,14 +605,14 @@ void CG2HostCache::pruneByQueryAck(const quint32 tNow)
   * Locking: REQUIRED
   * @return the number of hosts written to file
   */
-quint32 CG2HostCache::writeToFile(const void * const pManager, QFile& oFile)
+quint32 G2HostCache::writeToFile(const void * const pManager, QFile& oFile)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "writeToFile()" ) );
 #endif //ENABLE_HOST_CACHE_DEBUGGING
 
 	QDataStream oStream( &oFile );
-	CG2HostCache* pHostCache = (CG2HostCache*)pManager;
+	G2HostCache* pHostCache = (G2HostCache*)pManager;
 
 	ASSUME_LOCK( pHostCache->m_pSection );
 
@@ -594,7 +624,7 @@ quint32 CG2HostCache::writeToFile(const void * const pManager, QFile& oFile)
 
 	if ( nCount )
 	{
-		foreach ( CG2HostCacheHost* pHost, pHostCache->m_lHosts )
+		foreach ( G2HostCacheHost* pHost, pHostCache->m_lHosts )
 		{
 			if ( pHost )
 			{
@@ -611,9 +641,29 @@ quint32 CG2HostCache::writeToFile(const void * const pManager, QFile& oFile)
 }
 
 /**
+ * @brief CHostCache::count allows access to the size of the Host Cache.
+ * Locking: /
+ * @return the number of hosts in the cache.
+ */
+quint32 G2HostCache::count() const
+{
+	return m_nSizeAtomic.loadAcquire();
+}
+
+/**
+ * @brief CHostCache::isEmpty allows to check whether the Host Cache is empty.
+ * Locking: /
+ * @return true if the cache contains no hosts; false otherwise.
+ */
+bool G2HostCache::isEmpty() const
+{
+	return !m_nSizeAtomic.loadAcquire();
+}
+
+/**
  * @brief CHostCache::localAddressChanged needs to be triggered on lokal IP changes.
  */
-void CG2HostCache::localAddressChanged()
+void G2HostCache::localAddressChanged()
 {
 	Network.m_pSection.lock();
 	m_oLokalAddress = Network.getLocalAddress();
@@ -628,7 +678,7 @@ void CG2HostCache::localAddressChanged()
  * @param bLock: does the method need to lock the mutex?
  * @return the CHostCacheHost pointer pertaining to the CEndPoint
  */
-CG2HostCacheHost* CG2HostCache::addSync(CEndPoint host, quint32 tTimeStamp, bool bLock)
+G2HostCacheHost* G2HostCache::addSync(CEndPoint host, quint32 tTimeStamp, bool bLock)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, "addSync()" );
@@ -641,7 +691,7 @@ CG2HostCacheHost* CG2HostCache::addSync(CEndPoint host, quint32 tTimeStamp, bool
 
 	ASSUME_LOCK( m_pSection );
 
-	CG2HostCacheHost* pReturn = addSyncHelper( host, tTimeStamp, tNow );
+	G2HostCacheHost* pReturn = addSyncHelper( host, tTimeStamp, tNow );
 
 	if ( bLock )
 		m_pSection.unlock();
@@ -659,7 +709,7 @@ CG2HostCacheHost* CG2HostCache::addSync(CEndPoint host, quint32 tTimeStamp, bool
  * @param tNow: the current time in sec since 1970-01-01 UTC.
  * @return the CHostCacheHost pointer pertaining to the CEndPoint
  */
-CG2HostCacheHost* CG2HostCache::addSyncKey(CEndPoint host, quint32 tTimeStamp, CEndPoint* pKeyHost,
+G2HostCacheHost* G2HostCache::addSyncKey(CEndPoint host, quint32 tTimeStamp, CEndPoint* pKeyHost,
 									   const quint32 nKey, const quint32 tNow, bool bLock)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
@@ -669,7 +719,7 @@ CG2HostCacheHost* CG2HostCache::addSyncKey(CEndPoint host, quint32 tTimeStamp, C
 	if ( bLock )
 		m_pSection.lock();
 
-	CG2HostCacheHost* pReturn = addSyncHelper( host, tTimeStamp, tNow );
+	G2HostCacheHost* pReturn = addSyncHelper( host, tTimeStamp, tNow );
 
 	if ( pReturn )
 		pReturn->setKey( nKey, tNow, pKeyHost );
@@ -689,7 +739,7 @@ CG2HostCacheHost* CG2HostCache::addSyncKey(CEndPoint host, quint32 tTimeStamp, C
  * @param tNow: the current time in sec since 1970-01-01 UTC.
  * @return the CHostCacheHost pointer pertaining to the CEndPoint
  */
-CG2HostCacheHost* CG2HostCache::addSyncAck(CEndPoint host, quint32 tTimeStamp,
+G2HostCacheHost* G2HostCache::addSyncAck(CEndPoint host, quint32 tTimeStamp,
 									   const quint32 tAck, const quint32 tNow, bool bLock)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
@@ -699,7 +749,7 @@ CG2HostCacheHost* CG2HostCache::addSyncAck(CEndPoint host, quint32 tTimeStamp,
 	if ( bLock )
 		m_pSection.lock();
 
-	CG2HostCacheHost* pReturn = addSyncHelper( host, tTimeStamp, tNow );
+	G2HostCacheHost* pReturn = addSyncHelper( host, tTimeStamp, tNow );
 
 	if ( pReturn )
 		pReturn->setAck( tAck );
@@ -717,7 +767,7 @@ CG2HostCacheHost* CG2HostCache::addSyncAck(CEndPoint host, quint32 tTimeStamp,
  * Locking: YES
  * @param oHost: the CEndPoint
  */
-void CG2HostCache::removeSync(CEndPoint oHost)
+void G2HostCache::removeSync(CEndPoint oHost)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "remove(CEndPoint)" ) );
@@ -725,7 +775,7 @@ void CG2HostCache::removeSync(CEndPoint oHost)
 
 	m_pSection.lock();
 
-	TG2HostCacheIterator it = find( oHost );
+	G2HostCacheIterator it = find( oHost );
 
 	if ( it != m_lHosts.end() )
 	{
@@ -741,7 +791,7 @@ void CG2HostCache::removeSync(CEndPoint oHost)
  * added.
  * Locking: YES
  */
-void CG2HostCache::sanityCheck()
+void G2HostCache::sanityCheck()
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "sanityCheck()" ) );
@@ -749,8 +799,8 @@ void CG2HostCache::sanityCheck()
 
 	m_pSection.lock();
 
-	TG2HostCacheIterator itHost = m_lHosts.begin();
-	CG2HostCacheHost* pHost = NULL;
+	G2HostCacheIterator itHost = m_lHosts.begin();
+	G2HostCacheHost* pHost = NULL;
 
 	while ( itHost != m_lHosts.end() )
 	{
@@ -776,7 +826,7 @@ void CG2HostCache::sanityCheck()
  * @brief CHostCache::maintain keeps everything neat and tidy.
  * Locking: YES
  */
-void CG2HostCache::maintain()
+void G2HostCache::maintain()
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "maintain()" ) );
@@ -800,7 +850,7 @@ void CG2HostCache::maintain()
 			}
 
 			// replace the old access point array by the new one
-			TG2HostCacheIterator* pNewFailures = new TG2HostCacheIterator[nNewMaxFailures + 2];
+			G2HostCacheIterator* pNewFailures = new G2HostCacheIterator[nNewMaxFailures + 2];
 			for ( quint8 i = 0; i < nNewMaxFailures + 2; ++i )
 			{
 				pNewFailures[i] = m_pFailures[i];
@@ -818,7 +868,7 @@ void CG2HostCache::maintain()
 		//if ( m_nMaxFailures < nNewMaxFailures )
 		else
 		{
-			TG2HostCacheIterator* pNewFailures = new TG2HostCacheIterator[nNewMaxFailures + 2];
+			G2HostCacheIterator* pNewFailures = new G2HostCacheIterator[nNewMaxFailures + 2];
 
 			quint8 i = 0;
 			// copy the access points that will lateron still be used
@@ -828,7 +878,7 @@ void CG2HostCache::maintain()
 				++i; // gcc doesn't like it if this is included in the previous statement.
 			}
 
-			TG2HostCacheIterator it = m_lHosts.end();
+			G2HostCacheIterator it = m_lHosts.end();
 			--it;
 
 			// create the additional new access points
@@ -876,7 +926,7 @@ void CG2HostCache::maintain()
 
 	Q_ASSERT( (qint64)tNow > tThrottle ); // if not, the following bool statement is wrong
 
-	foreach ( CG2HostCacheHost* pHost, m_lHosts )
+	foreach ( G2HostCacheHost* pHost, m_lHosts )
 	{
 		if ( pHost )
 		{
@@ -902,8 +952,8 @@ void CG2HostCache::maintain()
  * @param tNow: the current time in sec since 1970-01-01 UTC.
  * @return the CHostCacheHost pointer pertaining to the CEndPoint
  */
-CG2HostCacheHost* CG2HostCache::addSyncHelper(const CEndPoint& host, quint32 tTimeStamp,
-										  const quint32 tNow, quint32 nFailures)
+G2HostCacheHost* G2HostCache::addSyncHelper(const CEndPoint& oHostIP, quint32 tTimeStamp,
+											  const quint32 tNow, quint32 nFailures)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "addSyncHelper()" ) );
@@ -911,12 +961,12 @@ CG2HostCacheHost* CG2HostCache::addSyncHelper(const CEndPoint& host, quint32 tTi
 
 	ASSUME_LOCK( m_pSection );
 
-	if ( !host.isValid() )
+	if ( !oHostIP.isValid() )
 	{
 		return NULL;
 	}
 
-	if ( host.isFirewalled() )
+	if ( oHostIP.isFirewalled() )
 	{
 		return NULL;
 	}
@@ -928,14 +978,14 @@ CG2HostCacheHost* CG2HostCache::addSyncHelper(const CEndPoint& host, quint32 tTi
 	}
 
 	// At this point the security check should already have been performed.
-	Q_ASSERT( !securityManager.isDenied( host ) );
-	if ( securityManager.isDenied( host ) )
+	Q_ASSERT( !securityManager.isDenied( oHostIP ) );
+	if ( securityManager.isDenied( oHostIP ) )
 	{
 		return NULL;
 	}
 
 	// Don't add own IP to the cache.
-	if ( host == m_oLokalAddress )
+	if ( oHostIP == m_oLokalAddress )
 	{
 		return NULL;
 	}
@@ -946,17 +996,17 @@ CG2HostCacheHost* CG2HostCache::addSyncHelper(const CEndPoint& host, quint32 tTi
 	}
 
 	{   // update existing if such can be found
-		TG2HostCacheIterator itPrevious = find( host );
+		G2HostCacheIterator itPrevious = find( oHostIP );
 
 		if ( itPrevious != m_lHosts.end() )
 		{
-			CG2HostCacheHost* pUpdate = update( itPrevious, tTimeStamp, nFailures );
+			G2HostCacheHost* pUpdate = update( itPrevious, tTimeStamp, nFailures );
 			return pUpdate;
 		}
 	}
 
 	// create host, find place in sorted list, insert it there
-	CG2HostCacheHost* pNew = new CG2HostCacheHost( host, tTimeStamp, nFailures );
+	G2HostCacheHost* pNew = new G2HostCacheHost( oHostIP, tTimeStamp, nFailures );
 	insert( pNew, m_pFailures[nFailures] );
 
 	return pNew;
@@ -969,7 +1019,7 @@ CG2HostCacheHost* CG2HostCache::addSyncHelper(const CEndPoint& host, quint32 tTi
  * @param tTimeStamp: its timestamp
  * @param lHosts: the list of hosts
  */
-void CG2HostCache::insert(CG2HostCacheHost* pNew, TG2HostCacheIterator& it)
+void G2HostCache::insert(G2HostCacheHost* pNew, G2HostCacheIterator& it)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "insert()" ) );
@@ -1003,7 +1053,7 @@ void CG2HostCache::insert(CG2HostCacheHost* pNew, TG2HostCacheIterator& it)
  * @param itHost: the iterator - must be valid and not the end of the list.
  * @return the new iterator
  */
-TG2HostCacheIterator CG2HostCache::remove(TG2HostCacheIterator& itHost)
+G2HostCacheIterator G2HostCache::remove(G2HostCacheIterator& itHost)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "remove(iterator)" ) );
@@ -1022,7 +1072,7 @@ TG2HostCacheIterator CG2HostCache::remove(TG2HostCacheIterator& itHost)
  * @param nFailures: the number of failures; this is set to the number of failures of the removed
  * host
  */
-void CG2HostCache::removeWorst(quint8& nFailures)
+void G2HostCache::removeWorst(quint8& nFailures)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "removeWorst()" ) );
@@ -1036,7 +1086,7 @@ void CG2HostCache::removeWorst(quint8& nFailures)
 	if ( nFailures > m_nMaxFailures )
 		nFailures = m_nMaxFailures; // decrease to highest possible value
 
-	TG2HostCacheIterator it = m_pFailures[nFailures + 1];
+	G2HostCacheIterator it = m_pFailures[nFailures + 1];
 	--it;
 
 	// skip over any failure access points in the way and make sure nFailures is properly decreased
@@ -1061,7 +1111,7 @@ void CG2HostCache::removeWorst(quint8& nFailures)
  * @param nFailures: allows the caller to obtain the amount of failures of the host.
  * @return the iterator respectively m_vlHosts[0].end() if not found.
  */
-TG2HostCacheIterator CG2HostCache::find(const CEndPoint& oHost)
+G2HostCacheIterator G2HostCache::find(const CEndPoint& oHost)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "find(CEndPoint)" ) );
@@ -1070,7 +1120,7 @@ TG2HostCacheIterator CG2HostCache::find(const CEndPoint& oHost)
 	ASSUME_LOCK( m_pSection );
 
 	qint16 nFailTest = -1;
-	for ( TG2HostCacheIterator it = m_lHosts.begin(); it != m_lHosts.end(); ++it )
+	for ( G2HostCacheIterator it = m_lHosts.begin(); it != m_lHosts.end(); ++it )
 	{
 		if ( *it )
 		{
@@ -1099,7 +1149,7 @@ TG2HostCacheIterator CG2HostCache::find(const CEndPoint& oHost)
  * @param pHost: the given CHostCacheHost
  * @return the iterator respectively m_vlHosts[pHost->failures()].end() if not found.
  */
-TG2HostCacheIterator CG2HostCache::find(const CG2HostCacheHost* const pHost)
+G2HostCacheIterator G2HostCache::find(const G2HostCacheHost* const pHost)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "find(CHCHost)" ) );
@@ -1133,7 +1183,7 @@ TG2HostCacheIterator CG2HostCache::find(const CG2HostCacheHost* const pHost)
  * @brief CHostCache::load reads the previously saved hosts from file and adds them to the cache.
  * Locking: YES
  */
-void CG2HostCache::load()
+void G2HostCache::load()
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "load()" ) );
@@ -1163,7 +1213,7 @@ void CG2HostCache::load()
 		quint32 tTimeStamp   = 0;
 		quint32 tLastConnect = 0;
 
-		CG2HostCacheHost* pHost = NULL;
+		G2HostCacheHost* pHost = NULL;
 
 		while ( nCount )
 		{
@@ -1213,7 +1263,7 @@ void CG2HostCache::load()
  * @brief CHostCache::asyncStartUpHelper helper method for start().
  * Locking: YES
  */
-void CG2HostCache::asyncStartUpHelper()
+void G2HostCache::asyncStartUpHelper()
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "asyncStartUpH()" ) );
@@ -1223,10 +1273,10 @@ void CG2HostCache::asyncStartUpHelper()
 	connect( &Network, SIGNAL( localAddressChanged() ), this, SLOT( localAddressChanged() ) );
 
 	m_nMaxFailures = quazaaSettings.Connection.FailureLimit;
-	m_pFailures    = new TG2HostCacheIterator[m_nMaxFailures + 2];
+	m_pFailures    = new G2HostCacheIterator[m_nMaxFailures + 2];
 
 	m_lHosts.push_back( NULL );
-	TG2HostCacheIterator it = m_lHosts.begin();
+	G2HostCacheIterator it = m_lHosts.begin();
 	m_pFailures[0] = it;
 
 	// add m_nMaxFailures + 2 items to the list
@@ -1249,7 +1299,7 @@ void CG2HostCache::asyncStartUpHelper()
  * @param oAddress: a CEndPoint
  * @param nFailures: its new value of failures
  */
-void CG2HostCache::asyncUpdateFailures(CEndPoint oAddress, quint32 nNewFailures)
+void G2HostCache::asyncUpdateFailures(CEndPoint oAddress, quint32 nNewFailures)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "asyncUpdtFail()" ) );
@@ -1257,17 +1307,17 @@ void CG2HostCache::asyncUpdateFailures(CEndPoint oAddress, quint32 nNewFailures)
 
 	m_pSection.lock();
 
-	TG2HostCacheIterator itHost = find( oAddress );
+	G2HostCacheIterator itHost = find( oAddress );
 
 	if ( itHost != m_lHosts.end() )
 	{
-		CG2HostCacheHost* pHost = *itHost;
+		G2HostCacheHost* pHost = *itHost;
 		remove( itHost );      // remove host with old failure count
 
 		if ( nNewFailures <= m_nMaxFailures )
 		{
 			// insert new host with correct failure count into correct list
-			insert( new CG2HostCacheHost( *pHost, pHost->timestamp(), nNewFailures ),
+			insert( new G2HostCacheHost( *pHost, pHost->timestamp(), nNewFailures ),
 					m_pFailures[nNewFailures] );
 		}
 
@@ -1283,7 +1333,7 @@ void CG2HostCache::asyncUpdateFailures(CEndPoint oAddress, quint32 nNewFailures)
  * Locking: YES
  * @param sHeader
  */
-void CG2HostCache::asyncAddXTry(QString sHeader)
+void G2HostCache::asyncAddXTry(QString sHeader)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "asyncAddXTry()" ) );
@@ -1340,7 +1390,7 @@ void CG2HostCache::asyncAddXTry(QString sHeader)
  * Locking: YES
  * @param addr: the CEndPoint with the connection failure
  */
-void CG2HostCache::asyncOnFailure(CEndPoint addr)
+void G2HostCache::asyncOnFailure(CEndPoint addr)
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "asyncOnFailure()" ) );
@@ -1348,11 +1398,11 @@ void CG2HostCache::asyncOnFailure(CEndPoint addr)
 
 	m_pSection.lock();
 
-	TG2HostCacheIterator itHost = find( addr );
+	G2HostCacheIterator itHost = find( addr );
 
 	if ( itHost != m_lHosts.end() )
 	{
-		CG2HostCacheHost* pHost = *itHost;
+		G2HostCacheHost* pHost = *itHost;
 		remove( itHost );      // remove host with old failure count
 
 		quint8 nFailures = pHost->failures();
@@ -1360,7 +1410,7 @@ void CG2HostCache::asyncOnFailure(CEndPoint addr)
 		{
 			++nFailures; // gcc doesn't like it if this is included in the following statement.
 			// insert new host with correct failure count into correct list
-			insert( new CG2HostCacheHost( *pHost, pHost->timestamp(), nFailures ),
+			insert( new G2HostCacheHost( *pHost, pHost->timestamp(), nFailures ),
 					m_pFailures[nFailures] );
 		}
 

@@ -73,9 +73,9 @@ public:
 	void searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets);
 	void searchNeighbours(const QDateTime& tNowDT);
 
-	void sendG2Query(CEndPoint pReceiver, CG2HostCacheHost* pHost,
+	void sendG2Query(CEndPoint pReceiver, G2HostCacheHost* pHost,
 					 quint32* pnMaxPackets, const QDateTime& tNowDT);
-	void requestG2QueryKey(CG2HostCacheHost* pHost);
+	void requestG2QueryKey(G2HostCacheHost* pHost);
 	CG2Node* findBestHubForRoutingG2(const CG2Node* const pLastNeighbour);
 
 	void onHostAcknowledge(QHostAddress nHost, const QDateTime& tNow);

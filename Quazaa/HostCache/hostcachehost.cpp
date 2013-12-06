@@ -35,7 +35,7 @@ public:
 	}
 };*/
 
-CG2HostCacheHost::CG2HostCacheHost(const CEndPoint& oAddress, const quint32 tTimestamp,
+G2HostCacheHost::G2HostCacheHost(const CEndPoint& oAddress, const quint32 tTimestamp,
 							   const quint8 nFailures) :
 	m_oAddress(     oAddress    ),
 	m_tTimestamp(   tTimestamp  ),
@@ -51,7 +51,7 @@ CG2HostCacheHost::CG2HostCacheHost(const CEndPoint& oAddress, const quint32 tTim
 {
 }
 
-CG2HostCacheHost::CG2HostCacheHost(const CG2HostCacheHost& oHost, const quint32 tTimestamp,
+G2HostCacheHost::G2HostCacheHost(const G2HostCacheHost& oHost, const quint32 tTimestamp,
 							   const quint8 nFailures) :
 	m_oAddress(     oHost.m_oAddress     ),
 	m_tTimestamp(   tTimestamp           ),
@@ -67,11 +67,11 @@ CG2HostCacheHost::CG2HostCacheHost(const CG2HostCacheHost& oHost, const quint32 
 {
 }
 
-CG2HostCacheHost::~CG2HostCacheHost()
+G2HostCacheHost::~G2HostCacheHost()
 {
 }
 
-bool CG2HostCacheHost::canQuery(const quint32 tNow)
+bool G2HostCacheHost::canQuery(const quint32 tNow)
 {
 	if ( m_tAck && m_nQueryKey ) // if waiting for an ack, and we have a query key
 	{
@@ -98,7 +98,7 @@ bool CG2HostCacheHost::canQuery(const quint32 tNow)
 	return tNow - m_tLastQuery > quazaaSettings.Gnutella2.QueryHostThrottle;
 }
 
-void CG2HostCacheHost::setKey(quint32 nKey, const quint32 tNow, CEndPoint* pHost)
+void G2HostCacheHost::setKey(quint32 nKey, const quint32 tNow, CEndPoint* pHost)
 {
 	m_tAck      = 0;
 	m_nFailures = 0;
@@ -107,13 +107,13 @@ void CG2HostCacheHost::setKey(quint32 nKey, const quint32 tNow, CEndPoint* pHost
 	m_oKeyHost  = pHost ? *pHost : Network.getLocalAddress();
 }
 
-TG2HostCacheIterator CG2HostCacheHost::iterator() const
+G2HostCacheIterator G2HostCacheHost::iterator() const
 {
 	Q_ASSERT( m_bIteratorValid );
 	return m_iHostCacheIterator;
 }
 
-void CG2HostCacheHost::setIterator(const TG2HostCacheIterator& it)
+void G2HostCacheHost::setIterator(const G2HostCacheIterator& it)
 {
 	m_iHostCacheIterator = it;
 	m_bIteratorValid = true;

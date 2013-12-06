@@ -33,17 +33,17 @@
 #include "network.h"
 #include "quazaasettings.h"
 
-class CG2HostCacheHost;
+class G2HostCacheHost;
 
 typedef QSharedPointer<QThread>           TSharedThreadPtr;
 
-typedef std::list<CG2HostCacheHost*>      TG2HostCacheList;
-typedef TG2HostCacheList::iterator        TG2HostCacheIterator;
+typedef std::list<G2HostCacheHost*>      G2HostCacheList;
+typedef G2HostCacheList::iterator        G2HostCacheIterator;
 //typedef TG2HostCacheList::const_iterator  TG2HostCacheConstIterator;
 
-typedef std::vector<TG2HostCacheList>     THCLVector;
+typedef std::vector<G2HostCacheList>     THCLVector;
 
-class CG2HostCacheHost
+class G2HostCacheHost
 {
 private:
 	CEndPoint   m_oAddress;     // Hub address
@@ -65,17 +65,17 @@ private:
 	bool        m_bConnectable;
 
 	bool               m_bIteratorValid;
-	TG2HostCacheIterator m_iHostCacheIterator;
+	G2HostCacheIterator m_iHostCacheIterator;
 
 public:
-	CG2HostCacheHost(const CEndPoint& oAddress, const quint32 tTimestamp, const quint8 nFailures);
-	CG2HostCacheHost(const CG2HostCacheHost& oHost, const quint32 tTimestamp, const quint8 nFailures);
+	G2HostCacheHost(const CEndPoint& oAddress, const quint32 tTimestamp, const quint8 nFailures);
+	G2HostCacheHost(const G2HostCacheHost& oHost, const quint32 tTimestamp, const quint8 nFailures);
 
 private:
-	CG2HostCacheHost(const CG2HostCacheHost&) {} // make sure to avoid unintentional copies
+	G2HostCacheHost(const G2HostCacheHost&) {} // make sure to avoid unintentional copies
 
 public:
-	~CG2HostCacheHost();
+	~G2HostCacheHost();
 
 	bool canQuery(const quint32 tNow = common::getTNowUTC());
 	void setKey(quint32 nKey, const quint32 tNow = common::getTNowUTC(), CEndPoint* pHost = NULL);
@@ -105,8 +105,8 @@ public:
 // There is no setFailures() as the number of failures needs to be maintained by the Host Cache.
 	inline void      setConnectable( bool      bConnectable ) { m_bConnectable = bConnectable; }
 
-	TG2HostCacheIterator iterator() const;
-	void setIterator(const TG2HostCacheIterator& it);
+	G2HostCacheIterator iterator() const;
+	void setIterator(const G2HostCacheIterator& it);
 };
 
 #endif // HOSTCACHEHOST_H
