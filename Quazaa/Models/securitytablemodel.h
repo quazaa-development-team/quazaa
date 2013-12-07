@@ -111,6 +111,8 @@ public:
 
 	void sort(int column, Qt::SortOrder order);
 
+	int find(ID nRuleID);
+
 	RuleDataPtr dataFromRow(int nRow) const;
 	//Rule* ruleFromIndex(const QModelIndex& index) const;
 

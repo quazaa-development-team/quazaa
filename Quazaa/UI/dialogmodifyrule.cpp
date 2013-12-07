@@ -320,11 +320,10 @@ void CDialogModifyRule::on_pushButtonOK_clicked()
 	securityManager.m_oRWLock.lockForRead();
 	Rule* pExistingRule = m_pRule.isNull() ? NULL : m_pRule.data()->rule();
 
-	pRule->m_idUUID = pExistingRule->m_idUUID;
-
 	bool bReplace = false;
 	if ( pExistingRule )
 	{
+		pRule->m_idUUID = pExistingRule->m_idUUID;
 		bReplace = *pExistingRule != *pRule;
 	}
 

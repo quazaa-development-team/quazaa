@@ -546,6 +546,19 @@ void SecurityTableModel::sort(int column, Qt::SortOrder order)
 	emit layoutChanged();
 }
 
+int SecurityTableModel::find(ID nRuleID)
+{
+	int nSize = m_lNodes.size();
+
+	for ( int nPos = 0; nPos < nSize; ++nPos )
+	{
+		if ( m_lNodes[nPos]->m_nID == nRuleID )
+			return nPos;
+	}
+
+	return -1;
+}
+
 RuleDataPtr SecurityTableModel::dataFromRow(int nRow) const
 {
 	if ( nRow < m_lNodes.count() && nRow >= 0 )
@@ -660,31 +673,33 @@ void SecurityTableModel::updateRule(ID nRuleID)
 	QModelIndexList uplist;
 	bool bSort = m_bNeedSorting;
 
+	const int nRuleRowPos = find( nRuleID );
+
+	Q_ASSERT( nRuleRowPos != -1 );
+
 	securityManager.m_oRWLock.lockForRead();
-
-	// TODO: fix this
-
-	if ( m_lNodes[nRuleID]->update( nRuleID, m_nSortColumn, uplist, this ) )
+	if ( m_lNodes[nRuleRowPos]->update( nRuleRowPos, m_nSortColumn, uplist, this ) )
+	{
 		bSort = true;
+	}
 	securityManager.m_oRWLock.unlock();
 
+	// if necessary adjust container order (also updates view)
 	if ( bSort )
 	{
 		sort( m_nSortColumn, m_nSortOrder );
 		m_bNeedSorting = false;
 	}
-	else
+	// update view for all changed model indexes
+	else if ( !uplist.isEmpty() )
 	{
-		if ( !uplist.isEmpty() )
-		{
-			QAbstractItemView* pView = qobject_cast< QAbstractItemView* >( m_oContainer );
+		QAbstractItemView* pView = qobject_cast< QAbstractItemView* >( m_oContainer );
 
-			if( pView )
+		if ( pView )
+		{
+			foreach ( QModelIndex index, uplist )
 			{
-				foreach ( QModelIndex index, uplist )
-				{
-					pView->update( index );
-				}
+				pView->update( index );
 			}
 		}
 	}

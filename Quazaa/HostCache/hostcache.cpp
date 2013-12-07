@@ -347,26 +347,28 @@ QString G2HostCache::getXTry() const
 
 	foreach ( G2HostCacheHost* pHost, m_lHosts )
 	{
-		if ( !pHost )
+		if ( pHost )
+		{
+			QDateTime tTimeStamp;
+			tTimeStamp.setTimeSpec( Qt::UTC );
+			tTimeStamp.setTime_t( pHost->timestamp() );
+
+			sReturn.append( pHost->address().toStringWithPort() + " " );
+			sReturn.append( tTimeStamp.toString( "yyyy-MM-ddThh:mmZ" ) );
+			sReturn.append( "," );
+
+			++nCount;
+
+			if ( nCount == nMax )
+				break;
+		}
+		else
 		{
 			if ( !nFailures )
 				break;
 
 			++nFailures;
 		}
-
-		QDateTime tTimeStamp;
-		tTimeStamp.setTimeSpec( Qt::UTC );
-		tTimeStamp.setTime_t( pHost->timestamp() );
-
-		sReturn.append( pHost->address().toStringWithPort() + " " );
-		sReturn.append( tTimeStamp.toString( "yyyy-MM-ddThh:mmZ" ) );
-		sReturn.append( "," );
-
-		++nCount;
-
-		if ( nCount == nMax )
-			break;
 	}
 	m_pSection.unlock();
 
@@ -797,7 +799,10 @@ void G2HostCache::sanityCheck()
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "sanityCheck()" ) );
 #endif //ENABLE_HOST_CACHE_DEBUGGING
 
-	m_pSection.lock();
+	qDebug() << "[HostCache] Started sanity checking.";
+
+	securityManager.m_oSanity.lockForRead();
+	m_pSection.lock(); // obtain HostCache lock second in order to minimize HostCache block time
 
 	G2HostCacheIterator itHost = m_lHosts.begin();
 	G2HostCacheHost* pHost = NULL;
@@ -806,7 +811,7 @@ void G2HostCache::sanityCheck()
 	{
 		pHost = *itHost;
 
-		if ( pHost && securityManager.isNewlyDenied( pHost->address() ) )
+		if ( pHost && securityManager.m_oSanity.isNewlyDenied( pHost->address() ) )
 		{
 			delete *itHost;
 			itHost = remove( itHost );
@@ -818,8 +823,12 @@ void G2HostCache::sanityCheck()
 	}
 
 	m_pSection.unlock();
+	securityManager.m_oSanity.unlock();
 
-	QMetaObject::invokeMethod( &securityManager, "sanityCheckPerformed", Qt::QueuedConnection );
+	QMetaObject::invokeMethod( &securityManager.m_oSanity, "sanityCheckPerformed",
+							   Qt::QueuedConnection );
+
+	qDebug() << "[HostCache] Finished sanity checking.";
 }
 
 /**
@@ -1271,7 +1280,7 @@ void G2HostCache::asyncStartUpHelper()
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "asyncStartUpH()" ) );
 #endif //ENABLE_HOST_CACHE_DEBUGGING
 
-	connect( &securityManager, SIGNAL( performSanityCheck() ), this, SLOT( sanityCheck() ) );
+	connect( &securityManager.m_oSanity, SIGNAL( beginSanityCheck() ), this, SLOT( sanityCheck() ) );
 	connect( &Network, SIGNAL( localAddressChanged() ), this, SLOT( localAddressChanged() ) );
 
 	m_nMaxFailures = quazaaSettings.Connection.FailureLimit;
