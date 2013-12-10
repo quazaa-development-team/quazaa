@@ -219,7 +219,7 @@ void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 	CG2Node* pLastNeighbour = NULL;
 	SharedG2HostPtr pHost;
 
-#if ENABLE_HOST_CACHE_BENCHMARKING
+#if ENABLE_G2_HOST_CACHE_BENCHMARKING
 	QElapsedTimer tHostCacheLock;
 	tHostCacheLock.start();
 #endif
@@ -230,7 +230,7 @@ void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 
 	qDebug() << "**** [Search] Lock aquired.";
 
-#if ENABLE_HOST_CACHE_BENCHMARKING
+#if ENABLE_G2_HOST_CACHE_BENCHMARKING
 	const qint64 tHCLock = tHostCacheLock.elapsed();
 	qint64 tHCWork = 0, tHCWorkStart = 0;
 	QElapsedTimer tHostCacheWork;
@@ -275,7 +275,7 @@ void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 		}
 		Neighbours.m_pSection.unlock();
 
-#if ENABLE_HOST_CACHE_BENCHMARKING
+#if ENABLE_G2_HOST_CACHE_BENCHMARKING
 		// at this point we've got a valid host
 		tHCWork += tHostCacheWork.elapsed() - tHCWorkStart;
 
@@ -423,7 +423,7 @@ void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 			break;
 		}
 
-#if ENABLE_HOST_CACHE_BENCHMARKING
+#if ENABLE_G2_HOST_CACHE_BENCHMARKING
 		// now we start with a new search for an agreeable host to search
 		tHCWorkStart = tHostCacheWork.elapsed();
 
@@ -433,7 +433,7 @@ void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 		pHost.clear();
 	}
 
-#if ENABLE_HOST_CACHE_BENCHMARKING
+#if ENABLE_G2_HOST_CACHE_BENCHMARKING
 	tHCWork += tHostCacheWork.elapsed() - tHCWorkStart;
 
 	oHostCacheLock.unlock();

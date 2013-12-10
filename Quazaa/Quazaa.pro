@@ -256,6 +256,8 @@ HEADERS += \
 		geoiplist.h \
 		HostCache/g2hostcache.h \
 		HostCache/g2hostcachehost.h \
+		HostCache/hostcachehost.h \
+		HostCache/hostcache.h \
 		Metalink/magnetlink.h \
 		Metalink/metalinkhandler.h \
 		Metalink/metalink4handler.h \
@@ -416,6 +418,8 @@ SOURCES += \
 		geoiplist.cpp \
 		HostCache/g2hostcache.cpp \
 		HostCache/g2hostcachehost.cpp \
+		HostCache/hostcachehost.cpp \
+		HostCache/hostcache.cpp \
 		main.cpp \
 		Misc/debugrwlock.cpp \
 		Misc/fileiconprovider.cpp \

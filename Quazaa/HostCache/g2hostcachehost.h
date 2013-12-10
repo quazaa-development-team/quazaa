@@ -1,5 +1,5 @@
 /*
-** hostcachehost.h
+** g2hostcachehost.h
 **
 ** Copyright © Quazaa Development Team, 2009-2013.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
@@ -22,16 +22,14 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef HOSTCACHEHOST_H
-#define HOSTCACHEHOST_H
+#ifndef G2HOSTCACHEHOST_H
+#define G2HOSTCACHEHOST_H
 
 #include <list>
 #include <vector>
 #include <QThread>
 
-#include "types.h"
-#include "network.h"
-#include "quazaasettings.h"
+#include "hostcachehost.h"
 
 class G2HostCacheHost;
 
@@ -41,7 +39,7 @@ typedef QSharedPointer<G2HostCacheHost> SharedG2HostPtr;
 typedef std::list<SharedG2HostPtr>      G2HostCacheList;
 typedef G2HostCacheList::iterator       G2HostCacheIterator;
 
-class G2HostCacheHost
+class G2HostCacheHost : public HostCacheHost
 {
 private:
 	CEndPoint   m_oAddress;     // Hub address
@@ -109,4 +107,4 @@ public:
 	void setIterator(const G2HostCacheIterator& it);
 };
 
-#endif // HOSTCACHEHOST_H
+#endif // G2HOSTCACHEHOST_H

@@ -1255,14 +1255,14 @@ void CG2Node::onQKR(G2Packet* pPacket)
 
 	const quint32 tNow = common::getTNowUTC();
 
-//#if ENABLE_HOST_CACHE_BENCHMARKING
+//#if ENABLE_G2_HOST_CACHE_BENCHMARKING
 //	QElapsedTimer tHostCache;
 //	tHostCache.start();
 //#endif
 
 	QMutexLocker l( &hostCache.m_pSection );
 
-//#if ENABLE_HOST_CACHE_BENCHMARKING
+//#if ENABLE_G2_HOST_CACHE_BENCHMARKING
 //	qint64 tHCLock = tHostCache.elapsed();
 //	QElapsedTimer tHostCacheWork;
 //	tHostCacheWork.start();
@@ -1270,7 +1270,7 @@ void CG2Node::onQKR(G2Packet* pPacket)
 
 	SharedG2HostPtr pHost = bCacheOK ? hostCache.get( addr ) : SharedG2HostPtr();
 
-//#if ENABLE_HOST_CACHE_BENCHMARKING
+//#if ENABLE_G2_HOST_CACHE_BENCHMARKING
 //	qint64 tHCWork = tHostCacheWork.elapsed();
 //#endif
 
@@ -1315,7 +1315,7 @@ void CG2Node::onQKR(G2Packet* pPacket)
 		pQKR->release();
 	}
 
-//#if ENABLE_HOST_CACHE_BENCHMARKING
+//#if ENABLE_G2_HOST_CACHE_BENCHMARKING
 //	l.unlock();
 //	hostCache.m_nLockWaitTime.fetchAndAddRelaxed( tHCLock );
 //	hostCache.m_nWorkTime.fetchAndAddRelaxed( tHCWork );

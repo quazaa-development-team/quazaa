@@ -1,5 +1,5 @@
 /*
-** hostcachehost.cpp
+** g2hostcachehost.cpp
 **
 ** Copyright © Quazaa Development Team, 2009-2013.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)

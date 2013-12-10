@@ -1,5 +1,5 @@
 /*
-** hostcache.h
+** g2hostcache.h
 **
 ** Copyright © Quazaa Development Team, 2009-2013.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
@@ -22,19 +22,18 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef HOSTCACHE_H
-#define HOSTCACHE_H
+#ifndef G2HOSTCACHE_H
+#define G2HOSTCACHE_H
 
-#include <QMutex>
-#include <QAtomicInt>
+#include "hostcache.h"
 
 #include "g2hostcachehost.h"
 
-#define ENABLE_HOST_CACHE_DEBUGGING    1
-#define ENABLE_HOST_CACHE_BENCHMARKING 0
+#define ENABLE_G2_HOST_CACHE_DEBUGGING    1
+#define ENABLE_G2_HOST_CACHE_BENCHMARKING 0
 
 // Increment this if there have been made changes to the way of storing Host Cache Hosts.
-#define HOST_CACHE_CODE_VERSION	7
+#define G2_HOST_CACHE_CODE_VERSION	7
 // History:
 // 4 - Initial implementation.
 // 6 - Fixed Hosts having an early date and changed time storage from QDateTime to quint32.
@@ -47,7 +46,7 @@
 
 class QFile;
 
-class G2HostCache : public QObject
+class G2HostCache : public HostCache
 {
 	Q_OBJECT
 
@@ -58,7 +57,7 @@ public:
 
 	CEndPoint               m_oLokalAddress;
 
-#if ENABLE_HOST_CACHE_BENCHMARKING
+#if ENABLE_G2_HOST_CACHE_BENCHMARKING
 	QAtomicInt              m_nLockWaitTime;
 	QAtomicInt              m_nWorkTime;
 #endif
@@ -192,4 +191,4 @@ private slots:
 
 extern G2HostCache hostCache;
 
-#endif // HOSTCACHE_H
+#endif // G2HOSTCACHE_H
