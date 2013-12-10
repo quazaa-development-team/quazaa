@@ -22,6 +22,9 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#include <QMenu>
+#include <QKeyEvent>
+
 #include "widgetsecurity.h"
 #include "ui_widgetsecurity.h"
 
@@ -34,9 +37,6 @@
 #include "skinsettings.h"
 
 #include "debug_new.h"
-
-#include <QMenu>
-#include <QKeyEvent>
 
 CWidgetSecurity::CWidgetSecurity(QWidget* parent) :
 	QMainWindow( parent ),

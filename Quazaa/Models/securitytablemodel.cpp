@@ -1,6 +1,6 @@
 ﻿/*
 ** securitytablemodel.cpp
-**** Copyright © Quazaa Development Team, 2009-2012.
+**** Copyright © Quazaa Development Team, 2009-2013.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
 **
 ** Quazaa is free software; this file may be used under the terms of the GNU
@@ -587,10 +587,10 @@ void SecurityTableModel::completeRefresh()
 
 	// Note that this slot is automatically disconnected once all rules have been recieved once.
 	connect( &securityManager, SIGNAL( ruleInfo( Rule* ) ), this,
-			 SLOT( addRule( Rule* ) ), Qt::QueuedConnection );
+			 SLOT( recieveRuleInfo( Rule* ) ), Qt::QueuedConnection );
 
 	// Request getting them back from the Security Manager.
-	securityManager.requestRuleInfo();
+	m_nRuleInfo = securityManager.requestRuleInfo();
 }
 
 /**
@@ -604,6 +604,20 @@ void SecurityTableModel::triggerRuleRemoval(int nIndex)
 	securityManager.remove( m_lNodes[nIndex]->rule() );
 }
 
+void SecurityTableModel::recieveRuleInfo(Rule* pRule)
+{
+	--m_nRuleInfo;
+
+	// This handles disconnecting the ruleInfo signal after a completeRefresh() has been finished.
+	if ( !m_nRuleInfo )
+	{
+		disconnect( &securityManager, SIGNAL( ruleInfo( Rule* ) ),
+					this, SLOT( recieveRuleInfo( Rule* ) ) );
+	}
+
+	addRule( pRule );
+}
+
 /**
  * @brief SecurityTableModel::addRule adds a rule to the GUI.
  * @param pRule : the rule
@@ -612,6 +626,8 @@ void SecurityTableModel::addRule(Rule* pRule)
 {
 	Q_ASSERT( securityManager.check( pRule ) );
 
+	securityManager.m_oRWLock.lockForRead();
+
 	beginInsertRows( QModelIndex(), m_lNodes.size(), m_lNodes.size() );
 
 	m_lNodes.append( RuleDataPtr( new RuleData( pRule, this ) ) );
@@ -619,25 +635,7 @@ void SecurityTableModel::addRule(Rule* pRule)
 
 	endInsertRows();
 
-	{// This handles disconnecting the ruleInfo signal after a completeRefresh() has been finished.
-
-		if ( securityManager.ruleInfoRunning() )
-		{
-			securityManager.m_oRWLock.lockForRead(); // for call to count()
-
-			// Make sure we don't recieve any signals we don't want once we got all rules once.
-			if ( m_lNodes.size() == (int)securityManager.count() )
-				disconnect( &securityManager, SIGNAL( ruleInfo( Rule* ) ),
-							this, SLOT( addRule( Rule* ) ) );
-
-			// TODO: remove this after testing
-#ifdef _DEBUG
-			Q_ASSERT( m_lNodes.size() <= (int)securityManager.count() );
-#endif // _DEBUG
-
-			securityManager.m_oRWLock.unlock();
-		}
-	}
+	securityManager.m_oRWLock.unlock();
 }
 
 /**

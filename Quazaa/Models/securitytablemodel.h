@@ -1,3 +1,27 @@
+/*
+** securitytablemodel.h
+**
+** Copyright © Quazaa Development Team, 2009-2013.
+** This file is part of QUAZAA (quazaa.sourceforge.net)
+**
+** Quazaa is free software; this file may be used under the terms of the GNU
+** General Public License version 3.0 or later as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Quazaa is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+**
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
+** http://www.gnu.org/copyleft/gpl.html.
+**
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
 #ifndef SECURITYTABLEMODEL_H
 #define SECURITYTABLEMODEL_H
 
@@ -80,6 +104,8 @@ private:
 	int             m_nSortColumn;
 	bool            m_bNeedSorting;
 
+	quint32         m_nRuleInfo;
+
 protected:
 	// TODO: use std::vector
 	QList<RuleDataPtr> m_lNodes;
@@ -88,19 +114,19 @@ public:
 	enum Column
 	{
 		CONTENT = 0,
-		TYPE,
-		ACTION,
-		EXPIRES,
-		HITS,
-		COMMENT,
-		_NO_OF_COLUMNS
+		TYPE    = 1,
+		ACTION  = 2,
+		EXPIRES = 3,
+		HITS    = 4,
+		COMMENT = 5,
+		_NO_OF_COLUMNS = 6
 	};
 
 	// icons used for the different rules
 	const QIcon* m_pIcons[3];
 
 public:
-	explicit SecurityTableModel(QObject* parent = 0, QWidget* container = 0);
+	explicit SecurityTableModel(QObject* parent = NULL, QWidget* container = NULL);
 	~SecurityTableModel();
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const;
@@ -121,6 +147,8 @@ public:
 	void triggerRuleRemoval(int nIndex);
 
 public slots:
+	void recieveRuleInfo(Rule* pRule);
+
 	/**
 	 * @brief SecurityTableModel::addRule adds a rule to the GUI.
 	 * @param pRule : the rule
