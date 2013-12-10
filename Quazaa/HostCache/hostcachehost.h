@@ -63,7 +63,7 @@ private:
 
 	bool        m_bConnectable;
 
-	bool               m_bIteratorValid;
+	bool                m_bIteratorValid;
 	G2HostCacheIterator m_iHostCacheIterator;
 
 public:

@@ -73,6 +73,9 @@ G2HostCacheHost::~G2HostCacheHost()
 
 bool G2HostCacheHost::canQuery(const quint32 tNow)
 {
+	// TODO: remove in beta1
+	Q_ASSERT( m_bIteratorValid );
+
 	if ( m_tAck && m_nQueryKey ) // if waiting for an ack, and we have a query key
 	{
 		return false;
@@ -89,7 +92,7 @@ bool G2HostCacheHost::canQuery(const quint32 tNow)
 		return false;
 	}
 
-	if ( !m_tLastQuery ) // host not already queried
+	if ( !m_tLastQuery ) // host not yet been queried
 	{
 		return true;
 	}
@@ -100,6 +103,9 @@ bool G2HostCacheHost::canQuery(const quint32 tNow)
 
 void G2HostCacheHost::setKey(quint32 nKey, const quint32 tNow, CEndPoint* pHost)
 {
+	// TODO: remove in beta1
+	Q_ASSERT( m_bIteratorValid );
+
 	m_tAck      = 0;
 	m_nFailures = 0;
 	m_nQueryKey = nKey;

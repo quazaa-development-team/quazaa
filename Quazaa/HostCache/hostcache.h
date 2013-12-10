@@ -30,7 +30,7 @@
 
 #include "hostcachehost.h"
 
-#define ENABLE_HOST_CACHE_DEBUGGING    0
+#define ENABLE_HOST_CACHE_DEBUGGING    1
 #define ENABLE_HOST_CACHE_BENCHMARKING 0
 
 // Increment this if there have been made changes to the way of storing Host Cache Hosts.
@@ -40,8 +40,7 @@
 // 6 - Fixed Hosts having an early date and changed time storage from QDateTime to quint32.
 // 7 - Changed host failure counter from quint32 to quint8.
 
-// TODO: purge QMetaObject::invokeMethod
-// TODO: in canQuery there are calls to .isNull
+// TODO: test changes of m_nMaxFailures under load
 // TODO: things to test
 //  12:58:39 brov: 1. does it use hosts from host cache b4 GWC query succeeds
 //  12:59:25 brov: 2. search manager must request query keys directly from other nodes (use a random search string)
@@ -92,7 +91,7 @@ public:
 
 private: // remove this private if this is ever required...
 //	SharedG2HostPtr update(const CEndPoint& oHost,     const quint32 tTimeStamp);
-	SharedG2HostPtr update(G2HostCacheIterator& itHost, const quint32 tTimeStamp,
+	SharedG2HostPtr update(const G2HostCacheIterator& itHost, const quint32 tTimeStamp,
 						   const quint32 nFailures);
 
 public:
@@ -130,26 +129,26 @@ public:
 
 signals:
 	/**
-	 * @brief ruleAdded informs about a new rule having been added.
+	 * @brief hostAdded informs about a new rule having been added.
 	 * @param pRule : the rule
 	 */
 	void            hostAdded(SharedG2HostPtr pHost);
 
 	/**
-	 * @brief ruleRemoved informs about a rule having been removed.
+	 * @brief hostRemoved informs about a rule having been removed.
 	 * @param pRule : the rule
 	 */
 	void            hostRemoved(SharedG2HostPtr pHost);
 
 	/**
-	 * @brief ruleInfo info signal to get informed about all rules within the manager.
+	 * @brief hostInfo info signal to get informed about all rules within the manager.
 	 * See Manager::requestRuleList() for more information.
 	 * @param pRule : the rule
 	 */
 	void            hostInfo(SharedG2HostPtr pHost);
 
 	/**
-	 * @brief ruleUpdated informs about a rule having been updated.
+	 * @brief hostUpdated informs about a rule having been updated.
 	 * @param nID : the GUI ID of the updated rule
 	 */
 	void            hostUpdated(quint32 nID);
@@ -171,7 +170,7 @@ public slots:
 private:
 	SharedG2HostPtr addSyncHelper(const CEndPoint& oHostIP, quint32 tTimeStamp,
 									const quint32 tNow, quint32 nNewFailures = 0);
-	void insert(SharedG2HostPtr pNew, G2HostCacheIterator& it);
+	void insert(SharedG2HostPtr pNew);
 
 	G2HostCacheIterator remove(G2HostCacheIterator& itHost);
 	void removeWorst(quint8& nFailures);
