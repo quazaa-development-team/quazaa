@@ -1268,7 +1268,7 @@ void CG2Node::onQKR(G2Packet* pPacket)
 //	tHostCacheWork.start();
 //#endif
 
-	G2HostCacheHost* pHost = bCacheOK ? hostCache.get( addr ) : NULL;
+	SharedG2HostPtr pHost = bCacheOK ? hostCache.get( addr ) : SharedG2HostPtr();
 
 //#if ENABLE_HOST_CACHE_BENCHMARKING
 //	qint64 tHCWork = tHostCacheWork.elapsed();

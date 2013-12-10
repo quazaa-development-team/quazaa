@@ -217,7 +217,7 @@ void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 	Q_ASSERT( tNowDT.timeSpec() == Qt::UTC );
 	const quint32 tNow      = tNowDT.toTime_t();
 	CG2Node* pLastNeighbour = NULL;
-	G2HostCacheHost* pHost   = NULL;
+	SharedG2HostPtr pHost;
 
 #if ENABLE_HOST_CACHE_BENCHMARKING
 	QElapsedTimer tHostCacheLock;
@@ -242,7 +242,7 @@ void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 	{
 		pHost = *itHost;
 
-		if ( !pHost )
+		if ( pHost.isNull() )
 			continue;
 
 		qDebug() << "**** [Search] Trying new Host: "
@@ -430,7 +430,7 @@ void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 		qDebug() << "**** [Search] Host OK! **** ";
 #endif
 
-		pHost = NULL;
+		pHost.clear();
 	}
 
 #if ENABLE_HOST_CACHE_BENCHMARKING
@@ -450,7 +450,7 @@ void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 #endif
 }
 
-void CManagedSearch::sendG2Query(CEndPoint pReceiver, G2HostCacheHost* pHost,
+void CManagedSearch::sendG2Query(CEndPoint pReceiver, SharedG2HostPtr pHost,
 								 quint32* pnMaxPackets, const QDateTime& tNowDT)
 {
 	Q_ASSERT( !pReceiver.isNull() );
@@ -479,7 +479,7 @@ void CManagedSearch::sendG2Query(CEndPoint pReceiver, G2HostCacheHost* pHost,
 	}
 }
 
-void CManagedSearch::requestG2QueryKey(G2HostCacheHost* pHost)
+void CManagedSearch::requestG2QueryKey(SharedG2HostPtr pHost)
 {
 	// request a key for our address
 	G2Packet* pQKR = G2Packet::newPacket( "QKR", false );

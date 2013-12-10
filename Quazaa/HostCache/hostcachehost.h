@@ -35,20 +35,19 @@
 
 class G2HostCacheHost;
 
-typedef QSharedPointer<QThread>           TSharedThreadPtr;
+typedef QSharedPointer<QThread>         SharedThreadPtr;
+typedef QSharedPointer<G2HostCacheHost> SharedG2HostPtr;
 
-typedef std::list<G2HostCacheHost*>      G2HostCacheList;
-typedef G2HostCacheList::iterator        G2HostCacheIterator;
-//typedef TG2HostCacheList::const_iterator  TG2HostCacheConstIterator;
-
-typedef std::vector<G2HostCacheList>     THCLVector;
+typedef std::list<SharedG2HostPtr>      G2HostCacheList;
+typedef G2HostCacheList::iterator       G2HostCacheIterator;
 
 class G2HostCacheHost
 {
 private:
 	CEndPoint   m_oAddress;     // Hub address
 
-	// TODO: WTF are we using these timestamps for?
+	quint32     m_nID;          // GUI ID
+
 	quint32     m_tTimestamp;   // Kiedy ostatnio widziany
 
 	quint32     m_nQueryKey;    // QK
@@ -81,6 +80,7 @@ public:
 	void setKey(quint32 nKey, const quint32 tNow = common::getTNowUTC(), CEndPoint* pHost = NULL);
 
 	inline CEndPoint address()       const { return m_oAddress;       }
+	inline quint32   id()            const { return m_nID;            }
 	inline quint32   timestamp()     const { return m_tTimestamp;     }
 	inline quint32   queryKey()      const { return m_nQueryKey;      }
 	inline CEndPoint keyHost()       const { return m_oKeyHost;       }

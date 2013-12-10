@@ -13,14 +13,17 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
+#include <QMenu>
+#include <QKeyEvent>
 
 #include "widgethostcache.h"
 #include "ui_widgethostcache.h"
@@ -30,41 +33,64 @@
 
 #include "debug_new.h"
 
-CWidgetHostCache::CWidgetHostCache(QWidget* parent) :
+WidgetHostCache::WidgetHostCache(QWidget* parent) :
 	QMainWindow(parent),
-	ui(new Ui::CWidgetHostCache)
+	ui(new Ui::WidgetHostCache)
 {
-	ui->setupUi(this);
-	restoreState(quazaaSettings.WinMain.HostCacheToolbar);
-	ui->splitterHostCache->restoreState(quazaaSettings.WinMain.HostCacheSplitter);
+	ui->setupUi( this );
+
+	m_pHostCacheMenu =  new QMenu( this );
+	// TODO: fill menu
+
+	restoreState( quazaaSettings.WinMain.HostCacheToolbar );
+	ui->splitterHostCache->restoreState( quazaaSettings.WinMain.HostCacheSplitter );
+
+	m_pTableViewG2Cache = new CTableView();
+	m_pTableViewG2Cache->verticalHeader()->setVisible( false );
+
+	ui->splitterHostCache->addWidget( m_pTableViewG2Cache );
+
+	connect(m_pTableViewG2Cache, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tableViewG2Cache_customContextMenuRequested(QPoint)));
+	connect(m_pTableViewG2Cache, SIGNAL(clicked(QModelIndex)), this, SLOT(tableViewG2Cache_clicked(QModelIndex)));
+	connect(m_pTableViewG2Cache, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(tableViewG2Cache_doubleClicked(QModelIndex)));
+
+	m_pHosts = new G2CacheTableModel( this );
+
+	m_pTableViewG2Cache->setModel( m_pHosts );
+
+	m_pHosts->sort( m_pTableViewG2Cache->horizontalHeader()->sortIndicatorSection(),
+					m_pTableViewG2Cache->horizontalHeader()->sortIndicatorOrder() );
+
 	setSkin();
 }
 
-CWidgetHostCache::~CWidgetHostCache()
+WidgetHostCache::~WidgetHostCache()
 {
 	delete ui;
 }
 
-void CWidgetHostCache::changeEvent(QEvent* e)
+void WidgetHostCache::changeEvent(QEvent* e)
 {
-	QMainWindow::changeEvent(e);
-	switch(e->type())
+	QMainWindow::changeEvent( e );
+
+	switch ( e->type() )
 	{
 		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
+			ui->retranslateUi( this );
 			break;
+
 		default:
 			break;
 	}
 }
 
-void CWidgetHostCache::saveWidget()
+void WidgetHostCache::saveWidget()
 {
 	quazaaSettings.WinMain.HostCacheToolbar = saveState();
 	quazaaSettings.WinMain.HostCacheSplitter = ui->splitterHostCache->saveState();
 }
 
-void CWidgetHostCache::on_splitterHostCache_customContextMenuRequested(QPoint pos)
+void WidgetHostCache::on_splitterHostCache_customContextMenuRequested(QPoint pos)
 {
 	Q_UNUSED(pos);
 
@@ -89,7 +115,44 @@ void CWidgetHostCache::on_splitterHostCache_customContextMenuRequested(QPoint po
 	}
 }
 
-void CWidgetHostCache::setSkin()
+void WidgetHostCache::setSkin()
 {
+	m_pTableViewG2Cache->setStyleSheet( skinSettings.listViews );
+	m_pTableViewG2Cache->setStyleSheet( skinSettings.listViews );
+}
 
+void WidgetHostCache::tableViewG2Cache_doubleClicked(const QModelIndex& index)
+{
+	if ( index.isValid() )
+	{
+	}
+	else
+	{
+	}
+}
+
+void WidgetHostCache::tableViewG2Cache_clicked(const QModelIndex& index)
+{
+	// TODO: enable/disable actions
+	if ( index.isValid() )
+	{
+	}
+	else
+	{
+	}
+}
+
+void WidgetHostCache::tableViewG2Cache_customContextMenuRequested(const QPoint &pos)
+{
+	QModelIndex index = m_pTableViewG2Cache->indexAt( pos );
+
+	// enable/disable actions
+	if ( index.isValid() )
+	{
+	}
+	else
+	{
+	}
+
+	m_pHostCacheMenu->popup( QCursor::pos() );
 }

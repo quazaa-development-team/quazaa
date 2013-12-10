@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CWidgetHostCache</class>
+ <class>WidgetHostCache</class>
  <widget class="QMainWindow" name="WidgetHostCache">
   <property name="geometry">
    <rect>
@@ -104,14 +104,6 @@
          </property>
         </item>
        </item>
-      </widget>
-      <widget class="QTreeView" name="treeViewHostCache">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
       </widget>
      </widget>
     </item>

@@ -27,28 +27,41 @@
 
 #include <QMainWindow>
 
+#include "tableview.h"
+#include "g2cachetablemodel.h"
+
 namespace Ui
 {
-	class CWidgetHostCache;
+	class WidgetHostCache;
 }
 
-class CWidgetHostCache : public QMainWindow
+class WidgetHostCache : public QMainWindow
 {
 	Q_OBJECT
 public:
-	CWidgetHostCache(QWidget* parent = 0);
-	~CWidgetHostCache();
+	WidgetHostCache(QWidget* parent = 0);
+	~WidgetHostCache();
 	void saveWidget();
 
 protected:
 	void changeEvent(QEvent* e);
 
+public:
+	G2CacheTableModel*      m_pHosts;
+
 private:
-	Ui::CWidgetHostCache* ui;
+	Ui::WidgetHostCache*   ui;
+
+	QMenu*                  m_pHostCacheMenu;
+	CTableView*             m_pTableViewG2Cache;
 
 private slots:
 	void on_splitterHostCache_customContextMenuRequested(QPoint pos);
 	void setSkin();
+
+	void tableViewG2Cache_doubleClicked(const QModelIndex& index);
+	void tableViewG2Cache_clicked(const QModelIndex& index);
+	void tableViewG2Cache_customContextMenuRequested(const QPoint &pos);
 };
 
 #endif // WIDGETHOSTCACHE_H

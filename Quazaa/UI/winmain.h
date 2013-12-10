@@ -88,7 +88,7 @@ public:
 	CWidgetSecurity* pageSecurity;
 	CWidgetActivity* pageActivity;
 	CWidgetIrcMain* pageIrcMain;
-	CWidgetHostCache* pageHostCache;
+	WidgetHostCache* pageHostCache;
 	CWidgetDiscovery* pageDiscovery;
 	CWidgetScheduler* pageScheduler;
 	CWidgetGraph* pageGraph;

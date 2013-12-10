@@ -132,7 +132,7 @@ CWinMain::CWinMain(QWidget* parent) :
 	ui->stackedWidgetMain->addWidget(pageActivity);
 	pageIrcMain = new CWidgetIrcMain();
 	ui->stackedWidgetMain->addWidget(pageIrcMain);
-	pageHostCache = new CWidgetHostCache;
+	pageHostCache = new WidgetHostCache;
 	ui->stackedWidgetMain->addWidget(pageHostCache);
 	pageDiscovery = new CWidgetDiscovery;
 	ui->stackedWidgetMain->addWidget(pageDiscovery);

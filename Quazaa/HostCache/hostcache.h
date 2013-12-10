@@ -54,11 +54,8 @@ class G2HostCache : public QObject
 
 public:
 	// allows access to 0 .. m_nMaxFailures + 1
-	G2HostCacheIterator*    m_pFailures; // = new TG2HostCacheIterator[m_nMaxFailures + 2];
+	G2HostCacheIterator*    m_pFailures; // = new G2HostCacheIterator[m_nMaxFailures + 2];
 	G2HostCacheList         m_lHosts;
-
-	//THCLVector              m_vlHosts; // vector of (nFailures, QLinkedList);
-									   // QLinkedList sorted by timestamp (descending)
 
 	CEndPoint               m_oLokalAddress;
 
@@ -74,7 +71,7 @@ public:
 	QAtomicInt              m_nSizeAtomic;
 
 	// Thread used by the Host Cache
-	TSharedThreadPtr        m_pHostCacheDiscoveryThread;
+	SharedThreadPtr         m_pHostCacheDiscoveryThread;
 
 public:
 	G2HostCache();
@@ -88,25 +85,25 @@ public:
 	void addAck(const CEndPoint host, const quint32 tTimeStamp,
 				const quint32 tAck, const quint32 tNow);
 
-	G2HostCacheHost* get(const CEndPoint& oHost);
-	bool check(const G2HostCacheHost* const pHost);
+	SharedG2HostPtr get(const CEndPoint& oHost);
+	bool check(const SharedG2HostPtr pHost) const;
 
 	void updateFailures(const CEndPoint& oAddress, const quint32 nFailures);
 
 private: // remove this private if this is ever required...
-//	CHostCacheHost* update(const CEndPoint& oHost,     const quint32 tTimeStamp);
-	G2HostCacheHost* update(G2HostCacheIterator& itHost, const quint32 tTimeStamp,
-							 const quint32 nFailures);
+//	SharedG2HostPtr update(const CEndPoint& oHost,     const quint32 tTimeStamp);
+	SharedG2HostPtr update(G2HostCacheIterator& itHost, const quint32 tTimeStamp,
+						   const quint32 nFailures);
 
 public:
 	void remove(const CEndPoint& oHost);
-	void remove(G2HostCacheHost*& pHost);
+	void remove(SharedG2HostPtr pHost);
 
 	void addXTry(QString sHeader);
 	QString getXTry() const;
 
 	void onFailure(const CEndPoint& addr);
-	G2HostCacheHost* getConnectable(const QSet<G2HostCacheHost*>& oExcept = QSet<G2HostCacheHost*>(),
+	SharedG2HostPtr getConnectable(const QSet<SharedG2HostPtr>& oExcept = QSet<SharedG2HostPtr>(),
 								   QString sCountry = QString("ZZ"));
 	bool hasConnectable();
 
@@ -124,13 +121,46 @@ public:
 	quint32 count() const;
 	bool isEmpty() const;
 
+	quint32 requestHostInfo();
+
+	/**
+	 * @brief Manager::registerMetaTypes registers the necessary meta types for signals and slots.
+	 */
+	void            registerMetaTypes();
+
+signals:
+	/**
+	 * @brief ruleAdded informs about a new rule having been added.
+	 * @param pRule : the rule
+	 */
+	void            hostAdded(SharedG2HostPtr pHost);
+
+	/**
+	 * @brief ruleRemoved informs about a rule having been removed.
+	 * @param pRule : the rule
+	 */
+	void            hostRemoved(SharedG2HostPtr pHost);
+
+	/**
+	 * @brief ruleInfo info signal to get informed about all rules within the manager.
+	 * See Manager::requestRuleList() for more information.
+	 * @param pRule : the rule
+	 */
+	void            hostInfo(SharedG2HostPtr pHost);
+
+	/**
+	 * @brief ruleUpdated informs about a rule having been updated.
+	 * @param nID : the GUI ID of the updated rule
+	 */
+	void            hostUpdated(quint32 nID);
+
 public slots:
 	void localAddressChanged();
 
-	G2HostCacheHost* addSync(CEndPoint host, quint32 tTimeStamp, bool bLock);
-	G2HostCacheHost* addSyncKey(CEndPoint host, quint32 tTimeStamp, CEndPoint* pKeyHost,
+	SharedG2HostPtr addSync(CEndPoint host, quint32 tTimeStamp, bool bLock);
+	SharedG2HostPtr addSyncKey(CEndPoint host, quint32 tTimeStamp, CEndPoint* pKeyHost,
 							   const quint32 nKey, const quint32 tNow, bool bLock);
-	G2HostCacheHost* addSyncAck(CEndPoint host, quint32 tTimeStamp, const quint32 tAck,
+	SharedG2HostPtr addSyncAck(CEndPoint host, quint32 tTimeStamp, const quint32 tAck,
 							   const quint32 tNow, bool bLock);
 
 	void removeSync(CEndPoint oHost);
@@ -139,15 +169,15 @@ public slots:
 	void maintain();
 
 private:
-	G2HostCacheHost* addSyncHelper(const CEndPoint& oHostIP, quint32 tTimeStamp,
+	SharedG2HostPtr addSyncHelper(const CEndPoint& oHostIP, quint32 tTimeStamp,
 									const quint32 tNow, quint32 nNewFailures = 0);
-	void insert(G2HostCacheHost* pNew, G2HostCacheIterator& it);
+	void insert(SharedG2HostPtr pNew, G2HostCacheIterator& it);
 
 	G2HostCacheIterator remove(G2HostCacheIterator& itHost);
 	void removeWorst(quint8& nFailures);
 
 	G2HostCacheIterator      find(const CEndPoint& oHost);
-	G2HostCacheIterator      find(const G2HostCacheHost* const pHost);
+	G2HostCacheIterator      find(const SharedG2HostPtr pHost);
 //	THostCacheConstIterator find(const CHostCacheHost* const pHost) const;
 
 	void load();

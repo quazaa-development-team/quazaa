@@ -36,7 +36,7 @@ public:
 };*/
 
 G2HostCacheHost::G2HostCacheHost(const CEndPoint& oAddress, const quint32 tTimestamp,
-							   const quint8 nFailures) :
+								 const quint8 nFailures) :
 	m_oAddress(     oAddress    ),
 	m_tTimestamp(   tTimestamp  ),
 	m_nQueryKey(    0           ),
@@ -52,7 +52,7 @@ G2HostCacheHost::G2HostCacheHost(const CEndPoint& oAddress, const quint32 tTimes
 }
 
 G2HostCacheHost::G2HostCacheHost(const G2HostCacheHost& oHost, const quint32 tTimestamp,
-							   const quint8 nFailures) :
+								 const quint8 nFailures) :
 	m_oAddress(     oHost.m_oAddress     ),
 	m_tTimestamp(   tTimestamp           ),
 	m_nQueryKey(    oHost.m_nQueryKey    ),
