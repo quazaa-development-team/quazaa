@@ -501,7 +501,9 @@ bool G2HostCache::hasConnectable()
 void G2HostCache::clear()
 {
 #if ENABLE_HOST_CACHE_DEBUGGING
-	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "clear()" ) );
+	qDebug() << "[HostCache] clear()";
+	// Using the system log here might cause problems if that part of the GUI has already been
+	// destroyed at call time.
 #endif //ENABLE_HOST_CACHE_DEBUGGING
 
 	m_pSection.lock();
