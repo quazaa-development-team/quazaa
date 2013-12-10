@@ -24,10 +24,32 @@
 
 #include "hostcache.h"
 
-HostCache::HostCache()
+HostCache::HostCache() :
+	m_tLastSave( 0 ),
+	m_nMaxFailures( 0 ),
+	m_nSizeAtomic( 0 )
 {
 }
 
 HostCache::~HostCache()
 {
+}
+
+/**
+ * @brief start initializes the Host Cache. Make sure this is called after QApplication is
+ * instantiated.
+ * Locking: YES (asynchronous)
+ */
+void HostCache::start()
+{
+#if ENABLE_G2_HOST_CACHE_DEBUGGING
+	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "start()" ) );
+#endif //ENABLE_G2_HOST_CACHE_DEBUGGING
+
+	m_pHostCacheDiscoveryThread = SharedThreadPtr( new QThread() );
+
+	moveToThread( m_pHostCacheDiscoveryThread.data() );
+	m_pHostCacheDiscoveryThread.data()->start( QThread::LowPriority );
+
+	QMetaObject::invokeMethod( this, "asyncStartUpHelper", Qt::QueuedConnection );
 }

@@ -27,13 +27,11 @@
 
 #include <list>
 #include <vector>
-#include <QThread>
 
 #include "hostcachehost.h"
 
 class G2HostCacheHost;
 
-typedef QSharedPointer<QThread>         SharedThreadPtr;
 typedef QSharedPointer<G2HostCacheHost> SharedG2HostPtr;
 
 typedef std::list<SharedG2HostPtr>      G2HostCacheList;

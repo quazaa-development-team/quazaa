@@ -37,11 +37,11 @@
 #include "sharemanager.h"
 #include "commonfunctions.h"
 #include "transfers.h"
-#include "g2hostcache.h"
 
 #include "Misc/timedsignalqueue.h"
+#include "Security/securitymanager.h"
+#include "HostCache/g2hostcache.h"
 #include "Discovery/discovery.h"
-#include "securitymanager.h"
 
 #include <QNetworkProxy>
 #include <QFont>

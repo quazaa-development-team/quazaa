@@ -47,14 +47,11 @@ G2HostCache hostCache;
  */
 G2HostCache::G2HostCache() :
 	m_pFailures( NULL ),
-	m_oLokalAddress( CEndPoint() ),
 #if ENABLE_G2_HOST_CACHE_BENCHMARKING
 	m_nLockWaitTime( 0 ),
 	m_nWorkTime( 0 ),
 #endif
-	m_tLastSave( 0 ),
-	m_nMaxFailures( 0 ),
-	m_nSizeAtomic( 0 )
+	m_oLokalAddress( CEndPoint() )
 {
 	static int foo = qRegisterMetaType<CEndPoint>( "CEndPoint" );
 	static int bar = qRegisterMetaType<CEndPoint*>( "CEndPoint*" );
@@ -69,25 +66,6 @@ G2HostCache::G2HostCache() :
 G2HostCache::~G2HostCache()
 {
 	clear();
-}
-
-/**
- * @brief start initializes the Host Cache. Make sure this is called after QApplication is
- * instantiated.
- * Locking: YES (asynchronous)
- */
-void G2HostCache::start()
-{
-#if ENABLE_G2_HOST_CACHE_DEBUGGING
-	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "start()" ) );
-#endif //ENABLE_G2_HOST_CACHE_DEBUGGING
-
-	m_pHostCacheDiscoveryThread = SharedThreadPtr( new QThread() );
-
-	moveToThread( m_pHostCacheDiscoveryThread.data() );
-	m_pHostCacheDiscoveryThread.data()->start( QThread::LowPriority );
-
-	QMetaObject::invokeMethod( this, "asyncStartUpHelper", Qt::QueuedConnection );
 }
 
 /**
@@ -723,12 +701,28 @@ void G2HostCache::registerMetaTypes()
 
 /**
  * @brief CHostCache::localAddressChanged needs to be triggered on lokal IP changes.
+ * Locking: YES
  */
 void G2HostCache::localAddressChanged()
 {
-	Network.m_pSection.lock();
-	m_oLokalAddress = Network.getLocalAddress();
-	Network.m_pSection.unlock();
+	bool bRetry = true;
+
+	// this avoids possible deadlocks with Network.m_pSection
+	if ( Network.m_pSection.tryLock( 200 ) )
+	{
+		if ( m_pSection.tryLock( 200 ) )
+		{
+			bRetry          = false;
+			m_oLokalAddress = Network.getLocalAddress();
+
+			m_pSection.unlock();
+		}
+
+		Network.m_pSection.unlock();
+	}
+
+	if ( bRetry )
+		QMetaObject::invokeMethod( this, "localAddressChanged", Qt::QueuedConnection );
 }
 
 /**
@@ -1380,8 +1374,10 @@ void G2HostCache::asyncStartUpHelper()
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "asyncStartUpH()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
-	connect( &securityManager.m_oSanity, SIGNAL( beginSanityCheck() ), this, SLOT( sanityCheck() ) );
-	connect( &Network, SIGNAL( localAddressChanged() ), this, SLOT( localAddressChanged() ) );
+	connect( &securityManager.m_oSanity, SIGNAL( beginSanityCheck() ), SLOT( sanityCheck() ) );
+	connect( &Network, SIGNAL( localAddressChanged() ), SLOT( localAddressChanged() ) );
+
+	localAddressChanged();
 
 	m_nMaxFailures = quazaaSettings.Connection.FailureLimit;
 	m_pFailures    = new G2HostCacheIterator[m_nMaxFailures + 2];

@@ -28,20 +28,82 @@
 #include <QObject>
 
 #include <QMutex>
+#include <QThread>
 #include <QAtomicInt>
+
+#include "hostcachehost.h"
+
+typedef QSharedPointer<QThread>         SharedThreadPtr;
+typedef QSharedPointer<HostCacheHost>   SharedHostPtr;
 
 class HostCache : public QObject
 {
 	Q_OBJECT
 
 public:
+	mutable QMutex          m_pSection;
+
+	// Thread used by the Host Cache
+	SharedThreadPtr         m_pHostCacheDiscoveryThread;
+
+	mutable quint32         m_tLastSave;   //TODO: use qatomicint
+
+	quint8                  m_nMaxFailures;
+	QAtomicInt              m_nSizeAtomic;
+
+protected:
+
+private:
+
+public:
 	HostCache();
 	virtual ~HostCache();
 
+	/**
+	 * @brief start initializes the Host Cache.
+	 * Make sure this is not called before QApplication is instantiated.
+	 * Any custom initializations should be made within asyncStartUpHelper().
+	 * Locking: YES (asynchronous)
+	 */
+	void            start();
+
 signals:
+	/**
+	 * @brief hostAdded informs about a new host having been added.
+	 * @param pHost : the host
+	 */
+	void            hostAdded(SharedHostPtr pHost);
+
+	/**
+	 * @brief hostRemoved informs about a host having been removed.
+	 * @param pHost : the host
+	 */
+	void            hostRemoved(SharedHostPtr pHost);
+
+	/**
+	 * @brief hostInfo info signal to get informed about all hosts within the cache.
+	 * See requestHostList() for more information.
+	 * @param pHost : the host
+	 */
+	void            hostInfo(SharedHostPtr pHost);
+
+	/**
+	 * @brief hostUpdated informs about a host having been updated.
+	 * @param nID : the GUI ID of the updated host
+	 */
+	void            hostUpdated(quint32 nID);
 
 public slots:
 
+private slots:
+	/**
+	 * @brief asyncStartUpHelper is a private helper method for start().
+	 * It contains among other things the signal slot connections specific to the respective host
+	 * cache.
+	 * Locking: YES
+	 */
+
+	virtual void    asyncStartUpHelper() = NULL;
 };
 
 #endif // HOSTCACHE_H

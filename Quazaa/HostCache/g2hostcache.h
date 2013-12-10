@@ -55,27 +55,16 @@ public:
 	G2HostCacheIterator*    m_pFailures; // = new G2HostCacheIterator[m_nMaxFailures + 2];
 	G2HostCacheList         m_lHosts;
 
-	CEndPoint               m_oLokalAddress;
-
 #if ENABLE_G2_HOST_CACHE_BENCHMARKING
 	QAtomicInt              m_nLockWaitTime;
 	QAtomicInt              m_nWorkTime;
-#endif
+#endif // ENABLE_G2_HOST_CACHE_BENCHMARKING
 
-	mutable QMutex          m_pSection;
-	mutable quint32         m_tLastSave; //TODO: use qatomicint
-
-	quint8                  m_nMaxFailures;
-	QAtomicInt              m_nSizeAtomic;
-
-	// Thread used by the Host Cache
-	SharedThreadPtr         m_pHostCacheDiscoveryThread;
+	CEndPoint               m_oLokalAddress;
 
 public:
 	G2HostCache();
 	~G2HostCache();
-
-	void start();
 
 	void add(const CEndPoint host, const quint32 tTimeStamp);
 	void addKey(const CEndPoint host, const quint32 tTimeStamp,
@@ -127,30 +116,6 @@ public:
 	void            registerMetaTypes();
 
 signals:
-	/**
-	 * @brief hostAdded informs about a new rule having been added.
-	 * @param pRule : the rule
-	 */
-	void            hostAdded(SharedG2HostPtr pHost);
-
-	/**
-	 * @brief hostRemoved informs about a rule having been removed.
-	 * @param pRule : the rule
-	 */
-	void            hostRemoved(SharedG2HostPtr pHost);
-
-	/**
-	 * @brief hostInfo info signal to get informed about all rules within the manager.
-	 * See Manager::requestRuleList() for more information.
-	 * @param pRule : the rule
-	 */
-	void            hostInfo(SharedG2HostPtr pHost);
-
-	/**
-	 * @brief hostUpdated informs about a rule having been updated.
-	 * @param nID : the GUI ID of the updated rule
-	 */
-	void            hostUpdated(quint32 nID);
 
 public slots:
 	void localAddressChanged();
