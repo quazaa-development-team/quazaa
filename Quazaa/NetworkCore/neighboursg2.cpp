@@ -275,11 +275,6 @@ void CNeighboursG2::dispatchKHL()
 
 	hostCache.m_pSection.unlock();
 
-//#if ENABLE_HOST_CACHE_BENCHMARKING
-//	hostCache.m_nLockWaitTime
-//	hostCache.m_nWorkTime
-//#endif
-
 	foreach ( CNeighbour * pNode, m_lNodes )
 	{
 		if ( pNode->m_nState == nsConnected && pNode->m_nProtocol == dpG2 )

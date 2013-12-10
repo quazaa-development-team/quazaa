@@ -168,6 +168,8 @@ public slots:
 	void maintain();
 
 private:
+	void maintainInternal();
+
 	SharedG2HostPtr addSyncHelper(const CEndPoint& oHostIP, quint32 tTimeStamp,
 									const quint32 tNow, quint32 nNewFailures = 0);
 	void insert(SharedG2HostPtr pNew);

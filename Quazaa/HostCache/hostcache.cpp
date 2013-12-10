@@ -411,8 +411,6 @@ void G2HostCache::onFailure(const CEndPoint& addr)
 
 	QMetaObject::invokeMethod( this, "asyncOnFailure", Qt::QueuedConnection,
 							   Q_ARG(CEndPoint, addr) );
-
-	qDebug() << "invoked";
 }
 
 /**
@@ -446,7 +444,7 @@ SharedG2HostPtr G2HostCache::getConnectable(const QSet<SharedG2HostPtr>& oExcept
 	// successful connection
 	foreach ( SharedG2HostPtr pHost, m_lHosts )
 	{
-		if ( !pHost.isNull() )
+		if ( pHost )
 		{
 			if ( bCountry && pHost->address().country() != sCountry )
 			{
@@ -469,7 +467,7 @@ SharedG2HostPtr G2HostCache::getConnectable(const QSet<SharedG2HostPtr>& oExcept
 	}
 	else
 	{
-		maintain();
+		maintainInternal(); // same as maintain() but without locking
 		bSecondAttempt = true;
 		pReturn = getConnectable( oExcept ); // ignore country on second attempt
 	}
@@ -606,7 +604,7 @@ void G2HostCache::pruneByQueryAck(const quint32 tNow)
 	m_pSection.lock();
 
 	const quint32 tAckExpire = tNow - quazaaSettings.Gnutella2.QueryHostDeadline;
-	for ( G2HostCacheIterator itHost = m_lHosts.begin(); itHost != m_lHosts.end(); ++itHost )
+	for ( G2HostCacheIterator itHost = m_lHosts.begin(); itHost != m_lHosts.end(); )
 	{
 		if ( *itHost && (*itHost)->ack() && (*itHost)->ack() < tAckExpire )
 		{
@@ -857,10 +855,10 @@ void G2HostCache::sanityCheck()
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "sanityCheck()" ) );
 #endif //ENABLE_HOST_CACHE_DEBUGGING
 
-	qDebug() << "[HostCache] Started sanity checking.";
+	//qDebug() << "[HostCache] Started sanity checking.";
 
 	securityManager.m_oSanity.lockForRead();
-	m_pSection.lock(); // obtain HostCache lock second in order to minimize HostCache block time
+	m_pSection.lock(); // obtain HostCache lock second in order to minimize HostCache lockdown time
 
 	G2HostCacheIterator itHost = m_lHosts.begin();
 	SharedG2HostPtr pHost;
@@ -903,6 +901,16 @@ void G2HostCache::maintain()
 #endif //ENABLE_HOST_CACHE_DEBUGGING
 
 	m_pSection.lock();
+	qDebug() << "[HostCache] maintain() got lock!";
+	maintainInternal();
+	m_pSection.unlock();
+}
+
+void G2HostCache::maintainInternal()
+{
+#if ENABLE_HOST_CACHE_DEBUGGING
+	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "maintainInternal()" ) );
+#endif //ENABLE_HOST_CACHE_DEBUGGING
 
 	const quint32 tNow = common::getTNowUTC();
 
@@ -961,6 +969,7 @@ void G2HostCache::maintain()
 			delete[] m_pFailures;
 			m_pFailures = pNewFailures;
 		}
+
 		m_nMaxFailures = nNewMaxFailures;
 	}
 
@@ -1010,8 +1019,6 @@ void G2HostCache::maintain()
 			tThrottle += tFailurePenalty;
 		}
 	}
-
-	m_pSection.unlock();
 }
 
 /**

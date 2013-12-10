@@ -242,7 +242,7 @@ void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 	{
 		pHost = *itHost;
 
-		if ( pHost.isNull() )
+		if ( !pHost )
 			continue;
 
 		qDebug() << "**** [Search] Trying new Host: "
