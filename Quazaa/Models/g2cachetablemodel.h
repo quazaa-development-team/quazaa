@@ -27,7 +27,7 @@
 
 #include <QAbstractTableModel>
 
-#include "hostcache.h"
+#include "g2hostcache.h"
 
 class G2CacheTableModel : public QAbstractTableModel
 {

@@ -25,7 +25,7 @@
 #include "neighbour.h"
 #include "neighbours.h"
 #include "quazaasettings.h"
-#include "hostcache.h"
+#include "g2hostcache.h"
 #include <QTcpSocket>
 #include "securitymanager.h"
 

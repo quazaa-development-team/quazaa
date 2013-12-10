@@ -37,7 +37,7 @@
 #include "sharemanager.h"
 #include "commonfunctions.h"
 #include "transfers.h"
-#include "hostcache.h"
+#include "g2hostcache.h"
 
 #include "Misc/timedsignalqueue.h"
 #include "Discovery/discovery.h"

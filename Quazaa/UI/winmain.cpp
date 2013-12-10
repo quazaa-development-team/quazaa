@@ -56,7 +56,7 @@
 #include "geoiplist.h"
 #include "sharemanager.h"
 #include "transfers.h"
-#include "hostcache.h"
+#include "g2hostcache.h"
 
 #include "chatsession.h"
 #include "chatsessiong2.h"

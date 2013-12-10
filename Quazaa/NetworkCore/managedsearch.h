@@ -29,7 +29,7 @@
 #include <QHash>
 #include "queryhit.h" // needed for signals
 
-#include "HostCache/hostcache.h"
+#include "g2hostcache.h"
 
 class CQuery;
 

@@ -37,7 +37,7 @@
 #include "hubhorizon.h"
 #include "securitymanager.h"
 
-#include "HostCache/hostcache.h"
+#include "g2hostcache.h"
 
 #include "quazaasettings.h"
 #include "quazaaglobals.h"

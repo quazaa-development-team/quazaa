@@ -28,7 +28,7 @@
 #include <QMutex>
 #include <QAtomicInt>
 
-#include "hostcachehost.h"
+#include "g2hostcachehost.h"
 
 #define ENABLE_HOST_CACHE_DEBUGGING    1
 #define ENABLE_HOST_CACHE_BENCHMARKING 0

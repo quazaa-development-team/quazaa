@@ -33,7 +33,7 @@
 #include "discovery.h"
 
 // Requirements of all subclasses
-#include "hostcache.h"
+#include "g2hostcache.h"
 #include "commonfunctions.h"
 #include "Misc/timedsignalqueue.h"
 

@@ -32,7 +32,7 @@
 //#include <QMetaMethod>
 
 #include "network.h"
-#include "hostcache.h"
+#include "g2hostcache.h"
 #include "geoiplist.h"
 #include "quazaasettings.h"
 #include "Misc/timedsignalqueue.h"
@@ -251,7 +251,7 @@ SharedG2HostPtr G2HostCache::update(const G2HostCacheIterator& itHost, const qui
 	SharedG2HostPtr pHost = *itHost;
 	SharedG2HostPtr pNew;
 
-	// TODO: remove for Quazaa beta 1
+	// TODO: remove in Quazaa beta1
 	Q_ASSERT( pHost->failures() <= m_nMaxFailures );
 
 	if ( nFailures <= m_nMaxFailures )

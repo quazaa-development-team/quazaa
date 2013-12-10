@@ -35,8 +35,8 @@
 #include "querykeys.h"
 #include "query.h"
 
-#include "HostCache/hostcache.h"
-#include "Security/securitymanager.h"
+#include "g2hostcache.h"
+#include "securitymanager.h"
 
 #include "quazaaglobals.h"
 #include "quazaasettings.h"

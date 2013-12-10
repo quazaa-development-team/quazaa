@@ -254,8 +254,8 @@ HEADERS += \
 		FileFragments/Range.hpp \
 		FileFragments/Ranges.hpp \
 		geoiplist.h \
-		HostCache/hostcache.h \
-		HostCache/hostcachehost.h \
+		HostCache/g2hostcache.h \
+		HostCache/g2hostcachehost.h \
 		Metalink/magnetlink.h \
 		Metalink/metalinkhandler.h \
 		Metalink/metalink4handler.h \
@@ -414,8 +414,8 @@ SOURCES += \
 		Discovery/gwc.cpp \
 		Discovery/networktype.cpp \
 		geoiplist.cpp \
-		HostCache/hostcache.cpp \
-		HostCache/hostcachehost.cpp \
+		HostCache/g2hostcache.cpp \
+		HostCache/g2hostcachehost.cpp \
 		main.cpp \
 		Misc/debugrwlock.cpp \
 		Misc/fileiconprovider.cpp \

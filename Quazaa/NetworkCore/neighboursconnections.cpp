@@ -25,7 +25,7 @@
 #include "neighboursconnections.h"
 #include "ratecontroller.h"
 #include "g2node.h"
-#include "hostcache.h"
+#include "g2hostcache.h"
 #include "quazaasettings.h"
 #include "network.h"
 #include "geoiplist.h"

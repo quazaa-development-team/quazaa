@@ -27,7 +27,7 @@
 #include "queryhit.h"
 #include "g2packet.h"
 #include <QMutexLocker>
-#include "hostcache.h"
+#include "g2hostcache.h"
 #include "network.h"
 #include <QMetaType>
 #include "securitymanager.h"
