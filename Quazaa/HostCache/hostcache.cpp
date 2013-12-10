@@ -901,7 +901,6 @@ void G2HostCache::maintain()
 #endif //ENABLE_HOST_CACHE_DEBUGGING
 
 	m_pSection.lock();
-	qDebug() << "[HostCache] maintain() got lock!";
 	maintainInternal();
 	m_pSection.unlock();
 }
@@ -1055,7 +1054,8 @@ SharedG2HostPtr G2HostCache::addSyncHelper(const CEndPoint& oHostIP, quint32 tTi
 	}
 
 	// At this point the security check should already have been performed.
-	Q_ASSERT( !securityManager.isDenied( oHostIP ) );
+	// TODO: fix this! The Host Cache is not the place where security checks should be made.
+	//Q_ASSERT( !securityManager.isDenied( oHostIP ) );
 	if ( securityManager.isDenied( oHostIP ) )
 	{
 		return SharedG2HostPtr();
