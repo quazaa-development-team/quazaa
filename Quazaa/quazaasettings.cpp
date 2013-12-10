@@ -823,7 +823,7 @@ void CQuazaaSettings::loadSettings()
 	quazaaSettings.Security.UPnPSkipWANIPSetup = m_qSettings.value("UPnPSkipWANIPSetup", false).toBool();
 	quazaaSettings.Security.UPnPSkipWANPPPSetup = m_qSettings.value("UPnPSkipWANPPPSetup", false).toBool();
 	quazaaSettings.Security.LogIPCheckHits = m_qSettings.value("LogIPCheckHits", false).toBool();
-	quazaaSettings.Security.RuleExpiryInterval = m_qSettings.value("RuleExpiryInterval", 60).toUInt();
+	quazaaSettings.Security.RuleExpiryInterval = m_qSettings.value("RuleExpiryInterval", 0).toUInt();
 	m_qSettings.endGroup();
 
 	// notify Security manager about new settings

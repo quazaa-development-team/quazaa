@@ -645,11 +645,20 @@ void SecurityTableModel::addRule(Rule* pRule)
  */
 void SecurityTableModel::removeRule(SharedRulePtr pRule)
 {
+	//qDebug() << "SecurityTableModel::removeRule()";
+
+	// TODO: remove assert before beta1
+	Q_ASSERT( pRule );
+
+	//qDebug() << "SecurityTableModel::removeRule() Rule appears to be valid.";
+
 	for ( int i = 0; i < m_lNodes.size(); ++i )
 	{
 		if ( m_lNodes[i]->rule() == pRule.data() )
 		{
 			beginRemoveRows( QModelIndex(), i, i );
+
+			//qDebug() << "SecurityTableModel::removeRule() Found rule row. Removing now.";
 
 			m_lNodes[i]->m_bRemoving = true;// make sure m_pRule is not accessed anymore
 			m_lNodes.removeAt( i );         // clears shared rule data pointer
@@ -660,6 +669,8 @@ void SecurityTableModel::removeRule(SharedRulePtr pRule)
 			break;
 		}
 	}
+
+	//qDebug() << "SecurityTableModel::removeRule() finished";
 }
 
 /**

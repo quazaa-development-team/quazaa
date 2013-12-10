@@ -545,7 +545,7 @@ namespace Settings
 		bool		IgnorePrivateIP;						// Ingnore all 'local' (LAN) IPs
 		//quint32		MaxUnsavedRules;						// Number of unsaved rules to accumulate before triggering an auntosave
 		//quint32		MissCacheExpiryInterval;				// Clear the miss cache each x seconds
-		quint32		RuleExpiryInterval;						// Check the security manager for expired hosts each x seconds
+		quint32		RuleExpiryInterval;						// Check the security manager for expired hosts each x seconds; 0 to disable
 	};
 
 	struct sSkin
