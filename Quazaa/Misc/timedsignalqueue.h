@@ -41,7 +41,7 @@
 
 #define ENABLE_SIGNAL_QUEUE_DEBUGGING 0
 
-class CTimedSignalQueue;
+class TimedSignalQueue;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* ---------------------------------------- CTimerObject ---------------------------------------- */
@@ -50,7 +50,7 @@ class CTimedSignalQueue;
  * @brief The CTimerObject class is a helper class that allows to store signals and related relevant
  * information, as well as to emit the signals at a given time.
  */
-class CTimerObject
+class TimerObject
 {
 private:
 	struct
@@ -75,41 +75,41 @@ private:
 	bool    m_bMultiShot; // repeat after m_tInterval yes/no
 
 private:
-	CTimerObject(QObject* obj, const char* member, quint64 tIntervalMs, bool bMultiShot,
+	TimerObject(QObject* obj, const char* member, quint64 tIntervalMs, bool bMultiShot,
 				 QGenericArgument val0 = QGenericArgument(), QGenericArgument val1 = QGenericArgument(),
 				 QGenericArgument val2 = QGenericArgument(), QGenericArgument val3 = QGenericArgument(),
 				 QGenericArgument val4 = QGenericArgument(), QGenericArgument val5 = QGenericArgument(),
 				 QGenericArgument val6 = QGenericArgument(), QGenericArgument val7 = QGenericArgument(),
 				 QGenericArgument val8 = QGenericArgument(), QGenericArgument val9 = QGenericArgument());
 
-	CTimerObject(QObject* obj, const char* member, quint32 tDelaySec,
+	TimerObject(QObject* obj, const char* member, quint32 tDelaySec,
 				 QGenericArgument val0 = QGenericArgument(), QGenericArgument val1 = QGenericArgument(),
 				 QGenericArgument val2 = QGenericArgument(), QGenericArgument val3 = QGenericArgument(),
 				 QGenericArgument val4 = QGenericArgument(), QGenericArgument val5 = QGenericArgument(),
 				 QGenericArgument val6 = QGenericArgument(), QGenericArgument val7 = QGenericArgument(),
 				 QGenericArgument val8 = QGenericArgument(), QGenericArgument val9 = QGenericArgument());
 
-	CTimerObject(const CTimerObject* const pTimerObject);
+	TimerObject(const TimerObject* const pTimerObject);
 
-	~CTimerObject();
+	~TimerObject();
 
 	void resetTime();
 	bool emitSignal() const;
 
-	friend class CTimedSignalQueue;
+	friend class TimedSignalQueue;
 };
 
 /* ---------------------------------------------------------------------------------------------- */
 /* -------------------------------------- CTimedSignalQueue ------------------------------------- */
 /* ---------------------------------------------------------------------------------------------- */
-class CTimedSignalQueue : public QObject
+class TimedSignalQueue : public QObject
 {
 	Q_OBJECT
 
 private:
 	// Key: The relative time as provided by getRelativeTimeInMs()
-	typedef QMultiMap<quint64, CTimerObject*>           TSignalQueue;
-	typedef QMultiMap<quint64, CTimerObject*>::iterator TSignalQueueIterator;
+	typedef QMultiMap<quint64, TimerObject*>           TSignalQueue;
+	typedef QMultiMap<quint64, TimerObject*>::iterator SignalQueueIterator;
 
 	// TODO: prevent timer overflow
 	static QElapsedTimer m_oElapsedTime;         // the relative time since the timer was started
@@ -128,8 +128,8 @@ private:
 	QMutex				m_pShutdownLock;
 
 public:
-	explicit CTimedSignalQueue(QObject* parent = NULL);
-	~CTimedSignalQueue();
+	explicit TimedSignalQueue(QObject* parent = NULL);
+	~TimedSignalQueue();
 
 	// Hold this lock to delay the deletion of the queue on application shutdown.
 	void shutdownLock();
@@ -178,7 +178,7 @@ private:
 
 		return m_oElapsedTime.elapsed();
 	}
-	QUuid push(CTimerObject* pTimedSignal);
+	QUuid push(TimerObject* pTimedSignal);
 
 public slots:
 	// Allows to manually check for new scheduled items in the queue.
@@ -215,11 +215,11 @@ public slots:
 	bool setInterval(QUuid oTimer_ID, quint64 tInterval);
 
 private:
-	CTimerObject* popInternal(QUuid oTimer_ID);
+	TimerObject* popInternal(QUuid oTimer_ID);
 
-	friend class CTimerObject;
+	friend class TimerObject;
 };
 
-extern CTimedSignalQueue signalQueue;
+extern TimedSignalQueue signalQueue;
 
 #endif // TIMEDSIGNALQUEUE_H
