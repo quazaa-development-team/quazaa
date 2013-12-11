@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** g2hostcache.h
 **
 ** Copyright © Quazaa Development Team, 2009-2013.
@@ -26,7 +26,6 @@
 #define G2HOSTCACHE_H
 
 #include "hostcache.h"
-
 #include "g2hostcachehost.h"
 
 #define ENABLE_G2_HOST_CACHE_DEBUGGING    1
