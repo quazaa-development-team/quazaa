@@ -271,7 +271,7 @@ HEADERS += \
 		Models/discoverytablemodel.h \
 		Models/downloadstreemodel.h \
 		Models/downloadspeermodel.h \
-		Models/g2cachetablemodel.h \
+		Models/hostcachetablemodel.h \
 		Models/ircuserlistmodel.h \
 		Models/neighbourstablemodel.h \
 		Models/searchtreemodel.h \
@@ -432,7 +432,7 @@ SOURCES += \
 		Models/discoverytablemodel.cpp \
 		Models/downloadstreemodel.cpp \
 		Models/downloadspeermodel.cpp \
-		Models/g2cachetablemodel.cpp \
+		Models/hostcachetablemodel.cpp \
 		Models/ircuserlistmodel.cpp \
 		Models/neighbourstablemodel.cpp \
 		Models/searchtreemodel.cpp \

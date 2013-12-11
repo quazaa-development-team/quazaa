@@ -54,7 +54,7 @@ WidgetHostCache::WidgetHostCache(QWidget* parent) :
 	connect(m_pTableViewG2Cache, SIGNAL(clicked(QModelIndex)), this, SLOT(tableViewG2Cache_clicked(QModelIndex)));
 	connect(m_pTableViewG2Cache, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(tableViewG2Cache_doubleClicked(QModelIndex)));
 
-	m_pHosts = new G2CacheTableModel( this );
+	m_pHosts = new HostCacheTableModel( this );
 
 	m_pTableViewG2Cache->setModel( m_pHosts );
 

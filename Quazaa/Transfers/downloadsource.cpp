@@ -147,7 +147,7 @@ QDataStream& operator>>(QDataStream& s, CDownloadSource& rhs)
 			{
 				int x;
 				s >> x;
-				rhs.m_nNetwork = static_cast<DiscoveryProtocol>(x);
+				rhs.m_nNetwork = static_cast<Protocol>(x);
 			}
 			else if( sTag == "guid" )
 			{

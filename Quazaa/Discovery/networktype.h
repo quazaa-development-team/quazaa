@@ -28,7 +28,7 @@
 #include <QtGlobal>
 #include <QString>
 
-enum DiscoveryProtocol
+enum Protocol
 {
 	dpNull        = 0,
 	dpGnutella    = 1,
@@ -45,7 +45,7 @@ private:
 public:
 	CNetworkType();
 	CNetworkType(quint16 type);
-	CNetworkType(DiscoveryProtocol type);
+	CNetworkType(Protocol type);
 
 	inline void registerMetaType() const;
 

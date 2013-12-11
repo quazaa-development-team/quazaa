@@ -31,7 +31,7 @@ CNetworkIconProvider::CNetworkIconProvider()
 {
 }
 
-QIcon CNetworkIconProvider::icon(DiscoveryProtocol protocol)
+QIcon CNetworkIconProvider::icon(Protocol protocol)
 {
 	QIcon icon;
 	QString key = QLatin1String("nip_dp_") + QString::number(protocol);

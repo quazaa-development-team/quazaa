@@ -36,8 +36,9 @@ HostCache::~HostCache()
 }
 
 /**
- * @brief start initializes the Host Cache. Make sure this is called after QApplication is
- * instantiated.
+ * @brief start initializes the Host Cache.
+ * Make sure this is not called before QApplication is instantiated.
+ * Any custom initializations should be made within asyncStartUpHelper().
  * Locking: YES (asynchronous)
  */
 void HostCache::start()
@@ -52,4 +53,15 @@ void HostCache::start()
 	m_pHostCacheDiscoveryThread.data()->start( QThread::LowPriority );
 
 	QMetaObject::invokeMethod( this, "asyncStartUpHelper", Qt::QueuedConnection );
+}
+
+/**
+ * @brief registerMetaTypes registers the necessary meta types for signal and slot connections.
+ * Locking: /
+ */
+void HostCache::registerMetaTypes()
+{
+	static int foo = qRegisterMetaType< SharedHostPtr >( "SharedHostPtr" );
+
+	Q_UNUSED( foo );
 }

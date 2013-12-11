@@ -31,9 +31,50 @@
 
 class HostCacheHost
 {
+protected:
+	Protocol    m_nType;        // The network type
+
+	CEndPoint   m_oAddress;     // Hub address
+
+	quint32     m_tTimestamp;   // Kiedy ostatnio widziany
+
+	quint32     m_nID;          // GUI ID
+
+	quint32     m_tLastConnect; // kiedy ostatnio sie polaczylismy?
+	quint8      m_nFailures;    // Connection failures in a row.
+
+	bool        m_bConnectable;
+
+private:
+	// mechanism for allocating GUI IDs
+	static quint32              m_nLastID;
+	static QMutex               m_oIDLock;
+	static std::set<quint32>    m_idCheck;
+
 public:
-	HostCacheHost();
+	HostCacheHost(const CEndPoint& oAddress, const quint8 nFailures,
+				  const quint32 tTimestamp,  const quint32 tLastConnect);
 	virtual ~HostCacheHost();
+
+private:
+	HostCacheHost(const HostCacheHost&) {} // make sure to avoid unintentional copies
+
+public:
+	virtual bool canQuery(const quint32) const { return true; }
+
+	inline Protocol  type()          const { return m_nType;          }
+	inline CEndPoint address()       const { return m_oAddress;       }
+	inline quint32   timestamp()     const { return m_tTimestamp;     }
+	inline quint32   id()            const { return m_nID;            }
+	inline quint32   lastConnect()   const { return m_tLastConnect;   }
+	inline quint8    failures()      const { return m_nFailures;      }
+	inline bool      connectable()   const { return m_bConnectable;   }
+
+	// There is no setTimestamp() as the timestamp needs to be maintained by the Host Cache.
+	// The same goes for failures and the GUI ID.
+	inline void      setAddress(     CEndPoint oAddress     ) { m_oAddress     = oAddress;     }
+	inline void      setLastConnect( quint32   tLastConnect ) { m_tLastConnect = tLastConnect; }
+	inline void      setConnectable( bool      bConnectable ) { m_bConnectable = bConnectable; }
 };
 
 #endif // HOSTCACHEHOST_H

@@ -37,41 +37,37 @@ public:
 
 G2HostCacheHost::G2HostCacheHost(const CEndPoint& oAddress, const quint32 tTimestamp,
 								 const quint8 nFailures) :
-	m_oAddress(     oAddress    ),
-	m_tTimestamp(   tTimestamp  ),
+	HostCacheHost( oAddress, nFailures, tTimestamp, 0 ),
 	m_nQueryKey(    0           ),
 	m_oKeyHost(     CEndPoint() ),
 	m_nKeyTime(     0           ),
 	m_tAck(         0           ),
 	m_tLastQuery(   0           ),
 	m_tRetryAfter(  0           ),
-	m_tLastConnect( 0           ),
-	m_nFailures(    nFailures   ),
 	m_bIteratorValid( false     )
 {
+	m_nType = Protocol::dpG2;
 }
 
 G2HostCacheHost::G2HostCacheHost(const G2HostCacheHost& oHost, const quint32 tTimestamp,
 								 const quint8 nFailures) :
-	m_oAddress(     oHost.m_oAddress     ),
-	m_tTimestamp(   tTimestamp           ),
+	HostCacheHost( oHost.m_oAddress, nFailures, tTimestamp, oHost.m_tLastConnect ),
 	m_nQueryKey(    oHost.m_nQueryKey    ),
 	m_oKeyHost(     oHost.m_oKeyHost     ),
 	m_nKeyTime(     oHost.m_nKeyTime     ),
 	m_tAck(         oHost.m_tAck         ),
 	m_tLastQuery(   oHost.m_tLastQuery   ),
 	m_tRetryAfter(  oHost.m_tRetryAfter  ),
-	m_tLastConnect( oHost.m_tLastConnect ),
-	m_nFailures(    nFailures            ),
 	m_bIteratorValid( false              )
 {
+	m_nType = Protocol::dpG2;
 }
 
 G2HostCacheHost::~G2HostCacheHost()
 {
 }
 
-bool G2HostCacheHost::canQuery(const quint32 tNow)
+bool G2HostCacheHost::canQuery(const quint32 tNow) const
 {
 	// TODO: remove in beta1
 	Q_ASSERT( m_bIteratorValid );

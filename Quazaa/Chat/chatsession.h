@@ -51,7 +51,7 @@ protected:
 	bool				  m_bShareaza;
 public:
 	QUuid			  m_oGUID;
-	DiscoveryProtocol m_nProtocol;
+	Protocol m_nProtocol;
 	ChatState		  m_nState;
 	QString			  m_sNick;
 public:

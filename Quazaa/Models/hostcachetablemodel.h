@@ -1,5 +1,5 @@
 /*
-** g2cachetablemodel.h
+** hostcachetablemodel.h
 **
 ** Copyright © Quazaa Development Team, 2013-2013.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
@@ -29,14 +29,14 @@
 
 #include "g2hostcache.h"
 
-class G2CacheTableModel : public QAbstractTableModel
+class HostCacheTableModel : public QAbstractTableModel
 {
 	Q_OBJECT
 
 public:
 	struct HostData
 	{
-		SharedG2HostPtr m_pHost;
+		SharedHostPtr   m_pHost;
 
 		const CEndPoint m_oAddress;
 		const QString   m_sAddress;
@@ -52,8 +52,8 @@ public:
 		//QString         m_sUserAgent;
 		//QIcon           m_iNetwork;
 
-		HostData(SharedG2HostPtr pHost);
-		bool update(int row, int col, QModelIndexList& to_update, G2CacheTableModel* model);
+		HostData(SharedHostPtr pHost);
+		bool update(int row, int col, QModelIndexList& to_update, HostCacheTableModel* model);
 		QVariant data(int col) const;
 		bool lessThan(int col, HostData* pOther) const;
 	};
@@ -80,8 +80,8 @@ public:
 	};
 
 public:
-	explicit G2CacheTableModel(QObject* parent = NULL, QWidget* container = NULL);
-	~G2CacheTableModel();
+	explicit HostCacheTableModel(QObject* parent = NULL, QWidget* container = NULL);
+	~HostCacheTableModel();
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const;
 	int columnCount(const QModelIndex& parent) const;
@@ -101,20 +101,20 @@ public:
 	void triggerHostRemoval(int nIndex);
 
 public slots:
-	void recieveHostInfo(SharedG2HostPtr pHost);
+	void recieveHostInfo(SharedHostPtr pHost);
 
 	/**
 	 * @brief addHost adds a rule to the GUI.
 	 * @param pHost : the host
 	 */
-	void addHost(SharedG2HostPtr pHost);
+	void addHost(SharedHostPtr pHost);
 
 	/**
 	 * @brief removeHost removes a host from the table model.
 	 * This is to be triggered from the host cache AFTER the host has been removed.
 	 * @param pHost : the host
 	 */
-	void removeHost(SharedG2HostPtr pHost);
+	void removeHost(SharedHostPtr pHost);
 
 	/**
 	 * @brief updateHost updates the GUI for a specified host.
@@ -132,6 +132,6 @@ private:
 	void erase(int nPos);
 };
 
-typedef G2CacheTableModel::HostData    HostData;
+typedef HostCacheTableModel::HostData    HostData;
 
 #endif // G2CACHETABLEMODEL_H

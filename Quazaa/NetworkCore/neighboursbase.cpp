@@ -73,7 +73,7 @@ void CNeighboursBase::removeNode(CNeighbour* pNode)
 	emit neighbourRemoved(pNode);
 }
 
-CNeighbour* CNeighboursBase::find(const QHostAddress& oAddress, DiscoveryProtocol nProtocol)
+CNeighbour* CNeighboursBase::find(const QHostAddress& oAddress, Protocol nProtocol)
 {
 	ASSUME_LOCK(m_pSection);
 

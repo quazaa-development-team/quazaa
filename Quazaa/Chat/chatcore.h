@@ -46,7 +46,7 @@ public:
 	CChatCore(QObject *parent = 0);
 	virtual ~CChatCore();
 
-	void OnAccept(CNetworkConnection* pConn, DiscoveryProtocol nProto);
+	void OnAccept(CNetworkConnection* pConn, Protocol nProto);
 
 protected:
 	void Add(CChatSession* pSession);

@@ -150,7 +150,7 @@ SharedG2HostPtr G2HostCache::get(const CEndPoint& oHost)
  * @param pHost: the CHostCacheHost to check.
  * @return true if the host could be found in the cache, false otherwise.
  */
-bool G2HostCache::check(const SharedG2HostPtr pHost) const
+bool G2HostCache::check(const SharedHostPtr pHost) const
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache,
@@ -160,9 +160,12 @@ bool G2HostCache::check(const SharedG2HostPtr pHost) const
 	ASSUME_LOCK( m_pSection );
 	Q_ASSERT( pHost->failures() <= m_nMaxFailures );
 
+	if ( pHost->type() != Protocol::dpG2 )
+		return false;
+
 	G2HostCache* pThis = const_cast<G2HostCache*>( this );
 
-	G2HostCacheIterator it = pThis->find( pHost );
+	G2HostCacheIterator it = pThis->find( *((SharedG2HostPtr*)&pHost) );
 	return it != pThis->m_lHosts.end();
 }
 
@@ -686,17 +689,6 @@ quint32 G2HostCache::requestHostInfo()
 	m_pSection.unlock();
 
 	return nHosts;
-}
-
-/**
- * @brief Manager::registerMetaTypes registers the necessary meta types for signals and slots.
- * Locking: /
- */
-void G2HostCache::registerMetaTypes()
-{
-	static int foo = qRegisterMetaType< SharedG2HostPtr >( "SharedG2HostPtr" );
-
-	Q_UNUSED( foo );
 }
 
 /**

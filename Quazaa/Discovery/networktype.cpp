@@ -38,7 +38,7 @@ CNetworkType::CNetworkType(quint16 type) :
 	registerMetaType();
 }
 
-CNetworkType::CNetworkType(DiscoveryProtocol type) :
+CNetworkType::CNetworkType(Protocol type) :
 	m_nNetworks( (quint16)type )
 {
 	registerMetaType();

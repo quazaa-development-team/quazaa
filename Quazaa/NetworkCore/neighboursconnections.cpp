@@ -98,7 +98,7 @@ void CNeighboursConnections::removeNode(CNeighbour* pNode)
 	CNeighboursRouting::removeNode(pNode);
 }
 
-CNeighbour* CNeighboursConnections::randomNode(DiscoveryProtocol nProtocol, int nType, CNeighbour* pNodeExcept)
+CNeighbour* CNeighboursConnections::randomNode(Protocol nProtocol, int nType, CNeighbour* pNodeExcept)
 {
 	QList<CNeighbour*> lNodeList;
 
@@ -123,7 +123,7 @@ CNeighbour* CNeighboursConnections::randomNode(DiscoveryProtocol nProtocol, int 
 	return lNodeList.at(nIndex);
 }
 
-void CNeighboursConnections::disconnectYoungest(DiscoveryProtocol nProtocol, int nType, bool bCore)
+void CNeighboursConnections::disconnectYoungest(Protocol nProtocol, int nType, bool bCore)
 {
 	CNeighbour* pNode = 0;
 
@@ -435,7 +435,7 @@ CNeighbour* CNeighboursConnections::onAccept(CNetworkConnection* pConn)
 	return pNew;
 }
 
-CNeighbour* CNeighboursConnections::connectTo(CEndPoint& oAddress, DiscoveryProtocol nProtocol, bool bAutomatic)
+CNeighbour* CNeighboursConnections::connectTo(CEndPoint& oAddress, Protocol nProtocol, bool bAutomatic)
 {
 	ASSUME_LOCK(m_pSection);
 

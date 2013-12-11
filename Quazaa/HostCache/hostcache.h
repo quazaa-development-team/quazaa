@@ -67,6 +67,12 @@ public:
 	 */
 	void            start();
 
+	/**
+	 * @brief registerMetaTypes registers the necessary meta types for signal and slot connections.
+	 * Locking: /
+	 */
+	void            registerMetaTypes();
+
 signals:
 	/**
 	 * @brief hostAdded informs about a new host having been added.

@@ -28,7 +28,7 @@
 #include <QMainWindow>
 
 #include "tableview.h"
-#include "g2cachetablemodel.h"
+#include "hostcachetablemodel.h"
 
 namespace Ui
 {
@@ -47,7 +47,7 @@ protected:
 	void changeEvent(QEvent* e);
 
 public:
-	G2CacheTableModel*      m_pHosts;
+	HostCacheTableModel*      m_pHosts;
 
 private:
 	Ui::WidgetHostCache*   ui;

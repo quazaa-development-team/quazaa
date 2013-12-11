@@ -73,7 +73,7 @@ public:
 				const quint32 tAck, const quint32 tNow);
 
 	SharedG2HostPtr get(const CEndPoint& oHost);
-	bool check(const SharedG2HostPtr pHost) const;
+	bool check(const SharedHostPtr pHost) const;
 
 	void updateFailures(const CEndPoint& oAddress, const quint32 nFailures);
 
@@ -109,11 +109,6 @@ public:
 	bool isEmpty() const;
 
 	quint32 requestHostInfo();
-
-	/**
-	 * @brief Manager::registerMetaTypes registers the necessary meta types for signals and slots.
-	 */
-	void            registerMetaTypes();
 
 signals:
 

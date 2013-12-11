@@ -624,6 +624,7 @@ void SecurityTableModel::recieveRuleInfo(Rule* pRule)
  */
 void SecurityTableModel::addRule(Rule* pRule)
 {
+	Q_ASSERT( pRule );
 	Q_ASSERT( securityManager.check( pRule ) );
 
 	securityManager.m_oRWLock.lockForRead();

@@ -24,11 +24,11 @@
 
 #include <QAbstractItemView>
 
-#include "g2cachetablemodel.h"
+#include "hostcachetablemodel.h"
 
 #include "debug_new.h"
 
-HostData::HostData(SharedG2HostPtr pHost) :
+HostData::HostData(SharedHostPtr pHost) :
 	m_pHost(        pHost                ),
 	m_oAddress(     pHost->address()     ),
 	m_sAddress(     m_oAddress.toStringWithPort() ),
@@ -53,7 +53,7 @@ HostData::HostData(SharedG2HostPtr pHost) :
  * @return true if an entry within the column col has been modified
  */
 bool HostData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
-					  G2CacheTableModel* pModel)
+					  HostCacheTableModel* pModel)
 {
 	Q_ASSERT( !m_pHost.isNull() );
 
@@ -138,7 +138,7 @@ bool HostData::lessThan(int col, HostData* pOther) const
 	}
 }
 
-G2CacheTableModel::G2CacheTableModel(QObject* parent, QWidget* container) :
+HostCacheTableModel::HostCacheTableModel(QObject* parent, QWidget* container) :
 	QAbstractTableModel( parent ),
 	m_oContainer( container ),
 	m_nSortColumn( -1 ),
@@ -147,11 +147,11 @@ G2CacheTableModel::G2CacheTableModel(QObject* parent, QWidget* container) :
 	// register necessary meta types before using them
 	hostCache.registerMetaTypes();
 
-	connect( &hostCache, SIGNAL( hostAdded( SharedG2HostPtr ) ), this,
-			 SLOT( addHost( SharedG2HostPtr ) ), Qt::QueuedConnection );
+	connect( &hostCache, SIGNAL( hostAdded( SharedHostPtr ) ), this,
+			 SLOT( addHost( SharedHostPtr ) ), Qt::QueuedConnection );
 
-	connect( &hostCache, SIGNAL( hostRemoved( SharedG2HostPtr ) ), this,
-			 SLOT( removeHost( SharedG2HostPtr ) ), Qt::QueuedConnection );
+	connect( &hostCache, SIGNAL( hostRemoved( SharedHostPtr ) ), this,
+			 SLOT( removeHost( SharedHostPtr ) ), Qt::QueuedConnection );
 
 	// This handles GUI updates on rule changes.
 	connect( &hostCache, SIGNAL( hostUpdated( quint32 ) ), this,
@@ -162,12 +162,12 @@ G2CacheTableModel::G2CacheTableModel(QObject* parent, QWidget* container) :
 	completeRefresh();
 }
 
-G2CacheTableModel::~G2CacheTableModel()
+HostCacheTableModel::~HostCacheTableModel()
 {
 	m_vHosts.clear();
 }
 
-int G2CacheTableModel::rowCount(const QModelIndex& parent) const
+int HostCacheTableModel::rowCount(const QModelIndex& parent) const
 {
 	if ( parent.isValid() )
 	{
@@ -179,7 +179,7 @@ int G2CacheTableModel::rowCount(const QModelIndex& parent) const
 	}
 }
 
-int G2CacheTableModel::columnCount(const QModelIndex& parent) const
+int HostCacheTableModel::columnCount(const QModelIndex& parent) const
 {
 	if ( parent.isValid() )
 	{
@@ -191,7 +191,7 @@ int G2CacheTableModel::columnCount(const QModelIndex& parent) const
 	}
 }
 
-QVariant G2CacheTableModel::data(const QModelIndex& index, int nRole) const
+QVariant HostCacheTableModel::data(const QModelIndex& index, int nRole) const
 {
 	if ( !index.isValid() || index.row() > m_vHosts.size() || index.row() < 0 )
 	{
@@ -254,7 +254,7 @@ QVariant G2CacheTableModel::data(const QModelIndex& index, int nRole) const
 	return QVariant();
 }
 
-QVariant G2CacheTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant HostCacheTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	if ( orientation != Qt::Horizontal )
 		return QVariant();
@@ -297,7 +297,7 @@ QVariant G2CacheTableModel::headerData(int section, Qt::Orientation orientation,
 	return QVariant();
 }
 
-QModelIndex G2CacheTableModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex HostCacheTableModel::index(int row, int column, const QModelIndex& parent) const
 {
 	if ( parent.isValid() || row < 0 || row >= m_vHosts.size() )
 		return QModelIndex();
@@ -330,7 +330,7 @@ public:
 	Qt::SortOrder m_nOrder;
 };
 
-void G2CacheTableModel::sort(int column, Qt::SortOrder order)
+void HostCacheTableModel::sort(int column, Qt::SortOrder order)
 {
 	m_nSortColumn = column;
 	m_nSortOrder  = order;
@@ -371,7 +371,7 @@ void G2CacheTableModel::sort(int column, Qt::SortOrder order)
 	m_bNeedSorting = false;
 }
 
-int G2CacheTableModel::find(quint32 nRuleID)
+int HostCacheTableModel::find(quint32 nRuleID)
 {
 	const int nSize = (int)m_vHosts.size();
 
@@ -384,7 +384,7 @@ int G2CacheTableModel::find(quint32 nRuleID)
 	return -1;
 }
 
-G2CacheTableModel::HostData* G2CacheTableModel::dataFromRow(int nRow) const
+HostCacheTableModel::HostData* HostCacheTableModel::dataFromRow(int nRow) const
 {
 	if ( nRow < m_vHosts.size() && nRow >= 0 )
 		return m_vHosts[nRow];
@@ -400,7 +400,7 @@ G2CacheTableModel::HostData* G2CacheTableModel::dataFromRow(int nRow) const
 		return NULL;
 }*/
 
-void G2CacheTableModel::completeRefresh()
+void HostCacheTableModel::completeRefresh()
 {
 	// Remove all rules.
 	if ( m_vHosts.size() )
@@ -413,8 +413,8 @@ void G2CacheTableModel::completeRefresh()
 	}
 
 	// Note that this slot is automatically disconnected once all rules have been recieved once.
-	connect( &hostCache, SIGNAL( hostInfo( SharedG2HostPtr ) ), this,
-			 SLOT( recieveHostInfo( SharedG2HostPtr ) ), Qt::QueuedConnection );
+	connect( &hostCache, SIGNAL( hostInfo( SharedHostPtr ) ), this,
+			 SLOT( recieveHostInfo( SharedHostPtr ) ), Qt::QueuedConnection );
 
 	// Request getting them back from the Security Manager.
 	m_nHostInfo = hostCache.requestHostInfo();
@@ -424,14 +424,14 @@ void G2CacheTableModel::completeRefresh()
  * @brief SecurityTableModel::triggerRuleRemoval
  * @param nIndex
  */
-void G2CacheTableModel::triggerHostRemoval(int nIndex)
+void HostCacheTableModel::triggerHostRemoval(int nIndex)
 {
 	Q_ASSERT( nIndex >= 0 && nIndex < m_vHosts.size() );
 
 	hostCache.remove( m_vHosts[nIndex]->m_oAddress );
 }
 
-void G2CacheTableModel::recieveHostInfo(SharedG2HostPtr pHost)
+void HostCacheTableModel::recieveHostInfo(SharedHostPtr pHost)
 {
 	--m_nHostInfo;
 
@@ -439,8 +439,8 @@ void G2CacheTableModel::recieveHostInfo(SharedG2HostPtr pHost)
 	if ( !m_nHostInfo )
 	{
 		// Make sure we don't recieve any signals we don't want once we got all hosts once.
-		disconnect( &hostCache, SIGNAL( hostInfo( SharedG2HostPtr ) ),
-					this, SLOT( recieveHostInfo( SharedG2HostPtr ) ) );
+		disconnect( &hostCache, SIGNAL( hostInfo( SharedHostPtr ) ),
+					this, SLOT( recieveHostInfo( SharedHostPtr ) ) );
 	}
 
 	addHost( pHost );
@@ -450,7 +450,7 @@ void G2CacheTableModel::recieveHostInfo(SharedG2HostPtr pHost)
  * @brief addHost adds a rule to the GUI.
  * @param pHost : the host
  */
-void G2CacheTableModel::addHost(SharedG2HostPtr pHost)
+void HostCacheTableModel::addHost(SharedHostPtr pHost)
 {
 	hostCache.m_pSection.lock();
 	Q_ASSERT( hostCache.check( pHost ) );
@@ -463,7 +463,7 @@ void G2CacheTableModel::addHost(SharedG2HostPtr pHost)
  * This is to be triggered from the host cache AFTER the host has been removed.
  * @param pHost : the host
  */
-void G2CacheTableModel::removeHost(SharedG2HostPtr pHost)
+void HostCacheTableModel::removeHost(SharedHostPtr pHost)
 {
 	for ( int i = 0; i < m_vHosts.size(); ++i )
 	{
@@ -481,7 +481,7 @@ void G2CacheTableModel::removeHost(SharedG2HostPtr pHost)
  * @brief updateHost updates the GUI for a specified host.
  * @param nHostID : the ID of the host
  */
-void G2CacheTableModel::updateHost(quint32 nHostID)
+void HostCacheTableModel::updateHost(quint32 nHostID)
 {
 	QModelIndexList uplist;
 	bool bSort = m_bNeedSorting;
@@ -521,7 +521,7 @@ void G2CacheTableModel::updateHost(quint32 nHostID)
 /**
  * @brief updateAll updates all hosts in the GUI.
  */
-void G2CacheTableModel::updateAll()
+void HostCacheTableModel::updateAll()
 {
 	QModelIndexList uplist;
 	bool bSort = m_bNeedSorting;
@@ -558,7 +558,7 @@ void G2CacheTableModel::updateAll()
 	}
 }
 
-void G2CacheTableModel::insert(HostData* pData)
+void HostCacheTableModel::insert(HostData* pData)
 {
 	if ( m_bNeedSorting )
 	{
@@ -582,7 +582,7 @@ void G2CacheTableModel::insert(HostData* pData)
 	}
 }
 
-void G2CacheTableModel::erase(int nPos)
+void HostCacheTableModel::erase(int nPos)
 {
 	beginRemoveRows( QModelIndex(), nPos, nPos );
 	delete m_vHosts[nPos];

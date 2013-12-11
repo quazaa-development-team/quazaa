@@ -17,7 +17,7 @@ public:
 	bool				m_bPush;		// is it a push source?
 	QList<CEndPoint>	m_oPushProxies;	// push proxy, in case we can't connect directly
 	TransferProtocol	m_nProtocol;	// protocol
-	DiscoveryProtocol	m_nNetwork;		// network
+	Protocol	m_nNetwork;		// network
 	QUuid				m_oGUID;		// source GUID (needed for pushing)
 	QList<CHash>		m_lHashes;		// list of hashes
 	time_t				m_tNextAccess;	// seconds since 1970
