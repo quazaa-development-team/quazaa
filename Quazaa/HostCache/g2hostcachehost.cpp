@@ -77,8 +77,8 @@ bool G2HostCacheHost::canQuery(const quint32 tNow) const
 		return false;
 	}
 
-	Q_ASSERT( tNow - m_tTimestamp >= 0 );
-	if ( tNow - m_tTimestamp > quazaaSettings.Gnutella2.HostCurrent ) // host is not too old
+	Q_ASSERT( tNow - m_tTimeStamp >= 0 );
+	if ( tNow - m_tTimeStamp > quazaaSettings.Gnutella2.HostCurrent ) // host is not too old
 	{
 		return false;
 	}

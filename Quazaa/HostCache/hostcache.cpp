@@ -27,7 +27,8 @@
 HostCache::HostCache() :
 	m_tLastSave( 0 ),
 	m_nMaxFailures( 0 ),
-	m_nSizeAtomic( 0 )
+	m_nSizeAtomic( 0 ),
+	m_nConnectablesAtomic( 0 )
 {
 }
 
@@ -64,4 +65,14 @@ void HostCache::registerMetaTypes()
 	static int foo = qRegisterMetaType< SharedHostPtr >( "SharedHostPtr" );
 
 	Q_UNUSED( foo );
+}
+
+/**
+ * @brief hasConnectable allows to find out whether the cache currently holds connectable hosts.
+ * Locking: /
+ * @return true if at least one connectable host is present; false otherwise.
+ */
+bool HostCache::hasConnectable()
+{
+	return m_nConnectablesAtomic.load();
 }

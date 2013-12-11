@@ -36,7 +36,7 @@ protected:
 
 	CEndPoint   m_oAddress;     // Hub address
 
-	quint32     m_tTimestamp;   // Kiedy ostatnio widziany
+	quint32     m_tTimeStamp;   // Kiedy ostatnio widziany
 
 	quint32     m_nID;          // GUI ID
 
@@ -62,9 +62,12 @@ private:
 public:
 	virtual bool canQuery(const quint32) const { return true; }
 
+	static HostCacheHost* load(QDataStream& fsFile, quint32 tNow);
+	virtual void save(QDataStream& fsFile);
+
 	inline Protocol  type()          const { return m_nType;          }
 	inline CEndPoint address()       const { return m_oAddress;       }
-	inline quint32   timestamp()     const { return m_tTimestamp;     }
+	inline quint32   timestamp()     const { return m_tTimeStamp;     }
 	inline quint32   id()            const { return m_nID;            }
 	inline quint32   lastConnect()   const { return m_tLastConnect;   }
 	inline quint8    failures()      const { return m_nFailures;      }
@@ -74,6 +77,9 @@ public:
 	// The same goes for failures and the GUI ID.
 	inline void      setAddress(     CEndPoint oAddress     ) { m_oAddress     = oAddress;     }
 	inline void      setLastConnect( quint32   tLastConnect ) { m_tLastConnect = tLastConnect; }
+
+	// Important: setConnectable() is only to be used by maintain(), else the connectables counter
+	// is messed up.
 	inline void      setConnectable( bool      bConnectable ) { m_bConnectable = bConnectable; }
 };
 

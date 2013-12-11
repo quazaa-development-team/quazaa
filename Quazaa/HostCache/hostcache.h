@@ -46,10 +46,10 @@ public:
 	// Thread used by the Host Cache
 	SharedThreadPtr         m_pHostCacheDiscoveryThread;
 
-	mutable quint32         m_tLastSave;   //TODO: use qatomicint
-
+	mutable quint32         m_tLastSave;
 	quint8                  m_nMaxFailures;
 	QAtomicInt              m_nSizeAtomic;
+	QAtomicInt              m_nConnectablesAtomic;
 
 protected:
 
@@ -72,6 +72,12 @@ public:
 	 * Locking: /
 	 */
 	void            registerMetaTypes();
+
+	/**
+	 * @brief hasConnectable allows to find out whether the cache currently holds connectable hosts.
+	 * @return true if at least one connectable host is present; false otherwise.
+	 */
+	bool            hasConnectable();
 
 signals:
 	/**

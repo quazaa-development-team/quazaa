@@ -133,7 +133,7 @@ void CNeighbour::onError(QAbstractSocket::SocketError e)
 				securityManager.ban( m_oAddress, Security::RuleTime::FiveMinutes, true,
 									 "[AUTO] Dropped handshake", true
 #ifdef _DEBUG
-									 , QString( "neighbour.cpp line 134" )
+									 , QString( "neighbour.cpp line 133" )
 #endif
 									 );
 			}

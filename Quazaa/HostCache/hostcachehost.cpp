@@ -23,6 +23,7 @@
 */
 
 #include "hostcachehost.h"
+#include "g2hostcachehost.h"
 
 quint32             HostCacheHost::m_nLastID = 0;
 QMutex              HostCacheHost::m_oIDLock;
@@ -32,7 +33,7 @@ HostCacheHost::HostCacheHost(const CEndPoint& oAddress, const quint8 nFailures,
 							 const quint32 tTimestamp, const quint32 tLastConnect) :
 	m_nType( Protocol::dpNull ),
 	m_oAddress(     oAddress     ),
-	m_tTimestamp(   tTimestamp   ),
+	m_tTimeStamp(   tTimestamp   ),
 	m_tLastConnect( tLastConnect ),
 	m_nFailures(    nFailures    ),
 	m_bConnectable( false        )
@@ -58,9 +59,54 @@ HostCacheHost::HostCacheHost(const CEndPoint& oAddress, const quint8 nFailures,
 
 HostCacheHost::~HostCacheHost()
 {
-	// TODO: find out why this causes problems
+	// TODO: find out why this causes trouble on shutdown
 
 	/*m_oIDLock.lock();
 	m_idCheck.erase( m_nID );
 	m_oIDLock.unlock();*/
+}
+
+HostCacheHost* HostCacheHost::load(QDataStream& fsFile, quint32 tNow)
+{
+	quint8    nType;
+	CEndPoint oAddress;
+	quint8    nFailures;
+	quint32   tTimeStamp;
+	quint32   tLastConnect;
+
+	fsFile >> nType;
+	fsFile >> oAddress;
+	fsFile >> nFailures;
+	fsFile >> tTimeStamp;
+	fsFile >> tLastConnect;
+
+	if ( tTimeStamp > tNow )
+		tTimeStamp = tNow - 60;
+
+	if ( tLastConnect > tNow )
+		tLastConnect = tNow - 60;
+
+	HostCacheHost* pReturn = NULL;
+
+	switch ( nType )
+	{
+	case Protocol::dpG2:
+		pReturn = new G2HostCacheHost( oAddress, tTimeStamp, nFailures );
+		pReturn->setLastConnect( tLastConnect );
+		break;
+
+	default:
+		break;
+	}
+
+	return pReturn;
+}
+
+void HostCacheHost::save(QDataStream& fsFile)
+{
+	fsFile << (quint8)m_nType;
+	fsFile << m_oAddress;
+	fsFile << m_nFailures;
+	fsFile << m_tTimeStamp;
+	fsFile << m_tLastConnect;
 }

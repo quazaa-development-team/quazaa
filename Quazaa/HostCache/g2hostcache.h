@@ -33,11 +33,12 @@
 #define ENABLE_G2_HOST_CACHE_BENCHMARKING 0
 
 // Increment this if there have been made changes to the way of storing Host Cache Hosts.
-#define G2_HOST_CACHE_CODE_VERSION	7
+#define HOST_CACHE_CODE_VERSION	8
 // History:
 // 4 - Initial implementation.
 // 6 - Fixed Hosts having an early date and changed time storage from QDateTime to quint32.
 // 7 - Changed host failure counter from quint32 to quint8.
+// 8 - Added Polymorphism and type indicator (m_nType)
 
 // TODO: test changes of m_nMaxFailures under load
 // TODO: things to test
@@ -79,7 +80,7 @@ public:
 
 private: // remove this private if this is ever required...
 //	SharedG2HostPtr update(const CEndPoint& oHost,     const quint32 tTimeStamp);
-	SharedG2HostPtr update(const G2HostCacheIterator& itHost, const quint32 tTimeStamp,
+	SharedG2HostPtr update(G2HostCacheIterator& itHost, const quint32 tTimeStamp,
 						   const quint32 nFailures);
 
 public:
@@ -92,7 +93,6 @@ public:
 	void onFailure(const CEndPoint& addr);
 	SharedG2HostPtr getConnectable(const QSet<SharedG2HostPtr>& oExcept = QSet<SharedG2HostPtr>(),
 								   QString sCountry = QString("ZZ"));
-	bool hasConnectable();
 
 	void clear();
 	void save(const quint32 tNow) const;
@@ -133,7 +133,7 @@ private:
 									const quint32 tNow, quint32 nNewFailures = 0);
 	void insert(SharedG2HostPtr pNew);
 
-	G2HostCacheIterator remove(G2HostCacheIterator& itHost);
+	G2HostCacheIterator erase(G2HostCacheIterator& itHost);
 	void removeWorst(quint8& nFailures);
 
 	G2HostCacheIterator      find(const CEndPoint& oHost);
