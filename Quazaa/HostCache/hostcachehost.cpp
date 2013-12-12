@@ -27,7 +27,7 @@
 
 quint32             HostCacheHost::m_nLastID = 0;
 QMutex              HostCacheHost::m_oIDLock;
-std::set<quint32>   HostCacheHost::m_idCheck;
+std::set<quint32>   HostCacheHost::m_lsIdCheck;
 
 HostCacheHost::HostCacheHost(const CEndPoint& oAddress, const quint8 nFailures,
 							 const quint32 tTimestamp, const quint32 tLastConnect) :
@@ -38,32 +38,13 @@ HostCacheHost::HostCacheHost(const CEndPoint& oAddress, const quint8 nFailures,
 	m_nFailures(    nFailures    ),
 	m_bConnectable( false        )
 {
-	m_oIDLock.lock();
-	static bool bNeedVerify = false;
-	bNeedVerify = !(++m_nLastID); // e.g. we got an overflow
-
-	// We only need to start checking the ID after the first overflow of m_nLastID.
-	if ( bNeedVerify )
-	{
-		while ( m_idCheck.find( m_nLastID ) != m_idCheck.end() )
-		{
-			++m_nLastID;
-		}
-	}
-
-	m_idCheck.insert( m_nLastID );
-	m_nID = m_nLastID;
-
-	m_oIDLock.unlock();
+	m_nID = generateID();
 }
 
 HostCacheHost::~HostCacheHost()
 {
 	// TODO: find out why this causes trouble on shutdown
-
-	/*m_oIDLock.lock();
-	m_idCheck.erase( m_nID );
-	m_oIDLock.unlock();*/
+	//releaseID( m_nID );
 }
 
 HostCacheHost* HostCacheHost::load(QDataStream& fsFile, quint32 tNow)
@@ -109,4 +90,36 @@ void HostCacheHost::save(QDataStream& fsFile)
 	fsFile << m_nFailures;
 	fsFile << m_tTimeStamp;
 	fsFile << m_tLastConnect;
+}
+
+quint32 HostCacheHost::generateID()
+{
+	m_oIDLock.lock();
+	static bool bNeedVerify = false;
+	bNeedVerify = !(++m_nLastID); // e.g. we got an overflow
+
+	// We only need to start checking the ID after the first overflow of m_nLastID.
+	if ( bNeedVerify )
+	{
+		while ( m_lsIdCheck.find( m_nLastID ) != m_lsIdCheck.end() )
+		{
+			++m_nLastID;
+		}
+	}
+
+	m_lsIdCheck.insert( m_nLastID );
+	quint32 nReturn = m_nLastID;
+
+	Q_ASSERT( m_lsIdCheck.find( m_nLastID ) != m_lsIdCheck.end() );
+
+	m_oIDLock.unlock();
+
+	return nReturn;
+}
+
+void HostCacheHost::releaseID(quint32 nID)
+{
+	m_oIDLock.lock();
+	Q_ASSERT( m_lsIdCheck.erase( nID ) );
+	m_oIDLock.unlock();
 }
