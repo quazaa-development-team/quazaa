@@ -994,9 +994,9 @@ void CDatagrams::onQH2(CEndPoint& addr, G2Packet* pPacket)
 			securityManager.ban( pInfo->m_oNodeAddress, Security::RuleTime::SixHours, true,
 								 QString( "[AUTO] Vendor blocked (%1)" ).arg( pInfo->m_sVendor ),
 								 true
-#ifdef _DEBUG
+#if SECURITY_LOG_BAN_SOURCES
 								 , QString( "datagrams.cpp line 982" )
-#endif
+#endif // SECURITY_LOG_BAN_SOURCES
 								 );
 		}
 		else

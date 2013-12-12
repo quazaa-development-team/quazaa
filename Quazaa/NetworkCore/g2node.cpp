@@ -328,9 +328,9 @@ void CG2Node::parseIncomingHandshake()
 		send_ConnectError( "403 Access Denied, sorry" );
 		securityManager.ban( m_oAddress, Security::RuleTime::SixHours, true,
 							 QString( "[AUTO] UA Blocked (%1)" ).arg( m_sUserAgent ), true
-#ifdef _DEBUG
+#if SECURITY_LOG_BAN_SOURCES
 							 , QString( "g2node.cpp line 320" )
-#endif
+#endif // SECURITY_LOG_BAN_SOURCES
 							 );
 		return;
 	}
@@ -506,9 +506,9 @@ void CG2Node::parseOutgoingHandshake()
 		send_ConnectError( "403 Access Denied, sorry" );
 		securityManager.ban( m_oAddress, Security::RuleTime::SixHours, true,
 							 QString( "[AUTO] UA Blocked (%1)" ).arg( m_sUserAgent ), true
-#ifdef _DEBUG
+#if SECURITY_LOG_BAN_SOURCES
 							 , QString( "g2node.cpp line 495" )
-#endif
+#endif // SECURITY_LOG_BAN_SOURCES
 							 );
 		return;
 	}
@@ -1142,9 +1142,9 @@ void CG2Node::onKHL(G2Packet* pPacket)
 					securityManager.ban( ep, Security::RuleTime::SixHours, true,
 										 QString( "[AUTO] Vendor blocked (%1)" ).arg( sVendor ),
 										 true
-#ifdef _DEBUG
+#if SECURITY_LOG_BAN_SOURCES
 										 , QString( "g2node.cpp line 1131" )
-#endif
+#endif // SECURITY_LOG_BAN_SOURCES
 										 );
 				}
 				else
@@ -1410,9 +1410,9 @@ void CG2Node::onQH2(G2Packet* pPacket)
 	{
 		securityManager.ban( pInfo->m_oNodeAddress, Security::RuleTime::SixHours, true,
 							 QString( "[AUTO] Vendor blocked (%1)" ).arg( pInfo->m_sVendor ), true
-#ifdef _DEBUG
+#if SECURITY_LOG_BAN_SOURCES
 							 , QString( "g2node.cpp line 1371" )
-#endif
+#endif // SECURITY_LOG_BAN_SOURCES
 							 );
 	} else {
 		if(SearchManager.onQueryHit(pPacket, pInfo))
@@ -1587,9 +1587,9 @@ void CG2Node::onHaw(G2Packet *pPacket)
 	{
 		securityManager.ban( addr, Security::RuleTime::SixHours, true,
 							 QString( "[AUTO] Vendor blocked (%1)" ).arg( strVendor ), true
-#ifdef _DEBUG
+#if SECURITY_LOG_BAN_SOURCES
 							 , QString( "g2node.cpp line 1545" )
-#endif
+#endif // SECURITY_LOG_BAN_SOURCES
 							 );
 		return;	// We don't want to propagate these...
 	}
