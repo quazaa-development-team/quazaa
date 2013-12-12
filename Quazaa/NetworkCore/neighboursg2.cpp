@@ -76,7 +76,7 @@ void CNeighboursG2::connectNode()
 
 	// Only query service if we're not already querying and we actually need fresh hosts.
 	if ( !discoveryManager.isActive( Discovery::stGWC ) &&
-		 ( hostCache.isEmpty() || !hostCache.hasConnectable() ) )
+		 ( !hostCache.hasConnectable() ) )
 	{
 		discoveryManager.queryService( CNetworkType( dpG2 ) );
 	}
@@ -121,7 +121,7 @@ void CNeighboursG2::maintain()
 
 	// TODO: Test whether already active checking is required
 	if ( !m_nHubsConnectedG2 && !discoveryManager.isActive( Discovery::stGWC )
-		 && ( hostCache.isEmpty() || !hostCache.hasConnectable() ) && m_nUnknownInitiated == 0 )
+		 && ( !hostCache.hasConnectable() ) && m_nUnknownInitiated == 0 )
 	{
 		qDebug() << "GWC query: Active:" << discoveryManager.isActive(Discovery::stGWC)
 				 << ", empty cache:" << hostCache.isEmpty()

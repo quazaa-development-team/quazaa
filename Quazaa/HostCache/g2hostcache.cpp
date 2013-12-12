@@ -621,26 +621,6 @@ quint32 G2HostCache::writeToFile(const void * const pManager, QFile& oFile)
 }
 
 /**
- * @brief CHostCache::count allows access to the size of the Host Cache.
- * Locking: /
- * @return the number of hosts in the cache.
- */
-quint32 G2HostCache::count() const
-{
-	return m_nSizeAtomic.loadAcquire();
-}
-
-/**
- * @brief CHostCache::isEmpty allows to check whether the Host Cache is empty.
- * Locking: /
- * @return true if the cache contains no hosts; false otherwise.
- */
-bool G2HostCache::isEmpty() const
-{
-	return !m_nSizeAtomic.loadAcquire();
-}
-
-/**
  * @brief requestHostInfo allows to request hostInfo() signals for all hosts.
  * Qt slot.
  * Locking: YES
@@ -1007,6 +987,15 @@ void G2HostCache::maintainInternal()
 }
 
 /**
+ * @brief stopInternal prepares the Host Cache (sub classes) for deletion.
+ * Locking: REQUIRED
+ */
+void G2HostCache::stopInternal()
+{
+	hostCache.save( common::getTNowUTC() );
+}
+
+/**
  * @brief addSyncHelper adds synchronously.
  * Locking: REQUIRED
  * @param host: the CEndPoint to add
@@ -1348,7 +1337,7 @@ void G2HostCache::load()
  * @brief CHostCache::asyncStartUpHelper helper method for start().
  * Locking: YES
  */
-void G2HostCache::asyncStartUpHelper()
+void G2HostCache::startUpInternal()
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "asyncStartUpH()" ) );

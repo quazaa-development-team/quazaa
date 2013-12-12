@@ -357,5 +357,5 @@ void CGWC::requestCompleted(QNetworkReply* pReply)
 
 	postLog( LogSeverity::Debug,
 			 QString( "Host Cache count after querying GWC: " ) +
-			 QString::number( hostCache.count() ), true );
+			 QString::number( hostCache.size() ), true );
 }

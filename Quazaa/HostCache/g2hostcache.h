@@ -104,9 +104,6 @@ public:
 
 	static quint32 writeToFile(const void* const pManager, QFile& oFile);
 
-	quint32 count() const;
-	bool isEmpty() const;
-
 	quint32 requestHostInfo();
 
 signals:
@@ -128,6 +125,12 @@ public slots:
 private:
 	void maintainInternal();
 
+	/**
+	 * @brief stopInternal prepares the Host Cache (sub classes) for deletion.
+	 * Locking: REQUIRED
+	 */
+	void stopInternal();
+
 	SharedG2HostPtr addSyncHelper(const CEndPoint& oHostIP, quint32 tTimeStamp,
 									const quint32 tNow, quint32 nNewFailures = 0);
 	void insert(SharedG2HostPtr pNew);
@@ -142,7 +145,7 @@ private:
 	void load();
 
 private slots:
-	void asyncStartUpHelper();
+	void startUpInternal();
 	void asyncUpdateFailures(CEndPoint oAddress, quint32 nNewFailures);
 	void asyncAddXTry(QString sHeader);
 	void asyncOnFailure(CEndPoint addr);

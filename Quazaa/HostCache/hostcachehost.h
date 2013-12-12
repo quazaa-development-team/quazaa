@@ -49,7 +49,12 @@ private:
 	// mechanism for allocating GUI IDs
 	static quint32              m_nLastID;
 	static QMutex               m_oIDLock;
+	static bool                 m_bShutDown;
 	static std::set<quint32>    m_lsIdCheck;
+
+#ifdef _DEBUG
+	static uint                 m_nHostCount;
+#endif // _DEBUG
 
 public:
 	HostCacheHost(const CEndPoint& oAddress, const quint8 nFailures,
@@ -57,7 +62,7 @@ public:
 	virtual ~HostCacheHost();
 
 private:
-	HostCacheHost(const HostCacheHost&) {} // make sure to avoid unintentional copies
+	HostCacheHost(const HostCacheHost&) { Q_ASSERT( false ); } // avoid unintentional copies
 
 public:
 	virtual bool canQuery(const quint32) const { return true; }
@@ -81,6 +86,8 @@ public:
 	// Important: setConnectable() is only to be used by maintain(), else the connectables counter
 	// is messed up.
 	inline void      setConnectable( bool      bConnectable ) { m_bConnectable = bConnectable; }
+
+	static void setShutDownFlag() { m_oIDLock.lock(); m_bShutDown = true; m_oIDLock.unlock(); }
 
 protected:
 	static quint32 generateID();

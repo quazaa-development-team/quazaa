@@ -25,9 +25,18 @@
 #include "hostcachehost.h"
 #include "g2hostcachehost.h"
 
+#ifdef _DEBUG
+#include "g2hostcache.h"
+#endif // _DEBUG
+
+bool                HostCacheHost::m_bShutDown = false;
 quint32             HostCacheHost::m_nLastID = 0;
 QMutex              HostCacheHost::m_oIDLock;
 std::set<quint32>   HostCacheHost::m_lsIdCheck;
+
+#ifdef _DEBUG
+uint                HostCacheHost::m_nHostCount = 0;
+#endif // _DEBUG
 
 HostCacheHost::HostCacheHost(const CEndPoint& oAddress, const quint8 nFailures,
 							 const quint32 tTimestamp, const quint32 tLastConnect) :
@@ -43,8 +52,14 @@ HostCacheHost::HostCacheHost(const CEndPoint& oAddress, const quint8 nFailures,
 
 HostCacheHost::~HostCacheHost()
 {
-	// TODO: find out why this causes trouble on shutdown
-	//releaseID( m_nID );
+#if ENABLE_G2_HOST_CACHE_DEBUGGING
+	qDebug() << "Deleting Host Cache Host No "
+			 << QString::number( m_nHostCount ).toLocal8Bit().data()
+			 << " with GUI ID "
+			 << QString::number( m_nID ).toLocal8Bit().data();
+#endif // _DEBUG
+
+	releaseID( m_nID );
 }
 
 HostCacheHost* HostCacheHost::load(QDataStream& fsFile, quint32 tNow)
@@ -95,6 +110,10 @@ void HostCacheHost::save(QDataStream& fsFile)
 quint32 HostCacheHost::generateID()
 {
 	m_oIDLock.lock();
+#ifdef _DEBUG
+	++m_nHostCount;
+#endif // _DEBUG
+
 	static bool bNeedVerify = false;
 	bNeedVerify = !(++m_nLastID); // e.g. we got an overflow
 
@@ -120,6 +139,13 @@ quint32 HostCacheHost::generateID()
 void HostCacheHost::releaseID(quint32 nID)
 {
 	m_oIDLock.lock();
-	Q_ASSERT( m_lsIdCheck.erase( nID ) );
+#ifdef _DEBUG
+	--m_nHostCount;
+#endif // _DEBUG
+
+	if ( !m_bShutDown ) // don't access the set on shutdown
+		if ( !m_lsIdCheck.erase( nID ) )
+			Q_ASSERT( false );
+
 	m_oIDLock.unlock();
 }

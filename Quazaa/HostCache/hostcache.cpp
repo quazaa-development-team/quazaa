@@ -50,10 +50,23 @@ void HostCache::start()
 
 	m_pHostCacheDiscoveryThread = SharedThreadPtr( new QThread() );
 
+	// set thread name
+	m_pHostCacheDiscoveryThread.data()->setObjectName( "Host Cache and Discovery" );
+
 	moveToThread( m_pHostCacheDiscoveryThread.data() );
 	m_pHostCacheDiscoveryThread.data()->start( QThread::LowPriority );
 
-	QMetaObject::invokeMethod( this, "asyncStartUpHelper", Qt::QueuedConnection );
+	QMetaObject::invokeMethod( this, "startUpInternal", Qt::BlockingQueuedConnection );
+}
+
+void HostCache::stop()
+{
+	// speed up HostCacheHost deletion process
+	HostCacheHost::setShutDownFlag();
+
+	m_pSection.lock();
+	stopInternal();
+	m_pSection.unlock();
 }
 
 /**
@@ -75,4 +88,24 @@ void HostCache::registerMetaTypes()
 bool HostCache::hasConnectable()
 {
 	return m_nConnectablesAtomic.load();
+}
+
+/**
+ * @brief size allows access to the number of Hosts in the Cache.
+ * Locking: /
+ * @return the number of hosts in the cache.
+ */
+quint32 HostCache::size() const
+{
+	return m_nSizeAtomic.loadAcquire();
+}
+
+/**
+ * @brief CHostCache::isEmpty allows to check whether the Host Cache is empty.
+ * Locking: /
+ * @return true if the cache contains no hosts; false otherwise.
+ */
+bool HostCache::isEmpty() const
+{
+	return !m_nSizeAtomic.loadAcquire();
 }

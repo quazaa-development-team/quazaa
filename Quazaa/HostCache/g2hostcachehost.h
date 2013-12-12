@@ -56,6 +56,9 @@ public:
 	G2HostCacheHost(const CEndPoint& oAddress, const quint32 tTimestamp, const quint8 nFailures);
 	G2HostCacheHost(const G2HostCacheHost& oHost, const quint32 tTimestamp, const quint8 nFailures);
 
+private:
+	G2HostCacheHost(const G2HostCacheHost&); // avoids unintentionnal copies
+
 public:
 	~G2HostCacheHost();
 

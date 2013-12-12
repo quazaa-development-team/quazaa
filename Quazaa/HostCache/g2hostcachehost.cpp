@@ -63,6 +63,12 @@ G2HostCacheHost::G2HostCacheHost(const G2HostCacheHost& oHost, const quint32 tTi
 	m_nType = Protocol::dpG2;
 }
 
+G2HostCacheHost::G2HostCacheHost(const G2HostCacheHost&) :
+	HostCacheHost( CEndPoint(), 0, 0, 0 )
+{
+	Q_ASSERT( false );
+}
+
 G2HostCacheHost::~G2HostCacheHost()
 {
 }

@@ -68,6 +68,11 @@ public:
 	void            start();
 
 	/**
+	 * @brief stop prepares the Host Cache for deletion on application shutdown.
+	 */
+	void            stop();
+
+	/**
 	 * @brief registerMetaTypes registers the necessary meta types for signal and slot connections.
 	 * Locking: /
 	 */
@@ -78,6 +83,20 @@ public:
 	 * @return true if at least one connectable host is present; false otherwise.
 	 */
 	bool            hasConnectable();
+
+	/**
+	 * @brief size allows access to the number of Hosts in the Cache.
+	 * Locking: /
+	 * @return the number of hosts in the cache.
+	 */
+	quint32 size() const;
+
+	/**
+	 * @brief CHostCache::isEmpty allows to check whether the Host Cache is empty.
+	 * Locking: /
+	 * @return true if the cache contains no hosts; false otherwise.
+	 */
+	bool isEmpty() const;
 
 signals:
 	/**
@@ -114,8 +133,14 @@ private slots:
 	 * cache.
 	 * Locking: YES
 	 */
+	virtual void    startUpInternal() = NULL;
 
-	virtual void    asyncStartUpHelper() = NULL;
+private:
+	/**
+	 * @brief stopInternal prepares the Host Cache (sub classes) for deletion.
+	 * Locking: REQUIRED
+	 */
+	virtual void    stopInternal() = NULL;
 };
 
 #endif // HOSTCACHE_H
