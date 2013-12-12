@@ -54,7 +54,7 @@ QString common::formatBytes(quint64 nBytesPerSec)
 	while ( nBPS > 1024 )
 	{
 		nBPS /= 1024;
-		nStep++;
+		++nStep;
 		if ( nStep == 4 )
 		{
 			break;

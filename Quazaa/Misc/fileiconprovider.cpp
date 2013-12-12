@@ -116,9 +116,9 @@ QPixmap fromWinHICON(HICON icon)
 	DrawIconEx( hdc, 0, 0, icon, iconinfo.xHotspot * 2, iconinfo.yHotspot * 2, 0, 0, DI_NORMAL);
 	QImage image = fromWinHBITMAP(hdc, winBitmap, w, h);
 
-	for (int y = 0 ; y < h && !foundAlpha ; y++) {
+	for (int y = 0 ; y < h && !foundAlpha ; ++y) {
 		QRgb *scanLine= reinterpret_cast<QRgb *>(image.scanLine(y));
-		for (int x = 0; x < w ; x++) {
+		for (int x = 0; x < w ; ++x) {
 			if (qAlpha(scanLine[x]) != 0) {
 				foundAlpha = true;
 				break;
@@ -130,10 +130,10 @@ QPixmap fromWinHICON(HICON icon)
 		DrawIconEx( hdc, 0, 0, icon, w, h, 0, 0, DI_MASK);
 		QImage mask = fromWinHBITMAP(hdc, winBitmap, w, h);
 
-		for (int y = 0 ; y < h ; y++){
+		for (int y = 0 ; y < h ; ++y){
 			QRgb *scanlineImage = reinterpret_cast<QRgb *>(image.scanLine(y));
 			QRgb *scanlineMask = mask.isNull() ? 0 : reinterpret_cast<QRgb *>(mask.scanLine(y));
-			for (int x = 0; x < w ; x++){
+			for (int x = 0; x < w ; ++x){
 				if (scanlineMask && qRed(scanlineMask[x]) != 0)
 					scanlineImage[x] = 0; //mask out this pixel
 				else

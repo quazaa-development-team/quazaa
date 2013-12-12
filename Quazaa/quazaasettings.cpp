@@ -634,7 +634,7 @@ void CQuazaaSettings::loadSettings()
 	quazaaSettings.Gnutella.ConnectFactor = m_qSettings.value("ConnectFactor", 3).toInt();
 	quazaaSettings.Gnutella.ConnectThrottle = m_qSettings.value("ConnectThrottle", 120).toUInt();
 	quazaaSettings.Gnutella.HitsPerPacket = m_qSettings.value("HitsPerPacket", 64).toInt();
-	quazaaSettings.Gnutella.HostCacheSize = m_qSettings.value("HostCacheSize", 1024).toUInt();
+	quazaaSettings.Gnutella.HostCacheSize = m_qSettings.value("HostCacheSize", 2048).toUInt();
 	quazaaSettings.Gnutella.HostCacheView = m_qSettings.value("HostCacheView", 3).toInt();
 	quazaaSettings.Gnutella.MaxHits = m_qSettings.value("MaxHits", 64).toInt();
 	quazaaSettings.Gnutella.MaxResults = m_qSettings.value("MaxResults", 150).toInt();

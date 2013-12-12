@@ -644,7 +644,7 @@ void CNeighboursTableModel::addNode(CNeighbour* pNode)
 
 void CNeighboursTableModel::removeNode(CNeighbour* pNode)
 {
-	for ( int i = 0, nMax = m_lNodes.size(); i < nMax; i++ )
+	for ( int i = 0, nMax = m_lNodes.size(); i < nMax; ++i )
 	{
 		if ( m_lNodes[i]->pNode == pNode )
 		{
