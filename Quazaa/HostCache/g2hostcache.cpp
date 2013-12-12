@@ -852,8 +852,10 @@ void G2HostCache::sanityCheck()
 	QMetaObject::invokeMethod( &securityManager.m_oSanity, "sanityCheckPerformed",
 							   Qt::QueuedConnection );
 
+#if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache,
 					   QString( "Finished sanity checking. %1 hosts removed." ).arg( nCount ) );
+#endif // ENABLE_G2_HOST_CACHE_DEBUGGING
 }
 
 /**
@@ -1145,10 +1147,11 @@ G2HostCacheIterator G2HostCache::erase(G2HostCacheIterator& itHost)
 	m_nConnectablesAtomic.fetchAndAddRelaxed( -1 * (*itHost)->connectable() );
 
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
-	qDebug() << QString( "itHost was connectable: " ) +
+	qDebug() << QString( "Removed Host by Iterator. Host was connectable: " ) +
 				(((*itHost)->connectable()) ? QString( "true" ) : QString( "false" )) + "\n" +
-				" New Size: "         + QString::number( m_nSizeAtomic.load() ) +
-				" New Connectables: " + QString::number( m_nConnectablesAtomic.load() );
+				"      Host Cache Size: "         + QString::number( m_nSizeAtomic.load() ) +
+				"      No of connectable Hosts: " +
+				QString::number( m_nConnectablesAtomic.load() );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	Q_ASSERT( m_nConnectablesAtomic.load() >= 0 );

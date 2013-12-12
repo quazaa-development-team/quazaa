@@ -28,7 +28,7 @@
 #include "hostcache.h"
 #include "g2hostcachehost.h"
 
-#define ENABLE_G2_HOST_CACHE_DEBUGGING    1
+#define ENABLE_G2_HOST_CACHE_DEBUGGING    0
 #define ENABLE_G2_HOST_CACHE_BENCHMARKING 0
 
 // Increment this if there have been made changes to the way of storing Host Cache Hosts.
