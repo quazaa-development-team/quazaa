@@ -2,29 +2,29 @@
 
 using namespace Discovery;
 
-CBannedDiscoveryService::CBannedDiscoveryService(const QUrl& oURL, const CNetworkType&, quint8) :
-	CDiscoveryService( oURL, CNetworkType( dpNull ), 0 )
+BannedDiscoveryService::BannedDiscoveryService(const QUrl& oURL, const CNetworkType&, quint8) :
+	DiscoveryService( oURL, CNetworkType( dpNull ), 0 )
 {
 	m_bBanned      = true;
-	m_nServiceType = stBanned;
+	m_nServiceType = ServiceType::Banned;
 }
 
-CBannedDiscoveryService::~CBannedDiscoveryService()
+BannedDiscoveryService::~BannedDiscoveryService()
 {
 }
 
-void CBannedDiscoveryService::doQuery() throw()
-{
-	Q_ASSERT( false );
-}
-
-void CBannedDiscoveryService::doUpdate() throw()
+void BannedDiscoveryService::doQuery() throw()
 {
 	Q_ASSERT( false );
 }
 
+void BannedDiscoveryService::doUpdate() throw()
+{
+	Q_ASSERT( false );
+}
 
-void CBannedDiscoveryService::doCancelRequest() throw()
+
+void BannedDiscoveryService::doCancelRequest() throw()
 {
 	Q_ASSERT( false );
 }

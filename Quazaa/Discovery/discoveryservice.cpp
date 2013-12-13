@@ -36,8 +36,8 @@ using namespace Discovery;
  * @param oNType
  * @param nRating
  */
-CDiscoveryService::CDiscoveryService(const QUrl& oURL, const CNetworkType& oNType, quint8 nRating) :
-	m_nServiceType( stNull ),
+DiscoveryService::DiscoveryService(const QUrl& oURL, const CNetworkType& oNType, quint8 nRating) :
+	m_nServiceType( ServiceType::Null ),
 	m_oNetworkType( oNType ),
 	m_oServiceURL( oURL ),
 	m_bQuery( true ),
@@ -61,7 +61,7 @@ CDiscoveryService::CDiscoveryService(const QUrl& oURL, const CNetworkType& oNTyp
  * @brief CDiscoveryService: Copy constructor. Copies all but the list of registered pointers.
  * @param pService
  */
-CDiscoveryService::CDiscoveryService(const CDiscoveryService& pService) :
+DiscoveryService::DiscoveryService(const DiscoveryService& pService) :
 	QObject(),
 	m_bRunning( false )
 {
@@ -90,7 +90,7 @@ CDiscoveryService::CDiscoveryService(const CDiscoveryService& pService) :
 /**
  * @brief ~CDiscoveryService
  */
-CDiscoveryService::~CDiscoveryService()
+DiscoveryService::~DiscoveryService()
 {
 
 }
@@ -102,7 +102,7 @@ CDiscoveryService::~CDiscoveryService()
  * @param pService
  * @return
  */
-bool CDiscoveryService::operator==(const CDiscoveryService& pService) const
+bool DiscoveryService::operator==(const DiscoveryService& pService) const
 {
 	return ( m_nServiceType == pService.m_nServiceType &&
 			 m_oNetworkType == pService.m_oNetworkType &&
@@ -116,7 +116,7 @@ bool CDiscoveryService::operator==(const CDiscoveryService& pService) const
  * @param pService
  * @return
  */
-bool CDiscoveryService::operator!=(const CDiscoveryService& pService) const
+bool DiscoveryService::operator!=(const DiscoveryService& pService) const
 {
 	return !( *this == pService );
 }
@@ -129,7 +129,7 @@ bool CDiscoveryService::operator!=(const CDiscoveryService& pService) const
  * @param fsStream
  * @param nVersion
  */
-void CDiscoveryService::load(CDiscoveryService*& pService, QDataStream &fsFile, int)
+void DiscoveryService::load(DiscoveryService*& pService, QDataStream &fsFile, int)
 {
 	quint8     nServiceType;        // GWC, UKHL, ...
 	quint16    nNetworkType;        // could be several in case of GWC for instance
@@ -138,7 +138,7 @@ void CDiscoveryService::load(CDiscoveryService*& pService, QDataStream &fsFile, 
 	quint8     nRating;             // 0: bad; 10: very good
 	bool       bBanned;             // service URL is blocked
 	bool       bZero;
-	TServiceID nID;                 // ID used by the manager to identify the service
+	ServiceID nID;                 // ID used by the manager to identify the service
 	quint16    nLastHosts;          // hosts returned by the service on last query
 	quint32    nTotalHosts;         // all hosts we ever got from the service
 	quint16    nAltServices;        // number of URLs we got on query
@@ -163,7 +163,7 @@ void CDiscoveryService::load(CDiscoveryService*& pService, QDataStream &fsFile, 
 	fsFile >> nFailures;
 	fsFile >> nZeroRatingFailures;
 
-	pService = createService( sURL, (TServiceType)nServiceType,
+	pService = createService( sURL, (ServiceType::Type)nServiceType,
 							  CNetworkType( nNetworkType ), nRating );
 
 	if ( pService )
@@ -194,7 +194,7 @@ void CDiscoveryService::load(CDiscoveryService*& pService, QDataStream &fsFile, 
  * @param pService
  * @param fsFile
  */
-void CDiscoveryService::save(const CDiscoveryService* const pService, QDataStream &fsFile)
+void DiscoveryService::save(const DiscoveryService* const pService, QDataStream &fsFile)
 {
 	fsFile << (quint8)(pService->m_nServiceType);
 	fsFile << (quint16)(pService->m_oNetworkType.toQuint16());
@@ -222,34 +222,34 @@ void CDiscoveryService::save(const CDiscoveryService* const pService, QDataStrea
  * @param nRating
  * @return
  */
-CDiscoveryService* CDiscoveryService::createService(const QString& sURL, TServiceType eSType,
+DiscoveryService* DiscoveryService::createService(const QString& sURL, ServiceType::Type eSType,
 													const CNetworkType& oNType,	quint8 nRating )
 {
-	CDiscoveryService* pService = NULL;
+	DiscoveryService* pService = NULL;
 
 	switch ( eSType )
 	{
-	case stNull:
+	case ServiceType::Null:
 #if ENABLE_DISCOVERY_DEBUGGING
 		qDebug() << "[Discovery] Service Type: Null";
 #endif
 		break;
 
-	case stBanned:
+	case ServiceType::Banned:
 	{
 #if ENABLE_DISCOVERY_DEBUGGING
 		qDebug() << "[Discovery] Service Type: Banned";
 #endif
-		pService = new CBannedDiscoveryService( sURL, oNType, nRating );
+		pService = new BannedDiscoveryService( sURL, oNType, nRating );
 		break;
 	}
 
-	case stGWC:
+	case ServiceType::GWC:
 	{
 #if ENABLE_DISCOVERY_DEBUGGING
 		qDebug() << "[Discovery] Service Type: GWC";
 #endif
-		pService = new CGWC( sURL, oNType, nRating );
+		pService = new GWC( sURL, oNType, nRating );
 		break;
 	}
 
@@ -273,7 +273,7 @@ CDiscoveryService* CDiscoveryService::createService(const QString& sURL, TServic
  * Locking: RW
  * @param oOwnIP
  */
-void CDiscoveryService::update()
+void DiscoveryService::update()
 {
 	m_oRWLock.lockForWrite();
 
@@ -297,7 +297,7 @@ void CDiscoveryService::update()
  * alternative service URLs.
  * Locking: RW
  */
-void CDiscoveryService::query()
+void DiscoveryService::query()
 {
 #if ENABLE_DISCOVERY_DEBUGGING
 	postLog( LogSeverity::Debug, "Querying service.", true );
@@ -336,11 +336,11 @@ void CDiscoveryService::query()
  * @brief cancelRequest stops any update or query operation currently in progress.
  * Locking: RW
  */
-void CDiscoveryService::cancelRequest()
+void DiscoveryService::cancelRequest()
 {
 	cancelRequest( false );
 }
-void CDiscoveryService::cancelRequest(bool bKeepLocked)
+void DiscoveryService::cancelRequest(bool bKeepLocked)
 {
 	m_oRWLock.lockForWrite();
 
@@ -359,7 +359,7 @@ void CDiscoveryService::cancelRequest(bool bKeepLocked)
  * context.
  * Sets locking: R
  */
-void CDiscoveryService::lockForRead() const
+void DiscoveryService::lockForRead() const
 {
 	m_oRWLock.lockForRead();
 }
@@ -368,7 +368,7 @@ void CDiscoveryService::lockForRead() const
  * @brief unlock allows a reader to unlock this service after having finished the respective
  * read operations.
  */
-void CDiscoveryService::unlock() const
+void DiscoveryService::unlock() const
 {
 	m_oRWLock.unlock();
 }
@@ -378,7 +378,7 @@ void CDiscoveryService::unlock() const
  * Requires locking: RW
  * @param nHosts
  */
-void CDiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16 nURLs,
+void DiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16 nURLs,
 										 bool bUpdateOK)
 {
 #if ENABLE_DISCOVERY_DEBUGGING
@@ -482,7 +482,7 @@ void CDiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16
  * Requires locking: RW
  * @param nRating
  */
-void CDiscoveryService::setRating(quint8 nRating)
+void DiscoveryService::setRating(quint8 nRating)
 {
 	m_nRating    = ( nRating > quazaaSettings.Discovery.MaximumServiceRating ) ?
 					   quazaaSettings.Discovery.MaximumServiceRating : nRating;
@@ -497,7 +497,7 @@ void CDiscoveryService::setRating(quint8 nRating)
  * @param bDebug Defaults to false. If set to true, the message is send  to qDebug() instead of
  * to the system log.
  */
-void CDiscoveryService::postLog(LogSeverity::Severity severity, QString message, bool bDebug)
+void DiscoveryService::postLog(LogSeverity::Severity severity, QString message, bool bDebug)
 {
-	CDiscovery::postLog( severity, message, bDebug, m_nID );
+	Manager::postLog( severity, message, bDebug, m_nID );
 }

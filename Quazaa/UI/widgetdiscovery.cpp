@@ -59,7 +59,7 @@ CWidgetDiscovery::CWidgetDiscovery(QWidget* parent) :
 	connect( tableViewDiscovery, &CTableView::customContextMenuRequested,
 			 this, &CWidgetDiscovery::tableViewDiscovery_customContextMenuRequested );
 
-	m_pDiscoveryList = new CDiscoveryTableModel( this, tableView() );
+	m_pDiscoveryList = new DiscoveryTableModel( this, tableView() );
 	setModel( m_pDiscoveryList );
 	m_pDiscoveryList->sort( tableViewDiscovery->horizontalHeader()->sortIndicatorSection(),
 							tableViewDiscovery->horizontalHeader()->sortIndicatorOrder()    );
@@ -91,19 +91,19 @@ CWidgetDiscovery::CWidgetDiscovery(QWidget* parent) :
 		QFontMetrics fm     = tableViewDiscovery->fontMetrics();
 		QHeaderView* header = tableViewDiscovery->horizontalHeader();
 
-		header->resizeSection( CDiscoveryTableModel::TYPE,
+		header->resizeSection( DiscoveryTableModel::TYPE,
 							   fm.width( " -Banned GWC- " ) );
-		header->resizeSection( CDiscoveryTableModel::URL,
+		header->resizeSection( DiscoveryTableModel::URL,
 							   fm.width( " -http://cache2.bazookanetworks.com/g2/bazooka.php- " ) );
-		header->resizeSection( CDiscoveryTableModel::ACCESSED,
+		header->resizeSection( DiscoveryTableModel::ACCESSED,
 							   fm.width( " ---Mi 20.Mrz 2013 19:21:45--- " ) );
-		header->resizeSection( CDiscoveryTableModel::HOSTS,
+		header->resizeSection( DiscoveryTableModel::HOSTS,
 							   fm.width( " -Hosts- " ) );
-		header->resizeSection( CDiscoveryTableModel::TOTAL_HOSTS,
+		header->resizeSection( DiscoveryTableModel::TOTAL_HOSTS,
 							   fm.width( " -Total Hosts- " ) );
-		header->resizeSection( CDiscoveryTableModel::ALTERNATE_SERVICES,
+		header->resizeSection( DiscoveryTableModel::ALTERNATE_SERVICES,
 							   fm.width( " -Alt. Services- " ) );
-		header->resizeSection( CDiscoveryTableModel::FAILURES,
+		header->resizeSection( DiscoveryTableModel::FAILURES,
 							   fm.width( " -Failures- " ) );
 #if ENABLE_DISCOVERY_DEBUGGING
 		header->resizeSection( CDiscoveryTableModel::RATING,
@@ -111,7 +111,7 @@ CWidgetDiscovery::CWidgetDiscovery(QWidget* parent) :
 		header->resizeSection( CDiscoveryTableModel::MULTIPLICATOR,
 							   fm.width( " -Mult.- " ) );
 #endif
-		header->resizeSection( CDiscoveryTableModel::PONG,
+		header->resizeSection( DiscoveryTableModel::PONG,
 							   fm.width( " Some space to fill in the pong reply " ) );
 	}
 }

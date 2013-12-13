@@ -75,7 +75,7 @@ void CNeighboursG2::connectNode()
 	CNeighboursConnections::connectNode();
 
 	// Only query service if we're not already querying and we actually need fresh hosts.
-	if ( !discoveryManager.isActive( Discovery::stGWC ) &&
+	if ( !discoveryManager.isActive( Discovery::ServiceType::GWC ) &&
 		 ( !hostCache.hasConnectable() ) )
 	{
 		discoveryManager.queryService( CNetworkType( dpG2 ) );
@@ -120,10 +120,10 @@ void CNeighboursG2::maintain()
 			 << " Total Atomic time: " << QString::number( tAtomic ).toLocal8Bit().data();*/
 
 	// TODO: Test whether already active checking is required
-	if ( !m_nHubsConnectedG2 && !discoveryManager.isActive( Discovery::stGWC )
+	if ( !m_nHubsConnectedG2 && !discoveryManager.isActive( Discovery::ServiceType::GWC )
 		 && ( !hostCache.hasConnectable() ) && m_nUnknownInitiated == 0 )
 	{
-		qDebug() << "GWC query: Active:" << discoveryManager.isActive(Discovery::stGWC)
+		qDebug() << "GWC query: Active:" << discoveryManager.isActive( Discovery::ServiceType::GWC )
 				 << ", empty cache:" << hostCache.isEmpty()
 				 << ", has connectable:" << hostCache.hasConnectable()
 				 << ", has unknown initiated:" << (m_nUnknownInitiated != 0);
@@ -198,7 +198,7 @@ void CNeighboursG2::maintain()
 	}
 
 	if ( isG2Hub() && Network.getLocalAddress().isValid()
-		 && !discoveryManager.isActive( Discovery::stGWC )
+		 && !discoveryManager.isActive( Discovery::ServiceType::GWC )
 		 && m_nUpdateWait-- == 0 )
 	{
 		if ( m_nLeavesConnectedG2 < 0.7 * quazaaSettings.Gnutella2.NumLeafs ) // if we have less than 70% leaves (no reason to update GWC if we are already full of leaves)

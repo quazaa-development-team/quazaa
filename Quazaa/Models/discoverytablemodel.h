@@ -30,14 +30,14 @@
 
 #include "Discovery/discoveryservice.h"
 
-class CDiscoveryTableModel : public QAbstractTableModel
+class DiscoveryTableModel : public QAbstractTableModel
 {
 	Q_OBJECT
 
 private:
-	typedef Discovery::TConstServicePtr TConstServicePtr;
-	typedef Discovery::TServiceType     TServiceType;
-	typedef Discovery::TServiceID       TServiceID;
+	typedef Discovery::ConstServicePtr      ConstServicePtr;
+	typedef Discovery::ServiceType::Type    Type;
+	typedef Discovery::ServiceID            ServiceID;
 
 	QWidget*        m_oContainer;
 	int             m_nSortColumn;
@@ -79,10 +79,10 @@ public:
 	struct Service
 	{
 		// Object directly managed by discovery manager.
-		TConstServicePtr m_pNode;
-		const TServiceID m_nID;
+		ConstServicePtr m_pNode;
+		const ServiceID m_nID;
 
-		TServiceType     m_nType;
+		Type             m_nType;
 		QString          m_sType;
 		const QIcon*     m_piType;
 		bool             m_bBanned;
@@ -103,20 +103,20 @@ public:
 		 * @param pService - Needs to be locked for read before calling this.
 		 * @param model
 		 */
-		Service(TConstServicePtr pService, CDiscoveryTableModel* model);
+		Service(ConstServicePtr pService, DiscoveryTableModel* model);
 		~Service();
-		bool update(int row, int sortCol, QModelIndexList& to_update, CDiscoveryTableModel* model);
+		bool update(int row, int sortCol, QModelIndexList& to_update, DiscoveryTableModel* model);
 		QVariant data(int col) const;
-		bool lessThan(int col, const CDiscoveryTableModel::Service* const pOther) const;
-		void refreshServiceIcon(CDiscoveryTableModel* model);
+		bool lessThan(int col, const DiscoveryTableModel::Service* const pOther) const;
+		void refreshServiceIcon(DiscoveryTableModel* model);
 	};
 
 protected:
 	QVector<Service*>   m_lNodes;
 
 public:
-	explicit CDiscoveryTableModel(QObject* parent = 0, QWidget* container = 0);
-	~CDiscoveryTableModel();
+	explicit DiscoveryTableModel(QObject* parent = 0, QWidget* container = 0);
+	~DiscoveryTableModel();
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const;
 	int columnCount(const QModelIndex& parent) const;
@@ -126,17 +126,17 @@ public:
 
 	void sort(int column, Qt::SortOrder order);
 
-	TConstServicePtr nodeFromRow(quint32 row) const;
-	TConstServicePtr nodeFromIndex(const QModelIndex& index) const;
+	ConstServicePtr nodeFromRow(quint32 row) const;
+	ConstServicePtr nodeFromIndex(const QModelIndex& index) const;
 
 	bool isIndexBanned(const QModelIndex& index) const;
 
 	void completeRefresh();
 
 public slots:
-	void addService(TConstServicePtr pService);
-	void removeService(TServiceID nID);
-	void update(TServiceID nID);
+	void addService(ConstServicePtr pService);
+	void removeService(ServiceID nID);
+	void update(ServiceID nID);
 	void updateAll();
 
 private:

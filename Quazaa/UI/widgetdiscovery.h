@@ -31,7 +31,7 @@
 #include "tableview.h"
 #include "discovery.h"
 
-class CDiscoveryTableModel;
+class DiscoveryTableModel;
 
 namespace Ui
 {
@@ -43,7 +43,7 @@ class CWidgetDiscovery : public QMainWindow
 	Q_OBJECT
 
 public:
-	CDiscoveryTableModel* m_pDiscoveryList;
+	DiscoveryTableModel* m_pDiscoveryList;
 	QActionGroup* actionGroupDiscoveryNavigation;
 
 private:

@@ -35,16 +35,16 @@
 
 using namespace Discovery;
 
-CGWC::CGWC(const QUrl& oURL, const CNetworkType& oNType, quint8 nRating) :
-	CDiscoveryService( oURL, oNType, nRating ),
+GWC::GWC(const QUrl& oURL, const CNetworkType& oNType, quint8 nRating) :
+	DiscoveryService( oURL, oNType, nRating ),
 	m_pRequest( NULL ),
 	m_bGnutella( true ),
 	m_bG2( true )
 {
-	m_nServiceType = stGWC;
+	m_nServiceType = ServiceType::GWC;
 }
 
-CGWC::~CGWC()
+GWC::~GWC()
 {
 	if ( m_pRequest )
 	{
@@ -58,13 +58,13 @@ CGWC::~CGWC()
 	}
 }
 
-QString CGWC::type() const
+QString GWC::type() const
 {
 	return isBanned() ? QString( "Banned GWC" ) : QString( "GWC" );
 }
 
 // caller needs to make sure the cache is not currently running
-void CGWC::doQuery() throw()
+void GWC::doQuery() throw()
 {
 	QUrl oURL = m_oServiceURL;
 	QString sVersion = QString::number( Version::MAJOR ) + "." + QString::number( Version::MINOR );
@@ -93,13 +93,13 @@ void CGWC::doQuery() throw()
 	m_pNAMgr = discoveryManager.requestNAM();
 
 	connect( m_pNAMgr.data(), &QNetworkAccessManager::finished,
-			 this, &CGWC::requestCompleted );
+			 this, &GWC::requestCompleted );
 
 	// do query
 	m_pNAMgr->get( *m_pRequest );
 }
 
-void CGWC::doUpdate() throw()
+void GWC::doUpdate() throw()
 {
 	QUrl oURL = m_oServiceURL;
 	QString sVersion = QString::number( Version::MAJOR ) + "." + QString::number( Version::MINOR );
@@ -108,7 +108,7 @@ void CGWC::doUpdate() throw()
 	QString sOwnIP = Network.getLocalAddress().toStringWithPort();
 	Network.m_pSection.unlock();
 
-	QString sPromoteURL = discoveryManager.getWorkingService( stGWC );
+	QString sPromoteURL = discoveryManager.getWorkingService( ServiceType::GWC );
 
 	// build query
 	{
@@ -141,16 +141,16 @@ void CGWC::doUpdate() throw()
 	m_pNAMgr = discoveryManager.requestNAM();
 
 	connect( m_pNAMgr.data(), &QNetworkAccessManager::finished,
-			 this, &CGWC::requestCompleted );
+			 this, &GWC::requestCompleted );
 
 	// do query
 	m_pNAMgr->get( *m_pRequest );
 }
 
-void CGWC::doCancelRequest() throw()
+void GWC::doCancelRequest() throw()
 {
 	disconnect( m_pNAMgr.data(), &QNetworkAccessManager::finished,
-				this, &CGWC::requestCompleted );
+				this, &GWC::requestCompleted );
 
 	delete m_pRequest;
 	m_pRequest = NULL;
@@ -159,7 +159,7 @@ void CGWC::doCancelRequest() throw()
 	resetRunning();
 }
 
-void CGWC::requestCompleted(QNetworkReply* pReply)
+void GWC::requestCompleted(QNetworkReply* pReply)
 {
 	QWriteLocker oGWCLock( &m_oRWLock );
 
@@ -335,7 +335,7 @@ void CGWC::requestCompleted(QNetworkReply* pReply)
 	// make sure the service is not reported as running anymore
 	resetRunning();
 
-	TServiceType oServiceType = m_nServiceType;
+	ServiceType::Type nServiceType = m_nServiceType;
 
 	// finished accessing GWC variables
 	oGWCLock.unlock();
@@ -343,7 +343,7 @@ void CGWC::requestCompleted(QNetworkReply* pReply)
 	// add new services to manager
 	while ( lURLList.size() )
 	{
-		discoveryManager.add( lURLList.back(), oServiceType, CNetworkType( dpG2 ) );
+		discoveryManager.add( lURLList.back(), nServiceType, CNetworkType( dpG2 ) );
 		lURLList.pop_back();
 	}
 

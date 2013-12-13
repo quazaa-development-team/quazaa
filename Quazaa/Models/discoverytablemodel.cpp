@@ -29,7 +29,7 @@
 
 #include "debug_new.h"
 
-CDiscoveryTableModel::Service::Service(TConstServicePtr pService, CDiscoveryTableModel* model) :
+DiscoveryTableModel::Service::Service(ConstServicePtr pService, DiscoveryTableModel* model) :
 	m_pNode       ( pService                 ),
 	m_nID         ( pService->id()           ),
 	m_nType       ( pService->serviceType()  ),
@@ -50,16 +50,16 @@ CDiscoveryTableModel::Service::Service(TConstServicePtr pService, CDiscoveryTabl
 {
 	refreshServiceIcon( model );
 
-	connect( m_pNode.data(), &Discovery::CDiscoveryService::updated, model,
-			 &CDiscoveryTableModel::update, Qt::QueuedConnection );
+	connect( m_pNode.data(), &Discovery::DiscoveryService::updated, model,
+			 &DiscoveryTableModel::update, Qt::QueuedConnection );
 }
 
-CDiscoveryTableModel::Service::~Service()
+DiscoveryTableModel::Service::~Service()
 {
 }
 
-bool CDiscoveryTableModel::Service::update(int row, int sortCol, QModelIndexList &to_update,
-										   CDiscoveryTableModel* model)
+bool DiscoveryTableModel::Service::update(int row, int sortCol, QModelIndexList &to_update,
+										   DiscoveryTableModel* model)
 {
 	bool bReturn = false;
 
@@ -167,7 +167,7 @@ bool CDiscoveryTableModel::Service::update(int row, int sortCol, QModelIndexList
 	return bReturn;
 }
 
-QVariant CDiscoveryTableModel::Service::data(int col) const
+QVariant DiscoveryTableModel::Service::data(int col) const
 {
 	switch ( col )
 	{
@@ -207,7 +207,7 @@ QVariant CDiscoveryTableModel::Service::data(int col) const
 	return QVariant();
 }
 
-bool CDiscoveryTableModel::Service::lessThan(int col, const CDiscoveryTableModel::Service*
+bool DiscoveryTableModel::Service::lessThan(int col, const DiscoveryTableModel::Service*
 											 const pOther) const
 {
 	if ( !pOther )
@@ -253,21 +253,21 @@ bool CDiscoveryTableModel::Service::lessThan(int col, const CDiscoveryTableModel
 	}
 }
 
-void CDiscoveryTableModel::Service::refreshServiceIcon(CDiscoveryTableModel* model)
+void DiscoveryTableModel::Service::refreshServiceIcon(DiscoveryTableModel* model)
 {
 	switch( m_nType )
 	{
-	case Discovery::stNull:
+	case Discovery::ServiceType::Null:
 		Q_ASSERT( false ); // Should not happen.
 		break;
 
-	case Discovery::stBanned:
+	case Discovery::ServiceType::Banned:
 		m_piType = model->m_pIcons[BANNED];
 		break;
 
-	case Discovery::stGWC:
+	case Discovery::ServiceType::GWC:
 	{
-		Discovery::CGWC* pGWC = (Discovery::CGWC*)m_pNode.data();
+		Discovery::GWC* pGWC = (Discovery::GWC*)m_pNode.data();
 
 		if ( pGWC->isG2() )
 		{
@@ -297,7 +297,7 @@ void CDiscoveryTableModel::Service::refreshServiceIcon(CDiscoveryTableModel* mod
 	}
 }
 
-CDiscoveryTableModel::CDiscoveryTableModel(QObject *parent, QWidget* container) :
+DiscoveryTableModel::DiscoveryTableModel(QObject *parent, QWidget* container) :
 	QAbstractTableModel( parent ),
 	m_oContainer( container ),
 	m_nSortColumn( -1 ),
@@ -311,17 +311,17 @@ CDiscoveryTableModel::CDiscoveryTableModel(QObject *parent, QWidget* container) 
 	m_pIcons[GWC_BLUE]  = new QIcon( ":/Resource/Discovery/DiscoveryGWCBlue.ico"  );
 	m_pIcons[GWC_GRAY]  = new QIcon( ":/Resource/Discovery/DiscoveryGWCGray.ico"  );
 
-	connect( &discoveryManager, &Discovery::CDiscovery::serviceAdded, this,
-			 &CDiscoveryTableModel::addService, Qt::QueuedConnection );
-	connect( &discoveryManager, &Discovery::CDiscovery::serviceRemoved, this,
-			 &CDiscoveryTableModel::removeService, Qt::QueuedConnection );
+	connect( &discoveryManager, &Discovery::Manager::serviceAdded, this,
+			 &DiscoveryTableModel::addService, Qt::QueuedConnection );
+	connect( &discoveryManager, &Discovery::Manager::serviceRemoved, this,
+			 &DiscoveryTableModel::removeService, Qt::QueuedConnection );
 
 	// This needs to be called to make sure that all rules added to the discoveryManager before this
 	// part of the GUI is loaded are properly added to the model.
 	completeRefresh();
 }
 
-CDiscoveryTableModel::~CDiscoveryTableModel()
+DiscoveryTableModel::~DiscoveryTableModel()
 {
 	qDeleteAll( m_lNodes );
 	m_lNodes.clear();
@@ -333,7 +333,7 @@ CDiscoveryTableModel::~CDiscoveryTableModel()
 	delete[] m_pIcons;
 }
 
-int CDiscoveryTableModel::rowCount(const QModelIndex& parent) const
+int DiscoveryTableModel::rowCount(const QModelIndex& parent) const
 {
 	if ( parent.isValid() )
 	{
@@ -345,7 +345,7 @@ int CDiscoveryTableModel::rowCount(const QModelIndex& parent) const
 	}
 }
 
-int CDiscoveryTableModel::columnCount(const QModelIndex& parent) const
+int DiscoveryTableModel::columnCount(const QModelIndex& parent) const
 {
 	if ( parent.isValid() )
 	{
@@ -357,7 +357,7 @@ int CDiscoveryTableModel::columnCount(const QModelIndex& parent) const
 	}
 }
 
-QVariant CDiscoveryTableModel::data(const QModelIndex& index, int role) const
+QVariant DiscoveryTableModel::data(const QModelIndex& index, int role) const
 {
 	if ( !index.isValid() || index.row() > m_lNodes.size() || index.row() < 0 )
 	{
@@ -417,7 +417,7 @@ QVariant CDiscoveryTableModel::data(const QModelIndex& index, int role) const
 	return QVariant();
 }
 
-QVariant CDiscoveryTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant DiscoveryTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	if ( orientation != Qt::Horizontal )
 		return QVariant();
@@ -501,7 +501,7 @@ QVariant CDiscoveryTableModel::headerData(int section, Qt::Orientation orientati
 	return QVariant();
 }
 
-QModelIndex CDiscoveryTableModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex DiscoveryTableModel::index(int row, int column, const QModelIndex &parent) const
 {
 	if ( parent.isValid() || row < 0 || row >= m_lNodes.count() )
 		return QModelIndex();
@@ -518,7 +518,7 @@ public:
 	{
 	}
 
-	bool operator()( CDiscoveryTableModel::Service* a, CDiscoveryTableModel::Service* b )
+	bool operator()( DiscoveryTableModel::Service* a, DiscoveryTableModel::Service* b )
 	{
 		if ( order == Qt::AscendingOrder )
 		{
@@ -534,7 +534,7 @@ public:
 	Qt::SortOrder order;
 };
 
-void CDiscoveryTableModel::sort(int column, Qt::SortOrder order)
+void DiscoveryTableModel::sort(int column, Qt::SortOrder order)
 {
 	m_nSortColumn = column;
 	m_nSortOrder = order;
@@ -546,7 +546,7 @@ void CDiscoveryTableModel::sort(int column, Qt::SortOrder order)
 	m_bNeedSorting = false;
 }
 
-CDiscoveryTableModel::TConstServicePtr CDiscoveryTableModel::nodeFromRow(quint32 row) const
+DiscoveryTableModel::ConstServicePtr DiscoveryTableModel::nodeFromRow(quint32 row) const
 {
 	if ( row < (quint32)m_lNodes.count() )
 	{
@@ -554,28 +554,28 @@ CDiscoveryTableModel::TConstServicePtr CDiscoveryTableModel::nodeFromRow(quint32
 	}
 	else
 	{
-		return TConstServicePtr();
+		return ConstServicePtr();
 	}
 }
 
-CDiscoveryTableModel::TConstServicePtr
-CDiscoveryTableModel::nodeFromIndex(const QModelIndex &index) const
+DiscoveryTableModel::ConstServicePtr
+DiscoveryTableModel::nodeFromIndex(const QModelIndex &index) const
 {
 	if ( !index.isValid() || !( index.row() < m_lNodes.count() ) || index.row() < 0 )
-		return TConstServicePtr();
+		return ConstServicePtr();
 	else
 		return m_lNodes[ index.row() ]->m_pNode;
 }
 
 
-bool CDiscoveryTableModel::isIndexBanned(const QModelIndex& index) const
+bool DiscoveryTableModel::isIndexBanned(const QModelIndex& index) const
 {
 	// All service with type stBanned have m_bBanned set to true.
 	return ( m_lNodes[ index.row() ]->m_bBanned /*||
 			 m_lNodes[ index.row() ]->m_nType == Discovery::stBanned*/ );
 }
 
-void CDiscoveryTableModel::completeRefresh()
+void DiscoveryTableModel::completeRefresh()
 {
 	// Remove all rules.
 	if ( m_lNodes.size() )
@@ -590,14 +590,14 @@ void CDiscoveryTableModel::completeRefresh()
 	}
 
 	// Note that this slot is automatically disconnected once all rules have been recieved once.
-	connect( &discoveryManager, SIGNAL( serviceInfo( TConstServicePtr ) ), this,
-			 SLOT( addService( TConstServicePtr ) ), Qt::QueuedConnection );
+	connect( &discoveryManager, SIGNAL( serviceInfo( ConstServicePtr ) ), this,
+			 SLOT( addService( ConstServicePtr ) ), Qt::QueuedConnection );
 
 	// Request getting them back from the Security Manager.
 	discoveryManager.requestServiceList();
 }
 
-void CDiscoveryTableModel::addService(TConstServicePtr pService)
+void DiscoveryTableModel::addService(ConstServicePtr pService)
 {
 	if ( discoveryManager.check( pService ) )
 	{
@@ -616,15 +616,15 @@ void CDiscoveryTableModel::addService(TConstServicePtr pService)
 	if ( m_lNodes.size() == (int)discoveryManager.count() )
 	{
 		// Make sure we don't recieve any signals we don't want once we got all rules once.
-		disconnect( &discoveryManager, SIGNAL( serviceInfo( TConstServicePtr ) ),
-					this, SLOT( addService( TConstServicePtr ) ) );
+		disconnect( &discoveryManager, SIGNAL( serviceInfo( ConstServicePtr ) ),
+					this, SLOT( addService( ConstServicePtr ) ) );
 
 		// Make sure the view stays sorted.
 		updateView();
 	}
 }
 
-void CDiscoveryTableModel::removeService(TServiceID nID)
+void DiscoveryTableModel::removeService(ServiceID nID)
 {
 	for ( int i = 0; i < m_lNodes.size(); ++i )
 	{
@@ -639,7 +639,7 @@ void CDiscoveryTableModel::removeService(TServiceID nID)
 	}
 }
 
-void CDiscoveryTableModel::update(TServiceID nID)
+void DiscoveryTableModel::update(ServiceID nID)
 {
 	QModelIndexList uplist;
 	for ( quint32 i = 0, max = m_lNodes.count(); i < max; ++i )
@@ -655,7 +655,7 @@ void CDiscoveryTableModel::update(TServiceID nID)
 	updateView( uplist );
 }
 
-void CDiscoveryTableModel::updateAll()
+void DiscoveryTableModel::updateAll()
 {
 	if ( (quint32)m_lNodes.size() != discoveryManager.count() )
 	{
@@ -678,7 +678,7 @@ void CDiscoveryTableModel::updateAll()
 	updateView( uplist );
 }
 
-void CDiscoveryTableModel::updateView(QModelIndexList uplist)
+void DiscoveryTableModel::updateView(QModelIndexList uplist)
 {
 	if ( m_bNeedSorting )
 	{

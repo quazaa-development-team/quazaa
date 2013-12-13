@@ -35,7 +35,7 @@ namespace Discovery
 /**
  * @brief The CGWC class implements a Gnutella Web Cache compatible to the GWC spec 2.0.
  */
-class CGWC : public CDiscoveryService
+class GWC : public DiscoveryService
 {
 	Q_OBJECT
 
@@ -52,9 +52,9 @@ private:
 	/* ====================================== Construction ====================================== */
 	/* ========================================================================================== */
 public:
-	CGWC(const QUrl& oURL, const CNetworkType& oNType, quint8 nRating);
+	GWC(const QUrl& oURL, const CNetworkType& oNType, quint8 nRating);
 
-	~CGWC();
+	~GWC();
 
 	/* ========================================================================================== */
 	/* ======================================= Operations ======================================= */
