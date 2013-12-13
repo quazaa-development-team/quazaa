@@ -89,6 +89,7 @@ void GWC::doQuery() throw()
 	m_pRequest = new QNetworkRequest( oURL );
 	m_pRequest->setRawHeader( "User-Agent", CQuazaaGlobals::USER_AGENT_STRING().toLocal8Bit() );
 
+#if ENABLE_DISCOVERY_NAM
 	// obtain network access manager for query
 	m_pNAMgr = discoveryManager.requestNAM();
 
@@ -97,6 +98,7 @@ void GWC::doQuery() throw()
 
 	// do query
 	m_pNAMgr->get( *m_pRequest );
+#endif // ENABLE_DISCOVERY_NAM
 }
 
 void GWC::doUpdate() throw()
@@ -137,6 +139,7 @@ void GWC::doUpdate() throw()
 	m_pRequest = new QNetworkRequest( oURL );
 	m_pRequest->setRawHeader( "User-Agent", CQuazaaGlobals::USER_AGENT_STRING().toLocal8Bit() );
 
+#if ENABLE_DISCOVERY_NAM
 	// obtain network access manager for update
 	m_pNAMgr = discoveryManager.requestNAM();
 
@@ -145,6 +148,7 @@ void GWC::doUpdate() throw()
 
 	// do query
 	m_pNAMgr->get( *m_pRequest );
+#endif // ENABLE_DISCOVERY_NAM
 }
 
 void GWC::doCancelRequest() throw()

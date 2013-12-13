@@ -33,8 +33,12 @@
 
 #include "hostcachehost.h"
 
-typedef QSharedPointer<QThread>         SharedThreadPtr;
+//typedef QSharedPointer<QThread>         SharedThreadPtr;
 typedef QSharedPointer<HostCacheHost>   SharedHostPtr;
+
+// TODO: does ID cache in HC or Security cause first chance exception?
+// TODO: add signal for clear() and clear the HC and GUI on shutdown
+// TODO: add mechanism to remove hosts and discovery services by their origin
 
 class HostCache : public QObject
 {
@@ -44,7 +48,7 @@ public:
 	mutable QMutex          m_pSection;
 
 	// Thread used by the Host Cache
-	SharedThreadPtr         m_pHostCacheDiscoveryThread;
+	QThread*                m_pHostCacheDiscoveryThread;
 
 	mutable quint32         m_tLastSave;
 	quint8                  m_nMaxFailures;

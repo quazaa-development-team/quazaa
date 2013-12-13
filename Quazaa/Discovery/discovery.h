@@ -48,6 +48,8 @@
 // Set this to 1 to enable additionnal debug output for the Discovery Manager.
 #define ENABLE_DISCOVERY_DEBUGGING 0
 
+#define ENABLE_DISCOVERY_NAM 0
+
 // TODO: Implement rating based on successful connection to obtained hosts
 // TODO: Implement quazaaSettings.Discovery.AccessThrottle
 // TODO: Check if already active ( see method )
@@ -55,7 +57,7 @@
 // TODO: http://www.tartc.ru/classes/gwc?ping=1&get=1&net=gnutella2&client=QAZB&version=0.1 fails
 //       http://www.tartc.ru/classes/gwc/?ping=1&amp;get=1&amp;net=gnutella2&amp;client=QAZB&amp;version=0.1 works
 // Line: <p>The document has moved <a href="http://www.tartc.ru/classes/gwc/?ping=1&amp;get=1&amp;net=gnutella2&amp;client=QAZB&amp;version=0.1">here</a>.</p>
-typedef QSharedPointer<QThread> SharedThreadPtr;
+//typedef QSharedPointer<QThread> SharedThreadPtr;
 
 namespace Discovery
 {
@@ -80,7 +82,7 @@ namespace ServiceType
 }
 
 /**
- * @brief TDiscoveryID: ID type used to identify and manage discovery services. All IDs are
+ * @brief DiscoveryID: ID type used to identify and manage discovery services. All IDs are
  * positive. 0 indicates an invalid ID.
  */
 typedef quint16 ServiceID;
@@ -97,43 +99,45 @@ class Manager : public QObject
 
 private:
 	/**
-	 * @brief TServicePtr is a shared pointer class for internal use.
+	 * @brief ServicePtr is a shared pointer class for internal use.
 	 */
 	typedef QSharedPointer< DiscoveryService > ServicePtr;
 
 	/**
-	 * @brief TDiscoveryServicesMap: Used to store and retrieve services based on their ID.
+	 * @brief DiscoveryServicesMap: Used to store and retrieve services based on their ID.
 	 */
 	typedef std::map < ServiceID, ServicePtr  > DiscoveryServicesMap;
 
 	/**
-	 * @brief TMapPair: pair of an ID and a discovery service pointer for use in the map.
+	 * @brief MapPair: pair of an ID and a discovery service pointer for use in the map.
 	 */
 	typedef std::pair< ServiceID, ServicePtr  > MapPair;
 
 	/**
-	 * @brief TDiscoveryServicesList: Used to temorarily store services.
+	 * @brief DiscoveryServicesList: Used to temorarily store services.
 	 */
 	typedef std::list < ServicePtr  > DiscoveryServicesList;
 
 	/**
-	 * @brief TConstIterator: Constant map iterator.
+	 * @brief ConstIterator: Constant map iterator.
 	 */
 	typedef DiscoveryServicesMap::const_iterator ConstIterator;
 
 	/**
-	 * @brief TIterator: Modifiable map iterator
+	 * @brief Iterator: Modifiable map iterator
 	 */
 	typedef DiscoveryServicesMap::iterator Iterator;
 
 	/**
-	 * @brief TListIterator: Constant list iterator
+	 * @brief ListIterator: Constant list iterator
 	 */
 	typedef DiscoveryServicesList::const_iterator ListIterator;
 
 private:
 	// handles web requests
+#if ENABLE_DISCOVERY_NAM
 	QWeakPointer<QNetworkAccessManager> m_pNetAccessMgr;
+#endif // ENABLE_DISCOVERY_NAM
 
 	// access lock
 	QMutex                  m_pSection;
@@ -148,7 +152,7 @@ private:
 	ServiceID               m_nLastID;
 
 	// thread used by the manager
-	SharedThreadPtr         m_pHostCacheDiscoveryThread;
+	QThread*                m_pHostCacheDiscoveryThread;
 
 public:
 	quint16*                m_pActive;
@@ -252,14 +256,16 @@ public:
 	 */
 	bool isActive(const ServiceType::Type eSType);
 
+#if ENABLE_DISCOVERY_NAM
 	/**
-	 * @brief CDiscovery::requestNAM provides a shared pointer to the discovery services network
+	 * @brief requestNAM provides a shared pointer to the discovery services network
 	 * access manager. Note that the caller needs to hold his copy of the shared pointer until the
 	 * network operation has been completed to prevent the manager from being deleted too early.
 	 * Locking: YES (synchronous)
 	 * @return
 	 */
 	QSharedPointer<QNetworkAccessManager> requestNAM();
+#endif // ENABLE_DISCOVERY_NAM
 
 	/**
 	 * @brief requestServiceList can be used to obtain a complete list of all currently managed

@@ -94,11 +94,16 @@ quint32	Manager::count(const CNetworkType& oType)
 void Manager::start()
 {
 	m_pHostCacheDiscoveryThread = hostCache.m_pHostCacheDiscoveryThread;
-	Q_ASSERT( !m_pHostCacheDiscoveryThread.isNull() );
+	Q_ASSERT( m_pHostCacheDiscoveryThread );
 
-	moveToThread( m_pHostCacheDiscoveryThread.data() );
+	QThread* pThread = m_pHostCacheDiscoveryThread;
 
-	Q_ASSERT( m_pHostCacheDiscoveryThread.data()->isRunning() );
+	moveToThread( pThread );
+
+	Q_ASSERT( pThread->isRunning() );
+
+	// Handle destruction gracefully.
+	connect( pThread, &QThread::finished, pThread, &QObject::deleteLater );
 
 	// Initialize random number generator.
 	qsrand ( common::getTNowUTC() );
@@ -324,8 +329,9 @@ bool Manager::isActive(const ServiceType::Type eSType)
 	return m_pActive[eSType];
 }
 
+#if ENABLE_DISCOVERY_NAM
 /**
- * @brief CDiscovery::requestNAMgr provides a shared pointer to the discovery services network
+ * @brief requestNAMgr provides a shared pointer to the discovery services network
  * access manager. Note that the caller needs to hold his copy of the shared pointer until the
  * network operation has been completed to prevent the manager from being deleted too early.
  * Locking: YES (synchronous)
@@ -359,6 +365,7 @@ QSharedPointer<QNetworkAccessManager> Manager::requestNAM()
 
 	return pReturnVal;
 }
+#endif // ENABLE_DISCOVERY_NAM
 
 /**
  * @brief requestServiceList can be used to obtain a complete list of all currently managed
@@ -623,6 +630,7 @@ void Manager::asyncRequestServiceListHelper()
 
 void Manager::asyncUpdateServiceHelper(const CNetworkType type)
 {
+#if ENABLE_DISCOVERY_NAM
 	QSharedPointer<QNetworkAccessManager> pNAM = requestNAM();
 
 	if ( pNAM->networkAccessible() == QNetworkAccessManager::Accessible )
@@ -649,6 +657,7 @@ void Manager::asyncUpdateServiceHelper(const CNetworkType type)
 		postLog( LogSeverity::Error,
 		tr( "Could not update service because the network connection is currently unavailable." ) );
 	}
+#endif // ENABLE_DISCOVERY_NAM
 }
 
 void Manager::asyncUpdateServiceHelper(ServiceID nID)
@@ -689,6 +698,7 @@ void Manager::asyncQueryServiceHelper(const CNetworkType type)
 	postLog( LogSeverity::Debug, s, true );
 #endif
 
+#if ENABLE_DISCOVERY_NAM
 	QSharedPointer<QNetworkAccessManager> pNAM = requestNAM();
 
 	if ( pNAM->networkAccessible() == QNetworkAccessManager::Accessible )
@@ -741,6 +751,7 @@ void Manager::asyncQueryServiceHelper(const CNetworkType type)
 		postLog( LogSeverity::Error,
 		tr( "Could not query service because the network connection is currently unavailable." ) );
 	}
+#endif // ENABLE_DISCOVERY_NAM
 
 #if ENABLE_DISCOVERY_DEBUGGING
 	postLog( LogSeverity::Debug,

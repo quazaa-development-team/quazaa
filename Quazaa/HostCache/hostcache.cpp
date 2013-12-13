@@ -25,6 +25,7 @@
 #include "hostcache.h"
 
 HostCache::HostCache() :
+	m_pHostCacheDiscoveryThread( NULL ),
 	m_tLastSave( 0 ),
 	m_nMaxFailures( 0 ),
 	m_nSizeAtomic( 0 ),
@@ -48,14 +49,18 @@ void HostCache::start()
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "start()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
-	m_pHostCacheDiscoveryThread = SharedThreadPtr( new QThread() );
+	QThread* pThread = new QThread();
 
 	// set thread name
-	m_pHostCacheDiscoveryThread.data()->setObjectName( "Host Cache and Discovery" );
+	pThread->setObjectName( "Host Cache and Discovery" );
 
-	moveToThread( m_pHostCacheDiscoveryThread.data() );
-	m_pHostCacheDiscoveryThread.data()->start( QThread::LowPriority );
+	moveToThread( pThread );
+	pThread->start( QThread::LowPriority );
 
+	// Handle destruction gracefully.
+	connect( pThread, &QThread::finished, pThread, &QObject::deleteLater );
+
+	m_pHostCacheDiscoveryThread = pThread;
 	QMetaObject::invokeMethod( this, "startUpInternal", Qt::BlockingQueuedConnection );
 }
 
@@ -67,6 +72,9 @@ void HostCache::stop()
 	m_pSection.lock();
 	stopInternal();
 	m_pSection.unlock();
+
+	// Terminate thread and delete Host Cache as well as Discovery.
+	m_pHostCacheDiscoveryThread->quit();
 }
 
 /**
