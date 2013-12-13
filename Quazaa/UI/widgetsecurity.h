@@ -42,7 +42,7 @@ class CWidgetSecurity : public QMainWindow
 	Q_OBJECT
 
 public:
-	SecurityTableModel* m_lSecurity;
+	SecurityTableModel*  m_lSecurity;
 
 private:
 	Ui::CWidgetSecurity* ui;

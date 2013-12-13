@@ -147,6 +147,15 @@ public:
 	void triggerRuleRemoval(int nIndex);
 
 public slots:
+	/**
+	 * @brief securityStartUpFinished initializes the GUI once Security has started.
+	 */
+	void securityStartUpFinished();
+
+	/**
+	 * @brief recieveRuleInfo
+	 * @param pRule
+	 */
 	void recieveRuleInfo(Rule* pRule);
 
 	/**
@@ -169,9 +178,14 @@ public slots:
 	void updateRule(ID nRuleID);
 
 	/**
-	 * @brief SecurityTableModel::updateAll updates all rules in the GUI.
+	 * @brief updateAll updates all rules in the GUI.
 	 */
 	void updateAll();
+
+	/**
+	 * @brief clear removes all information from the GUI.
+	 */
+	void clear();
 };
 
 typedef SecurityTableModel::RuleData    RuleData;

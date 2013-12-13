@@ -99,7 +99,7 @@ public:
 
 signals:
 	void Show();
-	void closing();
+	void shutDown();
 
 public slots:
 	void OpenChat(CChatSession* pSess);

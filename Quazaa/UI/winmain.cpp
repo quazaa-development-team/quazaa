@@ -425,7 +425,7 @@ void CWinMain::quazaaShutdown()
 	pageSearchMonitor->saveWidget();
 	pageHitMonitor->saveWidget();
 	quazaaSettings.saveWindowSettings(this);
-	emit closing();
+	emit shutDown();
 
 	dlgSplash->updateProgress(90, tr("Saving Settings..."));
 	qApp->processEvents();
@@ -873,7 +873,7 @@ void CWinMain::OpenChat(CChatSession* pSess)
 	{
 		dlgPrivateMessages = new CDialogPrivateMessages(0);
 		connect(dlgPrivateMessages, SIGNAL(destroyed()), this, SLOT(onLastChatClosed()));
-		connect(this, SIGNAL(closing()), dlgPrivateMessages, SLOT(close()));
+		connect(this, SIGNAL(shutDown()), dlgPrivateMessages, SLOT(close()));
 	}
 
 	dlgPrivateMessages->OpenChat(pSess);

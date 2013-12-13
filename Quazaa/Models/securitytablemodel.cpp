@@ -23,6 +23,7 @@
 
 #include <QAbstractItemView>
 
+#include "winmain.h"
 #include "securitytablemodel.h"
 
 #include "debug_new.h"
@@ -306,22 +307,9 @@ SecurityTableModel::SecurityTableModel(QObject* parent, QWidget* container) :
 	m_pIcons[1] = new QIcon( ":/Resource/Security/Accept.ico" );
 	m_pIcons[2] = new QIcon( ":/Resource/Security/Deny.ico" );
 
-	// register necessary meta types before using them
-	securityManager.registerMetaTypes();
-
-	connect( &securityManager, SIGNAL( ruleAdded( Rule* ) ), this,
-			 SLOT( addRule( Rule* ) ), Qt::QueuedConnection );
-
-	connect( &securityManager, SIGNAL( ruleRemoved( SharedRulePtr ) ), this,
-			 SLOT( removeRule( SharedRulePtr ) ), Qt::QueuedConnection );
-
-	// This handles GUI updates on rule changes.
-	connect( &securityManager, SIGNAL( ruleUpdated( ID ) ), this,
-			 SLOT( updateRule( ID ) ), Qt::QueuedConnection );
-
-	// This needs to be called to make sure that all rules added to the securityManager before this
-	// part of the GUI is loaded are properly added to the model.
-	completeRefresh();
+	// This connects the GUI to the Security Manager and the Main Window.
+	connect( &securityManager, SIGNAL( startUpFinished() ),
+			 this, SLOT( securityStartUpFinished() ) );
 }
 
 SecurityTableModel::~SecurityTableModel()
@@ -578,18 +566,13 @@ RuleDataPtr SecurityTableModel::dataFromRow(int nRow) const
 void SecurityTableModel::completeRefresh()
 {
 	// Remove all rules.
-	if ( m_lNodes.size() )
-	{
-		beginRemoveRows( QModelIndex(), 0, m_lNodes.size() - 1 );
-		m_lNodes.clear();
-		endRemoveRows();
-	}
+	clear();
 
 	// Note that this slot is automatically disconnected once all rules have been recieved once.
 	connect( &securityManager, SIGNAL( ruleInfo( Rule* ) ), this,
 			 SLOT( recieveRuleInfo( Rule* ) ), Qt::QueuedConnection );
 
-	// Request getting them back from the Security Manager.
+	// Request getting the rules back from the Security Manager.
 	m_nRuleInfo = securityManager.requestRuleInfo();
 }
 
@@ -602,6 +585,29 @@ void SecurityTableModel::triggerRuleRemoval(int nIndex)
 	Q_ASSERT( nIndex >= 0 && nIndex < m_lNodes.size() );
 
 	securityManager.remove( m_lNodes[nIndex]->rule() );
+}
+
+void SecurityTableModel::securityStartUpFinished()
+{
+	// register necessary meta types before using them
+	securityManager.registerMetaTypes();
+
+	connect( &securityManager, SIGNAL( ruleAdded( Rule* ) ), this,
+			 SLOT( addRule( Rule* ) ), Qt::QueuedConnection );
+
+	connect( &securityManager, SIGNAL( ruleRemoved( SharedRulePtr ) ), this,
+			 SLOT( removeRule( SharedRulePtr ) ), Qt::QueuedConnection );
+
+	// This handles GUI updates on rule changes.
+	connect( &securityManager, SIGNAL( ruleUpdated( ID ) ), this,
+			 SLOT( updateRule( ID ) ), Qt::QueuedConnection );
+
+	// Prepare GUI for closing
+	connect( MainWindow, SIGNAL( shutDown() ), this, SLOT( clear() ) );
+
+	// This needs to be called to make sure that all rules added to the securityManager before this
+	// part of the GUI is loaded are properly added to the model.
+	completeRefresh();
 }
 
 void SecurityTableModel::recieveRuleInfo(Rule* pRule)
@@ -750,5 +756,18 @@ void SecurityTableModel::updateAll()
 				}
 			}
 		}
+	}
+}
+
+/**
+ * @brief clear removes all information from the GUI.
+ */
+void SecurityTableModel::clear()
+{
+	if ( m_lNodes.size() )
+	{
+		beginRemoveRows( QModelIndex(), 0, m_lNodes.size() - 1 );
+		m_lNodes.clear();
+		endRemoveRows();
 	}
 }
