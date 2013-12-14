@@ -30,12 +30,16 @@
 
 using namespace Security;
 
+typedef std::pair<QString, bool> DataPair;
+typedef std::vector< DataPair > DataVector;
+
 class UnitTestsSecurity : public QObject
 {
 	Q_OBJECT
 
 private:
 	Manager* m_pManager;
+	DataVector m_vData;
 
 public:
 	UnitTestsSecurity();
@@ -44,17 +48,24 @@ private Q_SLOTS:
 	void initTestCase();
 	void cleanupTestCase();
 
-	void privateIPs();
-	void privateIPs_data();
+	void testPrivateIPs();
+	void testPrivateIPs_data();
 
-	void privateIPsOld();
-	void privateIPsOld_data();
+	void testPrivateIPsOld();
+	void testPrivateIPsOld_data();
 
-	void privateIPsNew();
-	void privateIPsNew_data();
+	void testPrivateIPsNew();
+	void testPrivateIPsNew_data();
+
+	void benchmarkPrivateIPsOld();
+	void benchmarkPrivateIPsOld_data();
+
+	void benchmarkPrivateIPsNew();
+	void benchmarkPrivateIPsNew_data();
 
 private:
-	void populateWithTestIPs();
+	void prepareTestData();
+	void populateRowsWithTestIPs();
 };
 
 UnitTestsSecurity::UnitTestsSecurity()
@@ -63,135 +74,248 @@ UnitTestsSecurity::UnitTestsSecurity()
 
 void UnitTestsSecurity::initTestCase()
 {
+	prepareTestData();
+
 	m_pManager = new Manager();
 	m_pManager->loadPrivates();
+
+	/*for ( ushort i = 0; i < m_vData.size(); ++i )
+	{
+
+	}*/
 }
 
 void UnitTestsSecurity::cleanupTestCase()
 {
 }
 
-void UnitTestsSecurity::privateIPs()
+void UnitTestsSecurity::testPrivateIPs()
 {
 	QFETCH( QString, IP );
 	QFETCH( bool, isPrivate );
 
 	QCOMPARE( m_pManager->isPrivate( CEndPoint( IP ) ), isPrivate );
 }
-void UnitTestsSecurity::privateIPs_data()
+void UnitTestsSecurity::testPrivateIPs_data()
 {
-	populateWithTestIPs();
+	populateRowsWithTestIPs();
 }
 
 
-void UnitTestsSecurity::privateIPsOld()
-{
-	QFETCH( QString, IP );
-	QFETCH( bool, isPrivate );
-
-	QCOMPARE( m_pManager->isPrivateOld( CEndPoint( IP ) ), isPrivate );
-}
-void UnitTestsSecurity::privateIPsOld_data()
-{
-	populateWithTestIPs();
-}
-
-
-void UnitTestsSecurity::privateIPsNew()
+void UnitTestsSecurity::testPrivateIPsOld()
 {
 	QFETCH( QString, IP );
 	QFETCH( bool, isPrivate );
 
-	QCOMPARE( m_pManager->isPrivateNew( CEndPoint( IP ) ), isPrivate );
+	CEndPoint oIP = CEndPoint( IP );
+
+	QCOMPARE( m_pManager->isPrivateOld( oIP ), isPrivate );
 }
-void UnitTestsSecurity::privateIPsNew_data()
+void UnitTestsSecurity::testPrivateIPsOld_data()
 {
-	populateWithTestIPs();
+	populateRowsWithTestIPs();
 }
 
-void UnitTestsSecurity::populateWithTestIPs()
+
+void UnitTestsSecurity::testPrivateIPsNew()
+{
+	QFETCH( QString, IP );
+	QFETCH( bool, isPrivate );
+
+	CEndPoint oIP = CEndPoint( IP );
+
+	QCOMPARE( m_pManager->isPrivateNew( oIP ), isPrivate );
+}
+void UnitTestsSecurity::testPrivateIPsNew_data()
+{
+	populateRowsWithTestIPs();
+}
+
+
+void UnitTestsSecurity::benchmarkPrivateIPsOld()
+{
+	QFETCH( QString, IP );
+
+	CEndPoint oIP = CEndPoint( IP );
+
+	QBENCHMARK
+	{
+		m_pManager->isPrivateOld( oIP );
+	}
+}
+void UnitTestsSecurity::benchmarkPrivateIPsOld_data()
+{
+	populateRowsWithTestIPs();
+}
+
+
+void UnitTestsSecurity::benchmarkPrivateIPsNew()
+{
+	QFETCH( QString, IP );
+
+	CEndPoint oIP = CEndPoint( IP );
+
+	QBENCHMARK
+	{
+		m_pManager->isPrivateNew( oIP );
+	}
+}
+void UnitTestsSecurity::benchmarkPrivateIPsNew_data()
+{
+	populateRowsWithTestIPs();
+}
+
+
+void UnitTestsSecurity::prepareTestData()
+{
+	m_vData.reserve( 61 );
+
+	const char* pIPs[] =
+	{
+		"0.255.255.255",
+		"0.4.6.1",
+		"0.5.6.1",
+		"1.1.1.1",
+		"2.2.2.2",
+		"10.0.0.0",
+		"10.0.0.1",
+		"10.0.1.0",
+		"10.1.0.0",
+		"10.1.0.0",
+		"10.1.0.0",
+		"10.255.254.255",
+		"10.254.255.255",
+		"10.255.255.255",
+		"90.0.0.0",
+		"90.90.90.90",
+		"100.64.0.0",
+		"100.64.0.1",
+		"100.127.255.255",
+		"127.255.255.255",
+		"127.255.255.254",
+		"127.2.2.5",
+		"130.0.0.0",
+		"145.90.94.101",
+		"169.254.0.0",
+		"169.254.0.1",
+		"169.254.0.2",
+		"169.254.7.0",
+		"169.254.9.1",
+		"169.254.34.2",
+		"169.254.255.255",
+		"169.255.255.255",
+		"169.255.0.0",
+		"169.255.89.34",
+		"171.0.0.0",
+		"172.16.0.0",
+		"172.17.0.0",
+		"127.2.2.5",
+		"172.31.255.254",
+		"172.31.255.255",
+		"191.255.255.255",
+		"191.255.255.254",
+		"191.255.255.253",
+		"172.32.0.0",
+		"192.0.0.0",
+		"192.0.2.255",
+		"192.168.0.0",
+		"192.168.255.255",
+		"198.18.0.0",
+		"198.19.255.255",
+		"198.51.100.0",
+		"198.51.100.255",
+		"203.0.113.0",
+		"203.0.113.255",
+		"203.0.114.0",
+		"203.0.114.255",
+		"203.0.156.0",
+		"230.0.113.0",
+		"231.0.113.255",
+		"240.0.0.0",
+		"255.255.255.255"
+	};
+
+	const bool pBools[] =
+	{
+		true,
+		true,
+		true,
+		false,
+		false,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		false,
+		false,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		false,
+		false,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		false,
+		false,
+		false,
+		false,
+		true,
+		true,
+		true,
+		true,
+		true,
+		false,
+		false,
+		false,
+		false,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		true,
+		false,
+		false,
+		false,
+		false,
+		false,
+		true,
+		true
+	};
+
+	for ( ushort i = 0; i < 61; ++i )
+	{
+		m_vData.push_back( std::make_pair( QString( pIPs[i] ), pBools[i] ) );
+	}
+}
+
+void UnitTestsSecurity::populateRowsWithTestIPs()
 {
 	QTest::addColumn< QString >( "IP" );
 	QTest::addColumn< bool    >( "isPrivate" );
 
-	QTest::newRow( "0" ) << "0.255.255.255"   << true;
-	QTest::newRow( "1" ) << "0.4.6.1"         << true;
-	QTest::newRow( "2" ) << "0.5.6.1"         << true;
-
-	QTest::newRow( "3" ) << "1.1.1.1"         << false;
-	QTest::newRow( "4" ) << "2.2.2.2"         << false;
-
-	QTest::newRow( "5" ) << "10.0.0.0"        << true;
-	QTest::newRow( "6" ) << "10.0.0.1"        << true;
-	QTest::newRow( "7" ) << "10.0.1.0"        << true;
-	QTest::newRow( "8" ) << "10.1.0.0"        << true;
-	QTest::newRow( "9" ) << "10.255.255.254"  << true;
-	QTest::newRow( "10" ) << "10.255.254.255"  << true;
-	QTest::newRow( "11" ) << "10.254.255.255"  << true;
-	QTest::newRow( "12" ) << "10.255.255.255"  << true;
-
-	QTest::newRow( "13" ) << "90.0.0.0"        << false;
-	QTest::newRow( "14" ) << "90.90.90.90"     << false;
-
-	QTest::newRow( "15" ) << "100.64.0.0"      << true;
-	QTest::newRow( "16" ) << "100.64.0.1"      << true;
-	QTest::newRow( "17" ) << "100.127.255.255" << true;
-
-	QTest::newRow( "18" ) << "127.255.255.255" << true;
-	QTest::newRow( "19" ) << "127.255.255.254" << true;
-	QTest::newRow( "20" ) << "127.2.2.5"       << true;
-
-	QTest::newRow( "21" ) << "130.0.0.0"       << false;
-	QTest::newRow( "22" ) << "145.90.94.101"   << false;
-
-	QTest::newRow( "23" ) << "169.254.0.0"     << true;
-	QTest::newRow( "24" ) << "169.254.0.1"     << true;
-	QTest::newRow( "25" ) << "169.254.0.2"     << true;
-	QTest::newRow( "26" ) << "169.254.7.0"     << true;
-	QTest::newRow( "27" ) << "169.254.9.1"     << true;
-	QTest::newRow( "28" ) << "169.254.34.2"    << true;
-	QTest::newRow( "29" ) << "169.254.255.255" << true;
-
-	QTest::newRow( "30" ) << "169.255.255.255" << false;
-	QTest::newRow( "31" ) << "169.255.0.0"     << false;
-	QTest::newRow( "32" ) << "169.255.89.34"   << false;
-	QTest::newRow( "33" ) << "171.0.0.0"       << false;
-
-	QTest::newRow( "34" ) << "172.16.0.0"      << true;
-	QTest::newRow( "35" ) << "172.17.0.0"      << true;
-	QTest::newRow( "36" ) << "127.2.2.5"       << true;
-	QTest::newRow( "37" ) << "172.31.255.254"  << true;
-	QTest::newRow( "38" ) << "172.31.255.255"  << true;
-
-	QTest::newRow( "39" ) << "191.255.255.255" << false;
-	QTest::newRow( "40" ) << "191.255.255.254" << false;
-	QTest::newRow( "41" ) << "191.255.255.253" << false;
-	QTest::newRow( "42" ) << "172.32.0.0"      << false;
-
-	QTest::newRow( "43" ) << "192.0.0.0"       << true;
-	QTest::newRow( "44" ) << "192.0.2.255"     << true;
-
-	QTest::newRow( "45" ) << "192.168.0.0"     << true;
-	QTest::newRow( "46" ) << "192.168.255.255" << true;
-
-	QTest::newRow( "47" ) << "198.18.0.0"      << true;
-	QTest::newRow( "48" ) << "198.19.255.255"  << true;
-
-	QTest::newRow( "49" ) << "198.51.100.0"    << true;
-	QTest::newRow( "50" ) << "198.51.100.255"  << true;
-
-	QTest::newRow( "51" ) << "203.0.113.0"     << true;
-	QTest::newRow( "52" ) << "203.0.113.255"   << true;
-
-	QTest::newRow( "53" ) << "203.0.114.0"     << false;
-	QTest::newRow( "54" ) << "203.0.114.255"   << false;
-	QTest::newRow( "55" ) << "203.0.156.0"     << false;
-	QTest::newRow( "56" ) << "230.0.113.0"     << false;
-	QTest::newRow( "57" ) << "231.0.113.255"   << false;
-	QTest::newRow( "58" ) << "238.0.113.20"    << false;
-
-	QTest::newRow( "59" ) << "240.0.0.0"       << true;
-	QTest::newRow( "60" ) << "255.255.255.255" << true;
+	for ( ushort i = 0; i < 61; ++i )
+	{
+		QTest::newRow( QString::number( i ).append( m_vData[i].first ).toLocal8Bit().data() )
+				<< m_vData[i].first << m_vData[i].second;
+	}
 }
 
 QTEST_APPLESS_MAIN(UnitTestsSecurity)
