@@ -159,11 +159,11 @@ void CNetworkConnection::close(bool bDelayed)
 
 void CNetworkConnection::closeImplementation(bool bDelayed)
 {
-	if( bDelayed )
+	if ( bDelayed )
 	{
-		if(!getOutputBuffer()->isEmpty() || !m_pOutput->isEmpty())
+		if ( !getOutputBuffer()->isEmpty() || !m_pOutput->isEmpty() )
 		{
-			writeToNetwork(m_pOutput->size() + getOutputBuffer()->size());
+			writeToNetwork( m_pOutput->size() + getOutputBuffer()->size() );
 			m_pSocket->disconnectFromHost();
 			return;
 		}

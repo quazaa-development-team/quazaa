@@ -53,7 +53,7 @@ void CNeighboursConnections::connectNode()
 {
 	QMutexLocker l(&m_pSection);
 
-	Q_ASSERT(m_pController == 0);
+	Q_ASSERT( !m_pController );
 
 	m_pController = new CRateController(&m_pSection);
 	m_pController->setDownloadLimit(quazaaSettings.Connection.InSpeed);
@@ -131,7 +131,7 @@ void CNeighboursConnections::disconnectYoungest(Protocol nProtocol, int nType, b
 
 	time_t tNow = time(0);
 
-	while(1)
+	while( true )
 	{
 		for(QList<CNeighbour*>::const_iterator i = m_lNodes.begin(); i != m_lNodes.end(); i++)
 		{
@@ -140,7 +140,7 @@ void CNeighboursConnections::disconnectYoungest(Protocol nProtocol, int nType, b
 				if( bKeepManual && !(*i)->m_bAutomatic && tNow - (*i)->m_tConnected < 120 )
 					continue;
 
-				if( nProtocol == dpG2 )
+				if ( nProtocol == dpG2 )
 				{
 					if( ((CG2Node*)(*i))->m_nType != nType // if node type is not requested type
 						|| (!bCore && ((CG2Node*)(*i))->m_bG2Core) ) // or we don't want to disconnect "our" nodes
@@ -149,7 +149,7 @@ void CNeighboursConnections::disconnectYoungest(Protocol nProtocol, int nType, b
 					}
 				}
 
-				if(pNode == 0)
+				if ( !pNode )
 				{
 					pNode = (*i);
 				}

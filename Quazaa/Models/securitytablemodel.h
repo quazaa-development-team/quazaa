@@ -65,7 +65,6 @@ public:
 		QString         m_sComment;
 		bool            m_bContent;
 		const QIcon*    m_piAction;
-		bool            m_bRemoving;  // if set to true, don't access m_pRule any more
 		bool            m_bAutomatic;
 
 		RuleData(Rule* pRule, SecurityTableModel* pModel);
@@ -85,8 +84,7 @@ public:
 
 		/**
 		 * @brief rule allows access to the rule pointer.
-		 * @return the pointer to the Rule within the manager; NULL if the rule is currently being
-		 * removed.
+		 * @return the pointer to the Rule within the manager
 		 */
 		Rule* rule() const;
 
@@ -103,6 +101,7 @@ private:
 	Qt::SortOrder   m_nSortOrder;
 	int             m_nSortColumn;
 	bool            m_bNeedSorting;
+	static bool     m_bShutDown;
 
 	quint32         m_nRuleInfo;
 
@@ -146,6 +145,11 @@ public:
 
 	void triggerRuleRemoval(int nIndex);
 
+	/**
+	 * @brief clear removes all information from the GUI.
+	 */
+	void clear();
+
 public slots:
 	/**
 	 * @brief securityStartUpFinished initializes the GUI once Security has started.
@@ -183,9 +187,9 @@ public slots:
 	void updateAll();
 
 	/**
-	 * @brief clear removes all information from the GUI.
+	 * @brief onShutdown handles shutting down.
 	 */
-	void clear();
+	void onShutdown();
 };
 
 typedef SecurityTableModel::RuleData    RuleData;

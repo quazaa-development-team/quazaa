@@ -38,7 +38,6 @@ RuleData::RuleData(Rule* pRule, SecurityTableModel* pModel) :
 	m_tExpire(    pRule->getExpiryTime()    ),
 	m_sContent(   pRule->getContentString() ),
 	m_sComment(   pRule->m_sComment         ),
-	m_bRemoving(  false                     ),
 	m_bAutomatic( pRule->m_bAutomatic       )
 {
 	switch( m_nAction )
@@ -79,7 +78,7 @@ RuleData::~RuleData()
 bool RuleData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
 					  SecurityTableModel* pModel)
 {
-	if ( m_bRemoving )
+	if ( m_bShutDown )
 		return false;
 
 	Q_ASSERT( m_pRule );
@@ -221,7 +220,7 @@ QVariant RuleData::data(int col) const
 
 Rule* RuleData::rule() const
 {
-	return m_bRemoving ? NULL : m_pRule;
+	return m_bShutDown ? NULL : m_pRule;
 }
 
 bool RuleData::lessThan(int col, const SecurityTableModel::RuleData* const pOther) const
@@ -296,6 +295,8 @@ QString RuleData::expiryToString(quint32 tExpire) const
 		return QDateTime::fromTime_t( tExpire ).toLocalTime().toString();
 	}
 }
+
+bool SecurityTableModel::m_bShutDown = false;
 
 SecurityTableModel::SecurityTableModel(QObject* parent, QWidget* container) :
 	QAbstractTableModel( parent ),
@@ -565,6 +566,9 @@ RuleDataPtr SecurityTableModel::dataFromRow(int nRow) const
 
 void SecurityTableModel::completeRefresh()
 {
+	if ( m_bShutDown )
+		return;
+
 	// Remove all rules.
 	clear();
 
@@ -587,6 +591,19 @@ void SecurityTableModel::triggerRuleRemoval(int nIndex)
 	securityManager.remove( m_lNodes[nIndex]->rule() );
 }
 
+/**
+ * @brief clear removes all information from the GUI.
+ */
+void SecurityTableModel::clear()
+{
+	if ( m_lNodes.size() )
+	{
+		beginRemoveRows( QModelIndex(), 0, m_lNodes.size() - 1 );
+		m_lNodes.clear();
+		endRemoveRows();
+	}
+}
+
 void SecurityTableModel::securityStartUpFinished()
 {
 	// register necessary meta types before using them
@@ -603,7 +620,7 @@ void SecurityTableModel::securityStartUpFinished()
 			 SLOT( updateRule( ID ) ), Qt::QueuedConnection );
 
 	// Prepare GUI for closing
-	connect( MainWindow, SIGNAL( shutDown() ), this, SLOT( clear() ) );
+	connect( MainWindow, SIGNAL( shutDown() ), this, SLOT( onShutdown() ) );
 
 	// This needs to be called to make sure that all rules added to the securityManager before this
 	// part of the GUI is loaded are properly added to the model.
@@ -630,6 +647,9 @@ void SecurityTableModel::recieveRuleInfo(Rule* pRule)
  */
 void SecurityTableModel::addRule(Rule* pRule)
 {
+	if ( m_bShutDown )
+		return;
+
 	Q_ASSERT( pRule );
 	Q_ASSERT( securityManager.check( pRule ) );
 
@@ -652,6 +672,9 @@ void SecurityTableModel::addRule(Rule* pRule)
  */
 void SecurityTableModel::removeRule(SharedRulePtr pRule)
 {
+	if ( m_bShutDown )
+		return;
+
 	//qDebug() << "SecurityTableModel::removeRule()";
 
 	// TODO: remove assert before beta1
@@ -667,7 +690,6 @@ void SecurityTableModel::removeRule(SharedRulePtr pRule)
 
 			//qDebug() << "SecurityTableModel::removeRule() Found rule row. Removing now.";
 
-			m_lNodes[i]->m_bRemoving = true;// make sure m_pRule is not accessed anymore
 			m_lNodes.removeAt( i );         // clears shared rule data pointer
 
 			endRemoveRows();
@@ -686,6 +708,9 @@ void SecurityTableModel::removeRule(SharedRulePtr pRule)
  */
 void SecurityTableModel::updateRule(ID nRuleID)
 {
+	if ( m_bShutDown )
+		return;
+
 	QModelIndexList uplist;
 	bool bSort = m_bNeedSorting;
 
@@ -726,6 +751,9 @@ void SecurityTableModel::updateRule(ID nRuleID)
  */
 void SecurityTableModel::updateAll()
 {
+	if ( m_bShutDown )
+		return;
+
 	QModelIndexList uplist;
 	bool bSort = m_bNeedSorting;
 
@@ -760,14 +788,10 @@ void SecurityTableModel::updateAll()
 }
 
 /**
- * @brief clear removes all information from the GUI.
+ * @brief onShutdown handles shutting down.
  */
-void SecurityTableModel::clear()
+void SecurityTableModel::onShutdown()
 {
-	if ( m_lNodes.size() )
-	{
-		beginRemoveRows( QModelIndex(), 0, m_lNodes.size() - 1 );
-		m_lNodes.clear();
-		endRemoveRows();
-	}
+	m_bShutDown = true;
+	clear();
 }

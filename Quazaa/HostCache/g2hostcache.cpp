@@ -802,7 +802,6 @@ void G2HostCache::sanityCheck()
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	//qDebug() << "[HostCache] Started sanity checking.";
-
 	securityManager.m_oSanity.lockForRead();
 	m_pSection.lock(); // obtain HostCache lock second in order to minimize HostCache lockdown time
 

@@ -90,10 +90,17 @@ public:
 		return m_lNodes.at(nIndex);
 	}
 signals:
+	void sanityCheckPerformed();
 	void neighbourAdded(CNeighbour*);
 	void neighbourRemoved(CNeighbour*);
+
 public slots:
 	virtual void maintain();
+
+	/**
+	 * @brief sanityCheck removes nodes newly banned by the Security Manager.
+	 */
+	void sanityCheck();
 };
 
 #endif // NEIGHBOURSBASE_H

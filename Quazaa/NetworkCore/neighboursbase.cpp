@@ -22,8 +22,11 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#include "Security/securitymanager.h"
+
 #include "neighboursbase.h"
 #include "neighbour.h"
+
 #include "debug_new.h"
 
 CNeighboursBase::CNeighboursBase(QObject* parent) :
@@ -42,6 +45,12 @@ CNeighboursBase::~CNeighboursBase()
 void CNeighboursBase::connectNode()
 {
 	ASSUME_LOCK(m_pSection);
+
+	connect( &securityManager.m_oSanity, SIGNAL( beginSanityCheck() ),
+			 this, SLOT( sanityCheck() ), Qt::UniqueConnection );
+
+	connect( this, SIGNAL( sanityCheckPerformed() ),
+			 &securityManager.m_oSanity, SLOT( sanityCheckPerformed() ), Qt::UniqueConnection );
 
 	m_bActive = true;
 }
@@ -106,5 +115,45 @@ void CNeighboursBase::maintain()
 	{
 		pNode->onTimer(tNow);
 	}
+}
+
+void CNeighboursBase::sanityCheck()
+{
+	qDebug() << "[Neighbours] Started sanity checking.";
+	securityManager.m_oSanity.lockForRead();
+	//qDebug() << "Got sanity lock. Waiting for Neighbours.";
+
+	uint nCount = 0;
+
+	if ( m_pSection.tryLock() ) // obtain Neighbours lock second in order to minimize lockdown time
+	{
+		//qDebug() << "Neighbours lock.";
+		for ( int i = 0; i < m_lNodes.size(); ++i )
+		{
+			if ( securityManager.m_oSanity.isNewlyDenied( m_lNodes[i]->address() ) )
+			{
+				++nCount;
+				m_lNodes[i]->close(); // this also removes the node from Neighbours
+			}
+		}
+
+		//qDebug() << "Neighbours unlock.";
+		m_pSection.unlock();
+	}
+	else
+	{
+		securityManager.m_oSanity.unlock();
+		qDebug() << "[Neighbours] Didn't get Neighbours lock. Trying again later.";
+		QMetaObject::invokeMethod( this, "sanityCheck", Qt::QueuedConnection );
+		return;
+	}
+
+	//qDebug() << "Sanity unlock.";
+	securityManager.m_oSanity.unlock();
+
+	emit sanityCheckPerformed();
+
+	qDebug() << QString( "[Neighbours] Finished sanity checking. %1 hosts removed."
+						 ).arg( nCount ).toLocal8Bit().data();
 }
 

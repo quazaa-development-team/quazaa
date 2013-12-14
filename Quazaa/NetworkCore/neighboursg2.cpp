@@ -58,7 +58,7 @@ CNeighboursG2::~CNeighboursG2()
 
 void CNeighboursG2::connectNode()
 {
-	if(quazaaSettings.Gnutella2.ClientMode < 2)
+	if ( quazaaSettings.Gnutella2.ClientMode < 2 )
 	{
 		m_nClientMode = G2_LEAF;
 	}
@@ -75,8 +75,7 @@ void CNeighboursG2::connectNode()
 	CNeighboursConnections::connectNode();
 
 	// Only query service if we're not already querying and we actually need fresh hosts.
-	if ( !discoveryManager.isActive( Discovery::ServiceType::GWC ) &&
-		 ( !hostCache.hasConnectable() ) )
+	if ( !discoveryManager.isActive( Discovery::ServiceType::GWC ) && !hostCache.hasConnectable() )
 	{
 		discoveryManager.queryService( CNetworkType( dpG2 ) );
 	}

@@ -323,10 +323,10 @@ void CG2Node::parseIncomingHandshake()
 		return;
 	}
 
-	if ( securityManager.isAgentBlocked(m_sUserAgent) )
+	if ( securityManager.isAgentBlocked( m_sUserAgent ) )
 	{
 		send_ConnectError( "403 Access Denied, sorry" );
-		securityManager.ban( m_oAddress, Security::RuleTime::SixHours, true,
+		securityManager.ban( m_oAddress, Security::RuleTime::Day, true,
 							 QString( "[AUTO] UA Blocked (%1)" ).arg( m_sUserAgent ), true
 #if SECURITY_LOG_BAN_SOURCES
 							 , QString( "g2node.cpp line 320" )
