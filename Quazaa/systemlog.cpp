@@ -30,6 +30,7 @@
 
 CSystemLog systemLog;
 
+#ifndef QUAZAA_SETUP_UNIT_TESTS
 CSystemLog::CSystemLog() :
 m_pSection(QMutex::Recursive)
 {
@@ -44,6 +45,7 @@ CSystemLog::~CSystemLog()
 {
 	delete[] m_pComponents;
 }
+#endif
 
 void CSystemLog::start()
 {
@@ -70,6 +72,7 @@ QString CSystemLog::msgFromComponent(Components::Component nComponent)
 	return m_pComponents[nComponent];
 }
 
+#ifndef QUAZAA_SETUP_UNIT_TESTS
 void CSystemLog::postLog(LogSeverity::Severity nSeverity, const QString& sMessage)
 {
 	postLog( nSeverity, Components::None, sMessage );
@@ -135,4 +138,28 @@ void CSystemLog::postLog(LogSeverity::Severity nSeverity, Components::Component 
 	postLog( nSeverity, nComponent, message );
 	va_end( argList );
 }
+
+#else
+CSystemLog::CSystemLog()
+{
+	m_pComponents = new QString[Components::NoComponents];
+}
+
+CSystemLog::~CSystemLog()
+{
+	delete[] m_pComponents;
+}
+
+void CSystemLog::postLog(LogSeverity::Severity, const QString&)
+{
+}
+
+void CSystemLog::postLog(LogSeverity::Severity, Components::Component, const QString&)
+{
+}
+
+void CSystemLog::postLog(LogSeverity::Severity, Components::Component, const char*, ...)
+{
+}
+#endif
 

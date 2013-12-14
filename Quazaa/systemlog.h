@@ -25,10 +25,14 @@
 #ifndef SYSTEMLOG_H
 #define SYSTEMLOG_H
 
-#include <QObject>
+#ifndef QUAZAA_SETUP_UNIT_TESTS
 #include <QMutex>
 #include <QWaitCondition>
 #include <QThread>
+#endif
+
+#include <QObject>
+#include <QString>
 
 namespace LogSeverity
 {
@@ -65,10 +69,14 @@ enum Component { None         =  0,
 class CSystemLog : public QObject
 {
 	Q_OBJECT
+
+#ifndef QUAZAA_SETUP_UNIT_TESTS
 private:
 	QMutex m_pSection;
-	QString* m_pComponents;
 	bool m_bProcessingMessage;
+#endif
+
+	QString* m_pComponents;
 
 public:
 	CSystemLog();
@@ -78,6 +86,7 @@ public:
 
 	QString msgFromComponent(Components::Component nComponent);
 
+#ifndef QUAZAA_SETUP_UNIT_TESTS
 signals:
 	void logPosted(QString sMessage, LogSeverity::Severity nSeverity);
 
@@ -85,6 +94,9 @@ public slots:
 	void postLog(LogSeverity::Severity nSeverity, const QString& sMessage);
 
 public:
+#else
+	void postLog(LogSeverity::Severity nSeverity, const QString& sMessage);
+#endif
 	void postLog(LogSeverity::Severity nSeverity, Components::Component nComponent, const QString& sMessage);
 	void postLog(LogSeverity::Severity nSeverity, Components::Component nComponent, const char* format, ...);
 };

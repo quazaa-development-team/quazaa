@@ -29,11 +29,11 @@ QT_VER_MAJ = $$member(QT_VERSION, 0)
 QT_VER_MIN = $$member(QT_VERSION, 1)
 
 greaterThan(QT_VER_MAJ, 4) {
-		QT += widgets \
-				multimedia \
-				multimediawidgets \
-				network \
-				xml
+		QT += multimedia \
+			  multimediawidgets \
+			  network \
+			  widgets \
+			  xml
 }
 
 QT += network \

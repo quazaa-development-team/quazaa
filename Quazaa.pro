@@ -25,6 +25,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS = VersionTool \
-		  Quazaa
+		  Quazaa \
+		  UnitTests
 
 CONFIG += ordered
