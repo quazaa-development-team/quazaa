@@ -99,18 +99,22 @@ CEndPoint::CEndPoint(const QString& address)
 	else
 	{
 		// IPv4
-
 		QStringList l1 = address.split( ":" );
-		if ( l1.count() != 2 )
+		if ( l1.count() == 1 )
+		{
+			QHostAddress::setAddress( l1.at( 0 ) );
+			m_nPort = 0;
+		}
+		else if ( l1.count() == 2 )
+		{
+			QHostAddress::setAddress( l1.at( 0 ) );
+			m_nPort = l1.at( 1 ).toUShort();
+		}
+		else
 		{
 			QHostAddress::setAddress( quint32( 0 ) );
 			m_nPort = 0;
-			return;
 		}
-
-		m_nPort = l1.at( 1 ).toUShort();
-
-		QHostAddress::setAddress( l1.at( 0 ) );
 	}
 }
 
