@@ -393,9 +393,7 @@ bool CEndPoint::isFirewalled() const
 
 bool CEndPoint::isValid() const
 {
-	return ( !isNull() && m_nPort  &&
-			 QHostAddress::operator !=( QHostAddress::Any ) &&
-			 QHostAddress::operator !=( QHostAddress::AnyIPv6 ) );
+	return ( !isNull() && m_nPort );
 }
 
 QString CEndPoint::country() const
