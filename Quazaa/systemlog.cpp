@@ -72,12 +72,12 @@ QString CSystemLog::msgFromComponent(Components::Component nComponent)
 	return m_pComponents[nComponent];
 }
 
-#ifndef QUAZAA_SETUP_UNIT_TESTS
 void CSystemLog::postLog(LogSeverity::Severity nSeverity, const QString& sMessage)
 {
 	postLog( nSeverity, Components::None, sMessage );
 }
 
+#ifndef QUAZAA_SETUP_UNIT_TESTS
 void CSystemLog::postLog(LogSeverity::Severity nSeverity, Components::Component nComponent,
 						 const QString& sMessage)
 {
@@ -150,12 +150,10 @@ CSystemLog::~CSystemLog()
 	delete[] m_pComponents;
 }
 
-void CSystemLog::postLog(LogSeverity::Severity, const QString&)
+void CSystemLog::postLog(LogSeverity::Severity, Components::Component nComponent,
+						 const QString& sMessage)
 {
-}
-
-void CSystemLog::postLog(LogSeverity::Severity, Components::Component, const QString&)
-{
+	qDebug() << ( msgFromComponent( nComponent ) + sMessage ).toLocal8Bit().data();
 }
 
 void CSystemLog::postLog(LogSeverity::Severity, Components::Component, const char*, ...)

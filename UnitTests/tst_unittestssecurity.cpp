@@ -47,6 +47,9 @@ private Q_SLOTS:
 	void initTestCase();
 	void cleanupTestCase();
 
+	void testDeniedIPs();
+	void testDeniedIPs_data();
+
 	void testPrivateIPs();
 	void testPrivateIPs_data();
 
@@ -80,24 +83,59 @@ void UnitTestsSecurity::initTestCase()
 	m_pManager = new Manager();
 	m_pManager->loadPrivates();
 
-	/*for ( ushort i = 0; i < m_vData.size(); ++i )
-	{
+	securitySettigs.m_bLogIPCheckHits = true;
+	m_pManager->settingsChanged();
 
-	}*/
+	QVERIFY2( m_pManager->m_bLogIPCheckHits, "Failed to set Manager to be more verboose." );
+
+	for ( ushort i = 0; i < m_vData.size(); ++i )
+	{
+		CEndPoint oIP = CEndPoint( m_vData[i].first );
+
+		qDebug() << QString::number( i ) + " - " + oIP.toString().toLocal8Bit().data();
+		if ( m_vData[i].second )
+		{
+			m_pManager->ban( oIP, RuleTime::Forever, true,
+							 QString( "Test " ) + QString::number( i )
+							 + " - " + m_vData[i].first, false );
+		}
+	}
 }
 
 void UnitTestsSecurity::cleanupTestCase()
 {
+	m_pManager->clear();
+}
+
+void UnitTestsSecurity::testDeniedIPs()
+{
+	QFETCH( QString, IP );
+	QFETCH( bool, isDenied );
+
+	CEndPoint oIP = CEndPoint( IP );
+
+	QCOMPARE( m_pManager->isDenied( oIP ), isDenied );
+}
+void UnitTestsSecurity::testDeniedIPs_data()
+{
+	populateRowsWithTestIPs();
+
+	ushort nCount = 0;
+
+	/*while ( nCount < 20 )
+	{
+
+}*/
 }
 
 void UnitTestsSecurity::testPrivateIPs()
 {
 	QFETCH( QString, IP );
-	QFETCH( bool, isPrivate );
+	QFETCH( bool, isDenied );
 
 	CEndPoint oIP = CEndPoint( IP );
 
-	QCOMPARE( m_pManager->isPrivate( oIP ), isPrivate );
+	QCOMPARE( m_pManager->isPrivate( oIP ), isDenied );
 }
 void UnitTestsSecurity::testPrivateIPs_data()
 {
@@ -108,11 +146,11 @@ void UnitTestsSecurity::testPrivateIPs_data()
 void UnitTestsSecurity::testPrivateIPsOld()
 {
 	QFETCH( QString, IP );
-	QFETCH( bool, isPrivate );
+	QFETCH( bool, isDenied );
 
 	CEndPoint oIP = CEndPoint( IP );
 
-	QCOMPARE( m_pManager->isPrivateOld( oIP ), isPrivate );
+	QCOMPARE( m_pManager->isPrivateOld( oIP ), isDenied );
 }
 void UnitTestsSecurity::testPrivateIPsOld_data()
 {
@@ -123,11 +161,11 @@ void UnitTestsSecurity::testPrivateIPsOld_data()
 void UnitTestsSecurity::testPrivateIPsNew()
 {
 	QFETCH( QString, IP );
-	QFETCH( bool, isPrivate );
+	QFETCH( bool, isDenied );
 
 	CEndPoint oIP = CEndPoint( IP );
 
-	QCOMPARE( m_pManager->isPrivateNew( oIP ), isPrivate );
+	QCOMPARE( m_pManager->isPrivateNew( oIP ), isDenied );
 }
 void UnitTestsSecurity::testPrivateIPsNew_data()
 {
@@ -178,14 +216,14 @@ void UnitTestsSecurity::prepareTestData()
 		"0.255.255.255",
 		"0.4.6.1",
 		"0.5.6.1",
-		"1.1.1.1",
-		"2.2.2.2",
+		"1.1.100.1",
+		"8.2.235.69",
 		"10.0.0.0",
 		"10.0.0.1",
 		"10.0.1.0",
 		"10.1.0.0",
-		"10.1.0.0",
-		"10.1.0.0",
+		"10.23.0.5",
+		"10.234.1.253",
 		"10.255.254.255",
 		"10.254.255.255",
 		"10.255.255.255",
@@ -212,7 +250,7 @@ void UnitTestsSecurity::prepareTestData()
 		"171.0.0.0",
 		"172.16.0.0",
 		"172.17.0.0",
-		"127.2.2.5",
+		"172.25.181.53",
 		"172.31.255.254",
 		"172.31.255.255",
 		"191.255.255.255",
@@ -312,7 +350,7 @@ void UnitTestsSecurity::prepareTestData()
 void UnitTestsSecurity::populateRowsWithTestIPs()
 {
 	QTest::addColumn< QString >( "IP" );
-	QTest::addColumn< bool    >( "isPrivate" );
+	QTest::addColumn< bool    >( "isDenied" );
 
 	for ( ushort i = 0; i < 61; ++i )
 	{
