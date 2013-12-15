@@ -26,7 +26,6 @@
 #include <QtTest>
 
 #include "securitymanager.h"
-//#include "../Quazaa/Security/securitymanager.h"
 
 using namespace Security;
 
@@ -51,6 +50,7 @@ private Q_SLOTS:
 	void testPrivateIPs();
 	void testPrivateIPs_data();
 
+#if SECURITY_DISABLE_IS_PRIVATE_OLD
 	void testPrivateIPsOld();
 	void testPrivateIPsOld_data();
 
@@ -62,6 +62,7 @@ private Q_SLOTS:
 
 	void benchmarkPrivateIPsNew();
 	void benchmarkPrivateIPsNew_data();
+#endif // SECURITY_DISABLE_IS_PRIVATE_OLD
 
 private:
 	void prepareTestData();
@@ -94,14 +95,16 @@ void UnitTestsSecurity::testPrivateIPs()
 	QFETCH( QString, IP );
 	QFETCH( bool, isPrivate );
 
-	QCOMPARE( m_pManager->isPrivate( CEndPoint( IP ) ), isPrivate );
+	CEndPoint oIP = CEndPoint( IP );
+
+	QCOMPARE( m_pManager->isPrivate( oIP ), isPrivate );
 }
 void UnitTestsSecurity::testPrivateIPs_data()
 {
 	populateRowsWithTestIPs();
 }
 
-
+#if SECURITY_DISABLE_IS_PRIVATE_OLD
 void UnitTestsSecurity::testPrivateIPsOld()
 {
 	QFETCH( QString, IP );
@@ -164,7 +167,7 @@ void UnitTestsSecurity::benchmarkPrivateIPsNew_data()
 {
 	populateRowsWithTestIPs();
 }
-
+#endif // SECURITY_DISABLE_IS_PRIVATE_OLD
 
 void UnitTestsSecurity::prepareTestData()
 {
@@ -313,7 +316,8 @@ void UnitTestsSecurity::populateRowsWithTestIPs()
 
 	for ( ushort i = 0; i < 61; ++i )
 	{
-		QTest::newRow( QString::number( i ).append( m_vData[i].first ).toLocal8Bit().data() )
+		QTest::newRow( QString::number( i ).append(
+						   " - " ).append( m_vData[i].first ).toLocal8Bit().data() )
 				<< m_vData[i].first << m_vData[i].second;
 	}
 }
