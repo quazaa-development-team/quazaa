@@ -409,10 +409,11 @@ G2Packet* G2Packet::readBuffer(CBuffer* pBuffer)
 
 	quint32 nLength = 0;
 
-	if(nFlags & G2_FLAG_BIG_ENDIAN)
+	if ( nFlags & G2_FLAG_BIG_ENDIAN )
 	{
 		qDebug(qPrintable(pBuffer->dump()));
-		throw "Big endian packet sent to G2 buffer.";
+		return 0;
+		//throw "Big endian packet sent to G2 buffer.";
 	}
 	else
 	{

@@ -124,11 +124,6 @@ void CNeighbour::onError(QAbstractSocket::SocketError e)
 
 			if ( m_bInitiated )
 			{
-				// Banned hosts removal is handled by the sanity check mechanism.
-				/*hostCache.m_pSection.lock();
-				hostCache.remove( m_oAddress );
-				hostCache.m_pSection.unlock();*/
-
 				// for some bad clients that drop connections too early
 				securityManager.ban( m_oAddress, Security::RuleTime::FiveMinutes, true,
 									 "[AUTO] Dropped handshake", true
