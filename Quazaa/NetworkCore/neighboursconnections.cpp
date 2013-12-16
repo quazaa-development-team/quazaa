@@ -256,7 +256,7 @@ void CNeighboursConnections::maintain()
 		{
 			int nToDisconnect = nHubsG2 - quazaaSettings.Gnutella2.NumHubs;
 
-			for(; nToDisconnect; nToDisconnect--)
+			for(; nToDisconnect; --nToDisconnect)
 			{
 				disconnectYoungest(dpG2, G2_HUB, (100 * nCoreHubsG2 / nHubsG2) > 50);
 			}
@@ -335,7 +335,7 @@ void CNeighboursConnections::maintain()
 			// rozlaczyc hub
 			int nToDisconnect = nHubsG2 - quazaaSettings.Gnutella2.NumPeers;
 
-			for(; nToDisconnect; nToDisconnect--)
+			for(; nToDisconnect; --nToDisconnect)
 			{
 				disconnectYoungest(dpG2, G2_HUB, (100 * nCoreHubsG2 / nHubsG2) > 50);
 			}
@@ -386,7 +386,7 @@ void CNeighboursConnections::maintain()
 		{
 			int nToDisconnect = nLeavesG2 - quazaaSettings.Gnutella2.NumLeafs;
 
-			for(; nToDisconnect; nToDisconnect--)
+			for(; nToDisconnect; --nToDisconnect)
 			{
 				disconnectYoungest(dpG2, G2_LEAF, (100 * nCoreLeavesG2 / nLeavesG2) > 50);
 			}

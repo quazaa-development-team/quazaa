@@ -150,26 +150,28 @@ CEndPoint & CEndPoint::operator++()
 	if( protocol() == QAbstractSocket::IPv4Protocol )
 	{
 		quint32 result = toIPv4Address();
-		setAddress(++result);
+		setAddress( ++result );
 		return *this;
 	}
 	else
 	{
 		Q_IPV6ADDR result = toIPv6Address();
 		quint8 carry = 1, i = 8;
-		while (carry && i)
+		while ( carry && i )
 		{
-			result[i-1] += carry;
-			if (result[i-1] > 0xffff || !result[i-1])
+			result[ i - 1 ] += carry;
+			if ( result[ i - 1 ] > 0xffff || !result[ i - 1 ] )
 			{
 				carry = 1;
-				result[i-1] &= 0xffff;
-			} else {
+				result[ i - 1 ] &= 0xffff;
+			}
+			else
+			{
 				carry = 0;
 			}
-			i--;
+			--i;
 		}
-		setAddress(result);
+		setAddress( result );
 		return *this;
 	}
 }

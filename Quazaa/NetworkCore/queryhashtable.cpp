@@ -803,7 +803,7 @@ quint32 CQueryHashTable::hashWord(const char* pSz, quint32 nLength, qint32 nBits
 {
 	quint32 nNumber = 0;
 	int nByte = 0;
-	for(; nLength > 0 ; nLength--, pSz++)
+	for(; nLength > 0 ; --nLength, ++pSz)
 	{
 		int nValue = tolower(*pSz) & 0xFF;
 		nValue = nValue << (nByte * 8);

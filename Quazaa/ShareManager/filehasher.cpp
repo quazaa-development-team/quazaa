@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -224,17 +224,17 @@ void CFileHasher::run()
 		}
 	}
 
-	for(uint i = 0; i < m_nMaxHashers; i++)
+	for ( uint i = 0; i < m_nMaxHashers; ++i )
 	{
-		if(m_pHashers[i] == this)
+		if ( m_pHashers[i] == this )
 		{
 			m_pHashers[i] = 0;
 			deleteLater();
-			m_nRunningHashers--;
+			--m_nRunningHashers;
 
-			if(m_nRunningHashers == 0)
+			if ( !m_nRunningHashers )
 			{
-				delete [] m_pHashers;
+				delete[] m_pHashers;
 				m_pHashers = 0;
 			}
 			break;

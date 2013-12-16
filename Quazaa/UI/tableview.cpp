@@ -81,7 +81,7 @@ void CTableView::keyPressEvent(QKeyEvent *e)
 			{
 				int currentRow = currentIndex.row();
 				// ...and if we're not at the head of the list...
-				if ( --currentRow != -1 )
+				if ( !currentRow-- )
 				{
 					// Makes sure the condition above is sufficient.
 					Q_ASSERT( currentRow < model->rowCount( QModelIndex() ) && currentRow > -1 );

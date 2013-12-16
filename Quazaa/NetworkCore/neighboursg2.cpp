@@ -136,7 +136,7 @@ void CNeighboursG2::maintain()
 	}
 	else
 	{
-		m_nNextKHL--;
+		--m_nNextKHL;
 	}
 
 	if(m_nLNIWait == 0)
@@ -192,7 +192,7 @@ void CNeighboursG2::maintain()
 		}
 		else
 		{
-			m_nHubBalanceWait--;
+			--m_nHubBalanceWait;
 		}
 	}
 

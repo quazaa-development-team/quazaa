@@ -350,7 +350,7 @@ G2Packet* G2PacketPool::newPacket()
 
 	G2Packet* pPacket = m_pFree;
 	m_pFree = m_pFree->m_pNext;
-	m_nFree --;
+	--m_nFree;
 
 	m_pSection.unlock();
 

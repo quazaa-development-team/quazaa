@@ -654,15 +654,14 @@ void CShareManager::onFileHashed(CSharedFilePtr pFile)
 {
 	QMutexLocker l( &m_oSection );
 
-	systemLog.postLog(LogSeverity::Debug, QString( "OnFileHashed" ) );
-	//qDebug() << "OnFileHashed";
+	systemLog.postLog( LogSeverity::Debug, QString( "OnFileHashed" ) );
 
 	pFile->refresh();
 	pFile->m_bShared = true;
 	pFile->serialize( &m_oDatabase );
 
-	m_nRemainingFiles--;
-	emit remainingFilesChanged(m_nRemainingFiles);
+	--m_nRemainingFiles;
+	emit remainingFilesChanged( m_nRemainingFiles );
 }
 
 CQueryHashTable* CShareManager::getHashTable()

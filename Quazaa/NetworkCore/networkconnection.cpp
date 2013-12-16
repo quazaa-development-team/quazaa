@@ -362,7 +362,7 @@ void TCPBandwidthMeter::Add(quint32 nBytes)
 	{
 		int nSlotsToClear = qMin(20ll, m_tTime.elapsed() / 250ll);
 
-		for(; nSlotsToClear; nSlotsToClear--)
+		for(; nSlotsToClear; --nSlotsToClear)
 		{
 			m_nCurrentSlot = (m_nCurrentSlot + 1) % 20;
 			m_pSlots[m_nCurrentSlot] = 0;
@@ -382,7 +382,7 @@ quint32 TCPBandwidthMeter::AvgUsage()
 	{
 		int nSlotsToClear = qMin(20ll, m_tTime.elapsed() / 250ll);
 
-		for(; nSlotsToClear; nSlotsToClear--)
+		for(; nSlotsToClear; --nSlotsToClear)
 		{
 			m_nCurrentSlot = (m_nCurrentSlot + 1) % 20;
 			m_pSlots[m_nCurrentSlot] = 0;
@@ -411,7 +411,7 @@ quint32 TCPBandwidthMeter::Usage()
 	for(int i = 0; i < 4; i++)
 	{
 		nUsage += m_pSlots[nSlot];
-		nSlot--;
+		--nSlot;
 		if(nSlot < 0)
 		{
 			nSlot = 19;

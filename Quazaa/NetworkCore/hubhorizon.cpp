@@ -123,7 +123,7 @@ void CHubHorizonPool::remove(CHubHorizonHub* pHub)
 			*ppPrev = pHub->m_pNext;
 			pHub->m_pNext = m_pFree;
 			m_pFree = pHub;
-			m_nActive --;
+			--m_nActive;
 			break;
 		}
 
@@ -179,7 +179,7 @@ void CHubHorizonGroup::add(CEndPoint oAddress)
 {
 	CHubHorizonHub** ppHub = m_pList;
 
-	for(quint32 nCount = m_nCount ; nCount ; nCount--, ppHub++)
+	for(quint32 nCount = m_nCount; nCount; --nCount, ++ppHub)
 	{
 		if((*ppHub)->m_oAddress == oAddress)
 		{
@@ -217,7 +217,7 @@ void CHubHorizonGroup::clear()
 {
 	CHubHorizonHub** ppHub = m_pList;
 
-	for(quint32 nCount = m_nCount ; nCount ; nCount--, ppHub++)
+	for(quint32 nCount = m_nCount ; nCount ; --nCount, ++ppHub)
 	{
 		if(-- ((*ppHub)->m_nReference) == 0)
 		{

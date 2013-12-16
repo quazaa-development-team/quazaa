@@ -41,7 +41,7 @@ CQueryHashGroup::~CQueryHashGroup()
 #ifdef _DEBUG
 	uchar* pTest = m_pHash;
 
-	for(quint32 nHash = m_nHash ; nHash ; nHash--)
+	for(quint32 nHash = m_nHash ; nHash ; --nHash)
 	{
 		Q_ASSERT(*pTest++ == 0);
 	}
@@ -88,7 +88,7 @@ void CQueryHashGroup::operate(CQueryHashTable* pTable, bool bAdd)
 
 	if(bAdd)
 	{
-		for(quint32 nHash = m_nHash >> 3 ; nHash ; nHash--)
+		for(quint32 nHash = m_nHash >> 3 ; nHash ; --nHash)
 		{
 			register uchar nSource = *pSource++;
 
@@ -160,7 +160,7 @@ void CQueryHashGroup::operate(CQueryHashTable* pTable, bool bAdd)
 	}
 	else
 	{
-		for(quint32 nHash = m_nHash >> 3 ; nHash ; nHash--)
+		for(quint32 nHash = m_nHash >> 3 ; nHash ; --nHash)
 		{
 			register uchar nSource = *pSource++;
 

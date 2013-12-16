@@ -520,7 +520,7 @@ void CDatagrams::__FlushSendCache()
 		m_mOutput.Add(sizeof(GND_HEADER));
 		nToWrite -= sizeof(GND_HEADER);
 		delete (GND_HEADER*)oAck.second;
-		nMaxPPS--;
+		--nMaxPPS;
 		meter.Add(1);
 	}
 

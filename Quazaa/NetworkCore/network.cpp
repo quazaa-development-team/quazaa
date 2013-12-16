@@ -152,7 +152,7 @@ void CNetwork::onSecondTimer()
 
 	if(m_tCleanRoutesNext > 0)
 	{
-		m_tCleanRoutesNext--;
+		--m_tCleanRoutesNext;
 	}
 	else
 	{

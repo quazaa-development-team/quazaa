@@ -551,7 +551,8 @@ void G2HostCache::pruneOldHosts(const quint32 tNow)
 			continue;
 		}
 
-		it = --erase( it );
+		it = erase( it );
+		--it;
 	}
 }
 

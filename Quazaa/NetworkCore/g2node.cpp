@@ -262,7 +262,7 @@ void CG2Node::onTimer(quint32 tNow)
 			}
 			else
 			{
-				m_nHAWWait--;
+				--m_nHAWWait;
 			}
 		}
 
@@ -931,7 +931,7 @@ void CG2Node::onPong(G2Packet* pPacket)
 
 	if(m_nPingsWaiting > 0)
 	{
-		m_nPingsWaiting--;
+		--m_nPingsWaiting;
 
 		if(m_nPingsWaiting == 0)
 		{
