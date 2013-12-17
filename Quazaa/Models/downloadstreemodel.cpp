@@ -297,13 +297,13 @@ CDownloadItem::CDownloadItem(CDownload *download, CDownloadsItemBase *parent, CD
 		Fragments::List oCompleted(m_nSize);
 		Fragments::List oVerified(m_nSize);
 
-		for( Fragments::List::iterator it = download->m_lCompleted.begin(); it != download->m_lCompleted.end(); it++ )
+		for( Fragments::List::iterator it = download->m_lCompleted.begin(); it != download->m_lCompleted.end(); ++it )
 		{
 			oCompleted.insert(*it);
 		}
 		m_oCompletedFrags.swap(oCompleted);
 
-		for( Fragments::List::iterator it = download->m_lVerified.begin(); it != download->m_lVerified.end(); it++ )
+		for( Fragments::List::iterator it = download->m_lVerified.begin(); it != download->m_lVerified.end(); ++it )
 		{
 			oVerified.insert(*it);
 		}

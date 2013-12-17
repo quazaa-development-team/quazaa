@@ -257,12 +257,12 @@ public:
 			{
 				Fragments::List completedFrags(item->m_nSize);
 
-				for( Fragments::List::iterator it = item->m_oCompletedFrags.begin(); it != item->m_oCompletedFrags.end(); it++ )
+				for( Fragments::List::iterator it = item->m_oCompletedFrags.begin(); it != item->m_oCompletedFrags.end(); ++it )
 				{
 					completedFrags.insert(*it);
 				}
 
-				for( int i = 0; i < item->childCount(); i++ )
+				for( int i = 0; i < item->childCount(); ++i )
 				{
 					CDownloadSourceItem* sourceItem = static_cast<CDownloadSourceItem*>(item->child(i));
 

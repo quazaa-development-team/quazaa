@@ -66,7 +66,7 @@ QList<CDownload*> CMetalinkHandler::files() const
 {
 	QList<CDownload*> result;
 
-	for ( unsigned int i = 0; i < m_nSize; i++ )
+	for ( unsigned int i = 0; i < m_nSize; ++i )
 	{
 		CDownload* pFile = file( i );
 		if ( pFile )

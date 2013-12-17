@@ -210,7 +210,7 @@ void SharesNavigatorTreeModel::setupModelData(const QStringList& lines, SharesNa
 						{
 								break;
 						}
-						position++;
+						++position;
 				}
 
 				QString lineData = lines[number].mid(position).trimmed();
