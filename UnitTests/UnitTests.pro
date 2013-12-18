@@ -57,7 +57,8 @@ INCLUDEPATH += $$Q_DIR \
 
 include( $$Q_DIR/Security/security.pri )
 
-HEADERS += $$Q_DIR/3rdparty/CyoEncode/CyoDecode.h \
+HEADERS += unittestsecurity.h \
+		   $$Q_DIR/3rdparty/CyoEncode/CyoDecode.h \
 		   $$Q_DIR/3rdparty/CyoEncode/CyoEncode.h \
 		   $$Q_DIR/commonfunctions.h \
 		   $$Q_DIR/geoiplist.h \
@@ -71,7 +72,8 @@ HEADERS += $$Q_DIR/3rdparty/CyoEncode/CyoDecode.h \
 		   $$Q_DIR/quazaasettings.h \
 		   $$Q_DIR/systemlog.h
 
-SOURCES += tst_unittestssecurity.cpp \
+SOURCES += unitmain.cpp \
+		   unittestssecurity.cpp \
 		   $$Q_DIR/3rdparty/CyoEncode/CyoDecode.c \
 		   $$Q_DIR/3rdparty/CyoEncode/CyoEncode.c \
 		   $$Q_DIR/commonfunctions.cpp \
