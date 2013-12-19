@@ -51,7 +51,7 @@ CDialogModifyRule::CDialogModifyRule(CWidgetSecurity* parent, RuleDataPtr pRule)
 
 		switch ( m_pRule->m_nType )
 		{
-		case Type::IPAddress:
+		case RuleType::IPAddress:
 		{
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::IPAddress );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::IPAddress );
@@ -60,7 +60,7 @@ CDialogModifyRule::CDialogModifyRule(CWidgetSecurity* parent, RuleDataPtr pRule)
 			break;
 		}
 
-		case Type::IPAddressRange:
+		case RuleType::IPAddressRange:
 		{
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::IPAddressRange );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::IPAddressRange );
@@ -71,27 +71,27 @@ CDialogModifyRule::CDialogModifyRule(CWidgetSecurity* parent, RuleDataPtr pRule)
 			break;
 		}
 			// TODO: country rules
-		case Type::Hash:
+		case RuleType::Hash:
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::Hash );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::Hash );
 			//TODO: implement hashes
 			break;
 
-		case Type::Content:
+		case RuleType::Content:
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::Content );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::Content );
 
 			ui->lineEditContent->setText( m_pRule->m_sContent );
 			break;
 
-		case Type::RegularExpression:
+		case RuleType::RegularExpression:
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::RegularExpression );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::RegularExpression );
 
 			ui->lineEditRegularExpression->setText( m_pRule->m_sContent );
 			break;
 
-		case Type::UserAgent:
+		case RuleType::UserAgent:
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::UserAgent );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::UserAgent );
 
@@ -105,10 +105,10 @@ CDialogModifyRule::CDialogModifyRule(CWidgetSecurity* parent, RuleDataPtr pRule)
 
 		switch ( m_pRule->m_nAction )
 		{
-			case Action::Accept:
+			case RuleAction::Accept:
 				ui->comboBoxAction->setCurrentIndex( 1 );
 				break;
-			case Action::Deny:
+			case RuleAction::Deny:
 				ui->comboBoxAction->setCurrentIndex( 2 );
 				break;
 			default:
@@ -247,7 +247,7 @@ void CDialogModifyRule::on_pushButtonOK_clicked()
 		break;
 
 	case RuleIndex::RegularExpression:
-		pRule = new RegExpRule();
+		pRule = new RegularExpressionRule();
 
 		if ( !pRule->parseContent( ui->lineEditRegularExpression->text() ) )
 		{

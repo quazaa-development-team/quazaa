@@ -32,7 +32,7 @@
 class HostCacheHost
 {
 protected:
-	Protocol    m_nType;        // The network type
+	DiscoveryProtocol::Protocol    m_nType;        // The network type
 
 	CEndPoint   m_oAddress;     // Hub address
 
@@ -70,7 +70,8 @@ public:
 	static HostCacheHost* load(QDataStream& fsFile, quint32 tNow);
 	virtual void save(QDataStream& fsFile);
 
-	inline Protocol  type()          const { return m_nType;          }
+	inline DiscoveryProtocol::Protocol type() const { return m_nType; }
+
 	inline CEndPoint address()       const { return m_oAddress;       }
 	inline quint32   timestamp()     const { return m_tTimeStamp;     }
 	inline quint32   id()            const { return m_nID;            }

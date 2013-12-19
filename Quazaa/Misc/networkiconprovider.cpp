@@ -31,7 +31,7 @@ CNetworkIconProvider::CNetworkIconProvider()
 {
 }
 
-QIcon CNetworkIconProvider::icon(Protocol protocol)
+QIcon CNetworkIconProvider::icon(DiscoveryProtocol::Protocol protocol)
 {
 	QIcon icon;
 	QString key = QLatin1String("nip_dp_") + QString::number(protocol);
@@ -44,20 +44,20 @@ QIcon CNetworkIconProvider::icon(Protocol protocol)
 		return icon;
 	}
 
-	switch(protocol)
+	switch( protocol )
 	{
-	case dpNull:
+	case DiscoveryProtocol::None:
 		break;
-	case dpG2:
+	case DiscoveryProtocol::G2:
 		pixIcon.load(":/Resource/Networks/Gnutella2.png");
 		break;
-	case dpGnutella:
+	case DiscoveryProtocol::Gnutella:
 		pixIcon.load(":/Resource/Networks/Gnutella2.png");
 		break;
-	case dpAres:
+	case DiscoveryProtocol::Ares:
 		pixIcon.load(":/Resource/Networks/Ares.png");
 		break;
-	case dpeDonkey2000:
+	case DiscoveryProtocol::eDonkey2000:
 		pixIcon.load(":/Resource/Networks/EDonkey.png");
 		break;
 	}

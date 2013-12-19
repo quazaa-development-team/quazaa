@@ -60,7 +60,7 @@ class CDialogModifyRule : public QDialog
 {
 	Q_OBJECT
 
-	typedef Security::ID                    ID;
+	/*typedef Security::ID                    ID;
 	typedef Security::Rule                  Rule;
 	typedef Security::RuleType::Type        Type;
 	typedef Security::RuleAction::Action    Action;
@@ -78,7 +78,7 @@ private:
 	typedef Security::UserAgentRule         UserAgentRule;
 	typedef Security::ContentRule           ContentRule;
 
-	typedef Security::Manager               Manager;
+	typedef Security::Manager               Manager;*/
 
 	RuleDataPtr            m_pRule;
 	CWidgetSecurity*       m_pParent;

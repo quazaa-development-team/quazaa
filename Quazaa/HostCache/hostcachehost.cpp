@@ -40,7 +40,7 @@ uint                HostCacheHost::m_nHostCount = 0;
 
 HostCacheHost::HostCacheHost(const CEndPoint& oAddress, const quint8 nFailures,
 							 const quint32 tTimestamp, const quint32 tLastConnect) :
-	m_nType( Protocol::dpNull ),
+	m_nType( DiscoveryProtocol::None ),
 	m_oAddress(     oAddress     ),
 	m_tTimeStamp(   tTimestamp   ),
 	m_tLastConnect( tLastConnect ),
@@ -86,7 +86,7 @@ HostCacheHost* HostCacheHost::load(QDataStream& fsFile, quint32 tNow)
 
 	switch ( nType )
 	{
-	case Protocol::dpG2:
+	case DiscoveryProtocol::G2:
 		pReturn = new G2HostCacheHost( oAddress, tTimeStamp, nFailures );
 		pReturn->setLastConnect( tLastConnect );
 		break;

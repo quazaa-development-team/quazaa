@@ -175,7 +175,7 @@ void CHandshake::onWebRequest()
 			baHtml += "<td style=\"text-align:center;\">" + QString().sprintf( "%.2u:%.2u:%.2u", tConnected / 3600,
 												 tConnected % 3600 / 60, ( tConnected % 3600 ) % 60 ) + "</td>";
 
-			if( (*it)->m_nProtocol == dpG2 )
+			if( (*it)->m_nProtocol == DiscoveryProtocol::G2 )
 			{
 				CG2Node* pG2 = static_cast<CG2Node*>(*it);
 

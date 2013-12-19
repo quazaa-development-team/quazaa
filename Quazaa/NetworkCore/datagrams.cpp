@@ -592,7 +592,7 @@ void CDatagrams::__FlushSendCache()
 	}
 }
 
-void CDatagrams::sendPacket(CEndPoint& oAddr, G2Packet* pPacket, bool bAck, DatagramWatcher* pWatcher, void* pParam)
+void CDatagrams::sendPacket(CEndPoint oAddr, G2Packet* pPacket, bool bAck, DatagramWatcher* pWatcher, void* pParam)
 {
 	if(!m_bActive)
 	{
@@ -791,7 +791,7 @@ void CDatagrams::onCRAWLR(CEndPoint& addr, G2Packet* pPacket)
 
 	for(QList<CNeighbour*>::iterator itNode = Neighbours.begin(); itNode != Neighbours.end(); ++itNode)
 	{
-		if((*itNode)->m_nProtocol != dpG2)
+		if((*itNode)->m_nProtocol != DiscoveryProtocol::G2)
 		{
 			continue;
 		}
@@ -947,7 +947,7 @@ void CDatagrams::onQKA(CEndPoint& addr, G2Packet* pPacket)
 		pPacket->prependPacket(pQNA);
 
 		Neighbours.m_pSection.lock();
-		CNeighbour* pNode = Neighbours.find(nKeyHost, dpG2);
+		CNeighbour* pNode = Neighbours.find(nKeyHost, DiscoveryProtocol::G2);
 		if( pNode )
 		{
 			((CG2Node*)pNode)->sendPacket(pPacket, true, false);

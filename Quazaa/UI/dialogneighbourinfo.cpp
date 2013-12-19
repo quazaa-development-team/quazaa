@@ -34,7 +34,7 @@ CDialogNeighbourInfo::~CDialogNeighbourInfo()
 
 QString CDialogNeighbourInfo::neighbourConnectionDescription(CNeighboursTableModel::Neighbour *pNeighbour)
 {
-	if(pNeighbour->nDiscoveryProtocol == dpG2) {
+	if(pNeighbour->nDiscoveryProtocol == DiscoveryProtocol::G2) {
 		QString selfMode;
 		QString otherMode;
 

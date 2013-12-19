@@ -352,7 +352,7 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 			SearchTreeItem* m_oHitItem = new SearchTreeItem(lChildData, m_oFileItem);
 
 			m_oHitItem->HitData.lHashes << pHit->m_lHashes;
-			m_oHitItem->HitData.iNetwork = CNetworkIconProvider::icon( dpG2 );
+			m_oHitItem->HitData.iNetwork = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
 			m_oHitItem->HitData.iCountry = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
 
 			QueryHitSharedPtr pHitX( new CQueryHit( pHit ) );
@@ -391,7 +391,7 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 															 rootItem->child( existingFileEntry ) );
 
 			oHitItem->HitData.lHashes << pHit->m_lHashes;
-			oHitItem->HitData.iNetwork = CNetworkIconProvider::icon( dpG2 );
+			oHitItem->HitData.iNetwork = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
 			oHitItem->HitData.iCountry = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
 
 			QueryHitSharedPtr pHitX( new CQueryHit( pHit ) );

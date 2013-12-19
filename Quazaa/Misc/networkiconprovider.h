@@ -51,7 +51,7 @@ public:
 	 *         worry about copying it around or requesting the same icon twice (in terms of memory
 	 *         consumption).
 	 */
-	static QIcon icon(Protocol protocol);
+	static QIcon icon(DiscoveryProtocol::Protocol protocol);
 
 	/**
 	 * @brief icon can be used to get an apporpriate icon for a given TransferProtocol.

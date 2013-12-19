@@ -77,7 +77,7 @@ void CNeighboursG2::connectNode()
 	// Only query service if we're not already querying and we actually need fresh hosts.
 	if ( !discoveryManager.isActive( Discovery::ServiceType::GWC ) && !hostCache.hasConnectable() )
 	{
-		discoveryManager.queryService( CNetworkType( dpG2 ) );
+		discoveryManager.queryService( CNetworkType( DiscoveryProtocol::G2 ) );
 	}
 
 	HubHorizonPool.setup();
@@ -126,7 +126,7 @@ void CNeighboursG2::maintain()
 				 << ", empty cache:" << hostCache.isEmpty()
 				 << ", has connectable:" << hostCache.hasConnectable()
 				 << ", has unknown initiated:" << (m_nUnknownInitiated != 0);
-		discoveryManager.queryService( CNetworkType( dpG2 ) );
+		discoveryManager.queryService( CNetworkType( DiscoveryProtocol::G2 ) );
 	}
 
 	if(m_nNextKHL == 0)
@@ -148,7 +148,7 @@ void CNeighboursG2::maintain()
 
 			foreach(CNeighbour * pNode, m_lNodes)
 			{
-				if(pNode->m_nProtocol == dpG2 && pNode->m_nState == nsConnected)
+				if(pNode->m_nProtocol == DiscoveryProtocol::G2 && pNode->m_nState == nsConnected)
 				{
 					((CG2Node*)pNode)->sendLNI();
 				}
@@ -202,7 +202,7 @@ void CNeighboursG2::maintain()
 	{
 		if ( m_nLeavesConnectedG2 < 0.7 * quazaaSettings.Gnutella2.NumLeafs ) // if we have less than 70% leaves (no reason to update GWC if we are already full of leaves)
 		{
-			discoveryManager.updateService(CNetworkType(dpG2));
+			discoveryManager.updateService(CNetworkType( DiscoveryProtocol::G2 ));
 		}
 		m_nUpdateWait = quazaaSettings.Discovery.AccessThrottle * 60;
 	}
@@ -225,7 +225,7 @@ void CNeighboursG2::dispatchKHL()
 
 	foreach ( CNeighbour * pNode, m_lNodes )
 	{
-		if ( pNode->m_nProtocol != dpG2 )
+		if ( pNode->m_nProtocol != DiscoveryProtocol::G2 )
 		{
 			continue;
 		}
@@ -276,7 +276,7 @@ void CNeighboursG2::dispatchKHL()
 
 	foreach ( CNeighbour * pNode, m_lNodes )
 	{
-		if ( pNode->m_nState == nsConnected && pNode->m_nProtocol == dpG2 )
+		if ( pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2 )
 		{
 			((CG2Node*)pNode)->sendPacket( pKHL, false, false );
 		}
@@ -302,7 +302,7 @@ bool CNeighboursG2::switchG2ClientMode(G2NodeType nRequestedMode)
 
 	foreach(CNeighbour * pNode, m_lNodes)
 	{
-		if(pNode->m_nProtocol == dpG2)
+		if(pNode->m_nProtocol == DiscoveryProtocol::G2)
 		{
 			pNode->close();
 		}
@@ -370,7 +370,7 @@ void CNeighboursG2::hubBalancing()
 
 		foreach(CNeighbour * pNode, m_lNodes)
 		{
-			if(pNode->m_nState == nsConnected && pNode->m_nProtocol == dpG2 && ((CG2Node*)pNode)->m_nType == G2_HUB)
+			if(pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2 && ((CG2Node*)pNode)->m_nType == G2_HUB)
 			{
 				nLeaves += ((CG2Node*)pNode)->m_nLeafCount;
 				nCapacity += ((CG2Node*)pNode)->m_nLeafMax;
@@ -409,7 +409,7 @@ void CNeighboursG2::hubBalancing()
 
 		foreach(CNeighbour * pNode, m_lNodes)
 		{
-			if(pNode->m_nState == nsConnected && pNode->m_nProtocol == dpG2 && ((CG2Node*)pNode)->m_nType == G2_HUB)
+			if(pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2 && ((CG2Node*)pNode)->m_nType == G2_HUB)
 			{
 				nLeaves += ((CG2Node*)pNode)->m_nLeafCount;
 				nCapacity += ((CG2Node*)pNode)->m_nLeafMax;
@@ -458,7 +458,7 @@ G2Packet* CNeighboursG2::createQueryAck(QUuid oGUID, bool bWithHubs, CNeighbour*
 
 			foreach(CNeighbour * pNode, m_lNodes)
 			{
-				if(pNode->m_nProtocol == dpG2 && pNode->m_nState == nsConnected && ((CG2Node*)pNode)->m_nType == G2_HUB && pNode != pExcept)
+				if(pNode->m_nProtocol == DiscoveryProtocol::G2 && pNode->m_nState == nsConnected && ((CG2Node*)pNode)->m_nType == G2_HUB && pNode != pExcept)
 				{
 					pPacket->writePacket("D", (pNode->m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 8 : 20))->writeHostAddress(pNode->m_oAddress);
 					pPacket->writeIntLE<quint16>(((CG2Node*)pNode)->m_nLeafCount);

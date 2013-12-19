@@ -38,7 +38,7 @@ CNetworkType::CNetworkType(quint16 type) :
 	registerMetaType();
 }
 
-CNetworkType::CNetworkType(Protocol type) :
+CNetworkType::CNetworkType(DiscoveryProtocol::Protocol type) :
 	m_nNetworks( (quint16)type )
 {
 	registerMetaType();
@@ -61,42 +61,42 @@ bool CNetworkType::isNull() const
 
 bool CNetworkType::isGnutella() const
 {
-	return ( m_nNetworks & dpGnutella );
+	return ( m_nNetworks & DiscoveryProtocol::Gnutella );
 }
 
 void CNetworkType::setGnutella( bool )
 {
-	m_nNetworks |= dpGnutella;
+	m_nNetworks |= DiscoveryProtocol::Gnutella;
 }
 
 bool CNetworkType::isG2() const
 {
-	return ( m_nNetworks & dpG2 );
+	return ( m_nNetworks & DiscoveryProtocol::G2 );
 }
 
 void CNetworkType::setG2( bool )
 {
-	m_nNetworks |= dpG2;
+	m_nNetworks |= DiscoveryProtocol::G2;
 }
 
 bool CNetworkType::isAres() const
 {
-	return ( m_nNetworks & dpAres );
+	return ( m_nNetworks & DiscoveryProtocol::Ares );
 }
 
 void CNetworkType::setAres( bool )
 {
-	m_nNetworks |= dpAres;
+	m_nNetworks |= DiscoveryProtocol::Ares;
 }
 
 bool CNetworkType::isEDonkey2000() const
 {
-	return ( m_nNetworks & dpeDonkey2000 );
+	return ( m_nNetworks & DiscoveryProtocol::eDonkey2000 );
 }
 
 void CNetworkType::setEDonkey2000( bool )
 {
-	m_nNetworks |= dpeDonkey2000;
+	m_nNetworks |= DiscoveryProtocol::eDonkey2000;
 }
 
 bool CNetworkType::isNetwork(const CNetworkType& type) const

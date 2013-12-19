@@ -188,7 +188,7 @@ void CManagedSearch::searchNeighbours(const QDateTime& tNowDT)
 	for ( QList<CNeighbour*>::iterator itNode = Neighbours.begin();
 		  itNode != Neighbours.end(); ++itNode )
 	{
-		if ( (*itNode)->m_nProtocol != dpG2 )
+		if ( (*itNode)->m_nProtocol != DiscoveryProtocol::G2 )
 		{
 			continue;
 		}
@@ -315,7 +315,8 @@ void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 				// we are firewalled, so key must be for one of our connected neighbours
 				Neighbours.m_pSection.lock();
 
-				CNeighbour* pNode = Neighbours.find( (QHostAddress)(pHost->keyHost()), dpG2 );
+				CNeighbour* pNode = Neighbours.find( (QHostAddress)(pHost->keyHost()),
+													 DiscoveryProtocol::G2 );
 
 				if ( pNode && static_cast<CG2Node*>(pNode)->m_nState == nsConnected )
 				{
@@ -509,7 +510,8 @@ CG2Node* CManagedSearch::findBestHubForRoutingG2(const CG2Node* const pLastNeigh
 	for ( QList<CNeighbour*>::iterator itNode = Neighbours.begin();
 		  itNode != Neighbours.end(); ++itNode )
 	{
-		if ( (*itNode)->m_nProtocol != dpG2 || (*itNode)->m_nState != nsConnected )
+		if ( (*itNode)->m_nProtocol != DiscoveryProtocol::G2 ||
+			 (*itNode)->m_nState != nsConnected )
 		{
 			continue;
 		}

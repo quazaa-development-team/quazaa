@@ -82,7 +82,7 @@ void CNeighboursBase::removeNode(CNeighbour* pNode)
 	emit neighbourRemoved(pNode);
 }
 
-CNeighbour* CNeighboursBase::find(const QHostAddress& oAddress, Protocol nProtocol)
+CNeighbour* CNeighboursBase::find(const QHostAddress& oAddress, DiscoveryProtocol::Protocol nProtocol)
 {
 	ASSUME_LOCK(m_pSection);
 
@@ -90,7 +90,7 @@ CNeighbour* CNeighboursBase::find(const QHostAddress& oAddress, Protocol nProtoc
 	{
 		foreach(CNeighbour * pRet, m_lNodesByAddr.values(oAddress))
 		{
-			if(pRet->m_nProtocol == nProtocol || nProtocol == dpNull)
+			if(pRet->m_nProtocol == nProtocol || nProtocol == DiscoveryProtocol::None)
 			{
 				return pRet;
 			}

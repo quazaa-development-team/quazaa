@@ -36,7 +36,7 @@ CChatSession::CChatSession(QObject *parent) :
 	CNetworkConnection(parent)
 {
 	m_nState = csNull;
-	m_nProtocol = dpNull;
+	m_nProtocol = DiscoveryProtocol::None;
 	m_pWidget = 0;
 
 	m_bShareaza = false;

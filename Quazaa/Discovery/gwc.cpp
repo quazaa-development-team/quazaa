@@ -347,7 +347,8 @@ void GWC::requestCompleted(QNetworkReply* pReply)
 	// add new services to manager
 	while ( lURLList.size() )
 	{
-		discoveryManager.add( lURLList.back(), nServiceType, CNetworkType( dpG2 ) );
+		discoveryManager.add( lURLList.back(), nServiceType,
+							  CNetworkType( DiscoveryProtocol::G2 ) );
 		lURLList.pop_back();
 	}
 

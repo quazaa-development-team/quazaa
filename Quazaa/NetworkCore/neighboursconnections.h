@@ -51,9 +51,11 @@ public:
 	void addNode(CNeighbour* pNode);
 	void removeNode(CNeighbour* pNode);
 
-	CNeighbour* randomNode(Protocol nProtocol, int nType, CNeighbour* pNodeExcept);
+	CNeighbour* randomNode(DiscoveryProtocol::Protocol nProtocol,
+						   int nType, CNeighbour* pNodeExcept);
 
-	void disconnectYoungest(Protocol nProtocol, int nType = 0, bool bCore = false);
+	void disconnectYoungest(DiscoveryProtocol::Protocol nProtocol,
+							int nType = 0, bool bCore = false);
 
 	virtual quint32 downloadSpeed();
 	virtual quint32 uploadSpeed();
@@ -61,7 +63,8 @@ public:
 signals:
 
 public slots:
-	CNeighbour* connectTo(CEndPoint& oAddress, Protocol nProtocol, bool bAutomatic = true);
+	CNeighbour* connectTo(CEndPoint oAddress, DiscoveryProtocol::Protocol nProtocol,
+						  bool bAutomatic = true);
 	CNeighbour* onAccept(CNetworkConnection* pConn);
 
 	virtual void maintain();

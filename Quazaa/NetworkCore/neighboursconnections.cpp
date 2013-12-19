@@ -98,7 +98,7 @@ void CNeighboursConnections::removeNode(CNeighbour* pNode)
 	CNeighboursRouting::removeNode(pNode);
 }
 
-CNeighbour* CNeighboursConnections::randomNode(Protocol nProtocol, int nType, CNeighbour* pNodeExcept)
+CNeighbour* CNeighboursConnections::randomNode(DiscoveryProtocol::Protocol nProtocol, int nType, CNeighbour* pNodeExcept)
 {
 	QList<CNeighbour*> lNodeList;
 
@@ -106,7 +106,7 @@ CNeighbour* CNeighboursConnections::randomNode(Protocol nProtocol, int nType, CN
 	{
 		if((*i)->m_nState == nsConnected && (*i)->m_nProtocol == nProtocol)
 		{
-			if(( nProtocol == dpG2 ) && ( ((CG2Node*)(*i))->m_nType == nType ) && ( (*i) != pNodeExcept ))
+			if(( nProtocol == DiscoveryProtocol::G2 ) && ( ((CG2Node*)(*i))->m_nType == nType ) && ( (*i) != pNodeExcept ))
 			{
 				lNodeList.append((*i));
 			}
@@ -123,7 +123,7 @@ CNeighbour* CNeighboursConnections::randomNode(Protocol nProtocol, int nType, CN
 	return lNodeList.at(nIndex);
 }
 
-void CNeighboursConnections::disconnectYoungest(Protocol nProtocol, int nType, bool bCore)
+void CNeighboursConnections::disconnectYoungest(DiscoveryProtocol::Protocol nProtocol, int nType, bool bCore)
 {
 	CNeighbour* pNode = 0;
 
@@ -140,7 +140,7 @@ void CNeighboursConnections::disconnectYoungest(Protocol nProtocol, int nType, b
 				if( bKeepManual && !(*i)->m_bAutomatic && tNow - (*i)->m_tConnected < 120 )
 					continue;
 
-				if ( nProtocol == dpG2 )
+				if ( nProtocol == DiscoveryProtocol::G2 )
 				{
 					if( ((CG2Node*)(*i))->m_nType != nType // if node type is not requested type
 						|| (!bCore && ((CG2Node*)(*i))->m_bG2Core) ) // or we don't want to disconnect "our" nodes
@@ -200,7 +200,7 @@ void CNeighboursConnections::maintain()
 		{
 			switch(pNode->m_nProtocol)
 			{
-			case dpG2:
+			case DiscoveryProtocol::G2:
 				switch(((CG2Node*)pNode)->m_nType)
 				{
 				case G2_UNKNOWN:
@@ -258,7 +258,7 @@ void CNeighboursConnections::maintain()
 
 			for(; nToDisconnect; --nToDisconnect)
 			{
-				disconnectYoungest(dpG2, G2_HUB, (100 * nCoreHubsG2 / nHubsG2) > 50);
+				disconnectYoungest(DiscoveryProtocol::G2, G2_HUB, (100 * nCoreHubsG2 / nHubsG2) > 50);
 			}
 		}
 		else if(nHubsG2 < quazaaSettings.Gnutella2.NumHubs)
@@ -294,7 +294,7 @@ void CNeighboursConnections::maintain()
 							hostCache.remove( pHost );
 							continue;
 						}*/
-						connectTo( pHost->address(), dpG2 );
+						connectTo( pHost->address(), DiscoveryProtocol::G2 );
 						pHost->setLastConnect( tNow );
 					}
 					else
@@ -337,7 +337,7 @@ void CNeighboursConnections::maintain()
 
 			for(; nToDisconnect; --nToDisconnect)
 			{
-				disconnectYoungest(dpG2, G2_HUB, (100 * nCoreHubsG2 / nHubsG2) > 50);
+				disconnectYoungest(DiscoveryProtocol::G2, G2_HUB, (100 * nCoreHubsG2 / nHubsG2) > 50);
 			}
 		}
 		else if(nHubsG2 < quazaaSettings.Gnutella2.NumPeers)
@@ -366,7 +366,7 @@ void CNeighboursConnections::maintain()
 							continue;
 						}*/
 
-						connectTo( pHost->address(), dpG2 );
+						connectTo( pHost->address(), DiscoveryProtocol::G2 );
 						pHost->setLastConnect( tNow );
 					}
 					else
@@ -388,7 +388,7 @@ void CNeighboursConnections::maintain()
 
 			for(; nToDisconnect; --nToDisconnect)
 			{
-				disconnectYoungest(dpG2, G2_LEAF, (100 * nCoreLeavesG2 / nLeavesG2) > 50);
+				disconnectYoungest(DiscoveryProtocol::G2, G2_LEAF, (100 * nCoreLeavesG2 / nLeavesG2) > 50);
 			}
 		}
 	}
@@ -435,7 +435,7 @@ CNeighbour* CNeighboursConnections::onAccept(CNetworkConnection* pConn)
 	return pNew;
 }
 
-CNeighbour* CNeighboursConnections::connectTo(CEndPoint& oAddress, Protocol nProtocol, bool bAutomatic)
+CNeighbour* CNeighboursConnections::connectTo(CEndPoint oAddress, DiscoveryProtocol::Protocol nProtocol, bool bAutomatic)
 {
 	ASSUME_LOCK(m_pSection);
 
@@ -443,7 +443,7 @@ CNeighbour* CNeighboursConnections::connectTo(CEndPoint& oAddress, Protocol nPro
 
 	switch(nProtocol)
 	{
-	case dpG2:
+	case DiscoveryProtocol::G2:
 		pNode = new CG2Node();
 		break;
 	default:

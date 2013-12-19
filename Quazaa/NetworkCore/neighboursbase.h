@@ -56,7 +56,8 @@ public:
 	virtual void addNode(CNeighbour* pNode);
 	virtual void removeNode(CNeighbour* pNode);
 
-	CNeighbour* find(const QHostAddress& oAddress, Protocol nProtocol = dpNull);
+	CNeighbour* find(const QHostAddress& oAddress,
+					 DiscoveryProtocol::Protocol nProtocol = DiscoveryProtocol::None);
 	bool neighbourExists(const CNeighbour* pNode);
 
 	virtual quint32 downloadSpeed()

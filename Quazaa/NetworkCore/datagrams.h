@@ -103,7 +103,7 @@ public:
 	void listen();
 	void disconnectNode();
 
-	void sendPacket(CEndPoint& oAddr, G2Packet* pPacket, bool bAck = false, DatagramWatcher* pWatcher = 0, void* pParam = 0);
+	void sendPacket(CEndPoint oAddr, G2Packet* pPacket, bool bAck = false, DatagramWatcher* pWatcher = 0, void* pParam = 0);
 
 	void removeOldIn(bool bForce = false);
 	void remove(DatagramIn* pDatagramIn, bool bReclaim = false);

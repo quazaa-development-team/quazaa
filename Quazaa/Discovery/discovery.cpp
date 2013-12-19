@@ -1143,7 +1143,8 @@ void Manager::addDefaults()
 				postLog( LogSeverity::Debug, "Parsing Default Service: G2", true );
 				bAdded =
 #endif
-				add( sService, ServiceType::GWC, CNetworkType( dpG2 ), DISCOVERY_MAX_PROBABILITY );
+				add( sService, ServiceType::GWC,
+					 CNetworkType( DiscoveryProtocol::G2 ), DISCOVERY_MAX_PROBABILITY );
 				break;
 
 			case 'M':	// Multi-network service
@@ -1151,7 +1152,8 @@ void Manager::addDefaults()
 				postLog( LogSeverity::Debug, "Parsing Default Service: Multi Network Cache", true );
 				bAdded =
 #endif
-				add( sService, ServiceType::GWC, CNetworkType( dpG2 ), DISCOVERY_MAX_PROBABILITY );
+				add( sService, ServiceType::GWC,
+					 CNetworkType( DiscoveryProtocol::G2 ), DISCOVERY_MAX_PROBABILITY );
 				break;
 
 //			case 'D':	// eDonkey service
@@ -1164,7 +1166,7 @@ void Manager::addDefaults()
 				postLog( LogSeverity::Debug, "Parsing Default Service: Banned Service", true );
 				bAdded =
 #endif
-				add( sService, ServiceType::Banned, CNetworkType( dpNull ), 0 );
+				add( sService, ServiceType::Banned, CNetworkType( DiscoveryProtocol::None ), 0 );
 				break;
 
 			default:	// Comment line or unsupported

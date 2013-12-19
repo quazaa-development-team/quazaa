@@ -3,7 +3,7 @@
 using namespace Discovery;
 
 BannedDiscoveryService::BannedDiscoveryService(const QUrl& oURL, const CNetworkType&, quint8) :
-	DiscoveryService( oURL, CNetworkType( dpNull ), 0 )
+	DiscoveryService( oURL, CNetworkType( DiscoveryProtocol::None ), 0 )
 {
 	m_bBanned      = true;
 	m_nServiceType = ServiceType::Banned;

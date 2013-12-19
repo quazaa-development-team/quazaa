@@ -29,9 +29,9 @@
 #endif
 
 #include <QDir>
-//#include <QMetaMethod>
 
 #include "network.h"
+#include "networktype.h"
 #include "g2hostcache.h"
 #include "geoiplist.h"
 #include "quazaasettings.h"
@@ -160,7 +160,7 @@ bool G2HostCache::check(const SharedHostPtr pHost) const
 	ASSUME_LOCK( m_pSection );
 	Q_ASSERT( pHost->failures() <= m_nMaxFailures );
 
-	if ( pHost->type() != Protocol::dpG2 )
+	if ( pHost->type() != DiscoveryProtocol::G2 )
 		return false;
 
 	G2HostCache* pThis = const_cast<G2HostCache*>( this );
@@ -1311,7 +1311,7 @@ void G2HostCache::load()
 
 			if ( securityManager.isDenied( pHost->address() ) ||
 				 pHost->failures() > m_nMaxFailures ||
-				 pHost->type() != Protocol::dpG2 )
+				 pHost->type() != DiscoveryProtocol::G2 )
 			{
 				delete pHost;
 			}

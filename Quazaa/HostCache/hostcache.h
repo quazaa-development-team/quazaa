@@ -137,14 +137,14 @@ private slots:
 	 * cache.
 	 * Locking: YES
 	 */
-	virtual void    startUpInternal() = NULL;
+	virtual void    startUpInternal() = 0;
 
 private:
 	/**
 	 * @brief stopInternal prepares the Host Cache (sub classes) for deletion.
 	 * Locking: REQUIRED
 	 */
-	virtual void    stopInternal() = NULL;
+	virtual void    stopInternal() = 0;
 };
 
 #endif // HOSTCACHE_H

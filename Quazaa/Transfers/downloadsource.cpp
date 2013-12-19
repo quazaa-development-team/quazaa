@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -51,10 +51,10 @@ CDownloadSource::CDownloadSource(CDownload *pDownload, CQueryHit *pHit, QObject 
 	  m_lDownloadedFrags(pDownload->m_nSize)
 {
 	m_oAddress = pHit->m_pHitInfo->m_oNodeAddress;
-    m_bPush = false; // TODO: Push requests.
+	m_bPush = false; // TODO: Push requests.
 	m_oPushProxies << pHit->m_pHitInfo->m_lNeighbouringHubs;
 	m_nProtocol = tpHTTP;
-	m_nNetwork = dpG2;
+	m_nNetwork = DiscoveryProtocol::G2;
 	m_oGUID = pHit->m_pHitInfo->m_oNodeGUID;
 	m_lHashes << pHit->m_lHashes;
 	m_tNextAccess = time(0);
@@ -147,7 +147,7 @@ QDataStream& operator>>(QDataStream& s, CDownloadSource& rhs)
 			{
 				int x;
 				s >> x;
-				rhs.m_nNetwork = static_cast<Protocol>(x);
+				rhs.m_nNetwork = static_cast<DiscoveryProtocol::Protocol>(x);
 			}
 			else if( sTag == "guid" )
 			{

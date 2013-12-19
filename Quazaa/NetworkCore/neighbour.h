@@ -33,7 +33,7 @@ class CNeighbour : public CCompressedConnection
 	Q_OBJECT
 
 public:
-	Protocol   m_nProtocol;
+	DiscoveryProtocol::Protocol m_nProtocol;
 
 	QString         m_sHandshake;
 

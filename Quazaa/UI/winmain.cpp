@@ -854,7 +854,7 @@ void CWinMain::on_actionConnectTo_triggered()
 		{
 		case CDialogConnectTo::G2:
 			Neighbours.m_pSection.lock();
-			Neighbours.connectTo(ip, dpG2, false);
+			Neighbours.connectTo(ip, DiscoveryProtocol::G2, false);
 			Neighbours.m_pSection.unlock();
 			break;
 		case CDialogConnectTo::eDonkey:

@@ -47,7 +47,7 @@ void CNeighboursRouting::routeQuery(CQueryPtr pQuery, G2Packet *pPacket, CNeighb
 
 	foreach(CNeighbour* pNode, m_lNodes)
 	{
-		if( pNode != pFrom && pNode->m_nState == nsConnected && pNode->m_nProtocol == dpG2 && tNow - pNode->m_tConnected > 30 )
+		if( pNode != pFrom && pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2 && tNow - pNode->m_tConnected > 30 )
 		{
 			CG2Node* pG2 = static_cast<CG2Node*>(pNode);
 

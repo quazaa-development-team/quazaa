@@ -177,7 +177,7 @@ void CWidgetNeighbours::on_actionNeighbourConnectTo_triggered()
 		{
 		case CDialogConnectTo::G2:
 			Neighbours.m_pSection.lock();
-			Neighbours.connectTo(ip, dpG2, false);
+			Neighbours.connectTo(ip, DiscoveryProtocol::G2, false);
 			Neighbours.m_pSection.unlock();
 			break;
 		case CDialogConnectTo::eDonkey:
@@ -232,7 +232,7 @@ void CWidgetNeighbours::on_actionNetworkChatWith_triggered()
 
 		switch( pNode->m_nProtocol)
 		{
-		case dpG2:
+		case DiscoveryProtocol::G2:
 		{
 			CChatSessionG2* pSession = new CChatSessionG2(pNode->m_oAddress);
 			pSession->connectNode();

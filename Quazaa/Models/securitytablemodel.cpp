@@ -58,7 +58,7 @@ RuleData::RuleData(Rule* pRule, SecurityTableModel* pModel) :
 		Q_ASSERT( false );
 	}
 
-	if ( m_nType == Type::RegularExpression )
+	if ( m_nType == RuleType::RegularExpression )
 		m_bContent = ((Security::UserAgentRule*)pRule)->getRegExp();
 }
 
@@ -151,7 +151,7 @@ bool RuleData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
 			bReturn = true;
 	}
 
-	if ( m_nType == Type::RegularExpression )
+	if ( m_nType == RuleType::RegularExpression )
 		m_bContent = ((Security::UserAgentRule*)m_pRule)->getRegExp();
 
 	m_bAutomatic = m_pRule->m_bAutomatic;
@@ -174,25 +174,25 @@ QVariant RuleData::data(int col) const
 	case TYPE:
 		switch ( m_nType )
 		{
-		case Type::IPAddress:
+		case RuleType::IPAddress:
 			return tr( "IP Address" );
 
-		case Type::IPAddressRange:
+		case RuleType::IPAddressRange:
 			return tr( "IP Address Range" );
 
-		case Type::Country:
+		case RuleType::Country:
 			return tr( "Country" );
 
-		case Type::Hash:
+		case RuleType::Hash:
 			return tr( "File Filter" );
 
-		case Type::RegularExpression:
+		case RuleType::RegularExpression:
 			return tr( "Regular Expression" );
 
-		case Type::UserAgent:
+		case RuleType::UserAgent:
 			return tr( "User Agent" );
 
-		case Type::Content:
+		case RuleType::Content:
 			return tr( "Content Filter" );
 
 		default:
@@ -263,17 +263,17 @@ bool RuleData::lessThan(int col, const SecurityTableModel::RuleData* const pOthe
 
 }
 
-QString RuleData::actionToString(Action nAction) const
+QString RuleData::actionToString(RuleAction::Action nAction) const
 {
 	switch( nAction )
 	{
-	case Action::None:
+	case RuleAction::None:
 		return tr( "None" );
 
-	case Action::Accept:
+	case RuleAction::Accept:
 		return tr( "Allow" );
 
-	case Action::Deny:
+	case RuleAction::Deny:
 		return tr( "Deny" );
 
 	default:

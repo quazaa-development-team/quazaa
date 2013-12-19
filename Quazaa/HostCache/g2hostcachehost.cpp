@@ -46,7 +46,7 @@ G2HostCacheHost::G2HostCacheHost(const CEndPoint& oAddress, const quint32 tTimes
 	m_tRetryAfter(  0           ),
 	m_bIteratorValid( false     )
 {
-	m_nType = Protocol::dpG2;
+	m_nType = DiscoveryProtocol::G2;
 }
 
 G2HostCacheHost::G2HostCacheHost(const G2HostCacheHost& oHost, const quint32 tTimestamp,
@@ -60,7 +60,7 @@ G2HostCacheHost::G2HostCacheHost(const G2HostCacheHost& oHost, const quint32 tTi
 	m_tRetryAfter(  oHost.m_tRetryAfter  ),
 	m_bIteratorValid( false              )
 {
-	m_nType = Protocol::dpG2;
+	m_nType = DiscoveryProtocol::G2;
 }
 
 G2HostCacheHost::G2HostCacheHost(const G2HostCacheHost&) :

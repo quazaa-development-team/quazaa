@@ -66,8 +66,8 @@ CNeighboursTableModel::Neighbour::Neighbour(CNeighbour* pNeighbour) : pNode( pNe
 
 	switch( pNode->m_nProtocol )
 	{
-	case dpG2:
-		nDiscoveryProtocol = dpG2;
+	case DiscoveryProtocol::G2:
+		nDiscoveryProtocol = DiscoveryProtocol::G2;
 		nLeafCount = ((CG2Node*)pNode)->m_nLeafCount;
 		nLeafMax   = ((CG2Node*)pNode)->m_nLeafMax;
 		nType      = ((CG2Node*)pNode)->m_nType;
@@ -181,7 +181,7 @@ bool CNeighboursTableModel::Neighbour::update(int row, int col, QModelIndexList&
 
 	switch ( pNode->m_nProtocol )
 	{
-	case dpG2:
+	case DiscoveryProtocol::G2:
 		if ( nLeafCount != ((CG2Node*)pNode)->m_nLeafCount ||
 			 nLeafMax   != ((CG2Node*)pNode)->m_nLeafMax )
 		{

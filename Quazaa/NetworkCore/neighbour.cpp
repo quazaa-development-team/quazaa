@@ -34,7 +34,7 @@
 CNeighbour::CNeighbour(QObject* parent) :
 	CCompressedConnection(parent)
 {
-	m_nProtocol = dpNull;
+	m_nProtocol = DiscoveryProtocol::None;
 
 	m_nState = nsClosed;
 	m_tLastPacketIn = m_tLastPacketOut = 0;

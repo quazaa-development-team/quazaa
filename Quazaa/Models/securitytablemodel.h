@@ -31,11 +31,7 @@
 
 #include "securitymanager.h"
 
-typedef Security::ID                    ID;
-typedef Security::Rule                  Rule;
-typedef Security::RuleType::Type        Type;
-typedef Security::RuleAction::Action    Action;
-typedef Security::SharedRulePtr         SharedRulePtr;
+using namespace Security;
 
 /**
  * @brief The SecurityTableModel class implements a table model for handling security rules.
@@ -56,8 +52,8 @@ public:
 
 	public:
 		const ID        m_nID;
-		const Type      m_nType;
-		Action          m_nAction;
+		const RuleType::Type m_nType;
+		RuleAction::Action   m_nAction;
 		quint32         m_nToday;
 		quint32         m_nTotal;
 		quint32         m_tExpire;    // UTC time in seconds
@@ -90,7 +86,7 @@ public:
 
 		bool lessThan(int col, const RuleData* const pOther) const;
 
-		QString actionToString(Action nAction) const;
+		QString actionToString(RuleAction::Action nAction) const;
 		QString expiryToString(quint32 tExpire) const;
 	};
 

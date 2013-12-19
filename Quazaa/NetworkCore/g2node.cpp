@@ -51,7 +51,7 @@ CG2Node::CG2Node(QObject* parent) :
 	m_pHubGroup(new CHubHorizonGroup)
 {
 
-	m_nProtocol = dpG2;
+	m_nProtocol = DiscoveryProtocol::G2;
 
 	m_nType = G2_UNKNOWN;
 
@@ -648,7 +648,7 @@ void CG2Node::send_ConnectError(QString sReason)
 		CNeighbour* pNeighbour = *it;
 		// Add neighbours with free slots, to promote faster connections.
 		if( pNeighbour->m_nState == nsConnected
-				&& pNeighbour->m_nProtocol == dpG2
+				&& pNeighbour->m_nProtocol == DiscoveryProtocol::G2
 				&& ((CG2Node*)pNeighbour)->m_nType == G2_HUB
 				&& ((CG2Node*)pNeighbour) ->m_nLeafMax > 0
 				&& 100 * ((CG2Node*)pNeighbour)->m_nLeafCount / ((CG2Node*)pNeighbour)->m_nLeafMax < 90 )
@@ -902,7 +902,7 @@ void CG2Node::onPing(G2Packet* pPacket)
 				{
 					CNeighbour* pNode = Neighbours.getAt(nIndex);
 					if(pNode != this
-							&& pNode->m_nProtocol == dpG2
+							&& pNode->m_nProtocol == DiscoveryProtocol::G2
 							&& pNode->m_nState == nsConnected
 							&& static_cast<CG2Node*>(pNode)->m_nType == G2_LEAF )
 					{
@@ -1605,7 +1605,8 @@ void CG2Node::onHaw(G2Packet *pPacket)
 		pPtr[0] = nTTL  - 1;
 		pPtr[1] = nHops + 1;
 
-		if ( CG2Node* pNeighbour = (CG2Node*)Neighbours.randomNode( dpG2, G2_HUB,  this ) )
+		if ( CG2Node* pNeighbour = (CG2Node*)Neighbours.randomNode( DiscoveryProtocol::G2,
+																	G2_HUB,  this ) )
 		{
 			pNeighbour->sendPacket( pPacket, false, false );
 		}
