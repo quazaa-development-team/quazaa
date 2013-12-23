@@ -145,7 +145,7 @@ namespace common
 	template <typename T>
 	inline T getRandomNum(T min, T max)
 	{
-		return min + T( ((max - min) + 1) * qrand() / (RAND_MAX + 1.0) );
+		return min + T( ((max - min) + 1) * (double)(qrand()) / (RAND_MAX + 1.0) );
 	}
 
 	// TODO: Make this work.
