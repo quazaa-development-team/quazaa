@@ -18,18 +18,20 @@ desktop.ini
 Makefile
 Makefile.Debug
 Makefile.Release
-/Quazaa/bin/Quazaa_debug
-/Quazaa/bin/Quazaa
 /Makefile
-/Quazaa/debug
-/Quazaa/temp
-/VersionTool/debug
-/VersionTool/release
 /Quazaa/bin/libeay32.dll
 /Quazaa/bin/libssl32.dll
+/Quazaa/bin/Quazaa
+/Quazaa/bin/Quazaa_debug
 /Quazaa/bin/ssleay32.dll
+/Quazaa/debug
 /Quazaa/release
+/Quazaa/temp
+/UnitTests/debug
+/UnitTests/release
+/UnitTests/temp
+/VersionTool/debug
+/VersionTool/release
 
 /Quazaa/object_script.Quazaa.Release
-
 /Quazaa/object_script.Quazaa_debug.Debug
