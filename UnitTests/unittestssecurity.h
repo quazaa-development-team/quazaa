@@ -39,35 +39,35 @@ using namespace Security;
 #define NO_OF_IP_RANGE_RULES 20 // differs from previous value because of merged rules
 #define NO_OF_IP_RANGE_TESTS 97
 
+#define NO_OF_COUNTRY_TEST_IPs 50
+
+#define ENABLE_BENCHMARKS 0
+
 // TODO: tests for
-//       * Miss Cache
-//       * Countries
 //       * Hashes
 //       * User Agents
 //       * Regular Expressions
 //       * Other content rules
 
-typedef std::pair<QString, bool> DataPair;
-typedef std::vector< DataPair > DataVector;
-
 class UnitTestsSecurity : public QObject
 {
 	Q_OBJECT
+
+	typedef std::pair<QString, bool> DataPair;
+	typedef std::vector< DataPair > DataVector;
+
+	typedef std::pair<QString, QString> CountryDataPair;
+	typedef std::vector< CountryDataPair > CountryDataVector;
 
 private:
 	Manager* m_pManager;
 
 	DataVector m_vSingleIPTestData; // test IPs for private and single IP testing
-	DataVector m_vIPRangeTestData; // test IPs for range testing
+	DataVector m_vIPRangeTestData;  // test IPs for range testing
 
 	DataVector m_vRangeDefinitions;
 
-	QString m_sCurrent;
-	qreal   m_nCurrentValue;
-	int     m_nCurrentIterations;
-
-	qreal   m_nTotalValue;
-	int     m_nTotalIterations;
+	CountryDataVector m_vCountryTestData;
 
 public:
 	UnitTestsSecurity();
@@ -79,14 +79,21 @@ private Q_SLOTS:
 	void testDeniedIPs();
 	void testDeniedIPs_data();
 
+#if ENABLE_BENCHMARKS
 	void benchmarkDeniedIPs();
 	void benchmarkDeniedIPs_data();
+#endif // ENABLE_BENCHMARKS
 
 	void testIPRanges();
 	void testIPRanges_data();
 
+#if ENABLE_BENCHMARKS
 	void benchmarkIPRanges();
 	void benchmarkIPRanges_data();
+#endif // ENABLE_BENCHMARKS
+
+	void testCountries();
+	void testCountries_data();
 
 	void testPrivateIPs();
 	void testPrivateIPs_data();
@@ -98,11 +105,13 @@ private Q_SLOTS:
 	void testPrivateIPsNew();
 	void testPrivateIPsNew_data();
 
+#if ENABLE_BENCHMARKS
 	void benchmarkPrivateIPsOld();
 	void benchmarkPrivateIPsOld_data();
 
 	void benchmarkPrivateIPsNew();
 	void benchmarkPrivateIPsNew_data();
+#endif // ENABLE_BENCHMARKS
 #endif // SECURITY_DISABLE_IS_PRIVATE_OLD
 
 private:
@@ -110,6 +119,7 @@ private:
 
 	void populateRowsWithTestsForIPs();
 	void populateRowsWithTestsForIPRanges();
+	void populateRowsWithTestsForCountries();
 };
 
 #endif // UNITTESTSECURITY_H

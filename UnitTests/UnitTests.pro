@@ -22,6 +22,21 @@
 # Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+# Paths
+
+DESTDIR = ./bin
+
+CONFIG(debug, debug|release) {
+		OBJECTS_DIR = temp/obj/debug
+		RCC_DIR = temp/qrc/debug
+}
+else {
+		OBJECTS_DIR = temp/obj/release
+		RCC_DIR = temp/qrc/release
+}
+
+MOC_DIR = temp/moc
+UI_DIR = temp/uic
 
 QT += multimedia \
 	  multimediawidgets \
@@ -35,6 +50,29 @@ CONFIG   += console
 CONFIG   -= app_bundle
 
 TEMPLATE = app
+
+updateqm.input = TRANSLATIONS
+updateqm.output = $$DESTDIR/${QMAKE_FILE_BASE}.qm
+updateqm.commands = $$QMAKE_LRELEASE ${QMAKE_FILE_IN} -qm $$DESTDIR/${QMAKE_FILE_BASE}.qm
+updateqm.CONFIG += no_link
+QMAKE_EXTRA_COMPILERS += updateqm
+PRE_TARGETDEPS += compiler_updateqm_make_all
+
+# Other resources that need to be in build folder
+!equals(PWD, $$OUT_PWD){
+		!build_pass:message(Configuring for shadow build)
+		O_SRC = $$PWD/bin/*
+		O_TARGET = $$OUT_PWD/bin/
+		win32:O_SRC ~= s,/,\\,g
+		win32:O_TARGET ~= s,/,\\,g
+		others.commands = $(COPY_DIR) $$quote($$O_SRC) $$quote($$O_TARGET)
+		others.depends = FORCE
+		QMAKE_EXTRA_TARGETS += others
+		PRE_TARGETDEPS += others
+}
+equals(PWD, $$OUT_PWD){
+		!build_pass:message(Configuring for in-place build)
+}
 
 Q_DIR = ../Quazaa
 
@@ -57,7 +95,8 @@ INCLUDEPATH += $$Q_DIR \
 
 include( $$Q_DIR/Security/security.pri )
 
-HEADERS += unittestsecurity.h \
+HEADERS += unittestsmisscache.h \
+		   unittestssecurity.h \
 		   $$Q_DIR/3rdparty/CyoEncode/CyoDecode.h \
 		   $$Q_DIR/3rdparty/CyoEncode/CyoEncode.h \
 		   $$Q_DIR/commonfunctions.h \
@@ -73,6 +112,7 @@ HEADERS += unittestsecurity.h \
 		   $$Q_DIR/systemlog.h
 
 SOURCES += unitmain.cpp \
+		   unittestsmisscache.cpp \
 		   unittestssecurity.cpp \
 		   $$Q_DIR/3rdparty/CyoEncode/CyoDecode.c \
 		   $$Q_DIR/3rdparty/CyoEncode/CyoEncode.c \
@@ -87,7 +127,6 @@ SOURCES += unitmain.cpp \
 		   $$Q_DIR/quazaaglobals.cpp \
 		   $$Q_DIR/quazaasettings.cpp \
 		   $$Q_DIR/systemlog.cpp
-
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\" \
 		   QUAZAA_SETUP_UNIT_TESTS

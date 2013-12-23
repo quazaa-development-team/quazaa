@@ -50,8 +50,25 @@ public:
 	CGeoIPList();
 	void loadGeoIP();
 
+	/**
+	 * @brief findCountryCode allows to find out the country code for a given IP.
+	 * @param sIP : the IP
+	 * @return the country code; "ZZ" if code could not be found or geo IP list not yet initialized.
+	 */
 	QString findCountryCode(const QString& sIP) const;
+
+	/**
+	 * @brief findCountryCode allows to find out the country code for a given IP.
+	 * @param ip : the IP
+	 * @return the country code; "ZZ" if code could not be found or geo IP list not yet initialized.
+	 */
 	QString findCountryCode(const QHostAddress& ip) const;
+
+	/**
+	 * @brief findCountryCode allows to find out the country code for a given IP.
+	 * @param nIP : the IP
+	 * @return the country code; "ZZ" if code could not be found or geo IP list not yet initialized.
+	 */
 	QString findCountryCode(const quint32 nIp) const;
 
 	QString countryNameFromCode(const QString& code) const;

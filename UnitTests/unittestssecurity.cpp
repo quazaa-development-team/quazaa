@@ -22,18 +22,15 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "unittestsecurity.h"
+#include "unittestssecurity.h"
 
-UnitTestsSecurity::UnitTestsSecurity() :
-	m_nCurrentValue( 0 ),
-	m_nCurrentIterations( 0 ),
-	m_nTotalValue( 0 ),
-	m_nTotalIterations( 0 )
+UnitTestsSecurity::UnitTestsSecurity()
 {
 }
 
 void UnitTestsSecurity::initTestCase()
 {
+	geoIP.loadGeoIP();
 	prepareTestData();
 
 	m_pManager = new Manager();
@@ -43,21 +40,31 @@ void UnitTestsSecurity::initTestCase()
 
 //	securitySettigs.m_bLogIPCheckHits = true;
 //	m_pManager->settingsChanged();
-
 //	QVERIFY2( m_pManager->m_bLogIPCheckHits, "Failed to set Manager to be more verboose." );
 
 	// Load single IP ban rules
 	for ( ushort i = 0; i < m_vSingleIPTestData.size(); ++i )
 	{
-		CEndPoint oIP = CEndPoint( m_vSingleIPTestData[i].first );
+		QString sContent = m_vSingleIPTestData[i].first;
+		CEndPoint oIP = CEndPoint( sContent );
 
-		qDebug() << ( QString::number( i ) + " : " + oIP.toString() ).toLocal8Bit().data();
+		//qDebug() << ( QString::number( i ) + " : " + oIP.toString() ).toLocal8Bit().data();
 		if ( m_vSingleIPTestData[i].second )
 		{
 			m_pManager->ban( oIP, RuleTime::Forever, true,
 							 QString( "Test " ) + QString::number( i )
-							 + " - " + m_vSingleIPTestData[i].first, false );
+							 + " - " + sContent, false );
 		}
+		/*else
+		{
+			IPRule* pIPRule = new IPRule();
+			Q_ASSERT( pIPRule->parseContent( sContent ) );
+
+			pIPRule->m_nAction  = RuleAction::Accept;
+			pIPRule->m_sComment = QString( "Test " ) + QString::number( i ) + " : " + sContent;
+
+			m_pManager->add( pRule );
+		}*/
 	}
 	nCount += NO_OF_IP_BANS;
 	QVERIFY2( m_pManager->count() == nCount, "Wrong number of IPs loaded!" );
@@ -68,20 +75,38 @@ void UnitTestsSecurity::initTestCase()
 		QString sContent = m_vRangeDefinitions[i].first;
 		bool    bDeny    = m_vRangeDefinitions[i].second;
 
-		qDebug() << ( QString::number( i ) + " : " + sContent ).toLocal8Bit().data();
+		//qDebug() << ( QString::number( i ) + " : " + sContent ).toLocal8Bit().data();
 
 		IPRangeRule* pRule = new IPRangeRule();
 		Q_ASSERT( pRule->parseContent( sContent ) );
 
-		pRule->m_nAction = bDeny ? RuleAction::Deny : RuleAction::Accept;
+		pRule->m_nAction  = bDeny ? RuleAction::Deny : RuleAction::Accept;
 		pRule->m_sComment = QString( "Test " ) + QString::number( i ) + " : " + sContent;
 
 		m_pManager->add( pRule );
 	}
 	nCount += NO_OF_IP_RANGE_RULES;
-	qDebug() << QString::number( nCount ).toLocal8Bit().data() << " IPs should have been loaded. "
-			 << QString::number( m_pManager->count() ).toLocal8Bit().data() << "actually were.";
+	//qDebug() << QString::number( nCount ).toLocal8Bit().data() << " IPs should have been loaded. "
+	//		 << QString::number( m_pManager->count() ).toLocal8Bit().data() << "actually were.";
 	QVERIFY2( m_pManager->count() == nCount, "Wrong number of IP ranges loaded!" );
+
+	// Add country rules
+	for ( ushort i = 0; i < m_vCountryTestData.size(); ++i )
+	{
+		QString sIP      = m_vCountryTestData[i].first;
+		QString sCountry = m_vCountryTestData[i].second;
+		QString sComment = QString::number( i ) + " : " + sIP + " (" + sCountry + ")";
+
+		// qDebug() << ( sComment ).toLocal8Bit().data();
+
+		CountryRule* pRule = new CountryRule();
+		Q_ASSERT( pRule->parseContent( sCountry ) );
+
+		pRule->m_nAction  = RuleAction::Deny;
+		pRule->m_sComment = sComment;
+
+		m_pManager->add( pRule );
+	}
 }
 
 void UnitTestsSecurity::cleanupTestCase()
@@ -103,12 +128,16 @@ void UnitTestsSecurity::testDeniedIPs_data()
 {
 	// Make sure the IPs are not filtered out because they are private IPs
 	// but because there are actually rules for them.
-	m_pManager->m_bIgnorePrivateIPs = false;
+	m_pManager->m_bDenyPrivateIPs  = false;
+
+	// Make sure the country rules are disabled.
+	m_pManager->m_bEnableCountries = false;
 
 	populateRowsWithTestsForIPs();
 }
 
 
+#if ENABLE_BENCHMARKS
 void UnitTestsSecurity::benchmarkDeniedIPs()
 {
 	QFETCH( QString, IP );
@@ -122,8 +151,16 @@ void UnitTestsSecurity::benchmarkDeniedIPs()
 }
 void UnitTestsSecurity::benchmarkDeniedIPs_data()
 {
+	// Make sure the IPs are not filtered out because they are private IPs
+	// but because there are actually rules for them.
+	m_pManager->m_bDenyPrivateIPs  = false;
+
+	// Make sure the country rules are disabled.
+	m_pManager->m_bEnableCountries = false;
+
 	populateRowsWithTestsForIPs();
 }
+#endif // ENABLE_BENCHMARKS
 
 
 void UnitTestsSecurity::testIPRanges()
@@ -137,10 +174,18 @@ void UnitTestsSecurity::testIPRanges()
 }
 void UnitTestsSecurity::testIPRanges_data()
 {
+	// Make sure the IPs are not filtered out because they are private IPs
+	// but because there are actually rules for them.
+	m_pManager->m_bDenyPrivateIPs  = false;
+
+	// Make sure the country rules are disabled.
+	m_pManager->m_bEnableCountries = false;
+
 	populateRowsWithTestsForIPRanges();
 }
 
 
+#if ENABLE_BENCHMARKS
 void UnitTestsSecurity::benchmarkIPRanges()
 {
 	QFETCH( QString, IP );
@@ -154,7 +199,36 @@ void UnitTestsSecurity::benchmarkIPRanges()
 }
 void UnitTestsSecurity::benchmarkIPRanges_data()
 {
+	// Make sure the IPs are not filtered out because they are private IPs
+	// but because there are actually rules for them.
+	m_pManager->m_bDenyPrivateIPs  = false;
+
+	// Make sure the country rules are disabled.
+	m_pManager->m_bEnableCountries = false;
+
 	populateRowsWithTestsForIPRanges();
+}
+#endif // ENABLE_BENCHMARKS
+
+
+void UnitTestsSecurity::testCountries()
+{
+	QFETCH( QString, IP );
+
+	CEndPoint oIP = CEndPoint( IP );
+
+	QVERIFY( m_pManager->isDenied( oIP ) );
+}
+void UnitTestsSecurity::testCountries_data()
+{
+	// Make sure the IPs are not filtered out because they are private IPs
+	// but because there are actually rules for them.
+	m_pManager->m_bDenyPrivateIPs  = false;
+
+	// Make sure the country rules are disabled.
+	m_pManager->m_bEnableCountries = true;
+
+	populateRowsWithTestsForCountries();
 }
 
 
@@ -204,6 +278,7 @@ void UnitTestsSecurity::testPrivateIPsNew_data()
 }
 
 
+#if ENABLE_BENCHMARKS
 void UnitTestsSecurity::benchmarkPrivateIPsOld()
 {
 	QFETCH( QString, IP );
@@ -236,6 +311,7 @@ void UnitTestsSecurity::benchmarkPrivateIPsNew_data()
 {
 	populateRowsWithTestIPs();
 }
+#endif // ENABLE_BENCHMARKS
 #endif // SECURITY_DISABLE_IS_PRIVATE_OLD
 
 void UnitTestsSecurity::prepareTestData()
@@ -486,6 +562,7 @@ void UnitTestsSecurity::prepareTestData()
 	QString sContent;
 
 	// Prepare vector containing the IP range rules for IP range testing
+	m_vRangeDefinitions.reserve( NO_OF_IP_RANGES );
 	for ( ushort i = 0; i < NO_OF_IP_RANGES; ++i )
 	{
 		sContent = QString( pTestIPRanges[2 * i] ) + "-" + pTestIPRanges[2 * i + 1];
@@ -731,6 +808,7 @@ void UnitTestsSecurity::prepareTestData()
 	};
 
 	// Prepare vector for IP range test results
+	m_vIPRangeTestData.reserve( NO_OF_IP_RANGE_TESTS );
 	for ( ushort i = 0; i < NO_OF_IP_RANGE_TESTS; ++i )
 	{
 		m_vIPRangeTestData.push_back( std::make_pair( QString( pIPsForRangeTests[i] ),
@@ -741,6 +819,35 @@ void UnitTestsSecurity::prepareTestData()
 		QVERIFY( oTest.toString() == m_vIPRangeTestData[i].first );
 	}
 	QVERIFY( m_vIPRangeTestData.size() == NO_OF_IP_RANGE_TESTS );
+
+
+	uint nCount = 0;
+	const quint32 nMin = QHostAddress("0.255.255.255").toIPv4Address();
+	const quint32 nMax = QHostAddress("255.255.255.255").toIPv4Address();
+
+	// make sure to get real random numbers
+	qsrand( (uint)common::getTNowUTC() );
+
+	// prepare vector for country tests
+	m_vCountryTestData.reserve( NO_OF_IP_RANGE_TESTS );
+	while ( nCount < NO_OF_COUNTRY_TEST_IPs )
+	{
+		quint32 nIP = common::getRandomNum( nMin, nMax );
+		CEndPoint oIP( nIP );
+		QVERIFY( !oIP.isNull() );
+
+		QString sCountry = geoIP.findCountryCode( oIP );
+		Q_ASSERT( !sCountry.isEmpty() );
+
+		/*qDebug() << QString::number( nCount ) << " - Country: "
+				 << sCountry                  << " - "          << oIP.toString();*/
+
+		if ( sCountry != "ZZ" )
+		{
+			m_vCountryTestData.push_back( std::make_pair( oIP.toString(), sCountry ) );
+			++nCount;
+		}
+	}
 }
 
 void UnitTestsSecurity::populateRowsWithTestsForIPs()
@@ -772,5 +879,19 @@ void UnitTestsSecurity::populateRowsWithTestsForIPRanges()
 
 		QTest::newRow( sName.toLocal8Bit().data() ) << m_vIPRangeTestData[i].first
 													<< m_vIPRangeTestData[i].second;
+	}
+}
+
+void UnitTestsSecurity::populateRowsWithTestsForCountries()
+{
+	QTest::addColumn< QString >( "IP" );
+
+	for ( ushort i = 0; i < NO_OF_COUNTRY_TEST_IPs; ++i )
+	{
+		QString sName = QString::number( i ) + " - Country: " +
+						m_vCountryTestData[i].second + " - " +
+						m_vCountryTestData[i].first;
+
+		QTest::newRow( sName.toLocal8Bit().data() ) << m_vCountryTestData[i].first;
 	}
 }
