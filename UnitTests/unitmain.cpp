@@ -22,11 +22,19 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#include "unittestsmisscache.h"
 #include "unittestssecurity.h"
 
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
-	UnitTestsSecurity oSecurityTests;
-	return QTest::qExec(&oSecurityTests, argc, argv);
+
+	UnitTestsMissCache oMissCacheTests;
+	UnitTestsSecurity  oSecurityTests;
+
+	int r1, r2;
+	r1 = QTest::qExec( &oMissCacheTests, argc, argv );
+	r2 = QTest::qExec( &oSecurityTests,  argc, argv );
+
+	return r1 + r2;
 }

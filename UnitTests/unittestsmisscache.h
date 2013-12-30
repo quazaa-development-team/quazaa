@@ -8,6 +8,8 @@
 
 using namespace Security;
 
+#define NO_OF_IP_CHECKS 61
+
 class UnitTestsMissCache : public QObject
 {
 	Q_OBJECT
@@ -15,13 +17,24 @@ class UnitTestsMissCache : public QObject
 	typedef std::pair<QString, bool> DataPair;
 	typedef std::vector< DataPair > DataVector;
 
+private:
+	MissCache* m_pCache;
+
+	DataVector m_vTestData;
+
 public:
 	UnitTestsMissCache();
 
-signals:
-
 private Q_SLOTS:
+	void initTestCase();
+	void cleanupTestCase();
 
+	void testCache();
+	void testCache_data();
+
+private:
+	void prepareTestData();
+	void populateRowsWithTestsForIPs();
 };
 
 #endif // UNITTESTSMISSCACHE_H
