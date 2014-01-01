@@ -26,8 +26,11 @@
 #define HOSTCACHEHOST_H
 
 #include "types.h"
-#include "network.h"
 #include "quazaasettings.h"
+
+#ifndef QUAZAA_SETUP_UNIT_TESTS
+#include "network.h"
+#endif
 
 class HostCacheHost
 {

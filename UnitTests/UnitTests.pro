@@ -95,12 +95,17 @@ INCLUDEPATH += $$Q_DIR \
 
 include( $$Q_DIR/Security/security.pri )
 
-HEADERS += unittestsmisscache.h \
+HEADERS += unittestshostcache.h \
+		   unittestsmisscache.h \
 		   unittestssecurity.h \
 		   $$Q_DIR/3rdparty/CyoEncode/CyoDecode.h \
 		   $$Q_DIR/3rdparty/CyoEncode/CyoEncode.h \
 		   $$Q_DIR/commonfunctions.h \
 		   $$Q_DIR/geoiplist.h \
+		   $$Q_DIR/HostCache/g2hostcache.h \
+		   $$Q_DIR/HostCache/g2hostcachehost.h \
+		   $$Q_DIR/HostCache/hostcachehost.h \
+		   $$Q_DIR/HostCache/hostcache.h \
 		   $$Q_DIR/Misc/timedsignalqueue.h \
 		   $$Q_DIR/NetworkCore/buffer.h \
 		   $$Q_DIR/NetworkCore/endpoint.h \
@@ -112,12 +117,17 @@ HEADERS += unittestsmisscache.h \
 		   $$Q_DIR/systemlog.h
 
 SOURCES += unitmain.cpp \
+		   unittestshostcache.cpp \
 		   unittestsmisscache.cpp \
 		   unittestssecurity.cpp \
 		   $$Q_DIR/3rdparty/CyoEncode/CyoDecode.c \
 		   $$Q_DIR/3rdparty/CyoEncode/CyoEncode.c \
 		   $$Q_DIR/commonfunctions.cpp \
 		   $$Q_DIR/geoiplist.cpp \
+		   $$Q_DIR/HostCache/g2hostcache.cpp \
+		   $$Q_DIR/HostCache/g2hostcachehost.cpp \
+		   $$Q_DIR/HostCache/hostcachehost.cpp \
+		   $$Q_DIR/HostCache/hostcache.cpp \
 		   $$Q_DIR/Misc/timedsignalqueue.cpp \
 		   $$Q_DIR/NetworkCore/buffer.cpp \
 		   $$Q_DIR/NetworkCore/endpoint.cpp \

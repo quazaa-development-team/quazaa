@@ -30,7 +30,6 @@
 
 #include <QDir>
 
-#include "network.h"
 #include "networktype.h"
 #include "g2hostcache.h"
 #include "geoiplist.h"
@@ -499,6 +498,7 @@ void G2HostCache::clear()
  */
 void G2HostCache::save(const quint32 tNow) const
 {
+#ifndef QUAZAA_SETUP_UNIT_TESTS
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache,
 					   QString( "save(const quint32)" ) );
@@ -515,6 +515,7 @@ void G2HostCache::save(const quint32 tNow) const
 		systemLog.postLog( LogSeverity::Debug, Components::HostCache,
 						   QObject::tr( "Saved %1 hosts." ).arg( nCount ) );
 	}
+#endif // QUAZAA_SETUP_UNIT_TESTS
 }
 
 /**
@@ -656,6 +657,7 @@ quint32 G2HostCache::requestHostInfo()
  */
 void G2HostCache::localAddressChanged()
 {
+#ifndef QUAZAA_SETUP_UNIT_TESTS
 	bool bRetry = true;
 
 	// this avoids possible deadlocks with Network.m_pSection
@@ -674,6 +676,7 @@ void G2HostCache::localAddressChanged()
 
 	if ( bRetry )
 		QMetaObject::invokeMethod( this, "localAddressChanged", Qt::QueuedConnection );
+#endif // QUAZAA_SETUP_UNIT_TESTS
 }
 
 /**
@@ -1028,6 +1031,8 @@ SharedG2HostPtr G2HostCache::addSyncHelper(const CEndPoint& oHostIP, quint32 tTi
 		return SharedG2HostPtr();
 	}
 
+	// We don't want to call an improperly set up security manager during unit tests.
+#ifndef QUAZAA_SETUP_UNIT_TESTS
 	// At this point the security check should already have been performed.
 	// TODO: fix this! The Host Cache is not the place where security checks should be made.
 	//Q_ASSERT( !securityManager.isDenied( oHostIP ) );
@@ -1035,6 +1040,7 @@ SharedG2HostPtr G2HostCache::addSyncHelper(const CEndPoint& oHostIP, quint32 tTi
 	{
 		return SharedG2HostPtr();
 	}
+#endif // QUAZAA_SETUP_UNIT_TESTS
 
 	// Don't add own IP to the cache.
 	if ( oHostIP == m_oLokalAddress )
@@ -1280,6 +1286,7 @@ G2HostCacheIterator G2HostCache::find(const SharedG2HostPtr pHost)
  */
 void G2HostCache::load()
 {
+#ifndef QUAZAA_SETUP_UNIT_TESTS
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "load()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
@@ -1331,6 +1338,8 @@ void G2HostCache::load()
 
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache,
 					   QObject::tr( "Loaded %1 hosts." ).arg( m_nSizeAtomic.load() ) );
+
+#endif // QUAZAA_SETUP_UNIT_TESTS
 }
 
 /**
@@ -1344,7 +1353,10 @@ void G2HostCache::startUpInternal()
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	connect( &securityManager.m_oSanity, SIGNAL( beginSanityCheck() ), SLOT( sanityCheck() ) );
+
+#ifndef QUAZAA_SETUP_UNIT_TESTS
 	connect( &Network, SIGNAL( localAddressChanged() ), SLOT( localAddressChanged() ) );
+#endif // QUAZAA_SETUP_UNIT_TESTS
 
 	localAddressChanged();
 

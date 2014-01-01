@@ -33,10 +33,8 @@
 
 #include "hostcachehost.h"
 
-//typedef QSharedPointer<QThread>         SharedThreadPtr;
 typedef QSharedPointer<HostCacheHost>   SharedHostPtr;
 
-// TODO: does ID cache in HC or Security cause first chance exception?
 // TODO: add signal for clear() and clear the HC and GUI on shutdown
 // TODO: add mechanism to remove hosts and discovery services by their origin
 
@@ -93,14 +91,14 @@ public:
 	 * Locking: /
 	 * @return the number of hosts in the cache.
 	 */
-	quint32 size() const;
+	quint32         size() const;
 
 	/**
 	 * @brief CHostCache::isEmpty allows to check whether the Host Cache is empty.
 	 * Locking: /
 	 * @return true if the cache contains no hosts; false otherwise.
 	 */
-	bool isEmpty() const;
+	bool            isEmpty() const;
 
 signals:
 	/**

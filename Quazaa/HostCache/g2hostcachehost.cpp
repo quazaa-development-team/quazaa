@@ -112,7 +112,12 @@ void G2HostCacheHost::setKey(quint32 nKey, const quint32 tNow, CEndPoint* pHost)
 	m_nFailures = 0;
 	m_nQueryKey = nKey;
 	m_nKeyTime  = tNow;
-	m_oKeyHost  = pHost ? *pHost : Network.getLocalAddress();
+	m_oKeyHost  = pHost ? *pHost :
+#ifndef QUAZAA_SETUP_UNIT_TESTS
+						  Network.getLocalAddress();
+#else
+						  CEndPoint();
+#endif // QUAZAA_SETUP_UNIT_TESTS
 }
 
 G2HostCacheIterator G2HostCacheHost::iterator() const

@@ -22,6 +22,7 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#include "unittestshostcache.h"
 #include "unittestsmisscache.h"
 #include "unittestssecurity.h"
 
@@ -29,12 +30,14 @@ int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
 
+	UnitTestsHostCache oHostCacheTests;
 	UnitTestsMissCache oMissCacheTests;
 	UnitTestsSecurity  oSecurityTests;
 
-	int r1, r2;
+	int r0 = 0, r1 = 0, r2 = 0;
+	r0 = QTest::qExec( &oHostCacheTests, argc, argv );
 	r1 = QTest::qExec( &oMissCacheTests, argc, argv );
 	r2 = QTest::qExec( &oSecurityTests,  argc, argv );
 
-	return r1 + r2;
+	return r0 + r1 + r2;
 }
