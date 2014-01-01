@@ -32,6 +32,29 @@ REM remove temp directory
 del /s /q .\temp\*
 rmdir /s /q .\temp\
 
+REM remove debug and release folders including their content
+del /s /q .\debug\*
+rmdir /s /q .\debug\
+del /s /q .\release\*
+rmdir /s /q .\release\
+
+REM .\UnitTests directory
+cd ../UnitTests
+
+del Makefile
+del Makefile.Debug
+del Makefile.Release
+
+REM remove temp directory
+del /s /q .\temp\*
+rmdir /s /q .\temp\
+
+REM remove debug and release folders including their content
+del /s /q .\debug\*
+rmdir /s /q .\debug\
+del /s /q .\release\*
+rmdir /s /q .\release\
+
 @echo off
 echo.
 echo.
