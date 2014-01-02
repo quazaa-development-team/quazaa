@@ -36,6 +36,7 @@ void UnitTestsHostCache::testCache()
 
 	QFETCH( QString, IP );
 	QFETCH( bool, isCached );
+	QFETCH( quint32, timestamp );
 
 	CEndPoint oIP = CEndPoint( IP, UNIT_TEST_PORT );
 
@@ -45,6 +46,12 @@ void UnitTestsHostCache::testCache()
 	m_pCache->m_pSection.unlock();
 
 	QCOMPARE( !(pHost.isNull()), isCached );
+
+	if ( pHost )
+	{
+		QCOMPARE( pHost->address(), oIP );
+		QCOMPARE( pHost->timestamp(), timestamp);
+	}
 }
 void UnitTestsHostCache::testCache_data()
 {
@@ -52,7 +59,7 @@ void UnitTestsHostCache::testCache_data()
 
 	// give the ascnchronous Host Cache some time to finish working
 	qDebug() << "started waiting";
-	QTest::qSleep( 5000 );
+	QTest::qSleep( 1000 );
 	qDebug() << "finished waiting";
 }
 
@@ -309,13 +316,15 @@ void UnitTestsHostCache::populateRowsWithTestIPs()
 {
 	QTest::addColumn< QString >( "IP" );
 	QTest::addColumn< bool    >( "isCached" );
+	QTest::addColumn< quint32 >( "timestamp" );
 
-	for ( ushort i = 0; i < NO_OF_HOST_CACHE_IP_TESTS; ++i )
+	for ( quint32 i = 0; i < NO_OF_HOST_CACHE_IP_TESTS; ++i )
 	{
 		QString sName = QString::number( i ) + " - " +
 						( m_vTestData[i].second ? "true" : "false" ) + " - " + m_vTestData[i].first;
 
 		QTest::newRow( sName.toLocal8Bit().data() ) << m_vTestData[i].first
-													<< m_vTestData[i].second;
+													<< m_vTestData[i].second
+													<< i;
 	}
 }
