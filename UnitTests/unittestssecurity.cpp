@@ -145,6 +145,23 @@ void UnitTestsSecurity::initTestCase()
 		m_pManager->add( pRule );
 	}
 	QCOMPARE( NO_OF_CONTENT_RULES, (int)m_pManager->m_vContents.size() );
+
+	// agent rules
+	for ( ushort i = 0; i < m_vAgentDefinitions.size(); ++i )
+	{
+		QString sComment = QString::number( i ) + " : " +
+						   ( m_vAgentDefinitions[i].second ? "true" : "false" ) + " - " +
+						   m_vAgentDefinitions[i].first;
+
+		UserAgentRule* pRule = new UserAgentRule();
+		Q_ASSERT( pRule->parseContent( m_vAgentDefinitions[i].first ) );
+
+		pRule->m_nAction  = m_vAgentDefinitions[i].second ? RuleAction::Deny : RuleAction::Accept;
+		pRule->m_sComment = sComment;
+
+		m_pManager->add( pRule );
+	}
+	QCOMPARE( NO_OF_AGENT_RULES, (int)m_pManager->m_vUserAgents.size() );
 }
 
 void UnitTestsSecurity::cleanupTestCase()
@@ -314,7 +331,7 @@ void UnitTestsSecurity::testContent_data()
 	// a hash not used within the hash match testing
 	QString sHash( "urn:sha1:2KFOLWPNLCJX42TYOWMMK3RACKYHSGRE" );
 
-	for ( ushort i = 0; i < NO_OF_CONTENT_MATCH_TESTS; ++i )
+	for ( ushort i = 0; i < m_vContentTestData.size(); ++i )
 	{
 		QString sName = QString::number( i ) + " - " +
 						( m_vContentTestData[i].second ? "true" : "false" ) + " - " +
@@ -325,6 +342,30 @@ void UnitTestsSecurity::testContent_data()
 		CQueryHit oHit = generateQueryHit( m_vContentTestData[i].first.second, sHitName, sHash );
 		QTest::newRow( sName.toLocal8Bit().data() ) << oHit
 													<< m_vContentTestData[i].second;
+	}
+}
+
+
+void UnitTestsSecurity::testAgent()
+{
+	QFETCH( QString, sAgent );
+	QFETCH( bool, isDenied );
+
+	QCOMPARE( m_pManager->isAgentDenied( sAgent ), isDenied );
+}
+void UnitTestsSecurity::testAgent_data()
+{
+	QTest::addColumn< QString >( "sAgent" );
+	QTest::addColumn< bool >( "isDenied" );
+
+	for ( ushort i = 0; i < m_vAgentTestData.size(); ++i )
+	{
+		QString sName = QString::number( i ) + " : " +
+						( m_vAgentTestData[i].second ? "true" : "false" ) + " - " +
+						m_vAgentTestData[i].first;
+
+		QTest::newRow( sName.toLocal8Bit().data() ) << m_vAgentTestData[i].first
+													<< m_vAgentTestData[i].second;
 	}
 }
 
@@ -963,7 +1004,6 @@ void UnitTestsSecurity::prepareTestData()
 	}
 
 
-
 	/** Content rule content - comments document m_bMatchAll **/
 	const char* pContents[NO_OF_CONTENT_RULES] =
 	{
@@ -1069,6 +1109,71 @@ void UnitTestsSecurity::prepareTestData()
 	{
 		FileDataPair oData = std::make_pair( QString( pTestFileNames[i] ), pTestFileSize[i] );
 		m_vContentTestData.push_back( std::make_pair( oData, pTestDenied[i] ) );
+	}
+
+
+	/** User agent rule content - comments document isDenied() **/
+	const char* pAgentRulesData[NO_OF_AGENT_RULES] =
+	{
+		"TestAgent01",
+		"TestAgent0",
+		"TestAgent2",
+		"TestAgent3",
+		"TestAgent4",
+		"TestAgent5"
+	};
+
+	/** User agent rule content - contains isDenied() **/
+	const bool pAgentRulesDenied[NO_OF_AGENT_RULES] =
+	{
+		false,
+		true,
+		true,
+		false,
+		false,
+		false,
+	};
+
+	/** User agent rule test data (file names) **/
+	const char* pAgentRulesTestData[NO_OF_AGENT_MATCH_TESTS] =
+	{
+		"TestAgent0",
+		"TestAgent01",
+		"TestAgent0 next",
+		"SmplifiedTestAgent0",
+		"TestAgent15 v1.0.0.0",
+		"TestAgent20",
+		"Easy TestAgent2",
+		"TestAgent30b CoolMod v1.0",
+		"blub TestAgent4 blub",
+		"TestAgent5"
+	};
+
+	/** User agent rule test data - contains isDenied() **/
+	const bool pAgentRulesTestDenied[NO_OF_AGENT_MATCH_TESTS] =
+	{
+		true,
+		false,
+		true,
+		true,
+		false,
+		true,
+		true,
+		false,
+		false,
+		false
+	};
+
+	for ( uint i = 0; i < NO_OF_AGENT_RULES; ++i )
+	{
+		m_vAgentDefinitions.push_back( std::make_pair( QString( pAgentRulesData[i] ),
+													   pAgentRulesDenied[i] ) );
+	}
+
+	for ( uint i = 0; i < NO_OF_AGENT_MATCH_TESTS; ++i )
+	{
+		m_vAgentTestData.push_back( std::make_pair( QString( pAgentRulesTestData[i] ),
+												pAgentRulesTestDenied[i] ) );
 	}
 }
 

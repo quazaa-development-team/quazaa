@@ -323,7 +323,7 @@ void CG2Node::parseIncomingHandshake()
 		return;
 	}
 
-	if ( securityManager.isAgentBlocked( m_sUserAgent ) )
+	if ( securityManager.isAgentDenied( m_sUserAgent ) )
 	{
 		send_ConnectError( "403 Access Denied, sorry" );
 		securityManager.ban( m_oAddress, Security::RuleTime::Day, true,
@@ -501,7 +501,7 @@ void CG2Node::parseOutgoingHandshake()
 		return;
 	}
 
-	if ( securityManager.isAgentBlocked( m_sUserAgent ) )
+	if ( securityManager.isAgentDenied( m_sUserAgent ) )
 	{
 		send_ConnectError( "403 Access Denied, sorry" );
 		securityManager.ban( m_oAddress, Security::RuleTime::SixHours, true,

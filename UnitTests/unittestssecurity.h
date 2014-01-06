@@ -32,6 +32,8 @@
 
 using namespace Security;
 
+#define ENABLE_BENCHMARKS 0
+
 #define NO_OF_IPS 61
 #define NO_OF_IP_BANS 42
 
@@ -46,12 +48,11 @@ using namespace Security;
 #define NO_OF_CONTENT_RULES 10
 #define NO_OF_CONTENT_MATCH_TESTS 17
 
-#define ENABLE_BENCHMARKS 0
+#define NO_OF_AGENT_RULES 6
+#define NO_OF_AGENT_MATCH_TESTS 10
 
 // TODO: tests for
-//       * User Agents
 //       * Regular Expressions
-//       * Other content rules
 
 class UnitTestsSecurity : public QObject
 {
@@ -81,6 +82,9 @@ private:
 
 	DataVector m_vContentDefinitions;
 	ContentDataVector m_vContentTestData;
+
+	DataVector m_vAgentDefinitions;
+	DataVector m_vAgentTestData;
 
 public:
 	UnitTestsSecurity();
@@ -113,6 +117,9 @@ private Q_SLOTS:
 
 	void testContent();
 	void testContent_data();
+
+	void testAgent();
+	void testAgent_data();
 
 	void testPrivateIPs();
 	void testPrivateIPs_data();
