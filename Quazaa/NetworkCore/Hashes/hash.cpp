@@ -135,6 +135,10 @@ CHash* CHash::fromURN(QString sURN)
 			CHash* pRet = new CHash(QByteArray( (char*)&pVal ), CHash::SHA1);
 			return pRet;
 		}
+		else
+		{
+			qDebug() << "Failed to validate base32 encoding for sha1.";
+		}
 	}
 	else if(baFamily == "md5" && baValue.length() == 32)
 	{
@@ -143,6 +147,10 @@ CHash* CHash::fromURN(QString sURN)
 			cyoBase16Decode((char*)&pVal, baValue.data(), baValue.length());
 			CHash* pRet = new CHash(QByteArray((char*)&pVal), CHash::MD5);
 			return pRet;
+		}
+		else
+		{
+			qDebug() << "Failed to validate base16 encoding for md5.";
 		}
 	}
 

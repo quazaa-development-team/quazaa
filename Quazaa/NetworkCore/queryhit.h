@@ -78,6 +78,8 @@ public:
 	bool isValid(CQuery* pQuery = NULL) const;
 };
 
+Q_DECLARE_METATYPE ( CQueryHit )
+
 typedef QSharedPointer<CQueryHit> QueryHitSharedPtr;
 
 #endif // QUERYHIT_H

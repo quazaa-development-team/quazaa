@@ -41,10 +41,11 @@ using namespace Security;
 
 #define NO_OF_COUNTRY_TEST_IPs 50
 
+#define NO_OF_TEST_HASHES 7
+
 #define ENABLE_BENCHMARKS 0
 
 // TODO: tests for
-//       * Hashes
 //       * User Agents
 //       * Regular Expressions
 //       * Other content rules
@@ -68,6 +69,8 @@ private:
 	DataVector m_vRangeDefinitions;
 
 	CountryDataVector m_vCountryTestData;
+
+	DataVector m_vHashData;
 
 public:
 	UnitTestsSecurity();
@@ -95,6 +98,9 @@ private Q_SLOTS:
 	void testCountries();
 	void testCountries_data();
 
+	void testHashes();
+	void testHashes_data();
+
 	void testPrivateIPs();
 	void testPrivateIPs_data();
 
@@ -120,6 +126,8 @@ private:
 	void populateRowsWithTestsForIPs();
 	void populateRowsWithTestsForIPRanges();
 	void populateRowsWithTestsForCountries();
+
+	CQueryHit generateQueryHit(quint64 nSize, QString sName, QString sHashes);
 };
 
 #endif // UNITTESTSECURITY_H

@@ -107,6 +107,26 @@ void UnitTestsSecurity::initTestCase()
 
 		m_pManager->add( pRule );
 	}
+
+	// Add hash rules
+	uint nHashRuleCount = 0;
+	for ( ushort i = 0; i < m_vHashData.size(); ++i )
+	{
+		if ( m_vHashData[i].second )
+		{
+			QString sComment = QString::number( i ) + " : " + m_vHashData[i].first;
+
+			HashRule* pRule = new HashRule();
+			Q_ASSERT( pRule->parseContent( m_vHashData[i].first ) );
+
+			pRule->m_nAction  = RuleAction::Deny;
+			pRule->m_sComment = sComment;
+
+			m_pManager->add( pRule );
+			nHashRuleCount += m_vHashData[i].first.count( "&" ) + 1;
+		}
+	}
+	QCOMPARE( nHashRuleCount, m_pManager->m_lmmHashes.size() );
 }
 
 void UnitTestsSecurity::cleanupTestCase()
@@ -229,6 +249,35 @@ void UnitTestsSecurity::testCountries_data()
 	m_pManager->m_bEnableCountries = true;
 
 	populateRowsWithTestsForCountries();
+}
+
+
+void UnitTestsSecurity::testHashes()
+{
+	QFETCH( CQueryHit, oHit );
+	QFETCH( bool, isDenied );
+
+	QCOMPARE( m_pManager->isDenied( &oHit ), isDenied );
+}
+void UnitTestsSecurity::testHashes_data()
+{
+	QTest::addColumn< CQueryHit >( "oHit" );
+	QTest::addColumn< bool    >( "isDenied" );
+
+	for ( ushort i = 0; i < NO_OF_TEST_HASHES; ++i )
+	{
+		QString sName = QString::number( i ) + " - " +
+						( m_vHashData[i].second ? "true" : "false" ) + " - " +
+						m_vHashData[i].first;
+
+		QString sHitName = QString::number( i );
+		CQueryHit oHit = generateQueryHit( 1, sHitName, m_vHashData[i].first );
+
+		QCOMPARE( oHit.m_sDescriptiveName, sHitName );
+
+		QTest::newRow( sName.toLocal8Bit().data() ) << oHit
+													<< m_vHashData[i].second;
+	}
 }
 
 
@@ -848,6 +897,22 @@ void UnitTestsSecurity::prepareTestData()
 			++nCount;
 		}
 	}
+
+	const char* pHashes[NO_OF_TEST_HASHES] =
+	{
+		"urn:sha1:3KFOLWPNLCJX42TYOWMMK3RACKYHSGRE",
+		"urn:sha1:RMFOXPJQY7IKXVN35WDP7HPMYPCRJN3S",
+		"urn:sha1:UCKJBM2QHP6D6VU5WQ7X2EYFXWZNHLEE",
+		"urn:sha1:DH5J4DTZJHUAEYDN4J2AQ7BAHPDZLBK4",
+		"urn:sha1:TYCTDPHH2SKV6LPUVJUQU3RBCUSUL6FJ",
+		"urn:sha1:MLJEK2QTOVACRA373KDAOEHQBWMOSF24",
+		"urn:sha1:LBEDSU74HA5N2VKIXWR5W2UWZHJY5LP3"
+	};
+
+	for ( uint i = 0; i < NO_OF_TEST_HASHES; ++i )
+	{
+		m_vHashData.push_back( std::make_pair( QString( pHashes[i] ), true ) );
+	}
 }
 
 void UnitTestsSecurity::populateRowsWithTestsForIPs()
@@ -894,4 +959,82 @@ void UnitTestsSecurity::populateRowsWithTestsForCountries()
 
 		QTest::newRow( sName.toLocal8Bit().data() ) << m_vCountryTestData[i].first;
 	}
+}
+
+CQueryHit UnitTestsSecurity::generateQueryHit(quint64 nSize, QString sName, QString sHashes)
+{
+	QStringList prefixes;
+	prefixes << "urn:sha1:"
+			 << "urn:ed2k:"
+			 << "urn:ed2khash:"
+			 << "urn:tree:tiger:"
+			 << "urn:btih:"
+			 << "urn:bitprint:"
+			 << "urn:md5:";
+
+	HashVector vHashes;
+	vHashes.reserve( prefixes.size() );
+
+	//qDebug() << "Hash String: " << sHashes;
+	for ( int i = 0; i < prefixes.size(); ++i )
+	{
+		QString tmp, sHash;
+		int pos1, pos2;
+
+		pos1 = sHashes.indexOf( prefixes.at(i) );
+		if ( pos1 != -1 )
+		{
+			tmp  = sHashes.mid( pos1 );
+			int length = CHash::lengthForUrn( prefixes.at(i) ) + prefixes.at(i).length();
+			pos2 = tmp.indexOf( "&" );
+
+			//qDebug() << "Expected hash length:" << length;
+			//qDebug() << "Actual hash length:" << pos2;
+
+			if ( pos2 == length )
+			{
+				//qDebug() << "Hash:" << tmp.left( pos2 );
+				//qDebug() << "Hash found for hash rule: %1";
+				sHash = tmp.left( pos2 );
+			}
+			else if ( pos2 == -1 && tmp.length() == length )
+			{
+				//qDebug() << "Hash found for hash rule at end of string: %1";
+				sHash = tmp;
+			}
+			else
+			{
+				qDebug() << "Error extracting hash: %1";
+				continue;
+			}
+
+			CHash* pHash = CHash::fromURN( sHash );
+			if ( pHash )
+			{
+				vHashes.push_back( *pHash );
+				delete pHash;
+			}
+			else
+				qDebug() << "Unit Tests: Hash type not recognised.";
+		}
+		else
+		{
+			//qDebug() << "No match found for: " << prefixes.at(i);
+		}
+	}
+
+	CQueryHit oHit = CQueryHit();
+
+	if ( !vHashes.empty() )
+	{
+		oHit.m_lHashes = vHashes;
+		oHit.m_nObjectSize = nSize;
+		oHit.m_sDescriptiveName = sName;
+	}
+	else
+	{
+		qDebug() << "Failed to generate Query Hit.";
+	}
+
+	return oHit;
 }
