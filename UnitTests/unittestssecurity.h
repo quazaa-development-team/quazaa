@@ -43,6 +43,9 @@ using namespace Security;
 
 #define NO_OF_TEST_HASHES 7
 
+#define NO_OF_CONTENT_RULES 10
+#define NO_OF_CONTENT_MATCH_TESTS 17
+
 #define ENABLE_BENCHMARKS 0
 
 // TODO: tests for
@@ -60,6 +63,10 @@ class UnitTestsSecurity : public QObject
 	typedef std::pair<QString, QString> CountryDataPair;
 	typedef std::vector< CountryDataPair > CountryDataVector;
 
+	typedef std::pair<QString, quint64> FileDataPair;
+	typedef std::pair<FileDataPair, bool> ContentTestPair;
+	typedef std::vector< ContentTestPair > ContentDataVector;
+
 private:
 	Manager* m_pManager;
 
@@ -71,6 +78,9 @@ private:
 	CountryDataVector m_vCountryTestData;
 
 	DataVector m_vHashData;
+
+	DataVector m_vContentDefinitions;
+	ContentDataVector m_vContentTestData;
 
 public:
 	UnitTestsSecurity();
@@ -100,6 +110,9 @@ private Q_SLOTS:
 
 	void testHashes();
 	void testHashes_data();
+
+	void testContent();
+	void testContent_data();
 
 	void testPrivateIPs();
 	void testPrivateIPs_data();

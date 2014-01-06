@@ -127,6 +127,24 @@ void UnitTestsSecurity::initTestCase()
 		}
 	}
 	QCOMPARE( nHashRuleCount, m_pManager->m_lmmHashes.size() );
+
+	// content rules
+	for ( ushort i = 0; i < m_vContentDefinitions.size(); ++i )
+	{
+		QString sComment = QString::number( i ) + " - " +
+						   ( m_vContentDefinitions[i].second ? "all" : "any" ) + ": " +
+						   m_vContentDefinitions[i].first;
+
+		ContentRule* pRule = new ContentRule();
+		Q_ASSERT( pRule->parseContent( m_vContentDefinitions[i].first ) );
+		pRule->setAll( m_vContentDefinitions[i].second );
+
+		pRule->m_nAction  = RuleAction::Deny;
+		pRule->m_sComment = sComment;
+
+		m_pManager->add( pRule );
+	}
+	QCOMPARE( NO_OF_CONTENT_RULES, (int)m_pManager->m_vContents.size() );
 }
 
 void UnitTestsSecurity::cleanupTestCase()
@@ -262,7 +280,7 @@ void UnitTestsSecurity::testHashes()
 void UnitTestsSecurity::testHashes_data()
 {
 	QTest::addColumn< CQueryHit >( "oHit" );
-	QTest::addColumn< bool    >( "isDenied" );
+	QTest::addColumn< bool >( "isDenied" );
 
 	for ( ushort i = 0; i < NO_OF_TEST_HASHES; ++i )
 	{
@@ -277,6 +295,36 @@ void UnitTestsSecurity::testHashes_data()
 
 		QTest::newRow( sName.toLocal8Bit().data() ) << oHit
 													<< m_vHashData[i].second;
+	}
+}
+
+
+void UnitTestsSecurity::testContent()
+{
+	QFETCH( CQueryHit, oHit );
+	QFETCH( bool, isDenied );
+
+	QCOMPARE( m_pManager->isDenied( &oHit ), isDenied );
+}
+void UnitTestsSecurity::testContent_data()
+{
+	QTest::addColumn< CQueryHit >( "oHit" );
+	QTest::addColumn< bool >( "isDenied" );
+
+	// a hash not used within the hash match testing
+	QString sHash( "urn:sha1:2KFOLWPNLCJX42TYOWMMK3RACKYHSGRE" );
+
+	for ( ushort i = 0; i < NO_OF_CONTENT_MATCH_TESTS; ++i )
+	{
+		QString sName = QString::number( i ) + " - " +
+						( m_vContentTestData[i].second ? "true" : "false" ) + " - " +
+						m_vContentTestData[i].first.first + " (Size:" +
+						QString::number( m_vContentTestData[i].first.second ) + ")";
+
+		QString sHitName = m_vContentTestData[i].first.first;
+		CQueryHit oHit = generateQueryHit( m_vContentTestData[i].first.second, sHitName, sHash );
+		QTest::newRow( sName.toLocal8Bit().data() ) << oHit
+													<< m_vContentTestData[i].second;
 	}
 }
 
@@ -912,6 +960,115 @@ void UnitTestsSecurity::prepareTestData()
 	for ( uint i = 0; i < NO_OF_TEST_HASHES; ++i )
 	{
 		m_vHashData.push_back( std::make_pair( QString( pHashes[i] ), true ) );
+	}
+
+
+
+	/** Content rule content - comments document m_bMatchAll **/
+	const char* pContents[NO_OF_CONTENT_RULES] =
+	{
+		"one two three",    // all
+		"one four",         // all
+		"Quazaa",           // all
+		"seven eight nine", // any
+		"ten",              // any
+		"Shareaza",         // any
+		"size:zip:1000",    // all
+		"size:gzip:11",     // all
+		" size:rar:12 ",    // any
+		"size:lol: 42"      // any - Note: this should match hits including one of both key words(!)
+	};
+
+	/** Content rule content - contains m_bMatchAll **/
+	const bool pMatchAll[NO_OF_CONTENT_RULES] =
+	{
+		true,
+		true,
+		true,
+		false,
+		false,
+		false,
+		true,
+		true,
+		false,
+		false
+	};
+
+	/** Content rule test data (file names) - comments document isDenied() **/
+	const char* pTestFileNames[NO_OF_CONTENT_MATCH_TESTS] =
+	{
+		"one.zip",
+		"one lion.doc",
+		"four dragons ead one tiny damsel in distress.avi",              // true
+		"two three /t four.rar",
+		"\ttwo\tthree one.goop",
+		"One Quazaa to rule them all.epic",
+		"One Four",                                                      // false (case sensitive)
+		"eightteen Pastafari pray to the Flying Spaghetti Monster.god",
+		"You might wonder about the ten incarnations of 42",
+		"Sharing rules.belief",
+		"Zippy.zip",
+		"Zippy1001.zip",
+		"Zappy.gzip",
+		"11rar.rar",
+		"12rar.rar",
+		"13rar.rar",
+		"lol.lol"
+	};
+
+	/** Content rule test data (file size) **/
+	const quint64 pTestFileSize[NO_OF_CONTENT_MATCH_TESTS] =
+	{
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1000,
+		1001,
+		8923,
+		11,
+		12,
+		13,
+		42,
+	};
+
+	/** Content rule test data (isDenied()) **/
+	const bool pTestDenied[NO_OF_CONTENT_MATCH_TESTS] =
+	{
+		false,
+		false,
+		true,
+		false,
+		true,
+		true,
+		false,
+		true,
+		true,
+		false,
+		true,
+		false,
+		false,
+		false,
+		true,
+		false,
+		false
+	};
+
+	for ( uint i = 0; i < NO_OF_CONTENT_RULES; ++i )
+	{
+		m_vContentDefinitions.push_back( std::make_pair( QString( pContents[i] ), pMatchAll[i] ) );
+	}
+
+	for ( uint i = 0; i < NO_OF_CONTENT_MATCH_TESTS; ++i )
+	{
+		FileDataPair oData = std::make_pair( QString( pTestFileNames[i] ), pTestFileSize[i] );
+		m_vContentTestData.push_back( std::make_pair( oData, pTestDenied[i] ) );
 	}
 }
 
