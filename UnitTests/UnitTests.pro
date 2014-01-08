@@ -45,7 +45,7 @@ QT += multimedia \
 	  widgets \
 	  xml
 
-TARGET = tst_unittestssecurity
+TARGET = unittests
 CONFIG   += console
 CONFIG   -= app_bundle
 
