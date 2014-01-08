@@ -51,8 +51,8 @@ using namespace Security;
 #define NO_OF_AGENT_RULES 6
 #define NO_OF_AGENT_MATCH_TESTS 10
 
-// TODO: tests for
-//       * Regular Expressions
+#define NO_OF_REGEXP_RULES 8
+#define NO_OF_REGEXP_MATCH_TESTS 16
 
 class UnitTestsSecurity : public QObject
 {
@@ -85,6 +85,10 @@ private:
 
 	DataVector m_vAgentDefinitions;
 	DataVector m_vAgentTestData;
+
+	QList<QString> m_lQuery;
+	DataVector m_vRegExpDefinitions;
+	DataVector m_vRegExpTestData;
 
 public:
 	UnitTestsSecurity();
@@ -120,6 +124,9 @@ private Q_SLOTS:
 
 	void testAgent();
 	void testAgent_data();
+
+	void testRegExp();
+	void testRegExp_data();
 
 	void testPrivateIPs();
 	void testPrivateIPs_data();

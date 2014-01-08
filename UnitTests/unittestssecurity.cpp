@@ -162,6 +162,29 @@ void UnitTestsSecurity::initTestCase()
 		m_pManager->add( pRule );
 	}
 	QCOMPARE( NO_OF_AGENT_RULES, (int)m_pManager->m_vUserAgents.size() );
+
+
+	m_lQuery.append( "w0" );
+	m_lQuery.append( "w1" );
+	m_lQuery.append( "w2" );
+	m_lQuery.append( "w3" );
+
+	// reg exp rules
+	for ( ushort i = 0; i < m_vRegExpDefinitions.size(); ++i )
+	{
+		QString sComment = QString::number( i ) + " : " +
+						   ( m_vRegExpDefinitions[i].second ? "true" : "false" ) + " - " +
+						   m_vRegExpDefinitions[i].first;
+
+		RegularExpressionRule* pRule = new RegularExpressionRule();
+		Q_ASSERT( pRule->parseContent( m_vRegExpDefinitions[i].first ) );
+
+		pRule->m_nAction  = m_vRegExpDefinitions[i].second ? RuleAction::Deny : RuleAction::Accept;
+		pRule->m_sComment = sComment;
+
+		m_pManager->add( pRule );
+	}
+	QCOMPARE( NO_OF_REGEXP_RULES, (int)m_pManager->m_vRegularExpressions.size() );
 }
 
 void UnitTestsSecurity::cleanupTestCase()
@@ -366,6 +389,30 @@ void UnitTestsSecurity::testAgent_data()
 
 		QTest::newRow( sName.toLocal8Bit().data() ) << m_vAgentTestData[i].first
 													<< m_vAgentTestData[i].second;
+	}
+}
+
+
+void UnitTestsSecurity::testRegExp()
+{
+	QFETCH( QString, sName );
+	QFETCH( bool, isDenied );
+
+	QCOMPARE( m_pManager->isDenied( m_lQuery, sName ), isDenied );
+}
+void UnitTestsSecurity::testRegExp_data()
+{
+	QTest::addColumn< QString >( "sName" );
+	QTest::addColumn< bool >( "isDenied" );
+
+	for ( ushort i = 0; i < m_vRegExpTestData.size(); ++i )
+	{
+		QString sName = QString::number( i ) + " : " +
+						( m_vRegExpTestData[i].second ? "true" : "false" ) + " - " +
+						m_vRegExpTestData[i].first;
+
+		QTest::newRow( sName.toLocal8Bit().data() ) << m_vRegExpTestData[i].first
+													<< m_vRegExpTestData[i].second;
 	}
 }
 
@@ -1173,7 +1220,75 @@ void UnitTestsSecurity::prepareTestData()
 	for ( uint i = 0; i < NO_OF_AGENT_MATCH_TESTS; ++i )
 	{
 		m_vAgentTestData.push_back( std::make_pair( QString( pAgentRulesTestData[i] ),
-												pAgentRulesTestDenied[i] ) );
+													pAgentRulesTestDenied[i] ) );
+	}
+
+
+	/** Regular expression rule content **/
+	const char* pRegExpRulesData[NO_OF_REGEXP_RULES] =
+	{
+		"(c|C)ontent",
+		"^[0-9]a",
+		"\\.zip$",
+		"^[0-9]+\\.number$",
+		"^<1>\\s<2><3>\\s<4>$",
+		"^<_>jibberish.talk$",
+		"<>testtest<>testtest<>",
+		"[a-f][k-n]$"
+	};
+
+	// test query is "w0 w1 w2 w3"
+	/** Regular expression rule test data (file names) **/
+	const char* pRegExpRulesTestData[NO_OF_REGEXP_MATCH_TESTS] =
+	{
+		"some blocked content",
+		"Content that is also blocked",
+		"5a blocked",
+		" 5a allowed",
+		"blocked archive.zip",
+		"allowed archive.7z",
+		"3945712345.number",
+		"123451a.number",
+		"w0 w1w2 w3",
+		"w1 w2w3 ",
+		"w0  w1w2 \tw3 jibberish.talk",
+		"w0  w2w1 \tw3 jibberish.talk",
+		"w0testtestw1\ttesttestw2 ",
+		"1ck",
+		"qufm",
+		"hgn"
+	};
+
+	/** Regular expression rule test data - contains isDenied() **/
+	const bool pRegExpRulesTestDenied[NO_OF_REGEXP_MATCH_TESTS] =
+	{
+		true,
+		true,
+		true,
+		false,
+		true,
+		false,
+		true,
+		false,
+		false,
+		true,
+		true,
+		false,
+		true,
+		true,
+		true,
+		false
+	};
+
+	for ( uint i = 0; i < NO_OF_REGEXP_RULES; ++i )
+	{
+		m_vRegExpDefinitions.push_back( std::make_pair( QString( pRegExpRulesData[i] ), true ) );
+	}
+
+	for ( uint i = 0; i < NO_OF_REGEXP_MATCH_TESTS; ++i )
+	{
+		m_vRegExpTestData.push_back( std::make_pair( QString( pRegExpRulesTestData[i] ),
+													 pRegExpRulesTestDenied[i] ) );
 	}
 }
 
