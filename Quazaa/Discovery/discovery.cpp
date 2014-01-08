@@ -50,7 +50,7 @@ Manager::Manager(QObject *parent) :
 	m_nLastID( 0 ),
 	m_pActive( new quint16[Discovery::ServiceType::NoOfTypes] )
 {
-	for ( quint8 i = 0; i < Discovery::ServiceType::NoOfTypes; ++i )
+	for ( quint8 i = 0; i < ServiceType::NoOfTypes; ++i )
 	{
 		m_pActive[i] = 0;
 	}
@@ -351,6 +351,7 @@ QSharedPointer<QNetworkAccessManager> Manager::requestNAM()
 
 		// Make sure the networkAccessible state is properly initialized.
 		QNetworkConfigurationManager manager;
+		manager.updateConfigurations();
 		pReturnVal->setConfiguration( manager.defaultConfiguration() );
 		// QNetworkAccessManager::networkAccessible is not explicitly set when the
 		// QNetworkAccessManager is created. It is only set after the network session is
