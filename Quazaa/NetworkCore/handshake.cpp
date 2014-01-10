@@ -42,26 +42,28 @@ CHandshake::CHandshake(QObject* parent)
 }
 CHandshake::~CHandshake()
 {
-	ASSUME_LOCK(Handshakes.m_pSection);
+	ASSUME_LOCK( Handshakes.m_pSection );
 
-	Handshakes.removeHandshake(this);
+	Handshakes.removeHandshake( this );
 }
 
 void CHandshake::onTimer(quint32 tNow)
 {
-	if(tNow - m_tConnected > 15)
+	if ( tNow - m_tConnected > 15 )
 	{
-		systemLog.postLog(LogSeverity::Debug, Components::Network, QString("Timed out handshaking with  %1").arg(m_pSocket->peerAddress().toString().toLocal8Bit().constData()));
+		systemLog.postLog( LogSeverity::Debug, Components::Network,
+						   QString( "Timed out handshaking with  %1"
+									).arg( m_pSocket->peerAddress().toString() ) );
 		close();
 	}
 }
 void CHandshake::onRead()
 {
-	QMutexLocker l(&Handshakes.m_pSection);
+	QMutexLocker l( &Handshakes.m_pSection );
 
 	//qDebug() << "CHandshake::OnRead()";
 
-	if(bytesAvailable() < 8)
+	if ( bytesAvailable() < 8 )
 	{
 		return;
 	}
@@ -69,9 +71,11 @@ void CHandshake::onRead()
 	if ( peek(8).startsWith( "GNUTELLA" ) )
 	{
 #if LOG_CONNECTIONS
-		systemLog.postLog(LogSeverity::Debug, Components::Network, QString("Incoming connection from %1 is Gnutella Neighbour connection").arg(m_pSocket->peerAddress().toString().toLocal8Bit().constData()));
+		systemLog.postLog( LogSeverity::Debug, Components::Network,
+						   QString( "Incoming connection from %1 is Gnutella Neighbour connection"
+									).arg( m_pSocket->peerAddress().toString() ) );
 #endif
-		Handshakes.processNeighbour(this);
+		Handshakes.processNeighbour( this );
 		delete this;
 	}
 	else if ( peek( 5 ).startsWith( "GET /" ) )
@@ -79,23 +83,26 @@ void CHandshake::onRead()
 		if ( peek( bytesAvailable() ).indexOf( "\r\n\r\n" ) != -1 )
 		{
 #if LOG_CONNECTIONS
-			systemLog.postLog(LogSeverity::Debug, Components::Network, QString("Incoming connection from %1 is a Web request").arg(m_pSocket->peerAddress().toString().toLocal8Bit().constData()));
+			systemLog.postLog( LogSeverity::Debug, Components::Network,
+							   QString( "Incoming connection from %1 is a Web request"
+										).arg(m_pSocket->peerAddress().toString() ) );
 #endif
 			onWebRequest();
 		}
 	}
 	else
 	{
-		systemLog.postLog(LogSeverity::Debug, Components::Network, QString("Closing connection with %1 - unknown protocol").arg(m_pSocket->peerAddress().toString().toLocal8Bit().constData()));
-		//qDebug("Closing connection with %s - unknown protocol", m_pSocket->peerAddress().toString().toLocal8Bit().constData());
+		systemLog.postLog( LogSeverity::Debug, Components::Network,
+						   QString( "Closing connection with %1 - unknown protocol"
+									).arg(m_pSocket->peerAddress().toString() ) );
 
 		QByteArray baResp;
 		baResp += "HTTP/1.1 501 Not Implemented\r\n";
 		baResp += "Server: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
 		baResp += "\r\n";
 
-		write(baResp);
-		close(true);
+		write( baResp );
+		close( true );
 	}
 }
 

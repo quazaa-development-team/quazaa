@@ -412,23 +412,24 @@ CNeighbour* CNeighboursConnections::onAccept(CNetworkConnection* pConn)
 	systemLog.postLog(LogSeverity::Debug, "CNeighboursConnections::onAccept");
 #endif
 
-	if(!m_bActive)
+	if ( !m_bActive )
 	{
 		pConn->close();
-		return 0;
+		return NULL;
 	}
 
-	if(!m_pSection.tryLock(50))
+	if ( !m_pSection.tryLock( 50 ) )
 	{
-		systemLog.postLog(LogSeverity::Debug, "Not accepting incoming connection. Neighbours overloaded");
+		systemLog.postLog( LogSeverity::Debug,
+						   tr( "Not accepting incoming connection. Neighbours overloaded" ) );
 		pConn->close();
-		return 0;
+		return NULL;
 	}
 
 	CG2Node* pNew = new CG2Node();
-	pNew->attachTo(pConn);
-	addNode(pNew);
-	pNew->moveToThread(&NetworkThread);
+	pNew->attachTo( pConn );
+	addNode( pNew );
+	pNew->moveToThread( &NetworkThread );
 
 	m_pSection.unlock();
 

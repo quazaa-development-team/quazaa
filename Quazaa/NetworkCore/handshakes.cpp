@@ -119,8 +119,8 @@ void CHandshakes::removeHandshake(CHandshake* pHs)
 
 void CHandshakes::processNeighbour(CHandshake* pHs)
 {
-	removeHandshake(pHs);
-	Neighbours.onAccept(pHs);
+	removeHandshake( pHs );
+	Neighbours.onAccept( pHs );
 }
 
 void CHandshakes::setupThread()

@@ -39,7 +39,11 @@ public:
 	void onTimer(quint32 tNow);
 
 public slots:
+	/**
+	 * @brief onRead handles newly available bytes for a network connection.
+	 */
 	void onRead();
+
 	void onConnectNode();
 	void onDisconnectNode() ;
 	void onError(QAbstractSocket::SocketError e);
