@@ -22,13 +22,13 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#include <stdexcept>
+
 #include "g2packet.h"
 #include "systemlog.h"
 #include "buffer.h"
 
 #include "debug_new.h"
-
-#include <stdexcept>
 
 G2PacketPool G2Packets;
 
@@ -133,20 +133,19 @@ G2Packet* G2Packet::newPacket(const char* pszType, bool bCompound)
 }
 G2Packet* G2Packet::newPacket(char* pSource)
 {
-	G2Packet* pPacket = newPacket();
+	G2Packet* pPacket   = newPacket();
 
-	char nInput		= *pSource++;
+	uchar nControlByte  = *pSource++;
 
-	char nLenLen	= (nInput & 0xC0) >> 6;
-	char nTypeLen	= (nInput & 0x38) >> 3;
-	char nFlags	= (nInput & 0x07);
+	uchar nLenLen       = (nControlByte & 0xC0) >> 6;
+	uchar nTypeLen      = (nControlByte & 0x38) >> 3;
 
-	pPacket->m_bCompound	= (nFlags & G2_FLAG_COMPOUND) ? true : false;
-	bool	bBigEndian	= (nFlags & G2_FLAG_BIG_ENDIAN) ? true : false;
+	pPacket->m_bCompound    = nControlByte & G2_FLAG_COMPOUND;
+	pPacket->m_bBigEndian   = nControlByte & G2_FLAG_BIG_ENDIAN;
 
 	quint32 nLength = 0;
 
-	if(bBigEndian)
+	if ( pPacket->m_bBigEndian )
 	{
 		throw std::logic_error("New G2 packet is big endian.");
 	}
@@ -159,7 +158,7 @@ G2Packet* G2Packet::newPacket(char* pSource)
 		}
 	}
 
-	nTypeLen++;
+	++nTypeLen;
 	char* pszType = pPacket->m_sType;
 	for(; nTypeLen-- ;)
 	{
@@ -374,6 +373,49 @@ void G2Packet::toBuffer(CBuffer* pBuffer) const
 	pBuffer->append((char*)m_pBuffer, m_nLength);
 }
 
+quint32 G2Packet::peakUIntBytes( const uchar* pSource, const quint8 nCount, bool bBigEndian)
+{
+	Q_ASSERT( pSource );
+	Q_ASSERT( nCount <= 4 );
+
+	quint32 nPeak = 0;
+	uchar* pDestination	= (uchar*)&nPeak;
+
+	// the source is big endian
+	if ( bBigEndian )
+	{
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+		for ( quint8 i = 0; i < nCount; ++i )
+		{
+			*pDestination++ = *pSource++;
+		}
+#elif Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+		pDestination += nCount;
+		for ( quint8 i = 0; i < nCount; ++i )
+		{
+			*pDestination-- = *pSource++;
+		}
+#endif
+	}
+	else // the source is little endian
+	{
+#if Q_BYTE_ORDER == Q_BIG_ENDIAN
+		pDestination += 3;
+		for ( quint8 i = 0; i < nCount; ++i )
+		{
+			*pDestination-- = pSource++;
+		}
+#elif Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+		for ( quint8 i = 0; i < nCount; ++i )
+		{
+			*pDestination++ = *pSource++;
+		}
+#endif
+	}
+
+	return nPeak;
+}
+
 //////////////////////////////////////////////////////////////////////
 // G2Packet buffer stream read
 
@@ -407,40 +449,47 @@ G2Packet* G2Packet::readBuffer(CBuffer* pBuffer)
 	//bool bCompound  =  nControlByte & G2_FLAG_COMPOUND;
 	bool bBigEndian =  nControlByte & G2_FLAG_BIG_ENDIAN;
 
-	char nLenLen, nNameLen;
+	// nLenLen is the number of bytes in the length field of the packet, which immediately follows
+	// the control byte. There are two bits here which means the length field can be up to 3 bytes
+	// long. nLenLen can be zero [...].
+	// nNameLen is the number of bytes in the packet name field MINUS ONE. There are three bits here
+	// which means that packet names can be 1 to 8 bytes long inclusive. [...]
+	uchar nLenLen  = (nControlByte & G2_PACKET_LENLEN_BITS ) >> 6;
+	uchar nNameLen = (nControlByte & G2_PACKET_NAMELEN_BITS) >> 3;
 
-	nLenLen  = (nControlByte & 0xC0) >> 6;
-	nNameLen = (nControlByte & 0x38) >> 3;
-
-	if ( (quint32)pBuffer->size() < (quint32)nLenLen + nNameLen + 2u )
+	quint32 nTotalSize = (quint32)nLenLen + nNameLen + 2u;
+	if ( (quint32)pBuffer->size() < nTotalSize )
 	{
-		return 0;
+		return NULL;
 	}
 
-	quint32 nLength = 0;
+	// read the packet length from buffer
+	const quint32 nLength = peakUIntBytes( (uchar*)pBuffer->data() + 1, nLenLen, bBigEndian );
+	nTotalSize += nLength;
 
-	if ( bBigEndian )
+#ifdef _DEBUG
+	if ( !bBigEndian )
 	{
-		qDebug( qPrintable( pBuffer->dump() ) );
-		throw "Big endian packet sent to G2 buffer.";
-	}
-	else
-	{
+		quint32 nLength2 = 0;
+
 		char* pLenIn	= pBuffer->data() + 1;
-		char* pLenOut	= (char*)&nLength;
+		char* pLenOut	= (char*)&nLength2;
 		for ( char nLenCnt = nLenLen ; nLenCnt-- ; )
 		{
 			*pLenOut++ = *pLenIn++;
 		}
-	}
 
-	if ( (quint32)pBuffer->size() < (quint32)nLength + nLenLen + nNameLen + 2 )
+		Q_ASSERT( nLength == nLength2 );
+	}
+#endif
+
+	if ( (quint32)pBuffer->size() < nTotalSize )
 	{
-		return 0;
+		return NULL;
 	}
 
 	G2Packet* pPacket = G2Packet::newPacket( pBuffer->data() );
-	pBuffer->remove( nLength + nLenLen + nNameLen + 2u );
+	pBuffer->remove( nTotalSize );
 
 	return pPacket;
 }

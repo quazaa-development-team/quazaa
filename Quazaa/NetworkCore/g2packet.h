@@ -31,6 +31,19 @@
 #include <QList>
 #include <stdexcept>
 
+// The Control Byte
+// +----+----+----+----+----+----+----+----+
+// | 7    6  | 5    4    3  | 2  | 1  | 0  | Bit
+// +----+----+----+----+----+----+----+----+
+// | Len_Len | Name_Len - 1 | CF | BE | // |
+// +----+----+----+----+----+----+----+----+
+
+#define G2_FLAG_BIG_ENDIAN      0x02
+#define G2_FLAG_COMPOUND        0x04
+#define G2_PACKET_NAMELEN_BITS  0x38
+#define G2_PACKET_LENLEN_BITS   0xC0
+
+
 class CBuffer;
 
 class G2Packet
@@ -90,16 +103,25 @@ public:
 	inline bool isType(const char* sType);
 	inline int getRemaining();
 	inline bool ensure(quint32 nBytes);
+
 	inline void read(void* pData, int nLength);
 	inline void write(void* pData, int nLength);
-	template <typename T>
-	inline T readIntBE();
-	template <typename T>
-	inline T readIntLE();
-	template <typename T>
-	inline void writeIntBE(T nValue);
-	template <typename T>
-	inline void writeIntLE(T nValue);
+
+	template <typename T> inline T readIntBE();
+	template <typename T> inline T readIntLE();
+
+	template <typename T> inline void writeIntBE(T nValue);
+	template <typename T> inline void writeIntLE(T nValue);
+
+	/**
+	 * @brief peakUIntBytes reads nCount bytes starting from source and treats them as a quint32
+	 * @param pSource : the byte source
+	 * @param nCount : number of bytes - max 4
+	 * @param bBigEndian : whether the source has big or little endian encoding
+	 * @return an unsigned 32bit integer represantation of the peaked bytes
+	 */
+	static quint32 peakUIntBytes(const uchar* pSource, const quint8 nCount, bool bBigEndian);
+
 	inline uchar readByte();
 	inline void writeByte(uchar nByte);
 	inline void readHostAddress(CEndPoint* pDest, bool bIP4 = true);
@@ -126,9 +148,6 @@ public:
 protected:
 	friend class G2PacketPool;
 };
-
-#define G2_FLAG_COMPOUND	0x04
-#define G2_FLAG_BIG_ENDIAN	0x02
 
 class G2PacketPool
 {
@@ -348,11 +367,11 @@ G2Packet* G2PacketPool::newPacket()
 {
 	m_pSection.lock();
 
-	if(m_nFree == 0)
+	if ( !m_nFree )
 	{
 		newPool();
 	}
-	Q_ASSERT(m_nFree > 0);
+	Q_ASSERT( m_nFree > 0 );
 
 	G2Packet* pPacket = m_pFree;
 	m_pFree = m_pFree->m_pNext;
