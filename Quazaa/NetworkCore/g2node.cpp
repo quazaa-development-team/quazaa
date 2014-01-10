@@ -47,25 +47,20 @@
 //#define _DISABLE_COMPRESSION
 
 CG2Node::CG2Node(QObject* parent) :
-	CNeighbour(parent),
-	m_pHubGroup(new CHubHorizonGroup)
+	CNeighbour( parent ),
+	m_bG2Core( false ),
+	m_bCachedKeys( false ),
+	m_nType( G2_UNKNOWN ),
+	m_nLeafCount( 0 ),
+	m_nLeafMax( 0 ),
+	m_bAcceptDeflate( false ),
+	m_tKeyRequest( 0 ),
+	m_nHAWWait( 0 ),
+	m_pRemoteTable( NULL ),
+	m_pLocalTable( NULL ),
+	m_pHubGroup( new CHubHorizonGroup )
 {
-
 	m_nProtocol = DiscoveryProtocol::G2;
-
-	m_nType = G2_UNKNOWN;
-
-	m_nLeafCount = m_nLeafMax = 0;
-	m_bAcceptDeflate = false;
-	m_tLastQuery = 0;
-	m_tKeyRequest = 0;
-	m_bCachedKeys = false;
-	m_bG2Core = false;
-
-	m_pLocalTable = 0;
-	m_pRemoteTable = 0;
-
-	m_nHAWWait = 0;
 }
 
 CG2Node::~CG2Node()
@@ -119,99 +114,55 @@ void CG2Node::sendPacket(G2Packet* pPacket, bool bBuffered, bool bRelease)
 	emit readyToTransfer();
 }
 
-void CG2Node::onConnectNode()
+void CG2Node::sendLNI()
 {
-	//QMutexLocker l(&Neighbours.m_pSection);
-
-	systemLog.postLog ( LogSeverity::Information, Components::G2,
-						"Connection with %s established, handshaking...",
-						qPrintable( m_oAddress.toString() ) );
-
-	m_nState = nsHandshaking;
-	emit nodeStateChanged();
-
-	QByteArray sHs;
-
-	sHs += "GNUTELLA CONNECT/0.6\r\n";
-	sHs += "Accept: application/x-gnutella2\r\n";
-	sHs += "User-Agent: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
-	sHs += "Remote-IP: " + m_oAddress.toString() + "\r\n";
-	sHs += "Listen-IP: " + Network.getLocalAddress().toStringWithPort() + "\r\n";
-	if(Neighbours.isG2Hub())
+	G2Packet* pLNI = G2Packet::newPacket("LNI", true);
+	if(Network.m_oAddress.protocol() == 0)
 	{
-		sHs += "X-Ultrapeer: True\r\n";
-		sHs += "X-Hub: True\r\n";
+		pLNI->writePacket("NA", 6)->writeHostAddress(Network.m_oAddress);
 	}
 	else
 	{
-		sHs += "X-Ultrapeer: False\r\n";
-		sHs += "X-Hub: False\r\n";
+		pLNI->writePacket("NA", 18)->writeHostAddress(Network.m_oAddress);
 	}
-#ifndef _DISABLE_COMPRESSION
-	sHs += "Accept-Encoding: deflate\r\n";
-#endif
+	pLNI->writePacket("GU", 16)->writeGUID(quazaaSettings.Profile.GUID);
+	pLNI->writePacket("V", 4)->writeString(CQuazaaGlobals::VENDOR_CODE(), false);
 
-	sHs += "\r\n";
+	if(Neighbours.isG2Hub())
+	{
+		quint16 nLeavesMax = quazaaSettings.Gnutella2.NumLeafs;
+		quint16 nLeaves = Neighbours.m_nLeavesConnectedG2;
+		pLNI->writePacket("HS", 4);
+		pLNI->writeIntLE<quint16>(nLeaves);
+		pLNI->writeIntLE<quint16>(nLeavesMax);
+		pLNI->writePacket("QK", 0);
+	}
 
-	//qDebug() << "Handshake send:\n" << sHs;
+	pLNI->writePacket("g2core", 0);
 
-	m_sHandshake += "Handshake out:\n" + sHs;
-
-	write(sHs);
+	sendPacket(pLNI, false, true);
 }
 
-void CG2Node::onRead()
+void CG2Node::sendHAW()
 {
+	G2Packet* pPacket = G2Packet::newPacket("HAW");
 
-	Neighbours.m_pSection.lock();
+	pPacket->writePacket("NA", Network.m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 6 : 18);
+	pPacket->writeHostAddress(Network.m_oAddress);
 
-	//qDebug() << "CG2Node::OnRead";
-	if ( m_nState == nsHandshaking )
-	{
-		if ( peek( bytesAvailable() ).indexOf("\r\n\r\n") != -1 )
-		{
-			if ( m_bInitiated )
-			{
-				parseOutgoingHandshake();
-			}
-			else
-			{
-				parseIncomingHandshake();
-			}
-		}
-	}
-	else if ( m_nState == nsConnected )
-	{
-		G2Packet* pPacket = NULL;
-		try
-		{
-			// read all packets from buffer, one after an other
-			while ( ( pPacket = G2Packet::readBuffer( getInputBuffer() ) ) )
-			{
-				m_tLastPacketIn = time( 0 );
-				++m_nPacketsIn;
+	pPacket->writePacket("V", 4);
+	pPacket->writeString(CQuazaaGlobals::VENDOR_CODE());
 
-				onPacket( pPacket );
+	pPacket->writePacket("HS", 2);
+	pPacket->writeIntLE<quint16>(Neighbours.m_nLeavesConnectedG2);
 
-				pPacket->release();
-			}
-		}
-		catch ( ... )
-		{
-			if ( pPacket )
-			{
-				systemLog.postLog( LogSeverity::Debug, Components::G2,
-								   QString( "%1" ).arg( pPacket->dump() ) );
-				pPacket->release();
-			}
+	pPacket->writeByte(0); // end of child packets
+	pPacket->writeByte(100);
+	pPacket->writeByte(0);
+	QUuid oGUID = QUuid::createUuid();
+	pPacket->writeGUID(oGUID);
 
-			systemLog.postLog( LogSeverity::Debug, Components::G2,
-							   QString( "Packet error - %1" ).arg( m_oAddress.toString() ) );
-			close();
-		}
-	}
-
-	Neighbours.m_pSection.unlock();
+	sendPacket(pPacket, false, true);
 }
 
 void CG2Node::onTimer(quint32 tNow)
@@ -358,18 +309,19 @@ void CG2Node::parseIncomingHandshake()
 		}
 #endif
 
-		QString sUltra = Parser::getHeaderValue(sHs, "X-Ultrapeer").toLower();
-		//QString sUltraNeeded = Parser::getHeaderValue(sHs, "X-Ultrapeer-Needed").toLower();
-		if(sUltra.isEmpty())
+		QString sXHub = Parser::getHeaderValue( sHs, "X-Hub" ).toLower();
+		if ( sXHub.isEmpty() )
 		{
-			sUltra = Parser::getHeaderValue(sHs, "X-Hub").toLower();
-
-			if( sUltra.isEmpty() )
+			// Fall back to looking for specified ultrapeer mode if no X-Hub could be found
+			sXHub = Parser::getHeaderValue( sHs, "X-Ultrapeer" ).toLower();
+			if( sXHub.isEmpty() )
 			{
-				send_ConnectError("503 No hub mode specified");
+				send_ConnectError( "503 No hub mode specified" );
 				return;
 			}
 		}
+
+		//QString sHubNeeded = Parser::getHeaderValue(sHs, "X-Ultrapeer-Needed").toLower();
 
 		QString sRemoteIP = Parser::getHeaderValue(sHs, "Remote-IP");
 		if(!sRemoteIP.isEmpty())
@@ -382,9 +334,9 @@ void CG2Node::parseIncomingHandshake()
 			return;
 		}
 
-		bool bUltra = (sUltra == "true");
+		bool bHub = ( sXHub == "true" );
 
-		if(bUltra)
+		if ( bHub )
 		{
 			if(!Neighbours.needMoreG2(G2_HUB))
 			{
@@ -634,6 +586,7 @@ void CG2Node::parseOutgoingHandshake()
 
 	systemLog.postLog(LogSeverity::Information, Components::G2, tr("Gnutella2 connection with %1 established.").arg(qPrintable(m_oAddress.toString())));
 }
+
 void CG2Node::send_ConnectError(QString sReason)
 {
 	systemLog.postLog(LogSeverity::Information, Components::G2, tr("Rejecting connection with %1: %2 (%3)").arg(qPrintable(m_oAddress.toString())).arg(qPrintable(sReason)).arg(m_sUserAgent));
@@ -670,25 +623,25 @@ void CG2Node::send_ConnectError(QString sReason)
 
 	close(true);
 }
+
 void CG2Node::send_ConnectOK(bool bReply, bool bDeflated)
 {
 	QByteArray sHs;
 
 	sHs += "GNUTELLA/0.6 200 OK\r\n";
 	sHs += "User-Agent: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
-	if(Neighbours.isG2Hub())
+
+	if ( Neighbours.isG2Hub() )
 	{
-		sHs += "X-Ultrapeer: True\r\n";
 		sHs += "X-Hub: True\r\n";
 	}
 	else
 	{
-		sHs += "X-Ultrapeer: False\r\n";
 		sHs += "X-Hub: False\r\n";
 	}
 	sHs += "Content-Type: application/x-gnutella2\r\n";
 
-	if(!bReply)
+	if ( !bReply )
 	{
 		// 2-handshake
 #ifndef _DISABLE_COMPRESSION
@@ -711,7 +664,7 @@ void CG2Node::send_ConnectOK(bool bReply, bool bDeflated)
 	else
 	{
 #ifndef _DISABLE_COMPRESSION
-		if(bDeflated)
+		if( bDeflated )
 		{
 			sHs += "Content-Encoding: deflate\r\n";
 		}
@@ -724,8 +677,7 @@ void CG2Node::send_ConnectOK(bool bReply, bool bDeflated)
 
 	m_sHandshake += "Handshake out:\n" + sHs;
 
-	write(sHs);
-
+	write( sHs );
 }
 
 void CG2Node::sendStartups()
@@ -741,35 +693,6 @@ void CG2Node::sendStartups()
 	}
 
 	sendLNI();
-}
-
-void CG2Node::sendLNI()
-{
-	G2Packet* pLNI = G2Packet::newPacket("LNI", true);
-	if(Network.m_oAddress.protocol() == 0)
-	{
-		pLNI->writePacket("NA", 6)->writeHostAddress(Network.m_oAddress);
-	}
-	else
-	{
-		pLNI->writePacket("NA", 18)->writeHostAddress(Network.m_oAddress);
-	}
-	pLNI->writePacket("GU", 16)->writeGUID(quazaaSettings.Profile.GUID);
-	pLNI->writePacket("V", 4)->writeString(CQuazaaGlobals::VENDOR_CODE(), false);
-
-	if(Neighbours.isG2Hub())
-	{
-		quint16 nLeavesMax = quazaaSettings.Gnutella2.NumLeafs;
-		quint16 nLeaves = Neighbours.m_nLeavesConnectedG2;
-		pLNI->writePacket("HS", 4);
-		pLNI->writeIntLE<quint16>(nLeaves);
-		pLNI->writeIntLE<quint16>(nLeavesMax);
-		pLNI->writePacket("QK", 0);
-	}
-
-	pLNI->writePacket("g2core", 0);
-
-	sendPacket(pLNI, false, true);
 }
 
 void CG2Node::onPacket(G2Packet* pPacket)
@@ -1021,6 +944,7 @@ void CG2Node::onLNI(G2Packet* pPacket)
 	}
 
 }
+
 void CG2Node::onKHL(G2Packet* pPacket)
 {
 	if(!pPacket->m_bCompound)
@@ -1437,6 +1361,82 @@ void CG2Node::onQH2(G2Packet* pPacket)
 	}
 }
 
+void CG2Node::onHaw(G2Packet *pPacket)
+{
+	if ( ! pPacket->m_bCompound ) 	return;
+
+	QString strVendor;
+	char szType[9];
+	quint32 nLength = 0, nNext = 0;
+
+	CEndPoint addr;
+
+	while ( pPacket->readPacket( &szType[0], nLength ) )
+	{
+		nNext = pPacket->m_nPosition + nLength;
+
+		if ( strcmp("V", szType) == 0 && nLength >= 4 )
+		{
+			strVendor = pPacket->readString( 4 );
+		}
+		else if ( strcmp("NA", szType) == 0 )
+		{
+			if(nLength >= 6)
+			{
+				if(nLength >= 18)
+				{
+					// IPv6 with port
+					pPacket->readHostAddress(&addr, false);
+				}
+				else
+				{
+					// IPv4 with port
+					pPacket->readHostAddress(&addr);
+				}
+			}
+		}
+
+		pPacket->m_nPosition = nNext;
+	}
+
+	if ( pPacket->getRemaining() < 2 + 16 ) return;
+
+	BYTE* pPtr	= pPacket->m_pBuffer + pPacket->m_nPosition;
+	BYTE nTTL	= pPacket->readByte();
+	BYTE nHops	= pPacket->readByte();
+
+	/*	QUuid oGUID = */pPacket->readGUID();
+
+	if( !strVendor.isEmpty() && securityManager.isVendorBlocked(strVendor) )
+	{
+		securityManager.ban( addr, Security::RuleTime::SixHours, true,
+							 QString( "[AUTO] Vendor blocked (%1)" ).arg( strVendor ), true
+#if SECURITY_LOG_BAN_SOURCES
+							 , QString( "g2node.cpp line 1545" )
+#endif // SECURITY_LOG_BAN_SOURCES
+							 );
+		return;	// We don't want to propagate these...
+	}
+	else
+	{
+		hostCache.add( addr, common::getTNowUTC() );
+	}
+
+	if ( nTTL > 0 && nHops < 255 )
+	{
+		//m_pGUIDCache->Add( oGUID, this );
+
+		pPtr[0] = nTTL  - 1;
+		pPtr[1] = nHops + 1;
+
+		if ( CG2Node* pNeighbour = (CG2Node*)Neighbours.randomNode( DiscoveryProtocol::G2,
+																	G2_HUB,  this ) )
+		{
+			pNeighbour->sendPacket( pPacket, false, false );
+		}
+	}
+}
+
 void CG2Node::onQuery(G2Packet* pPacket)
 {
 	if(!pPacket->m_bCompound)
@@ -1519,101 +1519,96 @@ qint64 CG2Node::writeToNetwork(qint64 nBytes)
 	return nTotalSent;
 }
 
-void CG2Node::sendHAW()
+void CG2Node::onConnectNode()
 {
-	G2Packet* pPacket = G2Packet::newPacket("HAW");
+	//QMutexLocker l(&Neighbours.m_pSection);
 
-	pPacket->writePacket("NA", Network.m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 6 : 18);
-	pPacket->writeHostAddress(Network.m_oAddress);
+	systemLog.postLog ( LogSeverity::Information, Components::G2,
+						"Connection with %s established, handshaking...",
+						qPrintable( m_oAddress.toString() ) );
 
-	pPacket->writePacket("V", 4);
-	pPacket->writeString(CQuazaaGlobals::VENDOR_CODE());
+	m_nState = nsHandshaking;
+	emit nodeStateChanged();
 
-	pPacket->writePacket("HS", 2);
-	pPacket->writeIntLE<quint16>(Neighbours.m_nLeavesConnectedG2);
+	QByteArray sHs;
 
-	pPacket->writeByte(0); // end of child packets
-	pPacket->writeByte(100);
-	pPacket->writeByte(0);
-	QUuid oGUID = QUuid::createUuid();
-	pPacket->writeGUID(oGUID);
-
-	sendPacket(pPacket, false, true);
-}
-
-void CG2Node::onHaw(G2Packet *pPacket)
-{
-	if ( ! pPacket->m_bCompound ) 	return;
-
-	QString strVendor;
-	char szType[9];
-	quint32 nLength = 0, nNext = 0;
-
-	CEndPoint addr;
-
-	while ( pPacket->readPacket( &szType[0], nLength ) )
+	sHs += "GNUTELLA CONNECT/0.6\r\n";
+	sHs += "Accept: application/x-gnutella2\r\n";
+	sHs += "User-Agent: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
+	sHs += "Remote-IP: " + m_oAddress.toString() + "\r\n";
+	sHs += "Listen-IP: " + Network.getLocalAddress().toStringWithPort() + "\r\n";
+	if ( Neighbours.isG2Hub() )
 	{
-		nNext = pPacket->m_nPosition + nLength;
-
-		if ( strcmp("V", szType) == 0 && nLength >= 4 )
-		{
-			strVendor = pPacket->readString( 4 );
-		}
-		else if ( strcmp("NA", szType) == 0 )
-		{
-			if(nLength >= 6)
-			{
-				if(nLength >= 18)
-				{
-					// IPv6 with port
-					pPacket->readHostAddress(&addr, false);
-				}
-				else
-				{
-					// IPv4 with port
-					pPacket->readHostAddress(&addr);
-				}
-			}
-		}
-
-		pPacket->m_nPosition = nNext;
-	}
-
-	if ( pPacket->getRemaining() < 2 + 16 ) return;
-
-	BYTE* pPtr	= pPacket->m_pBuffer + pPacket->m_nPosition;
-	BYTE nTTL	= pPacket->readByte();
-	BYTE nHops	= pPacket->readByte();
-
-	/*	QUuid oGUID = */pPacket->readGUID();
-
-	if( !strVendor.isEmpty() && securityManager.isVendorBlocked(strVendor) )
-	{
-		securityManager.ban( addr, Security::RuleTime::SixHours, true,
-							 QString( "[AUTO] Vendor blocked (%1)" ).arg( strVendor ), true
-#if SECURITY_LOG_BAN_SOURCES
-							 , QString( "g2node.cpp line 1545" )
-#endif // SECURITY_LOG_BAN_SOURCES
-							 );
-		return;	// We don't want to propagate these...
+		sHs += "X-Hub: True\r\n";
 	}
 	else
 	{
-		hostCache.add( addr, common::getTNowUTC() );
+		sHs += "X-Hub: False\r\n";
 	}
+#ifndef _DISABLE_COMPRESSION
+	sHs += "Accept-Encoding: deflate\r\n";
+#endif
 
-	if ( nTTL > 0 && nHops < 255 )
+	sHs += "\r\n";
+
+	//qDebug() << "Handshake send:\n" << sHs;
+
+	m_sHandshake += "Handshake out:\n" + sHs;
+
+	write(sHs);
+}
+
+void CG2Node::onRead()
+{
+
+	Neighbours.m_pSection.lock();
+
+	//qDebug() << "CG2Node::OnRead";
+	if ( m_nState == nsHandshaking )
 	{
-		//m_pGUIDCache->Add( oGUID, this );
-
-		pPtr[0] = nTTL  - 1;
-		pPtr[1] = nHops + 1;
-
-		if ( CG2Node* pNeighbour = (CG2Node*)Neighbours.randomNode( DiscoveryProtocol::G2,
-																	G2_HUB,  this ) )
+		if ( peek( bytesAvailable() ).indexOf("\r\n\r\n") != -1 )
 		{
-			pNeighbour->sendPacket( pPacket, false, false );
+			if ( m_bInitiated )
+			{
+				parseOutgoingHandshake();
+			}
+			else
+			{
+				parseIncomingHandshake();
+			}
 		}
 	}
+	else if ( m_nState == nsConnected )
+	{
+		G2Packet* pPacket = NULL;
+		try
+		{
+			// read all packets from buffer, one after an other
+			while ( ( pPacket = G2Packet::readBuffer( getInputBuffer() ) ) )
+			{
+				m_tLastPacketIn = time( 0 );
+				++m_nPacketsIn;
+
+				onPacket( pPacket );
+
+				pPacket->release();
+			}
+		}
+		catch ( ... )
+		{
+			if ( pPacket )
+			{
+				systemLog.postLog( LogSeverity::Debug, Components::G2,
+								   QString( "%1" ).arg( pPacket->dump() ) );
+				pPacket->release();
+			}
+
+			systemLog.postLog( LogSeverity::Debug, Components::G2,
+							   QString( "Packet error - %1" ).arg( m_oAddress.toString() ) );
+			close();
+		}
+	}
+
+	Neighbours.m_pSection.unlock();
 }
 

@@ -49,11 +49,11 @@ public:
 	bool            m_bAcceptDeflate;
 
 	quint32         m_tKeyRequest;
-	quint32         m_tLastHAWIn;			// Time when HAW packet recievied
-	quint32         m_nCountHAWIn;			// Number of HAW packets recievied
 
-	bool            m_bSendQHT;
-	quint32         m_tLastQHT;
+	//quint32         m_tLastHAWIn;       // Time when HAW packet recievied
+	//quint32         m_nCountHAWIn;      // Number of HAW packets recievied
+	//bool            m_bSendQHT;
+	//quint32         m_tLastQHT;
 
 	quint32         m_nHAWWait;
 
@@ -69,23 +69,39 @@ public:
 	CG2Node(QObject* parent = NULL);
 	virtual ~CG2Node();
 
-	void attachTo(CNetworkConnection* pOther)
-	{
-		CNeighbour::attachTo(pOther);
-	}
-
 	void sendPacket(G2Packet* pPacket, bool bBuffered = false, bool bRelease = false);
 
+	void sendLNI();
+	void sendHAW();
+
+	void onTimer(quint32 tNow);
+
+	inline void attachTo(CNetworkConnection* pOther);
+
 protected:
-	void parseOutgoingHandshake();
 	void parseIncomingHandshake();
+	void parseOutgoingHandshake();
 
 	void send_ConnectError(QString sReason);
 	void send_ConnectOK(bool bReply, bool bDeflated = false);
 	void sendStartups();
 
-public:
-	void onTimer(quint32 tNow);
+	void onPacket(G2Packet* pPacket);
+	void onPing(G2Packet* pPacket);
+	void onPong(G2Packet* pPacket);
+	void onLNI(G2Packet* pPacket);
+	void onKHL(G2Packet* pPacket);
+	void onQHT(G2Packet* pPacket);
+	void onQKR(G2Packet* pPacket);
+	void onQKA(G2Packet* pPacket);
+	void onQA(G2Packet* pPacket);
+	void onQH2(G2Packet* pPacket);
+	void onHaw(G2Packet* pPacket);
+	void onQuery(G2Packet* pPacket);
+
+	qint64 writeToNetwork(qint64 nBytes);
+
+	inline bool hasData();
 
 signals:
 	void nodeStateChanged();
@@ -98,36 +114,22 @@ public slots:
 	 */
 	void onRead();
 
-public:
-	void sendLNI();
-	void sendHAW();
-protected:
-	void onPacket(G2Packet* pPacket);
-	void onPing(G2Packet* pPacket);
-	void onPong(G2Packet* pPacket);
-	void onLNI(G2Packet* pPacket);
-	void onKHL(G2Packet* pPacket);
-	void onQHT(G2Packet* pPacket);
-	void onQKR(G2Packet* pPacket);
-	void onQKA(G2Packet* pPacket);
-	void onQA(G2Packet* pPacket);
-	void onQH2(G2Packet* pPacket);
-	void onQuery(G2Packet* pPacket);
-	void onHaw(G2Packet* pPacket);
-
-protected:
-	qint64 writeToNetwork(qint64 nBytes);
-	bool hasData()
-	{
-		if ( !m_lSendQueue.isEmpty() )
-		{
-			return true;
-		}
-
-		return CNeighbour::hasData();
-	}
-
 	friend class CNetwork;
 };
+
+void CG2Node::attachTo(CNetworkConnection* pOther)
+{
+	CNeighbour::attachTo(pOther);
+}
+
+bool CG2Node::hasData()
+{
+	if ( !m_lSendQueue.isEmpty() )
+	{
+		return true;
+	}
+
+	return CNeighbour::hasData();
+}
 
 #endif // G2NODE_H

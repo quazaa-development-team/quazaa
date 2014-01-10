@@ -32,18 +32,19 @@
 #include "debug_new.h"
 
 CNeighbour::CNeighbour(QObject* parent) :
-	CCompressedConnection(parent)
+	CCompressedConnection( parent ),
+	m_nProtocol( DiscoveryProtocol::None ),
+	m_tLastPacketIn( 0 ),
+	m_tLastPacketOut( 0 ),
+	m_nPacketsIn( 0 ),
+	m_nPacketsOut( 0 ),
+	m_tLastPingOut( 0 ),
+	m_nPingsWaiting( 0 ),
+	m_tRTT( 0 ),
+	m_tLastQuery( 0 ),
+	m_nState( nsClosed ),
+	m_bAutomatic( true )
 {
-	m_nProtocol = DiscoveryProtocol::None;
-
-	m_nState = nsClosed;
-	m_tLastPacketIn = m_tLastPacketOut = 0;
-	m_tLastPingOut  = 0;
-	m_nPingsWaiting = 0;
-	m_tRTT = 0;
-	m_nPacketsIn = m_nPacketsOut = 0;
-	m_bAutomatic = true;
-
 }
 
 CNeighbour::~CNeighbour()
