@@ -220,7 +220,7 @@ void CCompressedConnection::inflateInput()
 				break;
 			default:
 				m_pZInput->resize(oldSize + m_sInput.total_out);
-				m_pInput->remove(0, m_sInput.total_in);
+				m_pInput->remove(m_sInput.total_in);
 
 				m_nTotalInput += m_sInput.total_out;
 				m_nTotalInputDec += m_sInput.total_in;
@@ -280,7 +280,7 @@ void CCompressedConnection::deflateOutput()
 		if(nRet == Z_OK || nRet == Z_BUF_ERROR)
 		{
 			m_pOutput->resize(nOldSize + m_sOutput.total_out);
-			m_pZOutput->remove(0, m_sOutput.total_in);
+			m_pZOutput->remove(m_sOutput.total_in);
 			m_nTotalOutput += m_sOutput.total_out;
 			m_nTotalOutputCom += m_sOutput.total_in;
 		}

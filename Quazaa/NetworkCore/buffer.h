@@ -85,8 +85,13 @@ public:
 	CBuffer& insert(const quint32 i, const void* pData, const quint32 nLength);
 	CBuffer& insert(const quint32 i, const char* pStr);
 
-	CBuffer& remove(const quint32 nPos, const quint32 nLength);
-	CBuffer& remove(const quint32 nLength);
+	/**
+	 * @brief remove removes nLength bytes starting at nPos from the buffer.
+	 * @param nPos : the position at which to start
+	 * @param nLength : the number of bytes to remove
+	 * @return the buffer after the requested operation
+	 */
+	CBuffer& remove(const quint32 nLength, const quint32 nPos = 0);
 
 	void	 ensure(const quint32 nLength);
 

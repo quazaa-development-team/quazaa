@@ -86,10 +86,16 @@ protected:
 
 public:
 	void onTimer(quint32 tNow);
+
 signals:
 	void nodeStateChanged();
+
 public slots:
 	void onConnectNode();
+
+	/**
+	 * @brief onRead handles newly available bytes for a network connection.
+	 */
 	void onRead();
 
 public:

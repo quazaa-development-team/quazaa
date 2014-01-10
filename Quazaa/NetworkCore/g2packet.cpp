@@ -32,26 +32,25 @@
 
 G2PacketPool G2Packets;
 
-G2Packet::G2Packet()
+G2Packet::G2Packet() :
+	m_pNext( NULL ),
+	m_nReference( NULL ),
+	m_nPosition( 0 ),
+	m_pBuffer( NULL ),
+	m_nBuffer( 0 ),
+	m_nLength( 0 ),
+	m_bCompound( false ),
+	m_bBigEndian( false )
 {
-	m_pNext			= 0;
-	m_nReference	= 0;
-
-	m_nPosition		= 0;
-
-	m_pBuffer = 0;
-	m_nBuffer = 0;
-	m_nLength = 0;
-
-	memset(&m_sType[0], 0, sizeof(m_sType));
-	m_bCompound = false;
+	memset( &m_sType[0], 0, sizeof( m_sType ) );
 }
 
 G2Packet::~G2Packet()
 {
 	if(m_nReference != 0)
 	{
-		systemLog.postLog(LogSeverity::Debug, Components::G2, QString("%1 not released").arg((char*)&m_sType[0]));
+		systemLog.postLog( LogSeverity::Debug, Components::G2,
+						   QString("%1 not released").arg((char*)&m_sType[0]));
 	}
 	Q_ASSERT(m_nReference == 0);
 
@@ -121,10 +120,10 @@ G2Packet* G2Packet::newPacket(const char* pszType, bool bCompound)
 {
 	G2Packet* pPacket = G2Packets.newPacket();
 
-	if(pszType != 0)
+	if ( pszType )
 	{
 		size_t nLength = strlen(pszType);
-		strncpy(pPacket->m_sType, pszType, nLength);
+		strncpy( pPacket->m_sType, pszType, nLength );
 		pPacket->m_sType[nLength] = 0;
 	}
 
@@ -380,58 +379,68 @@ void G2Packet::toBuffer(CBuffer* pBuffer) const
 
 G2Packet* G2Packet::readBuffer(CBuffer* pBuffer)
 {
-	if(pBuffer == 0)
+	if ( !pBuffer )
 	{
-		return 0;
+		return NULL;
 	}
 
-	if(pBuffer->size() < 2)
+	if ( pBuffer->size() < 2 )
 	{
-		return 0;
+		return NULL;
 	}
 
-	char nInput = *pBuffer->data();
+	// The Control Byte
+	// +----+----+----+----+----+----+----+----+
+	// | 7    6  | 5    4    3  | 2  | 1  | 0  | Bit
+	// +----+----+----+----+----+----+----+----+
+	// | Len_Len | Name_Len - 1 | CF | BE | // |
+	// +----+----+----+----+----+----+----+----+
+	char nControlByte = *pBuffer->data();
 
-	if(nInput == 0)
+	// "A zero control byte identifies the end of a stream of packets[...]"
+	if ( !nControlByte )
 	{
-		pBuffer->remove(0, 1);
-		return 0;
+		pBuffer->remove( 1 );
+		return NULL;
 	}
 
-	char nLenLen	= (nInput & 0xC0) >> 6;
-	char nTypeLen	= (nInput & 0x38) >> 3;
-	char nFlags		= (nInput & 0x07);
+	//bool bCompound  =  nControlByte & G2_FLAG_COMPOUND;
+	bool bBigEndian =  nControlByte & G2_FLAG_BIG_ENDIAN;
 
-	if((quint32)pBuffer->size() < (quint32)nLenLen + nTypeLen + 2u)
+	char nLenLen, nNameLen;
+
+	nLenLen  = (nControlByte & 0xC0) >> 6;
+	nNameLen = (nControlByte & 0x38) >> 3;
+
+	if ( (quint32)pBuffer->size() < (quint32)nLenLen + nNameLen + 2u )
 	{
 		return 0;
 	}
 
 	quint32 nLength = 0;
 
-	if ( nFlags & G2_FLAG_BIG_ENDIAN )
+	if ( bBigEndian )
 	{
-		qDebug(qPrintable(pBuffer->dump()));
-		return 0;
-		//throw "Big endian packet sent to G2 buffer.";
+		qDebug( qPrintable( pBuffer->dump() ) );
+		throw "Big endian packet sent to G2 buffer.";
 	}
 	else
 	{
 		char* pLenIn	= pBuffer->data() + 1;
 		char* pLenOut	= (char*)&nLength;
-		for(char nLenCnt = nLenLen ; nLenCnt-- ;)
+		for ( char nLenCnt = nLenLen ; nLenCnt-- ; )
 		{
 			*pLenOut++ = *pLenIn++;
 		}
 	}
 
-	if((quint32)pBuffer->size() < (quint32)nLength + nLenLen + nTypeLen + 2)
+	if ( (quint32)pBuffer->size() < (quint32)nLength + nLenLen + nNameLen + 2 )
 	{
 		return 0;
 	}
 
-	G2Packet* pPacket = G2Packet::newPacket(pBuffer->data());
-	pBuffer->remove(0, nLength + nLenLen + nTypeLen + 2u);
+	G2Packet* pPacket = G2Packet::newPacket( pBuffer->data() );
+	pBuffer->remove( nLength + nLenLen + nNameLen + 2u );
 
 	return pPacket;
 }

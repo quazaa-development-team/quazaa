@@ -100,7 +100,18 @@ public:
 		return readData(pData, nMaxSize);
 	}
 
+	/**
+	 * @brief read reads and removes the first nMaxSize bytes from the buffer.
+	 * @param nMaxSize : the number of bytes
+	 * @return the data
+	 */
 	QByteArray read(qint64 nMaxSize = 0);
+
+	/**
+	 * @brief peek allows access to the first nMaxLength bytes available in the buffer.
+	 * @param nMaxLength : the number of bytes; if <= 0, all of them
+	 * @return the data
+	 */
 	QByteArray peek(qint64 nMaxLength = 0);
 
 protected:
@@ -163,7 +174,7 @@ public:
 	}
 signals:
 	void connected();
-	void readyRead();
+	void readyRead();       // indicates there is data ready to be read
 	void disconnected();
 	void error(QAbstractSocket::SocketError);
 	void bytesWritten(qint64);
@@ -178,7 +189,12 @@ public slots:
 public slots:
 	virtual void onConnectNode() = 0;
 	virtual void onDisconnectNode() = 0;
+
+	/**
+	 * @brief onRead handles newly available bytes for a network connection.
+	 */
 	virtual void onRead() = 0;
+
 	virtual void onError(QAbstractSocket::SocketError e) = 0;
 	virtual void onStateChange(QAbstractSocket::SocketState s);
 

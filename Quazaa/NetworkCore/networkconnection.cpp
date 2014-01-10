@@ -202,11 +202,16 @@ void CNetworkConnection::initializeSocket()
 	connect(m_pSocket, SIGNAL(aboutToClose()),
 			this, SIGNAL(aboutToClose()));
 
-	connect(this, SIGNAL(connected()), this, SLOT(onConnectNode()), Qt::QueuedConnection);
-	connect(this, SIGNAL(disconnected()), this, SLOT(onDisconnectNode()), Qt::QueuedConnection);
-	connect(this, SIGNAL(readyRead()), this, SLOT(onRead()), Qt::QueuedConnection);
-	connect(this, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onError(QAbstractSocket::SocketError)), Qt::QueuedConnection);
-	connect(this, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(onStateChange(QAbstractSocket::SocketState)), Qt::QueuedConnection);
+	connect(this, SIGNAL(connected()),
+			this, SLOT(onConnectNode()), Qt::QueuedConnection);
+	connect(this, SIGNAL(disconnected()),
+			this, SLOT(onDisconnectNode()), Qt::QueuedConnection);
+	connect(this, SIGNAL(readyRead()),
+			this, SLOT(onRead()), Qt::QueuedConnection);
+	connect(this, SIGNAL(error(QAbstractSocket::SocketError)),
+			this, SLOT(onError(QAbstractSocket::SocketError)), Qt::QueuedConnection);
+	connect(this, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+			this, SLOT(onStateChange(QAbstractSocket::SocketState)), Qt::QueuedConnection);
 
 }
 
@@ -250,7 +255,7 @@ qint64 CNetworkConnection::writeToNetwork(qint64 nBytes)
 		return nBytesWritten;
 	}
 
-	m_pOutput->remove(0, nBytesWritten);
+	m_pOutput->remove(nBytesWritten);
 	m_mOutput.Add(nBytesWritten);
 
 	return nBytesWritten;
@@ -261,7 +266,7 @@ qint64 CNetworkConnection::readData(char* data, qint64 maxlen)
 
 	int nBytesRead = qMin<qint64>(maxlen, m_pInput->size());
 	memcpy(data, m_pInput->data(), nBytesRead);
-	m_pInput->remove(0, nBytesRead);
+	m_pInput->remove(nBytesRead);
 
 	if(m_pSocket->state() != QTcpSocket::ConnectedState)
 	{
@@ -346,7 +351,9 @@ QByteArray CNetworkConnection::peek(qint64 nMaxLength)
 {
 	CBuffer* pBuffer = getInputBuffer();
 
-	return QByteArray::fromRawData(pBuffer->data(), qMin<qint64>(nMaxLength > 0 ? nMaxLength : pBuffer->size(), pBuffer->size()));
+	return QByteArray::fromRawData( pBuffer->data(),
+									qMin<qint64>( nMaxLength > 0 ? nMaxLength : pBuffer->size(),
+												  pBuffer->size() ) );
 }
 
 TCPBandwidthMeter::TCPBandwidthMeter()

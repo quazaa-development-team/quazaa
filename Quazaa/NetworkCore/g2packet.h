@@ -55,7 +55,8 @@ public:
 	quint32		m_nLength;
 	quint32		m_nPosition;
 	char		m_sType[9];
-	bool		m_bCompound; // true: packet contains child packet(s); false: otherwise. (CF bit)
+	bool		m_bCompound;  // true: packet contains child packet(s); false: otherwise.   (CF bit)
+	bool		m_bBigEndian; // true: numeric values in big endian format; false otherwise (BE bit)
 
 	enum { seekStart, seekEnd };
 
@@ -77,6 +78,11 @@ public:
 	bool	getTo(QUuid& pGUID);
 
 public:
+	/**
+	 * @brief readBuffer reads data from a given buffer and returns the corresponding G2 packet.
+	 * @param pBuffer : the buffer
+	 * @return ptr to new G2Packet; NULL if no G2 packet cound be read.
+	 */
 	static	G2Packet* readBuffer(CBuffer* pBuffer);
 	void	toBuffer(CBuffer* pBuffer) const;
 

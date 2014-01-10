@@ -163,14 +163,14 @@ void CG2Node::onConnectNode()
 void CG2Node::onRead()
 {
 
-	QMutexLocker l(&Neighbours.m_pSection);
+	Neighbours.m_pSection.lock();
 
 	//qDebug() << "CG2Node::OnRead";
-	if(m_nState == nsHandshaking)
+	if ( m_nState == nsHandshaking )
 	{
-		if(peek(bytesAvailable()).indexOf("\r\n\r\n") != -1)
+		if ( peek( bytesAvailable() ).indexOf("\r\n\r\n") != -1 )
 		{
-			if(m_bInitiated)
+			if ( m_bInitiated )
 			{
 				parseOutgoingHandshake();
 			}
@@ -180,35 +180,38 @@ void CG2Node::onRead()
 			}
 		}
 	}
-	else if(m_nState == nsConnected)
+	else if ( m_nState == nsConnected )
 	{
-
-		G2Packet* pPacket = 0;
+		G2Packet* pPacket = NULL;
 		try
 		{
-			while((pPacket = G2Packet::readBuffer(getInputBuffer())))
+			// read all packets from buffer, one after an other
+			while ( ( pPacket = G2Packet::readBuffer( getInputBuffer() ) ) )
 			{
-				m_tLastPacketIn = time(0);
-				m_nPacketsIn++;
+				m_tLastPacketIn = time( 0 );
+				++m_nPacketsIn;
 
-				onPacket(pPacket);
+				onPacket( pPacket );
 
 				pPacket->release();
 			}
 		}
-		catch(...)
+		catch ( ... )
 		{
-			if(pPacket)
+			if ( pPacket )
 			{
-				systemLog.postLog(LogSeverity::Debug, Components::G2, QString("%1").arg(pPacket->dump()));
+				systemLog.postLog( LogSeverity::Debug, Components::G2,
+								   QString( "%1" ).arg( pPacket->dump() ) );
 				pPacket->release();
 			}
 
-			systemLog.postLog(LogSeverity::Debug, Components::G2, QString("Packet error - %1").arg(m_oAddress.toString()));
+			systemLog.postLog( LogSeverity::Debug, Components::G2,
+							   QString( "Packet error - %1" ).arg( m_oAddress.toString() ) );
 			close();
 		}
 	}
 
+	Neighbours.m_pSection.unlock();
 }
 
 void CG2Node::onTimer(quint32 tNow)
@@ -775,57 +778,58 @@ void CG2Node::onPacket(G2Packet* pPacket)
 
 	//try
 	//{
-	if(!Network.routePacket(pPacket))
+	if ( !Network.routePacket( pPacket ) )
 	{
 
-		if(pPacket->isType("PI"))
+		if ( pPacket->isType( "PI" ) )
 		{
-			onPing(pPacket);
+			onPing( pPacket );
 		}
-		else if(pPacket->isType("PO"))
+		else if ( pPacket->isType( "PO" ) )
 		{
-			onPong(pPacket);
+			onPong( pPacket );
 		}
-		else if(pPacket->isType("LNI"))
+		else if ( pPacket->isType( "LNI" ) )
 		{
-			onLNI(pPacket);
+			onLNI( pPacket );
 		}
-		else if(pPacket->isType("KHL"))
+		else if ( pPacket->isType( "KHL" ) )
 		{
-			onKHL(pPacket);
+			onKHL( pPacket );
 		}
-		else if(pPacket->isType("QHT"))
+		else if ( pPacket->isType( "QHT" ) )
 		{
-			onQHT(pPacket);
+			onQHT( pPacket );
 		}
-		else if(pPacket->isType("Q2"))
+		else if ( pPacket->isType( "Q2" ) )
 		{
-			onQuery(pPacket);
+			onQuery( pPacket );
 		}
-		else if(pPacket->isType("QKR"))
+		else if ( pPacket->isType( "QKR" ) )
 		{
-			onQKR(pPacket);
+			onQKR(pPacket );
 		}
-		else if(pPacket->isType("QKA"))
+		else if ( pPacket->isType( "QKA" ) )
 		{
-			onQKA(pPacket);
+			onQKA( pPacket );
 		}
-		else if(pPacket->isType("QA"))
+		else if ( pPacket->isType( "QA" ) )
 		{
-			onQA(pPacket);
+			onQA( pPacket );
 		}
-		else if(pPacket->isType("QH2"))
+		else if ( pPacket->isType( "QH2" ) )
 		{
-			onQH2(pPacket);
+			onQH2( pPacket );
 		}
-		else if(pPacket->isType("HAW"))
+		else if ( pPacket->isType( "HAW" ) )
 		{
-			onHaw(pPacket);
+			onHaw( pPacket );
 		}
 		else
 		{
-			systemLog.postLog(LogSeverity::Debug, Components::G2, QString("G2 TCP recieved unknown packet %1").arg(pPacket->getType()));
-			//qDebug() << "Unknown packet " << pPacket->GetType();
+			systemLog.postLog( LogSeverity::Debug, Components::G2,
+							   QString( "G2 TCP recieved unknown packet %1"
+										).arg( pPacket->getType() ) );
 		}
 	}
 	/*}

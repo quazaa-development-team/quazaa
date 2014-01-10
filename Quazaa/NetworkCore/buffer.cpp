@@ -114,7 +114,7 @@ CBuffer& CBuffer::insert(const quint32 i, const char* pStr)
 	return insert(i, pStr, qstrlen(pStr));
 }
 
-CBuffer& CBuffer::remove(const quint32 nPos, const quint32 nLength)
+CBuffer& CBuffer::remove(const quint32 nLength, const quint32 nPos)
 {
 	if(nPos == 0 && nLength >= m_nLength)
 	{
@@ -131,11 +131,6 @@ CBuffer& CBuffer::remove(const quint32 nPos, const quint32 nLength)
 	}
 
 	return *this;
-}
-
-CBuffer& CBuffer::remove(const quint32 nLength)
-{
-	return remove(0, nLength);
 }
 
 void CBuffer::ensure(const quint32 nLength)
