@@ -31,8 +31,7 @@ class QString;
 
 namespace Parser
 {
-	QString getHeaderValue(QString& headers, QString headerName);
-
-};
+	QString getHeaderValue(const QString& headers, const QString headerName);
+}
 
 //#endif // PARSER_H
