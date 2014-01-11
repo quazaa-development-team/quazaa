@@ -263,6 +263,7 @@ HEADERS += \
 		Metalink/metalink4handler.h \
 		Misc/debugrwlock.h \
 		Misc/fileiconprovider.h \
+		Misc/idprovider.h \
 		Misc/networkiconprovider.h \
 		Misc/timedsignalqueue.h \
 		Misc/timeoutreadlocker.h \

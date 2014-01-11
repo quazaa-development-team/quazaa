@@ -106,6 +106,7 @@ HEADERS += unittestshostcache.h \
 		   $$Q_DIR/HostCache/g2hostcachehost.h \
 		   $$Q_DIR/HostCache/hostcachehost.h \
 		   $$Q_DIR/HostCache/hostcache.h \
+		   $$Q_DIR/Misc/idprovider.h \
 		   $$Q_DIR/Misc/timedsignalqueue.h \
 		   $$Q_DIR/NetworkCore/buffer.h \
 		   $$Q_DIR/NetworkCore/endpoint.h \

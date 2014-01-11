@@ -30,8 +30,6 @@
 #include "types.h"
 #include "routetable.h"
 
-// TODO: rename external variables
-
 // Note: quazaaglobals.h contains preprocessor defines for debug output.
 #include "quazaaglobals.h"
 
