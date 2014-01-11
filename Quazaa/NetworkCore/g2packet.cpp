@@ -147,7 +147,7 @@ G2Packet* G2Packet::newPacket(char* pSource)
 
 	if ( pPacket->m_bBigEndian )
 	{
-		throw std::logic_error("New G2 packet is big endian.");
+		throw std::logic_error( "New G2 packet is big endian." );
 	}
 	else
 	{

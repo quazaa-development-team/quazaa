@@ -185,17 +185,23 @@ bool CNetwork::isFirewalled()
 	return Datagrams.isFirewalled() || Handshakes.isFirewalled();
 }
 
-void CNetwork::acquireLocalAddress(QString& sHeader)
+bool CNetwork::acquireLocalAddress(const QString& sHeader)
 {
-	CEndPoint hostAddr(sHeader, m_oAddress.port());
+	CEndPoint hostAddr( sHeader, m_oAddress.port() );
 
-	if(hostAddr.isValid())
+	if ( hostAddr.isValid() )
 	{
-		if( hostAddr != m_oAddress )
+		if ( hostAddr != m_oAddress )
 		{
 			m_oAddress = hostAddr;
 			emit localAddressChanged();
 		}
+
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 

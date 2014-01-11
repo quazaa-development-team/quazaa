@@ -28,7 +28,7 @@
 
 #include "debug_new.h"
 
-QString Parser::getHeaderValue(const QString& headers, const QString headerName)
+QString Parser::getHeaderValue(const QString& headers, QString headerName)
 {
 	qint32 nStart;
 	qint32 nEnd;

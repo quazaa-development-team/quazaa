@@ -66,7 +66,7 @@ public:
 	CBuffer* m_pInput;
 	CBuffer* m_pOutput;
 
-	bool    m_bInitiated;
+	bool    m_bInitiated; // true if we initiated the connection; false otherwise
 	bool    m_bConnected;
 	qint32  m_tConnected;
 

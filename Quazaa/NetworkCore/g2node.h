@@ -34,6 +34,9 @@ class G2Packet;
 class CQueryHashTable;
 class CHubHorizonGroup;
 
+/**
+ * @brief The CG2Node class represents a G2 node connected to us.
+ */
 class CG2Node : public CNeighbour
 {
 	Q_OBJECT
@@ -65,6 +68,9 @@ public:
 
 	QHash<quint32, quint32> m_lRABan;       // list of banned return addresses
 
+private:
+	bool m_bHandshaking;
+
 public:
 	CG2Node(QObject* parent = NULL);
 	virtual ~CG2Node();
@@ -79,11 +85,38 @@ public:
 	inline void attachTo(CNetworkConnection* pOther);
 
 protected:
+	/**
+	 * @brief initiateHandshake writes the initial G2 handshake message and sends it to the node.
+	 * In this case we are the connection initiator. This handles handshake part #1.
+	 */
+	void initiateHandshake();
+
+	/**
+	 * @brief parseIncomingHandshake parses an initial G2 handshake message from the Node.
+	 * In this case, the other node is the connection initiator. This handles handshake part #1.
+	 */
 	void parseIncomingHandshake();
-	void parseOutgoingHandshake();
+
+	/**
+	 * @brief parseHandshakeResponse parses the reply message to a handshake initiated by us.
+	 * In this case we are the connection initiator. This handles handshake part #2.
+	 */
+	void parseHandshakeResponse();
+
+	/**
+	 * @brief parseHandShakeAccept parses the third handshake message.
+	 * In this case, the other node is the connection initiator. This handles handshake part #3.
+	 */
+	void parseHandShakeAccept();
+
+	/**
+	 * @brief readUserAgentSecurity reads and checks the user agent information from the Handshake
+	 * @return true if the connection has been terminated; false otherwise
+	 */
+	bool readUserAgentSecurity(const QString& sHandShake);
 
 	void send_ConnectError(QString sReason);
-	void send_ConnectOK(bool bReply, bool bDeflated = false);
+	void send_ConnectOK(bool bHandshakeStep2, bool bDeflated = false);
 	void sendStartups();
 
 	void onPacket(G2Packet* pPacket);

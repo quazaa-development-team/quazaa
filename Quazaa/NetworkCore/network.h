@@ -65,7 +65,13 @@ public:
 	void start();
 	void stop();
 
-	void acquireLocalAddress(QString& sHeader);
+	/**
+	 * @brief acquireLocalAddress tries to set our own IP to the IP in sHeader.
+	 * @param sHeader : String representation of the IP without port
+	 * @return true if IP could be parsed; false otherwise
+	 */
+	bool acquireLocalAddress(const QString& sHeader);
+
 	bool isListening();
 	bool isFirewalled();
 
