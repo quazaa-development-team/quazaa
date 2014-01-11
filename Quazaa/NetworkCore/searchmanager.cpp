@@ -343,7 +343,7 @@ bool CSearchManager::onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSen
 		{
 			CEndPoint oBan = oSender;
 
-			if ( Network.isFirewalled() && !lDoneHubs.isEmpty() )
+			if ( networkG2.isFirewalled() && !lDoneHubs.isEmpty() )
 			{
 				oBan = lDoneHubs[0]; // 1st done hub, Shareaza does not include /FR child packet
 			}

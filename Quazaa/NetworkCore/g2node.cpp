@@ -66,7 +66,7 @@ CG2Node::CG2Node(QObject* parent) :
 
 CG2Node::~CG2Node()
 {
-	Network.m_oRoutingTable.remove(this);
+	networkG2.m_oRoutingTable.remove(this);
 
 	while(m_lSendQueue.size())
 	{
@@ -118,13 +118,13 @@ void CG2Node::sendPacket(G2Packet* pPacket, bool bBuffered, bool bRelease)
 void CG2Node::sendLNI()
 {
 	G2Packet* pLNI = G2Packet::newPacket("LNI", true);
-	if(Network.m_oAddress.protocol() == 0)
+	if(networkG2.m_oAddress.protocol() == 0)
 	{
-		pLNI->writePacket("NA", 6)->writeHostAddress(Network.m_oAddress);
+		pLNI->writePacket("NA", 6)->writeHostAddress(networkG2.m_oAddress);
 	}
 	else
 	{
-		pLNI->writePacket("NA", 18)->writeHostAddress(Network.m_oAddress);
+		pLNI->writePacket("NA", 18)->writeHostAddress(networkG2.m_oAddress);
 	}
 	pLNI->writePacket("GU", 16)->writeGUID(quazaaSettings.Profile.GUID);
 	pLNI->writePacket("V", 4)->writeString(CQuazaaGlobals::VENDOR_CODE(), false);
@@ -148,8 +148,8 @@ void CG2Node::sendHAW()
 {
 	G2Packet* pPacket = G2Packet::newPacket("HAW");
 
-	pPacket->writePacket("NA", Network.m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 6 : 18);
-	pPacket->writeHostAddress(Network.m_oAddress);
+	pPacket->writePacket("NA", networkG2.m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 6 : 18);
+	pPacket->writeHostAddress(networkG2.m_oAddress);
 
 	pPacket->writePacket("V", 4);
 	pPacket->writeString(CQuazaaGlobals::VENDOR_CODE());
@@ -264,7 +264,7 @@ void CG2Node::initiateHandshake()
 	QByteArray sHandshake;
 
 	sHandshake += "GNUTELLA CONNECT/0.6\r\n";
-	sHandshake += "Listen-IP: " + Network.getLocalAddress().toStringWithPort() + "\r\n";
+	sHandshake += "Listen-IP: " + networkG2.getLocalAddress().toStringWithPort() + "\r\n";
 	sHandshake += "Remote-IP: " + m_oAddress.toString() + "\r\n";
 	sHandshake += "User-Agent: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
 	sHandshake += "Accept: application/x-gnutella2\r\n";
@@ -345,7 +345,7 @@ void CG2Node::parseIncomingHandshake()
 
 	{   // read and use remote IP information
 		const QString sRemoteIP = Parser::getHeaderValue( sHs, "Remote-IP" );
-		if ( !Network.acquireLocalAddress( sRemoteIP ) )
+		if ( !networkG2.acquireLocalAddress( sRemoteIP ) )
 		{
 			send_ConnectError( "503 Remote-IP header missing" );
 			return;
@@ -449,7 +449,7 @@ void CG2Node::parseHandshakeResponse()
 
 	{   // read and use remote IP information
 		const QString sRemoteIP = Parser::getHeaderValue( sHandshake, "Remote-IP" );
-		if ( !Network.acquireLocalAddress( sRemoteIP ) )
+		if ( !networkG2.acquireLocalAddress( sRemoteIP ) )
 		{
 			send_ConnectError( "503 Remote-IP header missing" );
 			return;
@@ -694,7 +694,7 @@ void CG2Node::send_ConnectOK(bool bHandshakeStep2, bool bDeflate)
 	if ( bHandshakeStep2 )
 	{
 		// only for handshake step #2
-		sHandshake += "Listen-IP: " + Network.getLocalAddress().toStringWithPort() + "\r\n";
+		sHandshake += "Listen-IP: " + networkG2.getLocalAddress().toStringWithPort() + "\r\n";
 		sHandshake += "Remote-IP: " + m_oAddress.toString() + "\r\n";
 		sHandshake += "Accept: application/x-gnutella2\r\n";
 		sHandshake += "X-Hub-Needed: False\r\n";
@@ -725,9 +725,9 @@ void CG2Node::send_ConnectOK(bool bHandshakeStep2, bool bDeflate)
 
 void CG2Node::sendStartups()
 {
-	if ( Network.isListening() )
+	if ( networkG2.isListening() )
 	{
-		CEndPoint addr = Network.getLocalAddress();
+		CEndPoint addr = networkG2.getLocalAddress();
 		G2Packet* pPacket = G2Packet::newPacket( "PI", true );
 		pPacket->writePacket( "UDP", 6 );
 		pPacket->writeHostAddress( addr );
@@ -744,7 +744,7 @@ void CG2Node::onPacket(G2Packet* pPacket)
 
 	//try
 	//{
-	if ( !Network.routePacket( pPacket ) )
+	if ( !networkG2.routePacket( pPacket ) )
 	{
 
 		if ( pPacket->isType( "PI" ) )
@@ -982,8 +982,8 @@ void CG2Node::onLNI(G2Packet* pPacket)
 
 	if(hasNA && hasGUID)
 	{
-		QMutexLocker l(&Network.m_pSection);
-		Network.m_oRoutingTable.add(pGUID, this, true);
+		QMutexLocker l(&networkG2.m_pSection);
+		networkG2.m_oRoutingTable.add(pGUID, this, true);
 	}
 
 }
@@ -1057,9 +1057,9 @@ void CG2Node::onKHL(G2Packet* pPacket)
 
 				if(!pGUID.isNull())
 				{
-					QMutexLocker l(&Network.m_pSection);
+					QMutexLocker l(&networkG2.m_pSection);
 
-					Network.m_oRoutingTable.add(pGUID, this, &pAddr, false);
+					networkG2.m_oRoutingTable.add(pGUID, this, &pAddr, false);
 				}
 			}
 		}
@@ -1245,7 +1245,7 @@ void CG2Node::onQKR(G2Packet* pPacket)
 //	qint64 tHCWork = tHostCacheWork.elapsed();
 //#endif
 
-	if ( pHost && pHost->queryKey() && pHost->keyHost() == Network.m_oAddress &&
+	if ( pHost && pHost->queryKey() && pHost->keyHost() == networkG2.m_oAddress &&
 		 tNow - pHost->keyTime() < quazaaSettings.Gnutella2.QueryKeyTime )
 	{
 		G2Packet* pQKA = G2Packet::newPacket( "QKA", true );
@@ -1273,13 +1273,13 @@ void CG2Node::onQKR(G2Packet* pPacket)
 			pQKR->writePacket( "SNA", 18 )->writeHostAddress( m_oAddress );
 		}
 
-		if ( Network.m_oAddress.protocol() == 0 )
+		if ( networkG2.m_oAddress.protocol() == 0 )
 		{
-			pQKR->writePacket( "RNA", 6 )->writeHostAddress( Network.m_oAddress );
+			pQKR->writePacket( "RNA", 6 )->writeHostAddress( networkG2.m_oAddress );
 		}
 		else
 		{
-			pQKR->writePacket( "RNA", 18 )->writeHostAddress( Network.m_oAddress );
+			pQKR->writePacket( "RNA", 18 )->writeHostAddress( networkG2.m_oAddress );
 		}
 
 		Datagrams.sendPacket( addr, pQKR, false );
@@ -1388,16 +1388,16 @@ void CG2Node::onQH2(G2Packet* pPacket)
 	} else {
 		if(SearchManager.onQueryHit(pPacket, pInfo))
 		{
-			Network.m_pSection.lock();
+			networkG2.m_pSection.lock();
 
 			if(Neighbours.isG2Hub() && pInfo->m_nHops < 7)
 			{
-				Network.m_oRoutingTable.add(pInfo->m_oNodeGUID, this, false);
+				networkG2.m_oRoutingTable.add(pInfo->m_oNodeGUID, this, false);
 				pPacket->m_pBuffer[pPacket->m_nLength - 17]++;
-				Network.routePacket(pInfo->m_oGUID, pPacket);
+				networkG2.routePacket(pInfo->m_oGUID, pPacket);
 			}
 
-			Network.m_pSection.unlock();
+			networkG2.m_pSection.unlock();
 
 			delete pInfo;
 		}
@@ -1521,7 +1521,7 @@ void CG2Node::onQuery(G2Packet* pPacket)
 		qDebug() << "Banning return address" << oReturnAddr.toString() << "on hub " << m_oAddress.toString() << " num banned: " << m_lRABan.size();
 	}*/
 
-	if(Network.m_oRoutingTable.add(pQuery->m_oGUID, this, false))
+	if(networkG2.m_oRoutingTable.add(pQuery->m_oGUID, this, false))
 	{
 		if( m_nType == G2_LEAF )
 		{

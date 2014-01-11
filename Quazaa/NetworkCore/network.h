@@ -100,6 +100,6 @@ signals:
 	void localAddressChanged();
 };
 
-extern CNetwork Network;
-extern CThread NetworkThread;
+extern CNetwork networkG2;
+extern CThread networkThread;
 #endif // NETWORK_H

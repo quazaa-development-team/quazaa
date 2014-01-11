@@ -88,7 +88,7 @@ void CChatSessionG2::onConnectNode()
 	baHs = "CHAT CONNECT/0.2\r\n";
 	baHs+= "Accept: application/x-gnutella2\r\n";
 		baHs+= "User-Agent: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
-	baHs+= "Listen-IP: " + Network.getLocalAddress().toStringWithPort() + "\r\n\r\n";
+	baHs+= "Listen-IP: " + networkG2.getLocalAddress().toStringWithPort() + "\r\n\r\n";
 
 	write(baHs);
 
@@ -193,7 +193,7 @@ void CChatSessionG2::send_ChatOK(bool bReply)
 		// 2nd header
 		sHs+= "Accept: application/x-gnutella2\r\n";
 				sHs+= "User-Agent: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
-		sHs+= "Listen-IP: " + Network.getLocalAddress().toStringWithPort() + "\r\n";
+		sHs+= "Listen-IP: " + networkG2.getLocalAddress().toStringWithPort() + "\r\n";
 	}
 	sHs+= "Content-Type: application/x-gnutella2\r\n\r\n";
 

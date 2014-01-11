@@ -200,8 +200,8 @@ void CManagedSearch::searchNeighbours(const QDateTime& tNowDT)
 			 ( tNow - pNode->m_tLastQuery > quazaaSettings.Gnutella2.QueryHostThrottle &&
 			   !m_lSearchedNodes.contains( pNode->m_oAddress ) ) )
 		{
-			G2Packet* pQuery = m_pQuery->toG2Packet( Network.isFirewalled() ?
-														 NULL : &Network.m_oAddress );
+			G2Packet* pQuery = m_pQuery->toG2Packet( networkG2.isFirewalled() ?
+														 NULL : &networkG2.m_oAddress );
 			if ( pQuery )
 			{
 				m_lSearchedNodes[pNode->m_oAddress] = tNowDT;
@@ -299,11 +299,11 @@ void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 				pHost->setQueryKey( 0 );
 				bRefreshKey = true;
 			}
-			else if ( !Network.isFirewalled() )
+			else if ( !networkG2.isFirewalled() )
 			{
-				if ( pHost->keyHost() == Network.m_oAddress )
+				if ( pHost->keyHost() == networkG2.m_oAddress )
 				{
-					pReceiver = Network.m_oAddress;
+					pReceiver = networkG2.m_oAddress;
 				}
 				else
 				{
@@ -345,7 +345,7 @@ void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 
 			bool bKeyRequested = false;
 
-			if ( !Network.isFirewalled() )
+			if ( !networkG2.isFirewalled() )
 			{
 				// request a key for our address
 				requestG2QueryKey( pHost );
@@ -484,8 +484,8 @@ void CManagedSearch::requestG2QueryKey(SharedG2HostPtr pHost)
 {
 	// request a key for our address
 	G2Packet* pQKR = G2Packet::newPacket( "QKR", false );
-	pQKR->writePacket( "RNA", (Network.m_oAddress.protocol() ? 18 : 6)
-					   )->writeHostAddress( Network.m_oAddress );
+	pQKR->writePacket( "RNA", (networkG2.m_oAddress.protocol() ? 18 : 6)
+					   )->writeHostAddress( networkG2.m_oAddress );
 	Datagrams.sendPacket( pHost->address(), pQKR, false );
 	pQKR->release();
 

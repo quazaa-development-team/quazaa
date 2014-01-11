@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
 	{
 		if ( quazaaSettings.Gnutella2.Enable )
 		{
-			Network.start();
+			networkG2.start();
 		}
 	}
 

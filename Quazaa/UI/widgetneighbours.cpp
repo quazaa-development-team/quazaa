@@ -134,12 +134,12 @@ void CWidgetNeighbours::updateG2()
 		nTCPInSpeed = Neighbours.downloadSpeed();
 		nTCPOutSpeed = Neighbours.uploadSpeed();
 
-		if(Network.m_pSection.tryLock(50))
+		if(networkG2.m_pSection.tryLock(50))
 		{
 			nUDPInSpeed = Datagrams.downloadSpeed();
 			nUDPOutSpeed = Datagrams.uploadSpeed();
 
-			Network.m_pSection.unlock();
+			networkG2.m_pSection.unlock();
 		}
 
 		Neighbours.m_pSection.unlock();

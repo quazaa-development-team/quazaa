@@ -107,7 +107,7 @@ void CDatagrams::listen()
 
 	m_pSocket = new QUdpSocket(this);
 
-	CEndPoint addr = Network.getLocalAddress();
+	CEndPoint addr = networkG2.getLocalAddress();
 	if(m_pSocket->bind(addr.port()))
 	{
 		systemLog.postLog(LogSeverity::Debug, Components::Network, QString("Datagrams listening on %1").arg(m_pSocket->localPort()));
@@ -713,7 +713,7 @@ void CDatagrams::onPong(CEndPoint& addr, G2Packet* pPacket)
 
 			if(strcmp("RELAY", szType) == 0)
 			{
-				if(!Network.isConnectedTo(addr))
+				if(!networkG2.isConnectedTo(addr))
 				{
 					m_bFirewalled = false;
 				}
@@ -776,7 +776,7 @@ void CDatagrams::onCRAWLR(CEndPoint& addr, G2Packet* pPacket)
 	{
 		pTmp->writePacket("LEAF", 0);
 	}
-	pTmp->writePacket("NA", ((Network.m_oAddress.protocol() == 0) ? 6 : 18))->writeHostAddress(Network.m_oAddress);
+	pTmp->writePacket("NA", ((networkG2.m_oAddress.protocol() == 0) ? 6 : 18))->writeHostAddress(networkG2.m_oAddress);
 	pTmp->writePacket("CV", CQuazaaGlobals::USER_AGENT_STRING().toUtf8().size())->writeString(CQuazaaGlobals::USER_AGENT_STRING(), false);
 	pTmp->writePacket("V", 4)->writeString(CQuazaaGlobals::VENDOR_CODE(), false);;
 	quint16 nLeaves = Neighbours.m_nLeavesConnectedG2;
@@ -940,7 +940,7 @@ void CDatagrams::onQKA(CEndPoint& addr, G2Packet* pPacket)
 	//qDebug("Got a query key for %s = 0x%x", addr.toString().toLocal8Bit().constData(), nKey);
 #endif // LOG_QUERY_HANDLING
 
-	if(Neighbours.isG2Hub() && !nKeyHost.isNull() && nKeyHost != ((QHostAddress)Network.m_oAddress))
+	if(Neighbours.isG2Hub() && !nKeyHost.isNull() && nKeyHost != ((QHostAddress)networkG2.m_oAddress))
 	{
 		G2Packet* pQNA = G2Packet::newPacket("QNA");
 		pQNA->writeHostAddress(addr);
@@ -972,9 +972,9 @@ void CDatagrams::onQA(CEndPoint& addr, G2Packet* pPacket)
 		pFR->writeHostAddress( addr );
 		pPacket->addOrReplaceChild( "FR", pFR );
 
-		Network.m_pSection.lock();
-		Network.routePacket( oGuid, pPacket, true, false );
-		Network.m_pSection.unlock();
+		networkG2.m_pSection.lock();
+		networkG2.routePacket( oGuid, pPacket, true, false );
+		networkG2.m_pSection.unlock();
 	}
 }
 
@@ -1006,23 +1006,23 @@ void CDatagrams::onQH2(CEndPoint& addr, G2Packet* pPacket)
 			{
 				pPacket->m_pBuffer[pPacket->m_nLength - 17]++;
 
-				Network.m_pSection.lock();
+				networkG2.m_pSection.lock();
 
 				if(pInfo->m_oNodeAddress == pInfo->m_oSenderAddress)
 				{
 					// hits node address matches sender address
-					Network.m_oRoutingTable.add(pInfo->m_oNodeGUID, pInfo->m_oSenderAddress);
+					networkG2.m_oRoutingTable.add(pInfo->m_oNodeGUID, pInfo->m_oSenderAddress);
 				}
 				else if(!pInfo->m_lNeighbouringHubs.isEmpty())
 				{
 					// hits address does not match sender address (probably forwarded by a hub)
 					// and there are neighbouring hubs available, use them instead (sender address can be used instead...)
-					Network.m_oRoutingTable.add(pInfo->m_oNodeGUID, pInfo->m_lNeighbouringHubs[0], false);
+					networkG2.m_oRoutingTable.add(pInfo->m_oNodeGUID, pInfo->m_lNeighbouringHubs[0], false);
 				}
 
-				Network.routePacket(pInfo->m_oGUID, pPacket, true);
+				networkG2.routePacket(pInfo->m_oGUID, pPacket, true);
 
-				Network.m_pSection.unlock();
+				networkG2.m_pSection.unlock();
 			}
 		}
 	}
@@ -1083,7 +1083,7 @@ void CDatagrams::onQuery(CEndPoint &addr, G2Packet *pPacket)
 		return;
 	}
 
-	if( !Network.m_oRoutingTable.add(pQuery->m_oGUID, pQuery->m_oEndpoint) )
+	if( !networkG2.m_oRoutingTable.add(pQuery->m_oGUID, pQuery->m_oEndpoint) )
 	{
 #if LOG_QUERY_HANDLING
 		qDebug() << "Query already processed, ignoring";
@@ -1099,7 +1099,7 @@ void CDatagrams::onQuery(CEndPoint &addr, G2Packet *pPacket)
 #endif // LOG_QUERY_HANDLING
 
 	// just in case
-	if( pQuery->m_oEndpoint == Network.m_oAddress )
+	if( pQuery->m_oEndpoint == networkG2.m_oAddress )
 	{
 		systemLog.postLog( LogSeverity::Error, Components::Network,
 						   "Q2 received via UDP and return address points to us, changing return address to source %s",

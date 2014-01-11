@@ -236,7 +236,7 @@ CWinMain::CWinMain(QWidget* parent) :
 	interfaceLoaded = true;
 
 	connect(&ChatCore, SIGNAL(openChatWindow(CChatSession*)), this, SLOT(OpenChat(CChatSession*)));
-	connect(&Network, SIGNAL(localAddressChanged()), this, SLOT(localAddressChanged()));
+	connect(&networkG2, SIGNAL(localAddressChanged()), this, SLOT(localAddressChanged()));
 	connect(&ShareManager, SIGNAL(hasherStarted(int)), this, SLOT(onHasherStarted(int)));
 	setSkin();
 }
@@ -436,7 +436,7 @@ void CWinMain::quazaaShutdown()
 	neighboursRefresher->stop();
 	delete neighboursRefresher;
 	neighboursRefresher = 0;
-	Network.stop();
+	networkG2.stop();
 	ShareManager.stop();
 
 	dlgSplash->updateProgress(65, tr("Saving Security Manager..."));
@@ -756,14 +756,14 @@ void CWinMain::on_actionConnect_triggered()
 {
 	ui->actionConnect->setEnabled(false);
 	ui->actionDisconnect->setEnabled(true);
-	Network.start();
+	networkG2.start();
 }
 
 void CWinMain::on_actionDisconnect_triggered()
 {
 	ui->actionConnect->setEnabled(true);
 	ui->actionDisconnect->setEnabled(false);
-	Network.stop();
+	networkG2.stop();
 }
 
 void CWinMain::on_actionEDonkey_triggered(bool checked)
@@ -795,7 +795,7 @@ void CWinMain::updateStatusBar()
 	quint16 nUDPInSpeed = 0;
 	quint16 nUDPOutSpeed = 0;
 
-	if(!Network.m_bActive)
+	if(!networkG2.m_bActive)
 	{
 		return;
 	}
@@ -908,9 +908,9 @@ void CWinMain::on_actionChatWith_triggered()
 }
 void CWinMain::localAddressChanged()
 {
-	Network.m_pSection.lock();
-	labelCurrentIPAddress->setText(Network.getLocalAddress().toStringWithPort());
-	Network.m_pSection.unlock();
+	networkG2.m_pSection.lock();
+	labelCurrentIPAddress->setText(networkG2.getLocalAddress().toStringWithPort());
+	networkG2.m_pSection.unlock();
 }
 
 void CWinMain::onCopyIP()

@@ -196,7 +196,7 @@ void CNeighboursG2::maintain()
 		}
 	}
 
-	if ( isG2Hub() && Network.getLocalAddress().isValid()
+	if ( isG2Hub() && networkG2.getLocalAddress().isValid()
 		 && !discoveryManager.isActive( Discovery::ServiceType::GWC )
 		 && m_nUpdateWait-- == 0 )
 	{
@@ -363,7 +363,7 @@ void CNeighboursG2::hubBalancing()
 		// we're a leaf
 		// TODO: Check capabilities
 
-		if( Network.isFirewalled() )
+		if( networkG2.isFirewalled() )
 			return;
 
 		quint32 nLeaves = 0, nCapacity = 0;
@@ -444,13 +444,13 @@ G2Packet* CNeighboursG2::createQueryAck(QUuid oGUID, bool bWithHubs, CNeighbour*
 	G2Packet* pPacket = G2Packet::newPacket("QA", true);
 
 	pPacket->writePacket("TS", 4)->writeIntLE<quint32>( common::getTNowUTC() );
-	pPacket->writePacket("FR", (Network.m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 6 : 18))->writeHostAddress(Network.m_oAddress);
+	pPacket->writePacket("FR", (networkG2.m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 6 : 18))->writeHostAddress(networkG2.m_oAddress);
 	pPacket->writePacket("RA", 4)->writeIntLE<quint32>(30 + 30 * m_nHubsConnectedG2);
 	pPacket->writePacket("V", 4)->writeString(CQuazaaGlobals::VENDOR_CODE(), false);
 
 	if(bDone)
 	{
-		pPacket->writePacket("D", (Network.m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 8 : 20))->writeHostAddress(Network.m_oAddress);
+		pPacket->writePacket("D", (networkG2.m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 8 : 20))->writeHostAddress(networkG2.m_oAddress);
 
 		if(bWithHubs)
 		{

@@ -58,7 +58,7 @@ void CNeighboursConnections::connectNode()
 	m_pController = new CRateController(&m_pSection);
 	m_pController->setDownloadLimit(quazaaSettings.Connection.InSpeed);
 	m_pController->setUploadLimit(quazaaSettings.Connection.OutSpeed);
-	m_pController->moveToThread(&NetworkThread);
+	m_pController->moveToThread(&networkThread);
 
 	m_nHubsConnectedG2 = m_nLeavesConnectedG2 = 0;
 
@@ -280,7 +280,7 @@ void CNeighboursConnections::maintain()
 				QString sCountry;
 				sCountry = bCountry ? ( quazaaSettings.Connection.PreferredCountries.size() ?
 										quazaaSettings.Connection.PreferredCountries.at(nCountry) :
-										geoIP.findCountryCode(Network.m_oAddress) ) : "ZZ";
+										geoIP.findCountryCode(networkG2.m_oAddress) ) : "ZZ";
 				pHost = hostCache.getConnectable( oExcept, sCountry );
 
 				if ( pHost )
@@ -429,7 +429,7 @@ CNeighbour* CNeighboursConnections::onAccept(CNetworkConnection* pConn)
 	CG2Node* pNew = new CG2Node();
 	pNew->attachTo( pConn );
 	addNode( pNew );
-	pNew->moveToThread( &NetworkThread );
+	pNew->moveToThread( &networkThread );
 
 	m_pSection.unlock();
 
@@ -453,7 +453,7 @@ CNeighbour* CNeighboursConnections::connectTo(CEndPoint oAddress, DiscoveryProto
 
 	pNode->m_bAutomatic = bAutomatic;
 	pNode->connectTo(oAddress);
-	pNode->moveToThread(&NetworkThread);
+	pNode->moveToThread(&networkThread);
 	addNode(pNode);
 	return pNode;
 }

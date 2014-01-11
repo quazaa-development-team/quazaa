@@ -42,8 +42,8 @@
 
 #include "debug_new.h"
 
-CNetwork Network;
-CThread NetworkThread;
+CNetwork networkG2;
+CThread networkThread;
 
 CNetwork::CNetwork(QObject* parent) :
 	QObject(parent)
@@ -84,11 +84,11 @@ void CNetwork::start()
 
 	connect(&ShareManager, SIGNAL(sharesReady()), this, SLOT(onSharesReady()), Qt::UniqueConnection);
 
-	NetworkThread.start("Network", &m_pSection, this);
+	networkThread.start("Network", &m_pSection, this);
 
-	Datagrams.moveToThread(&NetworkThread);
-	SearchManager.moveToThread(&NetworkThread);
-	Neighbours.moveToThread(&NetworkThread);
+	Datagrams.moveToThread(&networkThread);
+	SearchManager.moveToThread(&networkThread);
+	Neighbours.moveToThread(&networkThread);
 	Neighbours.connectNode();
 }
 
@@ -99,7 +99,7 @@ void CNetwork::stop()
 	if(m_bActive)
 	{
 		m_bActive = false;
-		NetworkThread.exit(0);
+		networkThread.exit(0);
 	}
 
 }

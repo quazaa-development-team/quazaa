@@ -661,17 +661,17 @@ void G2HostCache::localAddressChanged()
 	bool bRetry = true;
 
 	// this avoids possible deadlocks with Network.m_pSection
-	if ( Network.m_pSection.tryLock( 200 ) )
+	if ( networkG2.m_pSection.tryLock( 200 ) )
 	{
 		if ( m_pSection.tryLock( 200 ) )
 		{
 			bRetry          = false;
-			m_oLokalAddress = Network.getLocalAddress();
+			m_oLokalAddress = networkG2.getLocalAddress();
 
 			m_pSection.unlock();
 		}
 
-		Network.m_pSection.unlock();
+		networkG2.m_pSection.unlock();
 	}
 
 	if ( bRetry )
@@ -1355,7 +1355,7 @@ void G2HostCache::startUpInternal()
 	connect( &securityManager.m_oSanity, SIGNAL( beginSanityCheck() ), SLOT( sanityCheck() ) );
 
 #ifndef QUAZAA_SETUP_UNIT_TESTS
-	connect( &Network, SIGNAL( localAddressChanged() ), SLOT( localAddressChanged() ) );
+	connect( &networkG2, SIGNAL( localAddressChanged() ), SLOT( localAddressChanged() ) );
 #endif // QUAZAA_SETUP_UNIT_TESTS
 
 	localAddressChanged();
