@@ -96,7 +96,7 @@ bool CCompressedConnection::enableOutputCompression(bool bEnable)
 
 bool CCompressedConnection::setupInputStream()
 {
-	m_pZInput = new CBuffer(8192);
+	m_pZInput = new Buffer(8192);
 
 	if(m_pZInput == 0)
 	{
@@ -114,7 +114,7 @@ bool CCompressedConnection::setupInputStream()
 
 bool CCompressedConnection::setupOutputStream()
 {
-	m_pZOutput = new CBuffer(8192);
+	m_pZOutput = new Buffer(8192);
 	if(m_pZOutput == 0)
 	{
 		return false;

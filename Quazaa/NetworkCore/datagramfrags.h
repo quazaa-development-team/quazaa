@@ -27,7 +27,7 @@
 
 #include "types.h"
 
-class CBuffer;
+class Buffer;
 class G2Packet;
 
 class DatagramIn
@@ -43,7 +43,7 @@ protected:
 	quint32 m_nBuffer;
 	bool*   m_bLocked;
 
-	CBuffer** m_pBuffer;
+	Buffer** m_pBuffer;
 public:
 	DatagramIn();
 	~DatagramIn();
@@ -75,13 +75,13 @@ protected:
 
 	DatagramWatcher*    m_pWatcher;
 	void*               m_pParam;
-	CBuffer* m_pBuffer;
+	Buffer* m_pBuffer;
 
 public:
 	DatagramOut();
 	~DatagramOut();
 
-	void create(CEndPoint oAddr, G2Packet* pPacket, quint16 nSequence, CBuffer* pBuffer, bool bAck = false);
+	void create(CEndPoint oAddr, G2Packet* pPacket, quint16 nSequence, Buffer* pBuffer, bool bAck = false);
 	bool getPacket(quint32 tNow, char** ppPacket, quint32* pnPacket, bool bResend = false);
 	bool acknowledge(quint8 nPart);
 

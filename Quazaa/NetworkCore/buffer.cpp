@@ -29,7 +29,7 @@
 
 #include "debug_new.h"
 
-CBuffer::CBuffer(quint32 nMinimum) :
+Buffer::Buffer(quint32 nMinimum) :
 	m_pBuffer( NULL ),
 	m_nAllocatedSize( 0 ),
 	m_nMinimumAllocationSize( nMinimum ),
@@ -37,7 +37,7 @@ CBuffer::CBuffer(quint32 nMinimum) :
 {
 }
 
-CBuffer::~CBuffer()
+Buffer::~Buffer()
 {
 	if ( m_pBuffer )
 	{
@@ -45,7 +45,7 @@ CBuffer::~CBuffer()
 	}
 }
 
-CBuffer& CBuffer::append(const void* pData, const quint32 nLength)
+Buffer& Buffer::append(const void* pData, const quint32 nLength)
 {
 	if ( !pData || !nLength )
 	{
@@ -61,37 +61,37 @@ CBuffer& CBuffer::append(const void* pData, const quint32 nLength)
 	return *this;
 }
 
-CBuffer& CBuffer::append(const char* pCStr)
+Buffer& Buffer::append(const char* pCStr)
 {
 	return append( pCStr, qstrlen( pCStr ) );
 }
 
-CBuffer& CBuffer::append(const QByteArray& baData)
+Buffer& Buffer::append(const QByteArray& baData)
 {
 	return append( baData.data(), baData.size() );
 }
 
-CBuffer& CBuffer::append(const CBuffer& pOther)
+Buffer& Buffer::append(const Buffer& pOther)
 {
 	return append( pOther.data(), pOther.size() );
 }
 
-CBuffer &CBuffer::append(const CBuffer* pOther)
+Buffer &Buffer::append(const Buffer* pOther)
 {
 	return append( pOther->data(), pOther->size() );
 }
 
-CBuffer& CBuffer::prepend(const void* pData, const quint32 nLength)
+Buffer& Buffer::prepend(const void* pData, const quint32 nLength)
 {
 	return insert( 0, pData, nLength );
 }
 
-CBuffer& CBuffer::prepend(const char* pCStr)
+Buffer& Buffer::prepend(const char* pCStr)
 {
 	return insert( 0, pCStr, qstrlen( pCStr ) );
 }
 
-CBuffer& CBuffer::insert(const quint32 nOffset, const void* pData, const quint32 nLength)
+Buffer& Buffer::insert(const quint32 nOffset, const void* pData, const quint32 nLength)
 {
 	if ( !pData )
 	{
@@ -109,12 +109,12 @@ CBuffer& CBuffer::insert(const quint32 nOffset, const void* pData, const quint32
 	return *this;
 }
 
-CBuffer& CBuffer::insert(const quint32 nOffset, const char* pCStr)
+Buffer& Buffer::insert(const quint32 nOffset, const char* pCStr)
 {
 	return insert( nOffset, pCStr, qstrlen( pCStr ) );
 }
 
-CBuffer& CBuffer::remove(const quint32 nLength, const quint32 nPos)
+Buffer& Buffer::remove(const quint32 nLength, const quint32 nPos)
 {
 	if ( !nPos && nLength >= m_nCurrentSize )
 	{
@@ -133,7 +133,7 @@ CBuffer& CBuffer::remove(const quint32 nLength, const quint32 nPos)
 	return *this;
 }
 
-void CBuffer::ensure(const quint32 nLength)
+void Buffer::ensure(const quint32 nLength)
 {
 	if ( nLength > 0xffffffff - m_nAllocatedSize )
 	{
@@ -187,7 +187,7 @@ void CBuffer::ensure(const quint32 nLength)
 	}
 }
 
-void CBuffer::resize(const quint32 nLength)
+void Buffer::resize(const quint32 nLength)
 {
 	if ( nLength > m_nAllocatedSize )
 	{
@@ -204,7 +204,7 @@ void CBuffer::resize(const quint32 nLength)
 	m_nCurrentSize = nLength;
 }
 
-QString CBuffer::toHex() const
+QString Buffer::toHex() const
 {
 	const char* pszHex = "0123456789ABCDEF";
 	QByteArray strDump;
@@ -228,7 +228,7 @@ QString CBuffer::toHex() const
 	return strDump;
 }
 
-QString CBuffer::toAscii() const
+QString Buffer::toAscii() const
 {
 	QByteArray strDump;
 
@@ -246,7 +246,7 @@ QString CBuffer::toAscii() const
 	return strDump;
 }
 
-QString CBuffer::dump() const
+QString Buffer::dump() const
 {
 	QString sHex = toHex();
 	QString sAscii = toAscii();

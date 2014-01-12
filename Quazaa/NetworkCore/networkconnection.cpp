@@ -77,8 +77,8 @@ void CNetworkConnection::connectTo(CEndPoint oAddress)
 
 	Q_ASSERT(m_pInput == 0);
 	Q_ASSERT(m_pOutput == 0);
-	m_pInput = new CBuffer(8192);
-	m_pOutput = new CBuffer(8192);
+	m_pInput = new Buffer(8192);
+	m_pOutput = new Buffer(8192);
 	Q_ASSERT(m_pSocket == 0);
 
 	m_pSocket = new QTcpSocket();
@@ -131,8 +131,8 @@ void CNetworkConnection::acceptFrom(qintptr nHandle)
 
 	Q_ASSERT(m_pInput == 0);
 	Q_ASSERT(m_pOutput == 0);
-	m_pInput = new CBuffer(8192);
-	m_pOutput = new CBuffer(8192);
+	m_pInput = new Buffer(8192);
+	m_pOutput = new Buffer(8192);
 
 	m_pSocket->setSocketDescriptor(nHandle);
 	if(m_pSocket->peerAddress().protocol() == 0)
@@ -349,7 +349,7 @@ QByteArray CNetworkConnection::read(qint64 nMaxSize)
 
 QByteArray CNetworkConnection::peek(qint64 nMaxLength)
 {
-	CBuffer* pBuffer = getInputBuffer();
+	Buffer* pBuffer = getInputBuffer();
 
 	return QByteArray::fromRawData( pBuffer->data(),
 									qMin<qint64>( nMaxLength > 0 ? nMaxLength : pBuffer->size(),

@@ -63,8 +63,8 @@ public:
 	CEndPoint   m_oAddress;
 
 	// Buffer I/O
-	CBuffer* m_pInput;
-	CBuffer* m_pOutput;
+	Buffer* m_pInput;
+	Buffer* m_pOutput;
 
 	bool    m_bInitiated; // true if we initiated the connection; false otherwise
 	bool    m_bConnected;
@@ -160,13 +160,13 @@ public:
 		return false;
 	}
 
-	inline virtual CBuffer* getInputBuffer()
+	inline virtual Buffer* getInputBuffer()
 	{
 		Q_ASSERT(m_pInput != 0);
 
 		return m_pInput;
 	}
-	inline virtual CBuffer* getOutputBuffer()
+	inline virtual Buffer* getOutputBuffer()
 	{
 		Q_ASSERT(m_pOutput != 0);
 

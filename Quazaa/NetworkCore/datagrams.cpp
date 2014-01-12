@@ -52,7 +52,7 @@ CDatagrams::CDatagrams()
 {
 	m_nUploadLimit = 32768; // TODO: Upload limiting.
 
-	m_pRecvBuffer = new CBuffer();
+	m_pRecvBuffer = new Buffer();
 	m_pHostAddress = new QHostAddress();
 	m_nSequence = 0;
 
@@ -115,7 +115,7 @@ void CDatagrams::listen()
 
 		for(int i = 0; i < quazaaSettings.Gnutella2.UdpBuffers; i++)
 		{
-			m_FreeBuffer.append(new CBuffer(1024));
+			m_FreeBuffer.append(new Buffer(1024));
 		}
 
 		for(int i = 0; i < quazaaSettings.Gnutella2.UdpInFrames; i++)

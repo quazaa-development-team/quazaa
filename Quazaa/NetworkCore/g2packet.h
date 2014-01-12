@@ -44,7 +44,7 @@
 #define G2_PACKET_LENLEN_BITS   0xC0
 
 
-class CBuffer;
+class Buffer;
 
 class G2Packet
 {
@@ -96,8 +96,8 @@ public:
 	 * @param pBuffer : the buffer
 	 * @return ptr to new G2Packet; NULL if no G2 packet cound be read.
 	 */
-	static	G2Packet* readBuffer(CBuffer* pBuffer);
-	void	toBuffer(CBuffer* pBuffer) const;
+	static	G2Packet* readBuffer(Buffer* pBuffer);
+	void	toBuffer(Buffer* pBuffer) const;
 
 	// Inline Packet Operations
 	inline bool isType(const char* sType);

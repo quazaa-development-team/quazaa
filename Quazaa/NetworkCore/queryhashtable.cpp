@@ -50,7 +50,7 @@ CQueryHashTable::CQueryHashTable() : QObject(0),
 	,	m_nBits(0ul)
 	,	m_nInfinity(1ul)
 	,	m_nCount(0ul)
-	,	m_pBuffer(new CBuffer(131072))    // 128KB
+	,	m_pBuffer(new Buffer(131072))    // 128KB
 	,	m_pGroup(0)
 {
 }
@@ -387,7 +387,7 @@ bool CQueryHashTable::patchTo(const CQueryHashTable* pTarget,
 		bChanged = true;
 	}
 
-	CBuffer baBuffer;
+	Buffer baBuffer;
 	baBuffer.resize((m_nHash + 31) / 8);
 	uchar* pBuffer	= (uchar*)baBuffer.data();
 	uchar* pHashT	= pTarget->m_pHash;

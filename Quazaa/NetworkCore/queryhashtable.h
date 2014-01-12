@@ -32,7 +32,7 @@ class QByteArray;
 class CG2Node;
 class G2Packet;
 class QByteArray;
-class CBuffer;
+class Buffer;
 class CQueryHashGroup;
 class CQuery;
 
@@ -53,7 +53,7 @@ public:
 	quint32				m_nBits;
 	quint32				m_nInfinity;
 	quint32				m_nCount;
-	CBuffer*			m_pBuffer;
+	Buffer*			m_pBuffer;
 	CQueryHashGroup* 	m_pGroup;
 
 public:

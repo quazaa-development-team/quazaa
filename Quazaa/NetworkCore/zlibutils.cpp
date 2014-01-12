@@ -28,9 +28,9 @@
 #include "debug_new.h"
 
 QMutex ZLibUtils::m_oMutex;
-CBuffer ZLibUtils::m_oCompressBuffer(262144); // 256KB
+Buffer ZLibUtils::m_oCompressBuffer(262144); // 256KB
 
-bool ZLibUtils::compressBuffer(CBuffer& pSrc, bool bIfSmaller)
+bool ZLibUtils::compressBuffer(Buffer& pSrc, bool bIfSmaller)
 {
 	QMutexLocker l(&ZLibUtils::m_oMutex);
 
@@ -64,7 +64,7 @@ bool ZLibUtils::compressBuffer(CBuffer& pSrc, bool bIfSmaller)
 	return true;
 }
 
-bool ZLibUtils::uncompressBuffer(CBuffer& pSrc)
+bool ZLibUtils::uncompressBuffer(Buffer& pSrc)
 {
 	QMutexLocker l(&ZLibUtils::m_oMutex);
 

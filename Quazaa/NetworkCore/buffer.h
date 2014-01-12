@@ -31,7 +31,7 @@ class QByteArray;
 /**
  * @brief The CBuffer class is designed to store POD in a byte representation.
  */
-class CBuffer
+class Buffer
 {
 protected:
 	char*   m_pBuffer;        // allocated block
@@ -40,8 +40,8 @@ protected:
 	quint32	m_nCurrentSize;   // length of the current block of data contained in the buffer
 
 public:
-	CBuffer(quint32 nMinimum = 1024u);
-	~CBuffer();
+	Buffer(quint32 nMinimum = 1024u);
+	~Buffer();
 
 	inline char*        data();
 	inline const char*  data() const;
@@ -49,7 +49,7 @@ public:
 	inline quint32      capacity() const;
 	inline bool         isEmpty() const;
 	inline void         setMinimumAllocationSize(quint32 nSize);
-	inline CBuffer&     clear();
+	inline Buffer&     clear();
 
 	/**
 	 * @brief append writes nLength bytes of data from source to the end of this buffer. A deep copy
@@ -58,11 +58,11 @@ public:
 	 * @param nLength : the amount of bytes to copy
 	 * @return *this
 	 */
-	CBuffer& append(const void* pData, const quint32 nLength);
-	CBuffer& append(const char* pCStr);
-	CBuffer& append(const QByteArray& baData);
-	CBuffer& append(const CBuffer& pOther);
-	CBuffer& append(const CBuffer* pOther);
+	Buffer& append(const void* pData, const quint32 nLength);
+	Buffer& append(const char* pCStr);
+	Buffer& append(const QByteArray& baData);
+	Buffer& append(const Buffer& pOther);
+	Buffer& append(const Buffer* pOther);
 
 	/**
 	 * @brief prepend writes nLength bytes of data to the beginning of this buffer. A deep copy of
@@ -72,8 +72,8 @@ public:
 	 * @param nLength : the number of bytes to prepend
 	 * @return *this
 	 */
-	CBuffer& prepend(const void* pData, const quint32 nLength);
-	CBuffer& prepend(const char* pCStr);
+	Buffer& prepend(const void* pData, const quint32 nLength);
+	Buffer& prepend(const char* pCStr);
 
 	/**
 	 * @brief insert inserts nLength amount of data bytes at nOffset into the buffer.
@@ -82,8 +82,8 @@ public:
 	 * @param nLength : number of bytes to insert
 	 * @return *this
 	 */
-	CBuffer& insert(const quint32 nOffset, const void* pData, const quint32 nLength);
-	CBuffer& insert(const quint32 nOffset, const char* pCStr);
+	Buffer& insert(const quint32 nOffset, const void* pData, const quint32 nLength);
+	Buffer& insert(const quint32 nOffset, const char* pCStr);
 
 	/**
 	 * @brief remove removes nLength bytes starting at nPos from the buffer.
@@ -91,7 +91,7 @@ public:
 	 * @param nLength : the number of bytes to remove
 	 * @return the buffer after the requested operation
 	 */
-	CBuffer& remove(const quint32 nLength, const quint32 nPos = 0);
+	Buffer& remove(const quint32 nLength, const quint32 nPos = 0);
 
 	/**
 	 * @brief ensure makes sure the buffer is able to hold at least nLength more bytes.
@@ -111,37 +111,37 @@ public:
 	QString dump() const;
 };
 
-char* CBuffer::data()
+char* Buffer::data()
 {
 	return m_pBuffer;
 }
 
-const char* CBuffer::data() const
+const char* Buffer::data() const
 {
 	return m_pBuffer;
 }
 
-quint32 CBuffer::size() const
+quint32 Buffer::size() const
 {
 	return m_nCurrentSize;
 }
 
-quint32 CBuffer::capacity() const
+quint32 Buffer::capacity() const
 {
 	return m_nAllocatedSize;
 }
 
-bool CBuffer::isEmpty() const
+bool Buffer::isEmpty() const
 {
 	return !m_nCurrentSize;
 }
 
-void CBuffer::setMinimumAllocationSize(quint32 nSize)
+void Buffer::setMinimumAllocationSize(quint32 nSize)
 {
 	m_nMinimumAllocationSize = nSize;
 }
 
-CBuffer& CBuffer::clear()
+Buffer& Buffer::clear()
 {
 	m_nCurrentSize = 0;
 	return *this;

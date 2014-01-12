@@ -48,7 +48,7 @@ public:
 
 class DatagramOut;
 class DatagramIn;
-class CBuffer;
+class Buffer;
 class QHostAddress;
 
 class CDatagrams : public QObject
@@ -81,9 +81,9 @@ protected:
 				>               m_AckCache;
 
 	QLinkedList<DatagramIn*> m_FreeDatagramIn;		// A list of free incoming packets.
-	QLinkedList<CBuffer*>	 m_FreeBuffer;		// A list of free buffers.
+	QLinkedList<Buffer*>	 m_FreeBuffer;		// A list of free buffers.
 
-	CBuffer*    	m_pRecvBuffer;
+	Buffer*    	m_pRecvBuffer;
 	QHostAddress*   m_pHostAddress;             // the sender's host address
 	quint16         m_nPort;                    // the sender's port
 

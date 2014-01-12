@@ -34,10 +34,10 @@ class ZLibUtils
 public:
 
 	static QMutex m_oMutex;
-	static CBuffer m_oCompressBuffer;
+	static Buffer m_oCompressBuffer;
 
-	static bool compressBuffer(CBuffer& pSrc, bool bIfSmaller = false);
-	static bool uncompressBuffer(CBuffer& pSrc);
+	static bool compressBuffer(Buffer& pSrc, bool bIfSmaller = false);
+	static bool uncompressBuffer(Buffer& pSrc);
 };
 
 #endif // ZLIBUTILS_H

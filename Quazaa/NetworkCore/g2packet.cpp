@@ -135,7 +135,7 @@ G2Packet* G2Packet::newPacket(char* pSource)
 {
 	G2Packet* pPacket   = newPacket();
 
-	uchar nControlByte  = *pSource++;
+	uchar nControlByte  = *(uchar*)pSource++;
 
 	uchar nLenLen       = (nControlByte & 0xC0) >> 6;
 	uchar nTypeLen      = (nControlByte & 0x38) >> 3;
@@ -336,7 +336,7 @@ bool G2Packet::skipCompound(quint32& nLength, quint32 nRemaining)
 	return nRemaining ? nLength >= nRemaining : true;
 }
 
-void G2Packet::toBuffer(CBuffer* pBuffer) const
+void G2Packet::toBuffer(Buffer* pBuffer) const
 {
 	Q_ASSERT(strlen(m_sType) > 0);
 
@@ -419,7 +419,7 @@ quint32 G2Packet::peakUIntBytes( const uchar* pSource, const quint8 nCount, bool
 //////////////////////////////////////////////////////////////////////
 // G2Packet buffer stream read
 
-G2Packet* G2Packet::readBuffer(CBuffer* pBuffer)
+G2Packet* G2Packet::readBuffer(Buffer* pBuffer)
 {
 	if ( !pBuffer )
 	{

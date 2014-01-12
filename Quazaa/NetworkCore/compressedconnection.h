@@ -30,7 +30,7 @@
 #include "zlib.h"
 
 
-class CBuffer;
+class Buffer;
 
 class CCompressedConnection : public CNetworkConnection
 {
@@ -41,8 +41,8 @@ public:
 	z_stream    m_sOutput;              // zlib compressed output stream
 	bool        m_bCompressedInput;     // Compress input streams?
 	bool        m_bCompressedOutput;    // Compress output streams?
-	CBuffer* 	m_pZInput;              // Local input buffer
-	CBuffer* 	m_pZOutput;             // Local output buffer
+	Buffer* 	m_pZInput;              // Local input buffer
+	Buffer* 	m_pZOutput;             // Local output buffer
 	quint64     m_nTotalInput;          // Total input in bytes
 	quint64		m_nTotalInputDec;       // Total decompressed input in bytes.
 	quint64     m_nTotalOutput;         // Total output in bytes
@@ -70,11 +70,11 @@ protected:
 	void deflateOutput();
 
 public:
-	inline CBuffer* getInputBuffer()
+	inline Buffer* getInputBuffer()
 	{
 		return (m_bCompressedInput ? m_pZInput : m_pInput);
 	}
-	inline CBuffer* getOutputBuffer()
+	inline Buffer* getOutputBuffer()
 	{
 		return (m_bCompressedOutput ? m_pZOutput : m_pOutput);
 	}

@@ -76,12 +76,12 @@ void DatagramIn::create(CEndPoint pHost, quint8 nFlags, quint16 nSequence, quint
 		}
 
 		m_nBuffer = nCount;
-		m_pBuffer = new CBuffer*[nCount];
+		m_pBuffer = new Buffer*[nCount];
 		m_bLocked = new bool[nCount];
 	}
 
 	memset(m_bLocked, 0x00, sizeof(bool) * m_nBuffer);
-	memset(m_pBuffer, 0x00, sizeof(CBuffer*) * m_nBuffer);
+	memset(m_pBuffer, 0x00, sizeof(Buffer*) * m_nBuffer);
 }
 
 bool DatagramIn::add(quint8 nPart, const void* pData, qint32 nLength)
@@ -141,7 +141,7 @@ DatagramOut::~DatagramOut()
 	}
 }
 
-void DatagramOut::create(CEndPoint oAddr, G2Packet* pPacket, quint16 nSequence, CBuffer* pBuffer, bool bAck)
+void DatagramOut::create(CEndPoint oAddr, G2Packet* pPacket, quint16 nSequence, Buffer* pBuffer, bool bAck)
 {
 	Q_ASSERT(m_pBuffer == 0);
 
