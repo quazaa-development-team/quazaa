@@ -28,62 +28,62 @@
 #include "types.h"
 class QByteArray;
 
+/**
+ * @brief The CBuffer class is designed to store POD in a byte representation.
+ */
 class CBuffer
 {
 protected:
-	char* 	m_pBuffer;	// allocated block
-	quint32	m_nLength;	// length of data it stores
-	quint32	m_nBuffer;	// length of this block
-	quint32 m_nMinimum;
-
-	// inlines
-public:
-	inline char* data()
-	{
-		return m_pBuffer;
-	}
-
-	inline quint32 size() const
-	{
-		return m_nLength;
-	}
-
-	inline quint32 capacity() const
-	{
-		return m_nBuffer;
-	}
-
-	inline bool isEmpty() const
-	{
-		return (m_nLength == 0);
-	}
-
-	inline void setMinimumSize(quint32 nSize)
-	{
-		m_nMinimum = nSize;
-	}
-
-	inline CBuffer& clear()
-	{
-		m_nLength = 0;
-		return *this;
-	}
+	char*   m_pBuffer;        // allocated block
+	quint32 m_nAllocatedSize; // length of the allocated block
+	quint32 m_nMinimumAllocationSize;
+	quint32	m_nCurrentSize;   // length of the current block of data contained in the buffer
 
 public:
 	CBuffer(quint32 nMinimum = 1024u);
 	~CBuffer();
 
+	inline char*        data();
+	inline const char*  data() const;
+	inline quint32      size() const;
+	inline quint32      capacity() const;
+	inline bool         isEmpty() const;
+	inline void         setMinimumAllocationSize(quint32 nSize);
+	inline CBuffer&     clear();
+
+	/**
+	 * @brief append writes nLength bytes of data from source to the end of this buffer. A deep copy
+	 * of the data in question is performed.
+	 * @param pData : the source
+	 * @param nLength : the amount of bytes to copy
+	 * @return *this
+	 */
 	CBuffer& append(const void* pData, const quint32 nLength);
-	CBuffer& append(const char* pStr);
-	CBuffer& append(QByteArray& baData);
-	CBuffer& append(CBuffer& pOther);
-	CBuffer& append(CBuffer* pOther);
+	CBuffer& append(const char* pCStr);
+	CBuffer& append(const QByteArray& baData);
+	CBuffer& append(const CBuffer& pOther);
+	CBuffer& append(const CBuffer* pOther);
 
+	/**
+	 * @brief prepend writes nLength bytes of data to the beginning of this buffer. A deep copy of
+	 * the data in question is performed. Note that this operation requires moving all of the buffer
+	 * content, so it might be considerably slower than appending data.
+	 * @param pData : the source
+	 * @param nLength : the number of bytes to prepend
+	 * @return *this
+	 */
 	CBuffer& prepend(const void* pData, const quint32 nLength);
-	CBuffer& prepend(const char* pStr);
+	CBuffer& prepend(const char* pCStr);
 
-	CBuffer& insert(const quint32 i, const void* pData, const quint32 nLength);
-	CBuffer& insert(const quint32 i, const char* pStr);
+	/**
+	 * @brief insert inserts nLength amount of data bytes at nOffset into the buffer.
+	 * @param nOffset : the insert position
+	 * @param pData : the data
+	 * @param nLength : number of bytes to insert
+	 * @return *this
+	 */
+	CBuffer& insert(const quint32 nOffset, const void* pData, const quint32 nLength);
+	CBuffer& insert(const quint32 nOffset, const char* pCStr);
 
 	/**
 	 * @brief remove removes nLength bytes starting at nPos from the buffer.
@@ -93,13 +93,58 @@ public:
 	 */
 	CBuffer& remove(const quint32 nLength, const quint32 nPos = 0);
 
+	/**
+	 * @brief ensure makes sure the buffer is able to hold at least nLength more bytes.
+	 * @param nLength : the number of bytes
+	 */
 	void	 ensure(const quint32 nLength);
 
+	/**
+	 * @brief resize resizes the buffer to hold nLength bytes of data. Note that the actual capacity
+	 * might be larger than nLength after this operation.
+	 * @param nLength : the new size of the buffer
+	 */
 	void	 resize(const quint32 nLength);
 
 	QString toHex() const;
 	QString toAscii() const;
 	QString dump() const;
 };
+
+char* CBuffer::data()
+{
+	return m_pBuffer;
+}
+
+const char* CBuffer::data() const
+{
+	return m_pBuffer;
+}
+
+quint32 CBuffer::size() const
+{
+	return m_nCurrentSize;
+}
+
+quint32 CBuffer::capacity() const
+{
+	return m_nAllocatedSize;
+}
+
+bool CBuffer::isEmpty() const
+{
+	return !m_nCurrentSize;
+}
+
+void CBuffer::setMinimumAllocationSize(quint32 nSize)
+{
+	m_nMinimumAllocationSize = nSize;
+}
+
+CBuffer& CBuffer::clear()
+{
+	m_nCurrentSize = 0;
+	return *this;
+}
 
 #endif // BUFFER_H
