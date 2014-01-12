@@ -331,7 +331,8 @@ void CG2Node::parseIncomingHandshake()
 
 		if ( !bAcceptG2 )
 		{
-			send_ConnectError( "503 Required network not accepted" );
+			// We don't send X-Try to nodes not trying to connect to G2.
+			send_ConnectError( "503 Required network not accepted", false );
 			return;
 		}
 	}
@@ -347,7 +348,8 @@ void CG2Node::parseIncomingHandshake()
 		const QString sRemoteIP = Parser::getHeaderValue( sHs, "Remote-IP" );
 		if ( !networkG2.acquireLocalAddress( sRemoteIP ) )
 		{
-			send_ConnectError( "503 Remote-IP header missing" );
+			// We don't send X-Try to buggy clients.
+			send_ConnectError( "503 Remote-IP header missing", false );
 			return;
 		}
 	}
@@ -360,7 +362,8 @@ void CG2Node::parseIncomingHandshake()
 			sXHub = Parser::getHeaderValue( sHs, "X-Ultrapeer" ).toLower();
 			if ( sXHub.isEmpty() )
 			{
-				send_ConnectError( "503 No hub mode specified" );
+				// We don't send X-Try to buggy clients.
+				send_ConnectError( "503 No hub mode specified", false );
 				return;
 			}
 		}
@@ -371,7 +374,7 @@ void CG2Node::parseIncomingHandshake()
 		{
 			if ( !Neighbours.needMoreG2( G2_HUB ) )
 			{
-				send_ConnectError( "503 Maximum hub connections reached" );
+				send_ConnectError( "503 Maximum hub connections reached", true );
 				return;
 			}
 			m_nType = G2_HUB;
@@ -380,7 +383,7 @@ void CG2Node::parseIncomingHandshake()
 		{
 			if ( !Neighbours.needMoreG2( G2_LEAF ) )
 			{
-				send_ConnectError( "503 Maximum leaf connections reached" );
+				send_ConnectError( "503 Maximum leaf connections reached", true );
 				return;
 			}
 			m_nType = G2_LEAF;
@@ -409,7 +412,8 @@ void CG2Node::parseHandshakeResponse()
 
 	if ( !bAcceptG2 )
 	{
-		send_ConnectError( "503 Required network not accepted" );
+		// We don't send X-Try to nodes not trying to connect to G2.
+		send_ConnectError( "503 Required network not accepted", false );
 		return;
 	}
 
@@ -423,7 +427,8 @@ void CG2Node::parseHandshakeResponse()
 
 	if ( !bG2Provided )
 	{
-		send_ConnectError("503 Required network not provided");
+		// We don't send X-Try to nodes not trying to connect to G2.
+		send_ConnectError( "503 Required network not provided", false );
 		return;
 	}
 
@@ -451,7 +456,8 @@ void CG2Node::parseHandshakeResponse()
 		const QString sRemoteIP = Parser::getHeaderValue( sHandshake, "Remote-IP" );
 		if ( !networkG2.acquireLocalAddress( sRemoteIP ) )
 		{
-			send_ConnectError( "503 Remote-IP header missing" );
+			// We don't send X-Try to buggy clients.
+			send_ConnectError( "503 Remote-IP header missing", false );
 			return;
 		}
 	}
@@ -470,7 +476,7 @@ void CG2Node::parseHandshakeResponse()
 		{
 			if ( !Neighbours.needMoreG2( G2_HUB ) )
 			{
-				send_ConnectError( "503 Maximum hub connections reached" );
+				send_ConnectError( "503 Maximum hub connections reached", true );
 				return;
 			}
 			m_nType = G2_HUB;
@@ -479,7 +485,7 @@ void CG2Node::parseHandshakeResponse()
 		{
 			if ( !Neighbours.needMoreG2( G2_LEAF ) )
 			{
-				send_ConnectError( "503 Maximum leaf connections reached" );
+				send_ConnectError( "503 Maximum leaf connections reached", true );
 				return;
 			}
 			m_nType = G2_LEAF;
@@ -548,7 +554,8 @@ void CG2Node::parseHandShakeAccept()
 
 	if ( !bG2Provided )
 	{
-		send_ConnectError( "503 Required network not provided" );
+		// We don't send X-Try to nodes not trying to connect to G2.
+		send_ConnectError( "503 Required network not provided", false );
 		return;
 	}
 
@@ -600,13 +607,14 @@ bool CG2Node::readUserAgentSecurity(const QString& sHandShake)
 
 	if ( m_sUserAgent.isEmpty() )
 	{
-		send_ConnectError( "503 Anonymous clients are not allowed here" );
+		send_ConnectError( "503 Anonymous clients are not allowed here", true );
 		return true;
 	}
 
 	if ( securityManager.isAgentDenied( m_sUserAgent ) )
 	{
-		send_ConnectError( "403 Access Denied, sorry" );
+		// We don't like you, so you won't get an X-Try from us!
+		send_ConnectError( "403 Access Denied, sorry", false );
 		securityManager.ban( m_oAddress, Security::RuleTime::SixHours, true,
 							 QString( "[AUTO] UA Blocked (%1)" ).arg( m_sUserAgent ), true
 #if SECURITY_LOG_BAN_SOURCES
@@ -618,7 +626,7 @@ bool CG2Node::readUserAgentSecurity(const QString& sHandShake)
 
 	if ( securityManager.isClientBad( m_sUserAgent ) )
 	{
-		send_ConnectError( "403 Your client is too old or otherwise bad. Please upgrade." );
+		send_ConnectError( "403 Your client is too old or otherwise bad. Please upgrade.", true );
 		return true;
 	}
 	else
@@ -627,7 +635,7 @@ bool CG2Node::readUserAgentSecurity(const QString& sHandShake)
 	}
 }
 
-void CG2Node::send_ConnectError(QString sReason)
+void CG2Node::send_ConnectError(QString sReason, bool bXTry)
 {
 	systemLog.postLog( LogSeverity::Information, Components::G2,
 					   tr( "Rejecting connection with %1: %2 (%3)"
@@ -640,24 +648,9 @@ void CG2Node::send_ConnectError(QString sReason)
 	sHandshake += "Accept: application/x-gnutella2\r\n";
 	sHandshake += "Content-Type: application/x-gnutella2\r\n";
 
-	sHandshake += hostCache.getXTry();
-	for ( QList<CNeighbour*>::iterator it = Neighbours.begin(); it != Neighbours.end(); ++it )
+	if ( bXTry )
 	{
-		CNeighbour* pNeighbour = *it;
-		// Add neighbours with free slots, to promote faster connections.
-		if ( pNeighbour->m_nState    == nsConnected &&
-			 pNeighbour->m_nProtocol == DiscoveryProtocol::G2 )
-		{
-			CG2Node* pNode = (CG2Node*)pNeighbour;
-			if ( pNode->m_nType == G2_HUB &&
-				 pNode->m_nLeafMax > 0 &&
-				 100 * pNode->m_nLeafCount / pNode->m_nLeafMax < 90 )
-			{
-				sHandshake += "," + pNeighbour->m_oAddress.toStringWithPort() +
-							  " " + common::getDateTimeUTC().toString( "yyyy-MM-ddThh:mmZ" );
-			}
-		}
-
+		sHandshake += hostCache.getXTry();
 	}
 
 	sHandshake += "\r\n\r\n";
@@ -698,6 +691,11 @@ void CG2Node::send_ConnectOK(bool bHandshakeStep2, bool bDeflate)
 		sHandshake += "Remote-IP: " + m_oAddress.toString() + "\r\n";
 		sHandshake += "Accept: application/x-gnutella2\r\n";
 		sHandshake += "X-Hub-Needed: False\r\n";
+
+		// We only send an X-Try if the other party initiated the connection, as the other party
+		// might still be in need for more hubs to connect to. (There is no need to do so if we
+		// initiated the connection, as the other party should be well connected in that case.)
+		sHandshake += hostCache.getXTry();
 
 #ifndef _DISABLE_COMPRESSION
 		if ( Neighbours.isG2Hub() && m_nType == G2_HUB )

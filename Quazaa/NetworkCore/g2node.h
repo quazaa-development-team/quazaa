@@ -115,7 +115,12 @@ protected:
 	 */
 	bool readUserAgentSecurity(const QString& sHandShake);
 
-	void send_ConnectError(QString sReason);
+	/**
+	 * @brief send_ConnectError closes the connection with sReason (Error).
+	 * @param sReason : the error code and message
+	 * @param bXTry : whether to append an X-Try header
+	 */
+	void send_ConnectError(QString sReason, bool bXTry);
 	void send_ConnectOK(bool bHandshakeStep2, bool bDeflated = false);
 	void sendStartups();
 

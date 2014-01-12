@@ -49,7 +49,7 @@ public:
 	inline quint32      capacity() const;
 	inline bool         isEmpty() const;
 	inline void         setMinimumAllocationSize(quint32 nSize);
-	inline Buffer&     clear();
+	inline Buffer&      clear();
 
 	/**
 	 * @brief append writes nLength bytes of data from source to the end of this buffer. A deep copy

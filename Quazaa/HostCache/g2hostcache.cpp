@@ -30,6 +30,11 @@
 
 #include <QDir>
 
+#ifndef QUAZAA_SETUP_UNIT_TESTS
+#include "neighbours.h"
+#include "g2node.h"
+#endif // QUAZAA_SETUP_UNIT_TESTS
+
 #include "networktype.h"
 #include "g2hostcache.h"
 #include "geoiplist.h"
@@ -298,7 +303,7 @@ void G2HostCache::remove(SharedG2HostPtr pHost)
 /**
  * @brief CHostCache::addXTry adds XTry hosts to the cache.
  * Locking: YES (asynchronous)
- * @param sHeader: a string representation of the XTry header
+ * @param sHeader: a string representation of value part of the X-Try header.
  */
 void G2HostCache::addXTry(QString sHeader)
 {
@@ -321,47 +326,73 @@ QString G2HostCache::getXTry() const
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "getXTry()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
-	if ( !m_nSizeAtomic.load() )
+	QString sReturn;
+	quint32 nCount = 0;
+
+#ifndef QUAZAA_SETUP_UNIT_TESTS
+	ASSUME_LOCK( Neighbours.m_pSection );
+
+	const QString sTNow = common::getDateTimeUTC().toString( "yyyy-MM-ddThh:mmZ" );
+
+	// First add neighbours with free slots, to promote faster connections.
+	for ( QList<CNeighbour*>::iterator it = Neighbours.begin(); it != Neighbours.end(); ++it )
 	{
-		return QString();    // sorry, no hosts in cache
+		CNeighbour* pNeighbour = *it;
+		if ( pNeighbour->m_nState    == nsConnected &&
+			 pNeighbour->m_nProtocol == DiscoveryProtocol::G2 )
+		{
+			CG2Node* pNode = (CG2Node*)pNeighbour;
+			if ( pNode->m_nType == G2_HUB &&
+				 pNode->m_nLeafMax > 0 &&
+				 100 * pNode->m_nLeafCount / pNode->m_nLeafMax < 90 )
+			{
+				sReturn += pNeighbour->m_oAddress.toStringWithPort() + " " + sTNow + ",";
+				++nCount;
+			}
+		}
 	}
-
-	m_pSection.lock();
-
-	// TODO: remove in beta1
-	Q_ASSERT( m_lHosts.size() > m_nMaxFailures + 1 ); // at least m_nMaxFailures + 2
+#endif // QUAZAA_SETUP_UNIT_TESTS
 
 	const quint32 nMax = 10;
-	quint32 nCount     =  0;
-	char nFailures     = -1;
-	QString sReturn;
 
-	foreach ( SharedG2HostPtr pHost, m_lHosts )
+	// Only take hosts from the Host Cache if we didn't get enough from Neighbours, Note that nMax/2
+	// hosts are sufficient when obtained from Neighbours as those are almost 100% connectable,
+	// which we cannot assure for hosts within this cache.
+	if ( nCount < nMax/2 && m_nSizeAtomic.load() )
 	{
-		if ( pHost )
+		m_pSection.lock();
+
+		// TODO: remove in beta1
+		Q_ASSERT( m_lHosts.size() > m_nMaxFailures + 1 ); // at least m_nMaxFailures + 2
+
+		char nFailures = -1;
+		foreach ( SharedG2HostPtr pHost, m_lHosts )
 		{
-			QDateTime tTimeStamp;
-			tTimeStamp.setTimeSpec( Qt::UTC );
-			tTimeStamp.setTime_t( pHost->timestamp() );
+			if ( pHost )
+			{
+				QDateTime tTimeStamp;
+				tTimeStamp.setTimeSpec( Qt::UTC );
+				tTimeStamp.setTime_t( pHost->timestamp() );
 
-			sReturn.append( pHost->address().toStringWithPort() + " " );
-			sReturn.append( tTimeStamp.toString( "yyyy-MM-ddThh:mmZ" ) );
-			sReturn.append( "," );
+				sReturn.append( pHost->address().toStringWithPort() + " " );
+				sReturn.append( tTimeStamp.toString( "yyyy-MM-ddThh:mmZ" ) );
+				sReturn.append( "," );
 
-			++nCount;
+				++nCount;
 
-			if ( nCount == nMax )
-				break;
+				if ( nCount == nMax )
+					break;
+			}
+			else
+			{
+				if ( !nFailures )
+					break;
+
+				++nFailures;
+			}
 		}
-		else
-		{
-			if ( !nFailures )
-				break;
-
-			++nFailures;
-		}
+		m_pSection.unlock();
 	}
-	m_pSection.unlock();
 
 	if ( sReturn.isEmpty() )
 	{
@@ -369,9 +400,7 @@ QString G2HostCache::getXTry() const
 	}
 	else
 	{
-		// TODO: remove later
-		Q_ASSERT( sReturn.at( sReturn.size() - 1 ) == QChar( ',' ) );
-
+		// remove trailing ',' before returning
 		return QString( "X-Try-Hubs: " ) + sReturn.remove( sReturn.size() - 1, 1 );
 	}
 }
@@ -1426,6 +1455,7 @@ void G2HostCache::asyncAddXTry(QString sHeader)
 
 	QMutexLocker l( &m_pSection );
 
+	// Example for X-Try-Header:
 	// X-Try-Hubs: 86.141.203.14:6346 2010-02-23T16:17Z,91.78.12.117:1164 2010-02-23T16:17Z,89.74.83
 	// .103:7972 2010-02-23T16:17Z,93.89.196.113:5649 2010-02-23T16:17Z,24.193.237.252:6346 2010-02-
 	// 23T16:17Z,24.226.149.80:6346 2010-02-23T16:17Z,89.142.217.180:9633 2010-02-23T16:17Z,83.219.1
@@ -1433,6 +1463,9 @@ void G2HostCache::asyncAddXTry(QString sHeader)
 	// -23T16:17Z,78.231.224.180:6346 2010-02-23T16:17Z,213.143.88.92:6346 2010-02-23T16:17Z,77.209.
 	// 25.104:1515 2010-02-23T16:17Z,86.220.168.24:59153 2010-02-23T16:17Z,88.183.80.110:6346 2010-0
 	// 2-23T16:17Z
+
+	// Note: this method assumes "X-Try-Hubs:" has already been removed from the string
+
 	QStringList lEntries = sHeader.split( "," );
 
 	if ( lEntries.isEmpty() )
@@ -1443,7 +1476,9 @@ void G2HostCache::asyncAddXTry(QString sHeader)
 	const quint32 tNow = common::getTNowUTC();
 	for ( qint32 i = 0; i < lEntries.size(); ++i )
 	{
-		QStringList entry = lEntries.at( i ).split( " " );
+		// Remove the space as entries might be separated by ", "
+		QStringList entry = lEntries.at( i ).trimmed().split( " " );
+
 		if ( entry.size() != 2 )
 		{
 			continue;

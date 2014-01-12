@@ -74,6 +74,22 @@ equals(PWD, $$OUT_PWD){
 		!build_pass:message(Configuring for in-place build)
 }
 
+win32 {
+		LIBS += -Lbin -luser32 -lole32 -lshell32 # if you are at windows os
+}
+mac {
+		LIBS += -lz
+}
+linux {
+		LIBS += -lz -L/usr/lib
+}
+unix {
+		LIBS += -lz -L/usr/lib
+}
+
+# Use Qt's Zlib
+INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+
 Q_DIR = ../Quazaa
 
 INCLUDEPATH += $$Q_DIR \
