@@ -449,6 +449,12 @@ G2Packet* G2Packet::readBuffer(Buffer* pBuffer)
 	//bool bCompound  =  nControlByte & G2_FLAG_COMPOUND;
 	bool bBigEndian =  nControlByte & G2_FLAG_BIG_ENDIAN;
 
+	if ( bBigEndian )
+	{
+		pBuffer->clear();
+		return NULL;
+	}
+
 	// nLenLen is the number of bytes in the length field of the packet, which immediately follows
 	// the control byte. There are two bits here which means the length field can be up to 3 bytes
 	// long. nLenLen can be zero [...].

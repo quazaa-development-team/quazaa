@@ -25,7 +25,6 @@
 #include "buffer.h"
 
 #include <QByteArray>
-#include <exception>
 
 #include "debug_new.h"
 
@@ -47,16 +46,14 @@ Buffer::~Buffer()
 
 Buffer& Buffer::append(const void* pData, const quint32 nLength)
 {
-	if ( !pData || !nLength )
+	if ( pData && nLength )
 	{
-		return *this;
+		ensure( nLength );
+
+		memcpy( m_pBuffer + m_nCurrentSize, pData, nLength );
+
+		m_nCurrentSize += nLength;
 	}
-
-	ensure( nLength );
-
-	memcpy( m_pBuffer + m_nCurrentSize, pData, nLength );
-
-	m_nCurrentSize += nLength;
 
 	return *this;
 }
@@ -93,18 +90,15 @@ Buffer& Buffer::prepend(const char* pCStr)
 
 Buffer& Buffer::insert(const quint32 nOffset, const void* pData, const quint32 nLength)
 {
-	if ( !pData )
+	if ( pData )
 	{
-		return *this;
+		ensure( nLength );
+
+		memmove( m_pBuffer + nOffset + nLength, m_pBuffer + nOffset, m_nCurrentSize - nOffset );
+		memcpy( m_pBuffer + nOffset, pData, nLength );
+
+		m_nCurrentSize += nLength;
 	}
-
-	ensure( nLength );
-
-	memmove( m_pBuffer + nOffset + nLength, m_pBuffer + nOffset, m_nCurrentSize - nOffset );
-
-	memcpy( m_pBuffer + nOffset, pData, nLength );
-
-	m_nCurrentSize += nLength;
 
 	return *this;
 }
@@ -141,22 +135,21 @@ void Buffer::ensure(const quint32 nLength)
 		throw std::bad_alloc();
 	}
 
-	if ( m_nAllocatedSize - m_nCurrentSize > nLength )
+	if ( m_nAllocatedSize > nLength + m_nCurrentSize )
 	{
 		// We shrink the buffer if we allocated twice the minimum and we actually need less than
 		// the minimum.
 		if ( m_nAllocatedSize > m_nMinimumAllocationSize * 2 &&
 			 m_nCurrentSize + nLength < m_nMinimumAllocationSize )
 		{
-			const quint32 nNewBufferSize = m_nMinimumAllocationSize;
-			char* pBuffer = (char*)realloc( m_pBuffer, nNewBufferSize );
-			if (! pBuffer)
+			try
 			{
-				// no success but no harm done
-				return;
+				reallocate( m_nMinimumAllocationSize );
 			}
-			m_nAllocatedSize = nNewBufferSize;
-			m_pBuffer = pBuffer;
+			catch ( std::bad_alloc )
+			{
+				// failing to shrink is OK, we just ignore that
+			}
 		}
 	}
 	else // we need to allocate more memory
@@ -165,25 +158,17 @@ void Buffer::ensure(const quint32 nLength)
 
 		// first alloc will be m_nMinimum bytes or 1024
 		// if we need more, we allocate twice as needed
-		if ( nNewBufferSize < qMax( 1024u, m_nMinimumAllocationSize ) )
+		quint32 nMin = qMax( 1024u, m_nMinimumAllocationSize );
+		if ( nNewBufferSize < nMin )
 		{
-			nNewBufferSize = qMax( 1024u, m_nMinimumAllocationSize );
+			nNewBufferSize = nMin;
 		}
 		else
 		{
 			nNewBufferSize *= 2;
 		}
 
-		char* pBuffer = (char*)realloc( m_pBuffer, nNewBufferSize );
-
-		if ( !pBuffer )
-		{
-			qWarning() << "Out of memory in CBuffer::ensure()";
-			throw std::bad_alloc();
-		}
-
-		m_nAllocatedSize = nNewBufferSize;
-		m_pBuffer = pBuffer;
+		reallocate( nNewBufferSize );
 	}
 }
 
@@ -191,14 +176,7 @@ void Buffer::resize(const quint32 nLength)
 {
 	if ( nLength > m_nAllocatedSize )
 	{
-		char* pBuffer = (char*)realloc( m_pBuffer, nLength * 2 );
-		if ( !pBuffer )
-		{
-			qWarning() << "Out of memory in CBuffer::resize()";
-			throw std::bad_alloc();
-		}
-		m_pBuffer = pBuffer;
-		m_nAllocatedSize = nLength * 2;
+		reallocate( qMax( nLength * 2, m_nMinimumAllocationSize) );
 	}
 
 	m_nCurrentSize = nLength;
@@ -267,4 +245,16 @@ QString Buffer::dump() const
 	}
 
 	return sRet;
+}
+
+void Buffer::reallocate(quint32 nNewSize) throw(std::bad_alloc)
+{
+	char* pBuffer = (char*)realloc( m_pBuffer, nNewSize );
+	if ( !pBuffer )
+	{
+		qWarning() << "Out of memory in Buffer::reallocate()";
+		throw std::bad_alloc();
+	}
+	m_pBuffer = pBuffer;
+	m_nAllocatedSize = nNewSize;
 }

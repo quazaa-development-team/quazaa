@@ -199,12 +199,12 @@ void CCompressedConnection::inflateInput()
 		m_sInput.avail_in  = m_pInput->size();
 		m_sInput.total_in  = 0u;
 
+		quint32 oldSize = m_pZInput->size();
+
 		if(m_pZInput->capacity() - m_pZInput->size() < 2048)
 		{
 			m_pZInput->ensure(2048);
 		}
-
-		quint32 oldSize = m_pZInput->size();
 
 		m_sInput.next_out  = (Bytef*)m_pZInput->data() + oldSize;
 		m_sInput.avail_out = qMax(m_pZInput->capacity() - oldSize, 2048u);

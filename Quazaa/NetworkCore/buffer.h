@@ -25,6 +25,8 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
+#include <exception>
+
 #include "types.h"
 class QByteArray;
 
@@ -97,18 +99,21 @@ public:
 	 * @brief ensure makes sure the buffer is able to hold at least nLength more bytes.
 	 * @param nLength : the number of bytes
 	 */
-	void	 ensure(const quint32 nLength);
+	void ensure(const quint32 nLength);
 
 	/**
 	 * @brief resize resizes the buffer to hold nLength bytes of data. Note that the actual capacity
 	 * might be larger than nLength after this operation.
 	 * @param nLength : the new size of the buffer
 	 */
-	void	 resize(const quint32 nLength);
+	void resize(const quint32 nLength);
 
 	QString toHex() const;
 	QString toAscii() const;
 	QString dump() const;
+
+private:
+	void reallocate(quint32 nNewSize);
 };
 
 char* Buffer::data()
