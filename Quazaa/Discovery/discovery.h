@@ -48,8 +48,6 @@
 // Set this to 1 to enable additionnal debug output for the Discovery Manager.
 #define ENABLE_DISCOVERY_DEBUGGING 0
 
-#define ENABLE_DISCOVERY_NAM 0
-
 // TODO: Implement rating based on successful connection to obtained hosts
 // TODO: Implement quazaaSettings.Discovery.AccessThrottle
 // TODO: Check if already active ( see method )
@@ -135,9 +133,7 @@ private:
 
 private:
 	// handles web requests
-#if ENABLE_DISCOVERY_NAM
 	QWeakPointer<QNetworkAccessManager> m_pNetAccessMgr;
-#endif // ENABLE_DISCOVERY_NAM
 
 	// access lock
 	QMutex                  m_pSection;
@@ -256,7 +252,6 @@ public:
 	 */
 	bool isActive(const ServiceType::Type eSType);
 
-#if ENABLE_DISCOVERY_NAM
 	/**
 	 * @brief requestNAM provides a shared pointer to the discovery services network
 	 * access manager. Note that the caller needs to hold his copy of the shared pointer until the
@@ -265,7 +260,6 @@ public:
 	 * @return
 	 */
 	QSharedPointer<QNetworkAccessManager> requestNAM();
-#endif // ENABLE_DISCOVERY_NAM
 
 	/**
 	 * @brief requestServiceList can be used to obtain a complete list of all currently managed

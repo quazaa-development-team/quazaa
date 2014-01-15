@@ -329,7 +329,6 @@ bool Manager::isActive(const ServiceType::Type eSType)
 	return m_pActive[eSType];
 }
 
-#if ENABLE_DISCOVERY_NAM
 /**
  * @brief requestNAMgr provides a shared pointer to the discovery services network
  * access manager. Note that the caller needs to hold his copy of the shared pointer until the
@@ -366,7 +365,6 @@ QSharedPointer<QNetworkAccessManager> Manager::requestNAM()
 
 	return pReturnVal;
 }
-#endif // ENABLE_DISCOVERY_NAM
 
 /**
  * @brief requestServiceList can be used to obtain a complete list of all currently managed
@@ -642,6 +640,12 @@ void Manager::asyncUpdateServiceHelper(const CNetworkType type)
 
 		if ( pService )
 		{
+			if ( pService.data()->isRunning() )
+			{
+				qDebug() << "*** Warning: Canceled currently running Discovery request for update!";
+				pService.data()->cancelRequest();
+			}
+
 			postLog( LogSeverity::Notice, tr( "Updating service: " ) + pService->url() );
 
 			++m_pActive[pService.data()->m_nServiceType];
@@ -685,6 +689,12 @@ void Manager::asyncUpdateServiceHelper(ServiceID nID)
 
 	Q_ASSERT( pService ); // We should always get a valid service from the iterator
 
+	if ( pService.data()->isRunning() )
+	{
+		qDebug() << "*** Warning: Canceled currently running Discovery request for update!";
+		pService.data()->cancelRequest();
+	}
+
 	postLog( LogSeverity::Notice, tr( "Updating service: " ) + pService->url() );
 
 	++m_pActive[pService.data()->m_nServiceType];
@@ -723,6 +733,12 @@ void Manager::asyncQueryServiceHelper(const CNetworkType type)
 #if ENABLE_DISCOVERY_DEBUGGING
 			postLog( LogSeverity::Debug, "Service pointer OK.", true );
 #endif
+
+			if ( pService.data()->isRunning() )
+			{
+				qDebug() << "*** Warning: Canceled currently running Discovery request for query!";
+				pService.data()->cancelRequest();
+			}
 
 			++m_pActive[pService.data()->serviceType()];
 			pService->query();
@@ -787,6 +803,12 @@ void Manager::asyncQueryServiceHelper(ServiceID nID)
 	m_pSection.unlock();
 
 	Q_ASSERT( pService ); // We should always get a valid service from the iterator
+
+	if ( pService.data()->isRunning() )
+	{
+		qDebug() << "*** Warning: Canceled currently running Discovery request for query!";
+		pService.data()->cancelRequest();
+	}
 
 	postLog( LogSeverity::Notice, tr( "Querying service: " ) + pService->url() );
 

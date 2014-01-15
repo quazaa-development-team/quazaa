@@ -423,7 +423,6 @@ void DiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16 
 	}
 	else // fail
 	{
-#if ENABLE_DISCOVERY_NAM
 		// Check network connected status and skip this if network is not connected
 		QSharedPointer<QNetworkAccessManager> pNAM = discoveryManager.requestNAM();
 
@@ -468,7 +467,6 @@ void DiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16 
 				}
 			}
 		}
-#endif // ENABLE_DISCOVERY_NAM
 	}
 
 	if ( discoveryManager.m_pActive[m_nServiceType] )

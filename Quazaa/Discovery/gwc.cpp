@@ -49,7 +49,6 @@ GWC::~GWC()
 	if ( m_pRequest )
 	{
 		delete m_pRequest;
-		m_pRequest = NULL;
 
 		// if there is a request, there must be a manager
 		Q_ASSERT( m_pNAMgr );
@@ -77,7 +76,7 @@ void GWC::doQuery() throw()
 		query.addQueryItem( "net", "gnutella2" );
 		query.addQueryItem( "client", CQuazaaGlobals::VENDOR_CODE() );
 		query.addQueryItem( "version", sVersion.toLocal8Bit().data() );
-		oURL.setQuery(query);
+		oURL.setQuery( query );
 	}
 
 	// inform user
@@ -89,16 +88,13 @@ void GWC::doQuery() throw()
 	m_pRequest = new QNetworkRequest( oURL );
 	m_pRequest->setRawHeader( "User-Agent", CQuazaaGlobals::USER_AGENT_STRING().toLocal8Bit() );
 
-#if ENABLE_DISCOVERY_NAM
 	// obtain network access manager for query
 	m_pNAMgr = discoveryManager.requestNAM();
 
-	connect( m_pNAMgr.data(), &QNetworkAccessManager::finished,
-			 this, &GWC::requestCompleted );
+	connect( m_pNAMgr.data(), &QNetworkAccessManager::finished, this, &GWC::requestCompleted );
 
 	// do query
 	m_pNAMgr->get( *m_pRequest );
-#endif // ENABLE_DISCOVERY_NAM
 }
 
 void GWC::doUpdate() throw()
@@ -139,7 +135,6 @@ void GWC::doUpdate() throw()
 	m_pRequest = new QNetworkRequest( oURL );
 	m_pRequest->setRawHeader( "User-Agent", CQuazaaGlobals::USER_AGENT_STRING().toLocal8Bit() );
 
-#if ENABLE_DISCOVERY_NAM
 	// obtain network access manager for update
 	m_pNAMgr = discoveryManager.requestNAM();
 
@@ -148,7 +143,6 @@ void GWC::doUpdate() throw()
 
 	// do query
 	m_pNAMgr->get( *m_pRequest );
-#endif // ENABLE_DISCOVERY_NAM
 }
 
 void GWC::doCancelRequest() throw()
@@ -156,8 +150,12 @@ void GWC::doCancelRequest() throw()
 	disconnect( m_pNAMgr.data(), &QNetworkAccessManager::finished,
 				this, &GWC::requestCompleted );
 
-	delete m_pRequest;
-	m_pRequest = NULL;
+	if ( m_pRequest )
+	{
+		delete m_pRequest;
+		m_pRequest = NULL;
+	}
+
 	m_pNAMgr.clear();     // we don't need the network access manager anymore
 
 	resetRunning();

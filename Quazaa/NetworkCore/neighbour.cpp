@@ -127,7 +127,8 @@ void CNeighbour::onError(QAbstractSocket::SocketError e)
 			{
 				// for some bad clients that drop connections too early
 				securityManager.ban( m_oAddress, Security::RuleTime::FiveMinutes, true,
-									 "[AUTO] Dropped handshake", true
+									 QString( "[AUTO] Dropped handshake. User Agent: "
+											  ) + m_sUserAgent , true
 #if SECURITY_LOG_BAN_SOURCES
 									 , QString( "neighbour.cpp line 133" )
 #endif // SECURITY_LOG_BAN_SOURCES
