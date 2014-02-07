@@ -140,7 +140,6 @@ void DiscoveryService::load(DiscoveryService*& pService, QDataStream &fsFile, in
 	quint8     nRating;             // 0: bad; 10: very good
 	bool       bBanned;             // service URL is blocked
 	bool       bZero;
-	ServiceID nID;                 // ID used by the manager to identify the service
 	quint16    nLastHosts;          // hosts returned by the service on last query
 	quint32    nTotalHosts;         // all hosts we ever got from the service
 	quint16    nAltServices;        // number of URLs we got on query
@@ -157,7 +156,6 @@ void DiscoveryService::load(DiscoveryService*& pService, QDataStream &fsFile, in
 	fsFile >> nRating;
 	fsFile >> bBanned;
 	fsFile >> bZero;
-	fsFile >> nID;
 	fsFile >> nLastHosts;
 	fsFile >> nTotalHosts;
 	fsFile >> nAltServices;
@@ -174,7 +172,6 @@ void DiscoveryService::load(DiscoveryService*& pService, QDataStream &fsFile, in
 		pService->m_sPong         = sPong;
 		pService->m_bBanned       = bBanned;
 		pService->m_bZero         = bZero;
-		pService->m_nID           = nID;
 		pService->m_nLastHosts    = nLastHosts;
 		pService->m_nTotalHosts   = nTotalHosts;
 		pService->m_nAltServices  = nAltServices;
@@ -209,7 +206,6 @@ void DiscoveryService::save(const DiscoveryService* const pService, QDataStream 
 	fsFile << (quint8)(pService->m_nRating);
 	fsFile << pService->m_bBanned;
 	fsFile << pService->m_bZero;
-	fsFile << pService->m_nID;
 	fsFile << pService->m_nLastHosts;
 	fsFile << pService->m_nTotalHosts;
 	fsFile << pService->m_nAltServices;

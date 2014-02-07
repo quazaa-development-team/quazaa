@@ -36,13 +36,15 @@
 
 #include "systemlog.h"
 #include "networktype.h"
+#include "idprovider.h"
 
 // Increment this if there have been made changes to the way of storing discovery services.
-#define DISCOVERY_CODE_VERSION	2
+#define DISCOVERY_CODE_VERSION	3
 // History:
 // 0 - Initial implementation
 // 1 - Full implementation of GWC spec 2.0.
 // 2 - Added redirect URL storing to services
+// 3 - Removed GUI ID from file
 
 #define DISCOVERY_MAX_PROBABILITY 5
 
@@ -150,8 +152,8 @@ private:
 	// true if current Discovery Manager state has already been saved to file, false otherwise.
 	bool                    m_bSaved;
 
-	// last ID to assigned by the manager.
-	ServiceID               m_nLastID;
+	// service ID provider
+	IDProvider< ServiceID > m_oIDProvider;
 
 	// thread used by the manager
 	QThread*                m_pHostCacheDiscoveryThread;

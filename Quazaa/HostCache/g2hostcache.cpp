@@ -542,7 +542,7 @@ void G2HostCache::save(const quint32 tNow) const
 	{
 		m_tLastSave = tNow;
 		systemLog.postLog( LogSeverity::Debug, Components::HostCache,
-						   QObject::tr( "Saved %1 hosts." ).arg( nCount ) );
+						   QObject::tr( "%1 hosts saved." ).arg( nCount ) );
 	}
 #endif // QUAZAA_SETUP_UNIT_TESTS
 }

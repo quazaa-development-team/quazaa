@@ -47,7 +47,6 @@ using namespace Discovery;
 Manager::Manager(QObject *parent) :
 	QObject( parent ),
 	m_bSaved( true ),
-	m_nLastID( 0 ),
 	m_pActive( new quint16[Discovery::ServiceType::NoOfTypes] )
 {
 	for ( quint8 i = 0; i < ServiceType::NoOfTypes; ++i )
@@ -493,11 +492,11 @@ bool Manager::asyncSyncSavingHelper()
 	postLog( LogSeverity::Debug, "asyncSyncSavingHelper()", true );
 #endif
 
-	postLog( LogSeverity::Notice, tr( "Saving Discovery Services Manager state." ) );
-
 	QString sPath          = CQuazaaGlobals::DATA_PATH() + "discovery.dat";
 	QString sBackupPath    = CQuazaaGlobals::DATA_PATH() + "discovery_backup.dat";
 	QString sTemporaryPath = sBackupPath + "_tmp";
+
+	postLog( LogSeverity::Debug, tr( "Saving to file: %1" ).arg( sPath ) );
 
 #if ENABLE_DISCOVERY_DEBUGGING
 	postLog( LogSeverity::Debug, "defined paths", true );
@@ -614,7 +613,7 @@ bool Manager::asyncSyncSavingHelper()
 						   + sBackupPath );
 	}
 
-	postLog( LogSeverity::Debug, tr( "Saved %1 services to file." ).arg( nCount ) );
+	postLog( LogSeverity::Debug, tr( "%1 services saved." ).arg( nCount ) );
 
 	return true;
 }
@@ -869,11 +868,13 @@ void Manager::doClear(bool bInformGUI)
 		foreach ( MapPair pair, m_mServices )
 		{
 			emit serviceRemoved( pair.second->m_nID ); // inform GUI
+
+			// free GUI ID
+			m_oIDProvider.release( pair.second->m_nID );
 		}
 	}
 
 	m_mServices.clear();	// TServicePtr takes care of service deletion
-	m_nLastID = 0;			// make sure to recycle the IDs.
 }
 
 /**
@@ -905,8 +906,7 @@ bool Manager::doRemove(ServiceID nID)
 	m_mServices.erase( nID );
 
 	// Make sure to reassign the now unused ID.
-	if ( --nID < m_nLastID )
-		m_nLastID = nID;
+	m_oIDProvider.release( nID );
 
 	return true;
 }
@@ -1074,33 +1074,8 @@ bool Manager::add(ServicePtr& pService)
 		return false;
 	}
 
-	// check for already existing ID
-	if ( pService->m_nID && m_mServices.find( pService->m_nID ) != m_mServices.end() )
-	{
-		// We need to assign a new ID, as the previous ID of this service is already in use.
-
-		// This should not happen as the services from file should be loaded into the manager before
-		// any new services that might be added during the session.
-		Q_ASSERT( false );
-
-		pService->m_nID = 0; // set ID to invalid.
-	}
-
-	// assign valid ID if necessary
-	if ( !pService->m_nID )
-	{
-		ConstIterator it;
-		do
-		{
-			// Check the next ID until a free one is found.
-			it = m_mServices.find( ++m_nLastID );
-		}
-		while ( !m_nLastID // overflow is allowed and expected once all IDs have been used once
-				|| it != m_mServices.end() );
-
-		// assign ID to service
-		pService->m_nID = m_nLastID;
-	}
+	// assign ID to service
+	pService->m_nID = m_oIDProvider.aquire();
 
 	// push to map
 	m_mServices[pService->m_nID] = pService;
