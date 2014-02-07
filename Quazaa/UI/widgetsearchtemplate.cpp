@@ -301,7 +301,7 @@ void CWidgetSearchTemplate::on_actionBanNode_triggered()
 		if ( ok && !reason.isEmpty() )
 		{
 			CEndPoint address = itemSearch->HitData.pQueryHit.data()->m_pHitInfo.data()->m_oNodeAddress;
-			securityManager.ban( address, Security::RuleTime::Session, true, reason, false );
+			securityManager.ban( address, Security::RuleTime::SixMonths, true, reason, false );
 			m_pSearchModel->removeQueryHit(CurrentItem().row(), m_pSearchModel->parent(CurrentItem()));
 		}
 	}
