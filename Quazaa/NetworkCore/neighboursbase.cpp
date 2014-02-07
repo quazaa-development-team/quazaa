@@ -119,7 +119,7 @@ void CNeighboursBase::maintain()
 
 void CNeighboursBase::sanityCheck()
 {
-	qDebug() << "[Neighbours] Started sanity checking.";
+	//qDebug() << "[Neighbours] Started sanity checking.";
 	securityManager.m_oSanity.lockForRead();
 	//qDebug() << "Got sanity lock. Waiting for Neighbours.";
 
@@ -153,7 +153,7 @@ void CNeighboursBase::sanityCheck()
 
 	emit sanityCheckPerformed();
 
-	qDebug() << QString( "[Neighbours] Finished sanity checking. %1 hosts removed."
+	qDebug() << QString( "[Neighbours] Finished sanity checking. %1 host(s) removed."
 						 ).arg( nCount ).toLocal8Bit().data();
 }
 
