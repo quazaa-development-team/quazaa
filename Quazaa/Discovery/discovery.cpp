@@ -240,6 +240,9 @@ ServiceID Manager::add(QString sURL, const ServiceType::Type eSType,
 
 			postLog( LogSeverity::Notice, tr( "New discovery service added: " ) + sURL );
 
+			qDebug() << "Service added; ID: "
+					 << QString::number( pService->id() ).toLocal8Bit().data();
+
 			// inform GUI about new service
 			emit serviceAdded( pService );
 			return nTmp;
@@ -622,6 +625,9 @@ void Manager::asyncRequestServiceListHelper()
 	m_pSection.lock();
 	foreach ( MapPair pair, m_mServices )
 	{
+		qDebug() << "Service info; ID: "
+				 << QString::number( pair.second->id() ).toLocal8Bit().data();
+
 		emit serviceInfo( pair.second );
 	}
 	m_pSection.unlock();
@@ -916,39 +922,29 @@ void Manager::load()
 {
 	QString sPath = CQuazaaGlobals::DATA_PATH() + "discovery.dat";
 
-#if ENABLE_DISCOVERY_DEBUGGING
-	postLog( LogSeverity::Debug, "Started loading services.", true );
-#endif
-
 	if ( load( sPath ) )
 	{
-		postLog( LogSeverity::Debug, tr( "Loaded discovery services from file: " ) + sPath );
+		postLog( LogSeverity::Debug, tr( "Loaded %1 discovery services from file: "
+										 ).arg( QString::number( count() ) ) + sPath );
 	}
 	else // Unable to load default file. Switch to backup one instead.
 	{
-#if ENABLE_DISCOVERY_DEBUGGING
-	postLog( LogSeverity::Debug, "Failed primary attempt on loading services.", true );
-#endif
-
 		sPath = CQuazaaGlobals::DATA_PATH() + "discovery_backup.dat";
 
 		postLog( LogSeverity::Warning,
 				 tr( "Failed to load discovery services from primary file. Switching to backup: " )
 				 + sPath );
 
-		if ( !load( sPath ) )
+		if ( load( sPath ) )
 		{
-#if ENABLE_DISCOVERY_DEBUGGING
-	postLog( LogSeverity::Debug, "Failed secondary attempt on loading services.", true );
-#endif
-
-			postLog( LogSeverity::Error, tr( "Failed to load discovery services!" ) );
+			postLog( LogSeverity::Debug, tr( "Loaded %1 discovery services from backup file: "
+											 ).arg( QString::number( count() ) ) + sPath );
+		}
+		else
+		{
+			postLog( LogSeverity::Warning, "Failed secondary attempt on loading services!" );
 		}
 	}
-
-#if ENABLE_DISCOVERY_DEBUGGING
-	postLog( LogSeverity::Debug, QString( "Number of services: %1" ).arg( count() ), true );
-#endif
 
 	if ( count() < 5 )
 	{
@@ -964,6 +960,8 @@ void Manager::load()
 			 true );
 #endif
 	}
+
+	emit loadingFinished();
 }
 
 bool Manager::load( QString sPath )

@@ -105,12 +105,14 @@ CWidgetDiscovery::CWidgetDiscovery(QWidget* parent) :
 							   fm.width( " -Alt. Services- " ) );
 		header->resizeSection( DiscoveryTableModel::FAILURES,
 							   fm.width( " -Failures- " ) );
+
 #if ENABLE_DISCOVERY_DEBUGGING
-		header->resizeSection( CDiscoveryTableModel::RATING,
+		header->resizeSection( DiscoveryTableModel::RATING,
 							   fm.width( " -Rating- " ) );
-		header->resizeSection( CDiscoveryTableModel::MULTIPLICATOR,
+		header->resizeSection( DiscoveryTableModel::MULTIPLICATOR,
 							   fm.width( " -Mult.- " ) );
-#endif
+#endif // ENABLE_DISCOVERY_DEBUGGING
+
 		header->resizeSection( DiscoveryTableModel::PONG,
 							   fm.width( " Some space to fill in the pong reply " ) );
 	}

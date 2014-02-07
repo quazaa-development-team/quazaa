@@ -319,10 +319,15 @@ signals:
 	void serviceRemoved(ServiceID nServiceID);
 
 	/**
-	 * @brief serviceInfo is emitted once for each service on request via requestRuleList().
+	 * @brief serviceInfo is emitted once for each service on request via requestServiceList().
 	 * @param pService
 	 */
 	void serviceInfo(ConstServicePtr pService);
+
+	/**
+	 * @brief loadingFinished is emitted after new rules have been loaded.
+	 */
+	void loadingFinished();
 
 private slots:
 	// All methods in this section are helpers to do certain tasks asynchronously. See their

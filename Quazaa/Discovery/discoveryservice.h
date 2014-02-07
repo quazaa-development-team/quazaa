@@ -443,7 +443,7 @@ bool DiscoveryService::isBanned() const
 }
 
 #if ENABLE_DISCOVERY_DEBUGGING
-quint8 CDiscoveryService::probaMult() const
+quint8 DiscoveryService::probaMult() const
 {
 	return m_nProbaMult;
 }

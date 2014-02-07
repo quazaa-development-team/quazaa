@@ -311,14 +311,14 @@ DiscoveryTableModel::DiscoveryTableModel(QObject *parent, QWidget* container) :
 	m_pIcons[GWC_BLUE]  = new QIcon( ":/Resource/Discovery/DiscoveryGWCBlue.ico"  );
 	m_pIcons[GWC_GRAY]  = new QIcon( ":/Resource/Discovery/DiscoveryGWCGray.ico"  );
 
-	connect( &discoveryManager, &Discovery::Manager::serviceAdded, this,
-			 &DiscoveryTableModel::addService, Qt::QueuedConnection );
-	connect( &discoveryManager, &Discovery::Manager::serviceRemoved, this,
+	connect( &discoveryManager, &Discovery::Manager::serviceAdded,    this,
+			 &DiscoveryTableModel::addService,    Qt::QueuedConnection );
+
+	connect( &discoveryManager, &Discovery::Manager::serviceRemoved,  this,
 			 &DiscoveryTableModel::removeService, Qt::QueuedConnection );
 
-	// This needs to be called to make sure that all rules added to the discoveryManager before this
-	// part of the GUI is loaded are properly added to the model.
-	completeRefresh();
+	connect( &discoveryManager, &Discovery::Manager::loadingFinished, this,
+			 &DiscoveryTableModel::updateAll,     Qt::QueuedConnection );
 }
 
 DiscoveryTableModel::~DiscoveryTableModel()
@@ -577,6 +577,10 @@ bool DiscoveryTableModel::isIndexBanned(const QModelIndex& index) const
 
 void DiscoveryTableModel::completeRefresh()
 {
+	// remove any connections that might be left over...
+	disconnect( &discoveryManager, &Discovery::Manager::serviceInfo, this,
+				&DiscoveryTableModel::addService );
+
 	// Remove all rules.
 	if ( m_lNodes.size() )
 	{
@@ -590,8 +594,8 @@ void DiscoveryTableModel::completeRefresh()
 	}
 
 	// Note that this slot is automatically disconnected once all rules have been recieved once.
-	connect( &discoveryManager, SIGNAL( serviceInfo( ConstServicePtr ) ), this,
-			 SLOT( addService( ConstServicePtr ) ), Qt::QueuedConnection );
+	connect( &discoveryManager, &Discovery::Manager::serviceInfo, this,
+			 &DiscoveryTableModel::addService, Qt::QueuedConnection );
 
 	// Request getting them back from the Security Manager.
 	discoveryManager.requestServiceList();
@@ -604,6 +608,9 @@ void DiscoveryTableModel::addService(ConstServicePtr pService)
 		beginInsertRows( QModelIndex(), m_lNodes.size(), m_lNodes.size() );
 
 		pService->lockForRead();
+
+		qDebug() << QString( "Adding service with ID %1 to GUI."
+							 ).arg( QString::number( pService->id() ) ).toLocal8Bit().data();
 		m_lNodes.append( new Service( pService, this ) );
 		pService->unlock();
 
@@ -616,8 +623,8 @@ void DiscoveryTableModel::addService(ConstServicePtr pService)
 	if ( m_lNodes.size() == (int)discoveryManager.count() )
 	{
 		// Make sure we don't recieve any signals we don't want once we got all rules once.
-		disconnect( &discoveryManager, SIGNAL( serviceInfo( ConstServicePtr ) ),
-					this, SLOT( addService( ConstServicePtr ) ) );
+		disconnect( &discoveryManager, &Discovery::Manager::serviceInfo, this,
+					&DiscoveryTableModel::addService );
 
 		// Make sure the view stays sorted.
 		updateView();
@@ -659,11 +666,6 @@ void DiscoveryTableModel::updateAll()
 {
 	if ( (quint32)m_lNodes.size() != discoveryManager.count() )
 	{
-#ifdef _DEBUG
-		// This is something that should not have happened.
-		Q_ASSERT( false );
-#endif // _DEBUG
-
 		completeRefresh();
 		return;
 	}
