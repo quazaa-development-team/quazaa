@@ -1406,7 +1406,7 @@ void CG2Node::onHaw(G2Packet *pPacket)
 {
 	if ( ! pPacket->m_bCompound ) 	return;
 
-	QString strVendor;
+	QString sVendor;
 	char szType[9];
 	quint32 nLength = 0, nNext = 0;
 
@@ -1418,7 +1418,7 @@ void CG2Node::onHaw(G2Packet *pPacket)
 
 		if ( strcmp("V", szType) == 0 && nLength >= 4 )
 		{
-			strVendor = pPacket->readString( 4 );
+			sVendor = pPacket->readString( 4 );
 		}
 		else if ( strcmp("NA", szType) == 0 )
 		{
@@ -1448,10 +1448,10 @@ void CG2Node::onHaw(G2Packet *pPacket)
 
 	/*	QUuid oGUID = */pPacket->readGUID();
 
-	if( !strVendor.isEmpty() && securityManager.isVendorBlocked(strVendor) )
+	if( !sVendor.isEmpty() && securityManager.isVendorBlocked(sVendor) )
 	{
 		securityManager.ban( addr, Security::RuleTime::SixHours, true,
-							 QString( "[AUTO] Vendor blocked (%1)" ).arg( strVendor ), true
+							 QString( "[AUTO] Vendor blocked (%1)" ).arg( sVendor ), true
 #if SECURITY_LOG_BAN_SOURCES
 							 , QString( "g2node.cpp line 1545" )
 #endif // SECURITY_LOG_BAN_SOURCES
