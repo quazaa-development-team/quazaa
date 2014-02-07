@@ -22,13 +22,7 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QStringList>
-#include <QUrlQuery>
-
 #include "network.h"
-#include "quazaaglobals.h"
 #include "version.h"
 
 #include "gwc.h"
@@ -165,6 +159,11 @@ void GWC::requestCompleted(QNetworkReply* pReply)
 {
 	QWriteLocker oGWCLock( &m_oRWLock );
 
+	if ( pReply && pReply->request() != *m_pRequest )
+	{
+		return; // reply was meant for sb else
+	}
+
 	if ( !pReply || !isRunning() || !m_pRequest ) // we got cancelled while waiting for the lock
 	{
 		postLog( LogSeverity::Warning, QString( "The request got probably cancelled while " ) +
@@ -190,10 +189,15 @@ void GWC::requestCompleted(QNetworkReply* pReply)
 		return;
 	}
 
-	if ( pReply->request() != *m_pRequest )
+	if ( handleRedirect( m_pNAMgr, pReply, m_pRequest ) )
 	{
-		return; // reply was meant for sb else
+		return; // we got redirected to an alternate URL
+		// in this case handleRedirect() has send a new query using the exisiting NAM
 	}
+
+	// connection not needed anymore
+	disconnect( m_pNAMgr.data(), &QNetworkAccessManager::finished,
+				this, &GWC::requestCompleted );
 
 	postLog( LogSeverity::Debug, tr( "Recieved answer from GWC." ) );
 

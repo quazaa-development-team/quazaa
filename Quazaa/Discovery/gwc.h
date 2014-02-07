@@ -43,7 +43,7 @@ class GWC : public DiscoveryService
 	/* ======================================= Attributes ======================================= */
 	/* ========================================================================================== */
 private:
-	QSharedPointer<QNetworkAccessManager> m_pNAMgr;
+	QNAMPtr m_pNAMgr;
 	QNetworkRequest* m_pRequest;
 	bool m_bGnutella;
 	bool m_bG2;

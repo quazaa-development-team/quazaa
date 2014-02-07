@@ -38,10 +38,11 @@
 #include "networktype.h"
 
 // Increment this if there have been made changes to the way of storing discovery services.
-#define DISCOVERY_CODE_VERSION	1
+#define DISCOVERY_CODE_VERSION	2
 // History:
 // 0 - Initial implementation
 // 1 - Full implementation of GWC spec 2.0.
+// 2 - Added redirect URL storing to services
 
 #define DISCOVERY_MAX_PROBABILITY 5
 
@@ -90,6 +91,11 @@ typedef quint16 ServiceID;
  * the manager to access information on a discovery service.
  */
 typedef QSharedPointer< const DiscoveryService > ConstServicePtr;
+
+/**
+ * @brief QNAMPtr is a shared pointer for QNetworkAccessManager handling.
+ */
+typedef QSharedPointer<QNetworkAccessManager> QNAMPtr;
 
 class Manager : public QObject
 {
@@ -259,7 +265,7 @@ public:
 	 * Locking: YES (synchronous)
 	 * @return
 	 */
-	QSharedPointer<QNetworkAccessManager> requestNAM();
+	QNAMPtr requestNAM();
 
 	/**
 	 * @brief requestServiceList can be used to obtain a complete list of all currently managed

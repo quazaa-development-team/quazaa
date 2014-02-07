@@ -53,6 +53,7 @@ DiscoveryService::DiscoveryService(const QUrl& oURL, const CNetworkType& oNType,
 	m_tLastSuccess( 0 ),
 	m_nFailures( 0 ),
 	m_nZeroRevivals( 0 ),
+	m_nRedirectCount( 0 ),
 	m_bRunning( false )
 {
 }
@@ -63,6 +64,7 @@ DiscoveryService::DiscoveryService(const QUrl& oURL, const CNetworkType& oNType,
  */
 DiscoveryService::DiscoveryService(const DiscoveryService& pService) :
 	QObject(),
+	m_nRedirectCount( 0 ),
 	m_bRunning( false )
 {
 	// The usage of a custom copy constructor makes sure the list of registered
@@ -133,7 +135,7 @@ void DiscoveryService::load(DiscoveryService*& pService, QDataStream &fsFile, in
 {
 	quint8     nServiceType;        // GWC, UKHL, ...
 	quint16    nNetworkType;        // could be several in case of GWC for instance
-	QString    sURL;
+	QString    sURL, sRedirectURL;
 	QString    sPong;               // answer to ping
 	quint8     nRating;             // 0: bad; 10: very good
 	bool       bBanned;             // service URL is blocked
@@ -150,6 +152,7 @@ void DiscoveryService::load(DiscoveryService*& pService, QDataStream &fsFile, in
 	fsFile >> nServiceType;
 	fsFile >> nNetworkType;
 	fsFile >> sURL;
+	fsFile >> sRedirectURL;
 	fsFile >> sPong;
 	fsFile >> nRating;
 	fsFile >> bBanned;
@@ -180,6 +183,8 @@ void DiscoveryService::load(DiscoveryService*& pService, QDataStream &fsFile, in
 		pService->m_nFailures     = nFailures;
 		pService->m_nZeroRevivals = nZeroRatingFailures;
 
+		pService->m_oCurrentRedirectUrl = QUrl( sRedirectURL );
+
 #if ENABLE_DISCOVERY_DEBUGGING
 		QString s = QString( "Rating: " )         + QString::number( pService->m_nRating ) +
 					QString( " Multiplicator: " ) + QString::number( pService->m_nProbaMult );
@@ -199,6 +204,7 @@ void DiscoveryService::save(const DiscoveryService* const pService, QDataStream 
 	fsFile << (quint8)(pService->m_nServiceType);
 	fsFile << (quint16)(pService->m_oNetworkType.toQuint16());
 	fsFile << pService->m_oServiceURL.toString();
+	fsFile << pService->m_oCurrentRedirectUrl.toString();
 	fsFile << pService->m_sPong;
 	fsFile << (quint8)(pService->m_nRating);
 	fsFile << pService->m_bBanned;
@@ -379,7 +385,7 @@ void DiscoveryService::unlock() const
  * @param nHosts
  */
 void DiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16 nURLs,
-										 bool bUpdateOK)
+										bool bUpdateOK)
 {
 #if ENABLE_DISCOVERY_DEBUGGING
 	postLog( LogSeverity::Debug,
@@ -424,7 +430,7 @@ void DiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16 
 	else // fail
 	{
 		// Check network connected status and skip this if network is not connected
-		QSharedPointer<QNetworkAccessManager> pNAM = discoveryManager.requestNAM();
+		QNAMPtr pNAM = discoveryManager.requestNAM();
 
 		if ( pNAM->networkAccessible() == QNetworkAccessManager::Accessible )
 		{
@@ -501,3 +507,82 @@ void DiscoveryService::postLog(LogSeverity::Severity severity, QString message, 
 {
 	Manager::postLog( severity, message, bDebug, m_nID );
 }
+
+/**
+ * @brief handleRedirect detects redirects on network requests and follows them.
+ * @param pReply : the server reply
+ * @param pRequest : the old request - will be changed if redirection is detected
+ * @return true on redirect; false otherwise
+ */
+bool DiscoveryService::handleRedirect(QNAMPtr pNAMgr, QNetworkReply* pReply,
+									  QNetworkRequest*& pRequest)
+{
+	bool bURLUpdate = false;
+	bool bRedirect  = false;
+
+	switch ( pReply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt() )
+	{
+	case 301: // hard page redirect, e.g. we need to update our URL
+		bURLUpdate = true;
+	case 302: // soft redirects
+	case 307:
+		bRedirect = true;
+	default:
+		break;
+	}
+
+	if ( bRedirect )
+	{
+		// count number of redirection steps for redirection loop detection
+		++m_nRedirectCount;
+
+		QUrl oRedirect, oOriginal = pRequest->url();
+
+		// max 5 redirects in a row else we query an empty URL which results in an error lateron
+		if ( m_nRedirectCount < 5 )
+		{
+			oRedirect = pReply->attribute( QNetworkRequest::RedirectionTargetAttribute ).toUrl();
+
+			if ( oRedirect.query().isEmpty() )
+			{
+				// recycle the original query string
+				oRedirect.setQuery( oOriginal.query() );
+			}
+		}
+		else
+		{
+			qDebug() << "[DiscoveryService] REDIRECT LOOP DETECTED!";
+		}
+
+		pReply->deleteLater();
+		delete pRequest;
+
+		// generate request with redirected URL
+		pRequest = new QNetworkRequest( oRedirect );
+		pRequest->setRawHeader( "User-Agent", CQuazaaGlobals::USER_AGENT_STRING().toLocal8Bit() );
+
+		// service moved permanently and we have to remember its new location
+		if ( bURLUpdate )
+		{
+			// remove query strings
+			oOriginal.setQuery( "" );
+			oRedirect.setQuery( "" );
+
+			postLog( LogSeverity::Information,
+					 tr( "Discovery Service %1 has been permanently moved to %2."
+						 ).arg( oOriginal.toString(), oRedirect.toString() ) );
+
+			m_oServiceURL = oRedirect;
+			// no need do update GUI here as that is done anyway when handling the reply
+		}
+
+		// send new request to redirectod url
+		pNAMgr->get( *pRequest );
+
+		return true;
+	}
+
+	m_nRedirectCount = 0;
+	return false;
+}
+

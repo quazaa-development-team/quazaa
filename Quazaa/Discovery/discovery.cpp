@@ -339,16 +339,15 @@ bool Manager::isActive(const ServiceType::Type eSType)
  * Locking: YES (synchronous)
  * @return
  */
-QSharedPointer<QNetworkAccessManager> Manager::requestNAM()
+QNAMPtr Manager::requestNAM()
 {
 	m_pSection.lock();
 
-	QSharedPointer<QNetworkAccessManager> pReturnVal = m_pNetAccessMgr.toStrongRef();
+	QNAMPtr pReturnVal = m_pNetAccessMgr.toStrongRef();
 	if ( !pReturnVal )
 	{
 		// else create a new access manager (will be deleted if nobody is using it anymore)
-		pReturnVal = QSharedPointer<QNetworkAccessManager>( new QNetworkAccessManager(),
-															&QObject::deleteLater );
+		pReturnVal = QNAMPtr( new QNetworkAccessManager(), &QObject::deleteLater );
 		m_pNetAccessMgr = pReturnVal.toWeakRef();
 
 		// Make sure the networkAccessible state is properly initialized.

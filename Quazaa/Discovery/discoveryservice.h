@@ -25,6 +25,10 @@
 #ifndef DISCOVERYSERVICE_H
 #define DISCOVERYSERVICE_H
 
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QStringList>
+#include <QUrlQuery>
 #include <QDataStream>
 #include <QReadWriteLock>
 #include <QUrl>
@@ -36,8 +40,7 @@
 #include "g2hostcache.h"
 #include "commonfunctions.h"
 #include "Misc/timedsignalqueue.h"
-
-//TODO: Hunt down QObject::startTimer: QTimer can only be used with threads started with QThread
+#include "quazaaglobals.h"
 
 namespace Discovery
 {
@@ -55,6 +58,7 @@ protected:
 	ServiceType::Type      m_nServiceType; // GWC, UKHL, ...
 	CNetworkType           m_oNetworkType; // could be several in case of GWC for instance
 	QUrl                   m_oServiceURL;
+	QUrl                   m_oCurrentRedirectUrl;
 	QString                m_sPong;        // The service's reply to a ping request
 
 	bool                   m_bQuery;       // last request was a query (false: [...]an update)
@@ -69,20 +73,20 @@ private:
 									// to 0 probability no matter its previous proba. For banned
 									// hosts, this indicates the host has been banned because of too
 									// many failures.
-	ServiceID      m_nID;          // ID used by the manager to identify the service; 0:invalid
+	ServiceID       m_nID;          // ID used by the manager to identify the service; 0:invalid
 
 	quint16         m_nLastHosts;   // number of hosts returned by the service on last query
 	quint32         m_nTotalHosts;  // all hosts we ever got from the service
 	quint16         m_nAltServices; // alternate services known to the service passed on to us when
 									// last we queried
-									// TODO: implement.
 	quint32         m_tLastAccessed;// last time we queried/updated the service
 									// Note: for banned services, this holds the ban time
-									// TODO: implement.
 	quint32         m_tLastSuccess; // last time we accessed the service successfully
 	quint8          m_nFailures;    // query failures in a row
 	quint8          m_nZeroRevivals;// counts number of times this service has been revived from a
 									// 0 rating.
+
+	quint8          m_nRedirectCount;
 
 	bool            m_bRunning;     // service is currently doing network communication
 
@@ -369,7 +373,7 @@ private:
 	void setRating(quint8 nRating);
 
 	/* ========================================================================================== */
-	/* ==================================== Private Helpers  ==================================== */
+	/* =================================== Protected Helpers  =================================== */
 	/* ========================================================================================== */
 protected:
 	/**
@@ -381,6 +385,14 @@ protected:
 	 * to the system log.
 	 */
 	void postLog(LogSeverity::Severity severity, QString message, bool bDebug = false);
+
+	/**
+	 * @brief handleRedirect detects redirects on network requests and follows them.
+	 * @param pReply : the server reply
+	 * @param pRequest : the old request - will be changed if redirection is detected
+	 * @return true on redirect; false otherwise
+	 */
+	bool handleRedirect(QNAMPtr pNAMgr, QNetworkReply* pReply, QNetworkRequest*& pRequest);
 
 	/* ========================================================================================== */
 	/* ==================================== Private Virtuals ==================================== */
