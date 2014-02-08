@@ -58,7 +58,7 @@ protected:
 	ServiceType::Type      m_nServiceType; // GWC, UKHL, ...
 	CNetworkType           m_oNetworkType; // could be several in case of GWC for instance
 	QUrl                   m_oServiceURL;
-	QUrl                   m_oCurrentRedirectUrl;
+	QUrl                   m_oRedirectUrl;
 	QString                m_sPong;        // The service's reply to a ping request
 
 	bool                   m_bQuery;       // last request was a query (false: [...]an update)

@@ -320,6 +320,18 @@ bool Manager::check(const ConstServicePtr pService)
 }
 
 /**
+ * @brief initiateSearchForDuplicates schedules a check for services identical to the service
+ * specified by the given ID.
+ * Locking: YES (asynchronous)
+ * @param nID : the service ID
+ */
+void Manager::initiateSearchForDuplicates(ServiceID nID)
+{
+	QMetaObject::invokeMethod( this, "asyncManageDuplicatesHelper",
+							   Qt::QueuedConnection, Q_ARG( ServiceID, nID ) );
+}
+
+/**
  * @brief isActive allows to find out whether the Discovery Manager is currently active.
  * Locking: YES (synchronous)
  * @param eSType
@@ -824,6 +836,11 @@ void Manager::asyncQueryServiceHelper(ServiceID nID)
 #endif
 }
 
+void Manager::asyncManageDuplicatesHelper(ServiceID nID)
+{
+	// TODO: implement.
+}
+
 /**
  * @brief doCount: Internal helper without locking. See count for documentation.
  */
@@ -1313,6 +1330,7 @@ bool Manager::checkBan(QString sURL) const
 // TODO: Further improve this
 // TODO: implement bans overwriting existing services
 // TODO: lookup service domain and keep it updated when accessing service to detect duplicates
+// TODO: query new services?
 bool Manager::manageDuplicates(ServicePtr& pService)
 {
 	QString sURL = pService->m_oServiceURL.toString();

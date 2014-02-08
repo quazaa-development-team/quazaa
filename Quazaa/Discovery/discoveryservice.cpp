@@ -40,6 +40,7 @@ DiscoveryService::DiscoveryService(const QUrl& oURL, const CNetworkType& oNType,
 	m_nServiceType( ServiceType::Null ),
 	m_oNetworkType( oNType ),
 	m_oServiceURL( oURL ),
+	m_oRedirectUrl( oURL ),
 	m_bQuery( true ),
 	m_bBanned( false ),
 	m_nRating( nRating ),
@@ -73,6 +74,7 @@ DiscoveryService::DiscoveryService(const DiscoveryService& pService) :
 	m_nServiceType  = pService.m_nServiceType;
 	m_oNetworkType  = pService.m_oNetworkType;
 	m_oServiceURL   = pService.m_oServiceURL;
+	m_oRedirectUrl  = pService.m_oRedirectUrl;
 	m_sPong         = pService.m_sPong;
 	m_nRating       = pService.m_nRating;
 	m_bBanned       = pService.m_bBanned;
@@ -94,7 +96,6 @@ DiscoveryService::DiscoveryService(const DiscoveryService& pService) :
  */
 DiscoveryService::~DiscoveryService()
 {
-
 }
 
 /**
@@ -180,7 +181,7 @@ void DiscoveryService::load(DiscoveryService*& pService, QDataStream &fsFile, in
 		pService->m_nFailures     = nFailures;
 		pService->m_nZeroRevivals = nZeroRatingFailures;
 
-		pService->m_oCurrentRedirectUrl = QUrl( sRedirectURL );
+		pService->m_oRedirectUrl = QUrl( sRedirectURL );
 
 #if ENABLE_DISCOVERY_DEBUGGING
 		QString s = QString( "Rating: " )         + QString::number( pService->m_nRating ) +
@@ -201,7 +202,7 @@ void DiscoveryService::save(const DiscoveryService* const pService, QDataStream 
 	fsFile << (quint8)(pService->m_nServiceType);
 	fsFile << (quint16)(pService->m_oNetworkType.toQuint16());
 	fsFile << pService->m_oServiceURL.toString();
-	fsFile << pService->m_oCurrentRedirectUrl.toString();
+	fsFile << pService->m_oRedirectUrl.toString();
 	fsFile << pService->m_sPong;
 	fsFile << (quint8)(pService->m_nRating);
 	fsFile << pService->m_bBanned;
@@ -557,19 +558,28 @@ bool DiscoveryService::handleRedirect(QNAMPtr pNAMgr, QNetworkReply* pReply,
 		pRequest = new QNetworkRequest( oRedirect );
 		pRequest->setRawHeader( "User-Agent", CQuazaaGlobals::USER_AGENT_STRING().toLocal8Bit() );
 
-		// service moved permanently and we have to remember its new location
+		// remove query strings
+		oOriginal.setQuery( "" );
+		oRedirect.setQuery( "" );
+
+		// service has been moved permanently and we have to remember its new location
 		if ( bURLUpdate )
 		{
-			// remove query strings
-			oOriginal.setQuery( "" );
-			oRedirect.setQuery( "" );
-
 			postLog( LogSeverity::Information,
 					 tr( "Discovery Service %1 has been permanently moved to %2."
 						 ).arg( oOriginal.toString(), oRedirect.toString() ) );
 
 			m_oServiceURL = oRedirect;
+			m_oRedirectUrl = oRedirect;
+
+			discoveryManager.initiateSearchForDuplicates( m_nID );
+
 			// no need do update GUI here as that is done anyway when handling the reply
+		}
+		else if ( m_oRedirectUrl != oRedirect )
+		{
+			m_oRedirectUrl = oRedirect;
+			discoveryManager.initiateSearchForDuplicates( m_nID );
 		}
 
 		// send new request to redirectod url

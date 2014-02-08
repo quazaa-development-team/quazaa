@@ -252,6 +252,14 @@ public:
 	bool check(const ConstServicePtr pService);
 
 	/**
+	 * @brief initiateSearchForDuplicates schedules a check for services identical to the service
+	 * specified by the given ID.
+	 * Locking: YES (asynchronous)
+	 * @param nID : the service ID
+	 */
+	void initiateSearchForDuplicates(ServiceID nID);
+
+	/**
 	 * @brief isActive allows to find out whether the Discovery Manager is currently active.
 	 * Locking: YES (synchronous)
 	 * @param eSType
@@ -345,6 +353,7 @@ private slots:
 	void asyncUpdateServiceHelper(ServiceID nID);
 	void asyncQueryServiceHelper(const CNetworkType type);
 	void asyncQueryServiceHelper(ServiceID nID);
+	void asyncManageDuplicatesHelper(ServiceID nID);
 
 private:
 	/**
