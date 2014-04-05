@@ -160,7 +160,8 @@ private:
 	static void save(const DiscoveryService* const pService, QDataStream& fsFile);
 
 	/**
-	 * @brief createService allows to create valid services.
+	 * @brief createService allows to create valid services. Note that new services are marked as
+	 * having been zero so they will be downgraded fast if found non functional.
 	 * Locking: / (static member)
 	 * @param sURL
 	 * @param eSType

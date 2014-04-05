@@ -224,7 +224,7 @@ public:
 	 * added.
 	 */
 	ServiceID add(QString sURL, const ServiceType::Type eSType,
-				  const CNetworkType& oNType, const quint8 nRating = DISCOVERY_MAX_PROBABILITY);
+				  const CNetworkType& oNType, const quint8 nRating);
 
 	/**
 	 * @brief remove removes a service by ID.
@@ -396,22 +396,38 @@ private:
 	void addDefaults();
 
 	/**
-	 * @brief manageBan handles the checking for duplicates when adding a new ban.
+	 * @brief manageBan handles the checking existing services with the same URL when adding a ban.
 	 * Requires locking: YES
-	 * @param sURL
-	 * @param eSType
-	 * @param oNType
-	 * @return true if the caller needs not to worry about adding the banned service anymore
+	 * @param sURL : the URL
+	 * @param eSType : the service type of the banned service
+	 * @param oNType : the network type of the banned service
+	 * @return true if the caller needs not to worry about adding the requested ban anymore
 	 */
-	bool manageBan(QString& sURL, const ServiceType::Type eSType, const CNetworkType& oNType);
+	bool manageBan(const QString& sURL, const ServiceType::Type eSType, const CNetworkType& oNType);
 
 	/**
 	 * @brief checkBan checks a given URL against the list of banned services.
 	 * Requires locking: YES
-	 * @param sURL
-	 * @return true if the URL is already present and has been banned; false otherwise.
+	 * @param sURL : the URL
+	 * @return true if the URL is banned; false otherwise.
 	 */
-	bool checkBan(QString sURL) const;
+	bool checkBan(const QString& sURL) const;
+
+	/**
+	 * @brief lookupUrl finds the service with the specified URL if such a service exists.
+	 * Requires locking: YES
+	 * @param sURL : the URL
+	 * @return the service; note that it is locked for read
+	 */
+	ServicePtr lookupUrl(const QString& sURL) const;
+
+	/**
+	 * @brief lookupDuplicates hands the caller a list of possible duplicates of a specified service
+	 * Requires locking: YES
+	 * @param pService : the service
+	 * @return a list of pairs of duplicates and bool values; bool == true for dominating service
+	 */
+	//std::list< std::pair<Manager::ServicePtr, bool> > lookupDuplicates(ServicePtr& pService);
 
 	/**
 	 * @brief manageDuplicates checks if an identical (or very similar) service is alreads present
@@ -421,7 +437,7 @@ private:
 	 * @return true if a duplicate was detected. pService is deleted and set to nullptr in that
 	 * case. false otherwise.
 	 */
-	bool manageDuplicates(ServicePtr &pService);
+	bool manageDuplicates(ServicePtr &pService, bool bNeedRemoval);
 
 	/**
 	 * @brief normalizeURL transforms a given URL string into a standard form to ease the detection

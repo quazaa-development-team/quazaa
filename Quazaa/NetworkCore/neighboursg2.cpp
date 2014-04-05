@@ -123,7 +123,7 @@ void CNeighboursG2::maintain()
 		 && ( !hostCache.hasConnectable() ) && m_nUnknownInitiated == 0 )
 	{
 		qDebug() << "GWC query: Active:" << discoveryManager.isActive( Discovery::ServiceType::GWC )
-				 << ", empty cache:" << hostCache.isEmpty()
+				 << ", empty host cache:" << hostCache.isEmpty()
 				 << ", has connectable:" << hostCache.hasConnectable()
 				 << ", has unknown initiated:" << (m_nUnknownInitiated != 0);
 		discoveryManager.queryService( CNetworkType( DiscoveryProtocol::G2 ) );

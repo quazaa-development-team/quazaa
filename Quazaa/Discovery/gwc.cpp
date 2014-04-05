@@ -350,7 +350,7 @@ void GWC::requestCompleted(QNetworkReply* pReply)
 	while ( lURLList.size() )
 	{
 		discoveryManager.add( lURLList.back(), nServiceType,
-							  CNetworkType( DiscoveryProtocol::G2 ) );
+							  CNetworkType( DiscoveryProtocol::G2 ), DISCOVERY_MAX_PROBABILITY );
 		lURLList.pop_back();
 	}
 

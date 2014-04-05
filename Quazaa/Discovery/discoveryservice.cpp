@@ -217,7 +217,8 @@ void DiscoveryService::save(const DiscoveryService* const pService, QDataStream 
 }
 
 /**
- * @brief createService allows to create valid services.
+ * @brief createService allows to create valid services. Note that new services are marked as
+ * having been zero so they will be downgraded fast if found non functional.
  * Locking: / (static member)
  * @param sURL
  * @param eSType
@@ -458,15 +459,9 @@ void DiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16 
 					setRating( (m_nRating > 0) ? m_nRating - 1 : 0 );
 				}
 
-				if ( !m_nRating )
+				if ( !m_nRating && !quazaaSettings.Discovery.ZeroRatingRevivalTries )
 				{
-					m_bZero = true;
-
-					// if no retrial at a later time is wanted, ban the service for good
-					if ( !quazaaSettings.Discovery.ZeroRatingRevivalTries )
-					{
-						m_bBanned = true;
-					}
+					m_bBanned = true;
 				}
 			}
 		}

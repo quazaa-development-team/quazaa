@@ -188,7 +188,13 @@ ServiceID Manager::add(QString sURL, const ServiceType::Type eSType,
 
 	m_pSection.lock();
 
-	if ( eSType == ServiceType::Banned )
+	if ( checkBan( sURL ) )
+	{
+		m_pSection.unlock();
+		postLog( LogSeverity::Warning, tr( "Service URL banned." ) );
+		return 0;
+	}
+	else if ( eSType == ServiceType::Banned )
 	{
 		if ( manageBan( sURL, eSType, oNType ) )
 		{
@@ -196,23 +202,13 @@ ServiceID Manager::add(QString sURL, const ServiceType::Type eSType,
 			return 0;
 		}
 	}
-	else
+	else if ( normalizeURL( sURL ) ) // true if URL changes in the process
 	{
 		if ( checkBan( sURL ) )
 		{
 			m_pSection.unlock();
 			postLog( LogSeverity::Warning, tr( "Service URL banned." ) );
 			return 0;
-		}
-
-		if ( normalizeURL( sURL ) )
-		{
-			if ( checkBan( sURL ) )
-			{
-				m_pSection.unlock();
-				postLog( LogSeverity::Warning, tr( "Service URL banned." ) );
-				return 0;
-			}
 		}
 	}
 
@@ -229,7 +225,7 @@ ServiceID Manager::add(QString sURL, const ServiceType::Type eSType,
 		if ( pService && add( pService ) )
 		{
 			// make sure to return the right ID
-			ServiceID nTmp = pService->m_nID;
+			const ServiceID nTmp = pService->m_nID;
 
 			m_pSection.unlock();
 
@@ -414,12 +410,16 @@ void Manager::updateService(ServiceID nID)
  */
 void Manager::queryService(const CNetworkType& type)
 {
+	qDebug() << "Calling asyncQueryServiceHelper(const CNetworkType&)";
+
 	QMetaObject::invokeMethod( this, "asyncQueryServiceHelper",
 							   Qt::QueuedConnection, Q_ARG( const CNetworkType, type ) );
 }
 
 void Manager::queryService(ServiceID nID)
 {
+	qDebug() << "Calling asyncQueryServiceHelper(ServiceID)";
+
 	QMetaObject::invokeMethod( this, "asyncQueryServiceHelper",
 							   Qt::QueuedConnection, Q_ARG( ServiceID, nID ) );
 }
@@ -435,7 +435,7 @@ QString Manager::getWorkingService(ServiceType::Type type)
 	QMutexLocker l( &m_pSection );
 
 	DiscoveryServicesList list;
-	quint16 nTotalRating = 0;		// Used to store accumulative rating of all services
+	quint16 nTotalRating = 0;		// Used to store accumulative probability rating of all services
 									// taken under consideration as return value.
 	ServicePtr pService;
 
@@ -459,7 +459,7 @@ QString Manager::getWorkingService(ServiceType::Type type)
 			{
 				// ...add the service to the list to select from
 				list.push_back( pService );
-				nTotalRating += pService->m_nRating;
+				nTotalRating += pService->m_nProbaMult;
 			}
 			else
 			{
@@ -481,9 +481,9 @@ QString Manager::getWorkingService(ServiceType::Type type)
 		ServicePtr   pSelected = *current;
 
 		// Iterate threw list until the selected service has been found.
-		while ( nSelectedRating > pSelected->m_nRating )
+		while ( nSelectedRating > pSelected->m_nProbaMult )
 		{
-			nSelectedRating -= pSelected->m_nRating;
+			nSelectedRating -= pSelected->m_nProbaMult;
 			pSelected->m_oRWLock.unlock();
 			pSelected = *( ++current );
 		}
@@ -645,7 +645,6 @@ void Manager::asyncRequestServiceListHelper()
 
 void Manager::asyncUpdateServiceHelper(const CNetworkType type)
 {
-#if ENABLE_DISCOVERY_NAM
 	QSharedPointer<QNetworkAccessManager> pNAM = requestNAM();
 
 	if ( pNAM->networkAccessible() == QNetworkAccessManager::Accessible )
@@ -678,7 +677,6 @@ void Manager::asyncUpdateServiceHelper(const CNetworkType type)
 		postLog( LogSeverity::Error,
 		tr( "Could not update service because the network connection is currently unavailable." ) );
 	}
-#endif // ENABLE_DISCOVERY_NAM
 }
 
 void Manager::asyncUpdateServiceHelper(ServiceID nID)
@@ -725,7 +723,6 @@ void Manager::asyncQueryServiceHelper(const CNetworkType type)
 	postLog( LogSeverity::Debug, s, true );
 #endif
 
-#if ENABLE_DISCOVERY_NAM
 	QSharedPointer<QNetworkAccessManager> pNAM = requestNAM();
 
 	if ( pNAM->networkAccessible() == QNetworkAccessManager::Accessible )
@@ -784,7 +781,6 @@ void Manager::asyncQueryServiceHelper(const CNetworkType type)
 		postLog( LogSeverity::Error,
 		tr( "Could not query service because the network connection is currently unavailable." ) );
 	}
-#endif // ENABLE_DISCOVERY_NAM
 
 #if ENABLE_DISCOVERY_DEBUGGING
 	postLog( LogSeverity::Debug,
@@ -838,7 +834,7 @@ void Manager::asyncQueryServiceHelper(ServiceID nID)
 
 void Manager::asyncManageDuplicatesHelper(ServiceID nID)
 {
-	// TODO: implement.
+	manageDuplicates( (*m_mServices.find( nID )).second, true );
 }
 
 /**
@@ -1086,7 +1082,7 @@ bool Manager::load( QString sPath )
 bool Manager::add(ServicePtr& pService)
 {
 	// remove duplicates and handle bans
-	if ( manageDuplicates( pService ) )
+	if ( manageDuplicates( pService, false ) )
 	{
 		return false;
 	}
@@ -1213,73 +1209,49 @@ void Manager::addDefaults()
 }
 
 /**
- * @brief manageBan handles the checking for duplicates when adding a new ban.
+ * @brief manageBan handles the checking existing services with the same URL when adding a ban.
  * Requires locking: YES
- * @param sURL
- * @param eSType
- * @param oNType
- * @return true if the caller needs not to worry about adding the banned service anymore
+ * @param sURL : the URL
+ * @param eSType : the service type of the banned service
+ * @param oNType : the network type of the banned service
+ * @return true if the caller needs not to worry about adding the requested ban anymore
  */
-bool Manager::manageBan(QString& sURL, const ServiceType::Type eSType, const CNetworkType& oNType)
+bool Manager::manageBan(const QString& sURL, const ServiceType::Type eSType,
+						const CNetworkType& oNType)
 {
 	bool bReturn = false;
 
-	foreach ( MapPair pair, m_mServices )
+	ServicePtr pService = lookupUrl( sURL );
+
+	if ( pService )
 	{
-		// already existing service
-		ServicePtr pService = pair.second;
-		pService->m_oRWLock.lockForWrite();
-
-		// check for services with the same URL; Note: all URLs should be lower case, so case
-		// sensitivity is not a problem here.
-		if ( !pService->m_oServiceURL.toString().compare( sURL ) )
+		// Note: All service with type stBanned also have m_bBanned set to true.
+		// Note also that at the time this is called we have already checked for a duplicate bans.
+		if ( eSType == pService->m_nServiceType )
 		{
-			ServiceID nID = 0;
+			pService->m_oRWLock.unlock();
+			pService->m_oRWLock.lockForWrite();
 
-			// All service with type stBanned have m_bBanned set to true.
-			if ( /*pService->m_nServiceType == stBanned ||*/ pService->m_bBanned )
-			{
-				// existing bans do override everything
+			// Make sure the existing service is set to handle the networks pService handles, too.
+			pService->m_oNetworkType.setNetwork( oNType );
+			pService->m_bBanned = true;
+			bReturn = true;
 
-				postLog( LogSeverity::Debug,
-						 tr( "URL already banned. Adding it twice would be a waste." ) );
-				bReturn = true;
-				sURL = "";
-			}
-			else // existing service not yet banned
-			{
-				if ( eSType == pService->m_nServiceType )
-				{
-					// Make sure the existing service is set to handle the networks pService
-					// handles, too.
-					pService->m_oNetworkType.setNetwork( oNType );
-					pService->m_bBanned = true;
-					bReturn = true;
-					sURL = "";
-
-					postLog( LogSeverity::Debug,
-							 tr( "Detected an already existing service using the same URL. " ) +
-							 tr( "Setting that service to banned instead of adding a new one." ) );
-				}
-				else
-				{
-					nID = pService->m_nID;
-					postLog( LogSeverity::Debug,
-							 tr( "Detected an already existing service using the same URL." ) +
-							 tr( "Removing that service before adding a new one." ) );
-				}
-			}
+			postLog( LogSeverity::Debug,
+					 tr( "Detected an already existing service using the same URL. " ) +
+					 tr( "Setting that service to banned instead of adding a new one." ) );
 
 			pService->m_oRWLock.unlock();
-
-			if ( !bReturn )
-				doRemove( nID );
-
-			break; // There can only be one service with the same URL, so we needn't search further.
 		}
 		else
 		{
 			pService->m_oRWLock.unlock();
+
+			doRemove( pService->m_nID );
+
+			postLog( LogSeverity::Debug,
+					 tr( "Detected an already existing service using the same URL." ) +
+					 tr( "Removing that service before adding a new one." ) );
 		}
 	}
 
@@ -1289,29 +1261,18 @@ bool Manager::manageBan(QString& sURL, const ServiceType::Type eSType, const CNe
 /**
  * @brief checkBan checks a given URL against the list of banned services.
  * Requires locking: YES
- * @param sURL
- * @return true if the URL is already present and has been banned; false otherwise.
+ * @param sURL : the URL
+ * @return true if the URL is banned; false otherwise.
  */
-bool Manager::checkBan(QString sURL) const
+bool Manager::checkBan(const QString& sURL) const
 {
 	bool bReturn = false;
 
-	foreach ( MapPair pair, m_mServices )
+	ServicePtr pService = lookupUrl( sURL );
+
+	if ( pService )
 	{
-		// already existing service
-		ServicePtr pService = pair.second;
-		pService->m_oRWLock.lockForRead();
-
-		// check for banned services with the same URL
-		// All service with type stBanned have m_bBanned set to true.
-		if ( ( pService->m_bBanned /*|| pService->m_nServiceType == stBanned*/ ) &&
-			 !pService->m_oServiceURL.toString().compare( sURL ) )
-		{
-			bReturn = true;
-
-			pService->m_oRWLock.unlock();
-			break; // There can only be one service with the same URL, so we needn't search further.
-		}
+		bReturn = pService->m_bBanned;
 
 		pService->m_oRWLock.unlock();
 	}
@@ -1320,22 +1281,157 @@ bool Manager::checkBan(QString sURL) const
 }
 
 /**
- * @brief manageDuplicates checks if an identical (or very similar) service is already present
+ * @brief lookupUrl finds the service with the specified URL if such a service exists.
+ * Requires locking: YES
+ * @param sURL : the URL
+ * @return the service; note that it is locked for read
+ */
+Manager::ServicePtr Manager::lookupUrl(const QString& sURL) const
+{
+	foreach ( MapPair pair, m_mServices )
+	{
+		ServicePtr pService = pair.second;
+
+		// TODO: If this ever causes a problem (someone removing a service that is locked),
+		// restart the foreach loop upon encountering a locked service.
+		pService->m_oRWLock.lockForRead();
+
+		if ( !sURL.compare( pService->m_oServiceURL.toString() ) ||
+			 !sURL.compare( pService->m_oRedirectUrl.toString() ) )
+		{
+			return pService;
+		}
+
+		pService->m_oRWLock.unlock();
+	}
+
+	return ServicePtr();
+}
+
+
+/**
+ * @brief lookupDuplicates hands the caller a list of possible duplicates of a specified service
+ * Requires locking: YES
+ * @param pService : the service
+ * @return a list of pairs of duplicates and bool values; bool == true for dominating service
+ */
+/*std::list< std::pair<Manager::ServicePtr, bool> > Manager::lookupDuplicates(ServicePtr& pService)
+{
+	std::list< std::pair<Manager::ServicePtr, bool> > lResult;
+
+	pService->m_oRWLock.lockForRead();
+	const QString sURL      = pService->m_oServiceURL.toString();
+	const QString sRedirect = pService->m_oRedirectUrl.toString();
+
+	foreach ( MapPair pair, m_mServices )
+	{
+		// already existing service
+		ServicePtr pExService = pair.second;
+
+		pExService->m_oRWLock.lockForRead();
+		const QString sExURL      = pExService->m_oServiceURL.toString();
+		const QString sExRedirect = pExService->m_oRedirectUrl.toString();
+
+		if ( !sURL.compare( sExURL )           || // url identical
+			 !sRedirect.compare( sExRedirect ) || // redirection destination identical
+			 !sRedirect.compare( sExURL )      || // the given service redirects to the existing one
+			 sURL.startsWith( sExURL ) )          // shorter URL dominates
+		{
+			lResult.push_back( std::make_pair( pExService, true ) );
+		}
+		else if ( !sURL.compare( sExRedirect ) || // existing service redirects to this URL
+				  sExURL.startsWith( sURL ) )     // existing URL is longer (e.g. dominated)
+		{
+			lResult.push_back( std::make_pair( pExService, false ) );
+		}
+
+		pExService->m_oRWLock.unlock();
+	}
+
+	pService->m_oRWLock.unlock();
+
+	return lResult;
+}*/
+
+/**
+ * @brief manageDuplicates checks if an identical (or very similar) service is (already) present
  * in the manager, decides which service to keep, which service to update etc. Note that this does
  * not treat bans differently from any other service, so ban management needs to be done beforehand.
  * Requires locking: YES
- * @param pService
+ * @param pService : the service to check
+ * @param bNeedRemoval : false - pService has not yet been added; true - otherwise
  * @return true if pService needs not to be added to the manager, false if it needs to be added.
  */
-// TODO: Further improve this
-// TODO: implement bans overwriting existing services
-// TODO: lookup service domain and keep it updated when accessing service to detect duplicates
-// TODO: query new services?
-bool Manager::manageDuplicates(ServicePtr& pService)
+bool Manager::manageDuplicates(ServicePtr& pService, bool bNeedRemoval)
 {
-	QString sURL = pService->m_oServiceURL.toString();
+	// there is only a valid ID for services that have already been added
+	Q_ASSERT( bNeedRemoval == pService->m_nID );
+
+	/*std::list< std::pair<Manager::ServicePtr, bool> > lDuplicates = lookupDuplicates( pService );
+
+
+	pService->m_oRWLock.lockForRead();
+	for ( std::list< std::pair<Manager::ServicePtr, bool> >::const_iterator i = lDuplicates.begin();
+		  i != lDuplicates.end(); ++i )
+	{
+		ServicePtr pDuplicate = (*i).first;
+
+		if ( (*i).second ) // pDuplicate dominates pService
+		{
+			bDelete
+		}
+		else // pService dominates pDuplicate
+		{
+			if ( bNeedRemoval )
+			{
+				postLog( LogSeverity::Debug,
+						 tr( "Removing duplicate Service:" ) + pDuplicate->m_oServiceURL.toString() );
+
+				pDuplicate->m_oRWLock.unlock();
+				doRemove( pService->m_nID );
+				pService.clear();
+				return false;
+			}
+			else
+			{
+				postLog( LogSeverity::Debug,
+						 tr( "Service already present. Not going to add duplicate." ) );
+
+				pService->m_oRWLock.unlock();
+				pService.clear();
+				return false;
+			}
+		}
+	}
+	pService->unlock();
+
+	if ( bDelete )
+	{
+		if ( bNeedRemoval )
+		{
+			postLog( LogSeverity::Debug,
+					 tr( "Removing duplicate Service:" ) + pService->m_oServiceURL.toString() );
+
+			pService->m_oRWLock.unlock();
+			doRemove( pService->m_nID );
+			pService.clear();
+			return true;
+		}
+		else
+		{
+			postLog( LogSeverity::Debug,
+					 tr( "Service already present. Not going to add duplicate." ) );
+
+			pService->m_oRWLock.unlock();
+			pService.clear();
+			return true;
+		}
+	}*/
+
+
 
 	pService->m_oRWLock.lockForWrite();
+	QString sURL = pService->m_oServiceURL.toString();
 
 	foreach ( MapPair pair, m_mServices )
 	{
@@ -1343,7 +1439,6 @@ bool Manager::manageDuplicates(ServicePtr& pService)
 		ServicePtr pExService = pair.second;
 
 		QReadLocker oExServiceReadLock( &pExService->m_oRWLock );
-		QString sExURL = pExService->m_oServiceURL.toString();
 
 		if ( *pService == *pExService )
 		{
@@ -1354,6 +1449,8 @@ bool Manager::manageDuplicates(ServicePtr& pService)
 			pService.clear();
 			return true;
 		}
+
+		QString sExURL = pExService->m_oServiceURL.toString();
 
 		// check for services with the same URL; Note: all URLs should be case insesitive due to
 		// normalizeURLs(), so case sensitivity is not a problem here.
@@ -1527,7 +1624,7 @@ Manager::ServicePtr Manager::getRandomService(const CNetworkType& oNType)
 #endif
 
 	DiscoveryServicesList list;
-	quint16 nTotalRating = 0;		// Used to store accumulative rating of all services
+	quint16 nTotalRating = 0;		// Used to store accumulative probability rating of all services
 									// taken under consideration as return value.
 	ServicePtr pService;
 	const quint32 tNow = common::getTNowUTC();
@@ -1565,6 +1662,7 @@ Manager::ServicePtr Manager::getRandomService(const CNetworkType& oNType)
 				// Revive service
 				pService->setRating( DISCOVERY_MAX_PROBABILITY );
 				++pService->m_nZeroRevivals;
+				pService->m_bZero = true;
 				bRatingEnabled = true;
 
 				pService->m_oRWLock.unlock();
@@ -1585,7 +1683,7 @@ Manager::ServicePtr Manager::getRandomService(const CNetworkType& oNType)
 	postLog( LogSeverity::Debug, "Service accepted!", true );
 #endif
 
-			nTotalRating += pService->m_nRating;
+			nTotalRating += pService->m_nProbaMult;
 		}
 		else
 		{
@@ -1610,9 +1708,9 @@ Manager::ServicePtr Manager::getRandomService(const CNetworkType& oNType)
 		ServicePtr   pSelected  = *current;
 
 		// Iterate threw list until the selected service has been found.
-		while ( nSelectedRating > pSelected->m_nRating )
+		while ( nSelectedRating > pSelected->m_nProbaMult )
 		{
-			nSelectedRating -= pSelected->m_nRating;
+			nSelectedRating -= pSelected->m_nProbaMult;
 			pSelected->m_oRWLock.unlock();
 			pSelected = *( ++current );
 		}
