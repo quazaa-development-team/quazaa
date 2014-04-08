@@ -83,11 +83,11 @@ static int writeFile(const QString& fileName, const int major, const int minor, 
 	out << "\tstatic const int MINOR = " << minor << ";\r\n";
 
 // Note: this only works for newer versions of gcc/MinGW
-	out << "#pragma GCC diagnostic push\r\n";                         // save diagnostic settings
-	out << "#pragma GCC diagnostic ignored \"-Wunused-variable\"\r\n";// suppress unused var warning
+//	out << "#pragma GCC diagnostic push\r\n";                         // save diagnostic settings
+//	out << "#pragma GCC diagnostic ignored \"-Wunused-variable\"\r\n";// suppress unused var warning
 	out << "\tstatic const char* REVISION = \"" << revision << "\";\r\n";
 	out << "\tstatic const char* BUILD_DATE = \"" << build << "\";\r\n";
-	out << "#pragma GCC diagnostic pop\r\n";                          // restore diagnostic settings
+//	out << "#pragma GCC diagnostic pop\r\n";                          // restore diagnostic settings
 	out << "}\r\n\r\n";
 	out << "#endif // VERSION_H\r\n";
 
