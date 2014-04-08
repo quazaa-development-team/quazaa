@@ -128,6 +128,7 @@ public slots:
 	void updateAll();
 
 private:
+	void updateView(QModelIndexList uplist = QModelIndexList());
 	void insert(HostData* pData);
 	void erase(int nPos);
 };

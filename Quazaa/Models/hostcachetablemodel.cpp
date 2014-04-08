@@ -37,7 +37,8 @@ HostData::HostData(SharedHostPtr pHost) :
 	m_iCountry( QIcon(":/Resource/Flags/" + m_sCountryCode.toLower() + ".png") ),
 	m_nID(          pHost->id()          ),
 	m_tLastConnect( pHost->lastConnect() ),
-	m_sLastConnect( QDateTime::fromTime_t( m_tLastConnect ).toString() ),
+	m_sLastConnect( m_tLastConnect ? QDateTime::fromTime_t( m_tLastConnect ).toString()
+								   : tr( "never" ) ),
 	m_nFailures(    pHost->failures()    ),
 	m_sFailures( QString::number( m_nFailures ) )
 {
@@ -64,7 +65,8 @@ bool HostData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
 	{
 		lToUpdate.append( pModel->index( nRow, LASTCONNECT ) );
 		m_tLastConnect = m_pHost->lastConnect();
-		m_sLastConnect = QDateTime::fromTime_t( m_tLastConnect ).toString();
+		m_sLastConnect = m_tLastConnect ? QDateTime::fromTime_t( m_tLastConnect ).toString()
+										: tr( "never" );
 
 		if ( nSortCol == LASTCONNECT )
 			bReturn = true;
@@ -157,9 +159,12 @@ HostCacheTableModel::HostCacheTableModel(QObject* parent, QWidget* container) :
 	connect( &hostCache, SIGNAL( hostUpdated( quint32 ) ), this,
 			 SLOT( updateHost( quint32 ) ), Qt::QueuedConnection );
 
+	connect( &hostCache, &HostCache::loadingFinished, this,
+			 &HostCacheTableModel::updateAll, Qt::QueuedConnection );
+
 	// This needs to be called to make sure that all rules added to the host cache before this
 	// part of the GUI is loaded are properly added to the model.
-	completeRefresh();
+	//completeRefresh();
 }
 
 HostCacheTableModel::~HostCacheTableModel()
@@ -402,7 +407,7 @@ HostCacheTableModel::HostData* HostCacheTableModel::dataFromRow(int nRow) const
 
 void HostCacheTableModel::completeRefresh()
 {
-	// Remove all rules.
+	// Remove all Hosts.
 	if ( m_vHosts.size() )
 	{
 		beginRemoveRows( QModelIndex(), 0, (int)m_vHosts.size() - 1 );
@@ -412,11 +417,13 @@ void HostCacheTableModel::completeRefresh()
 		endRemoveRows();
 	}
 
-	// Note that this slot is automatically disconnected once all rules have been recieved once.
+	// Note that this slot is automatically disconnected once all Hosts have been recieved once.
 	connect( &hostCache, SIGNAL( hostInfo( SharedHostPtr ) ), this,
 			 SLOT( recieveHostInfo( SharedHostPtr ) ), Qt::QueuedConnection );
 
-	// Request getting them back from the Security Manager.
+	hostCache.verifyIterators();
+
+	// Request getting them back from the Host Cache.
 	m_nHostInfo = hostCache.requestHostInfo();
 }
 
@@ -433,6 +440,8 @@ void HostCacheTableModel::triggerHostRemoval(int nIndex)
 
 void HostCacheTableModel::recieveHostInfo(SharedHostPtr pHost)
 {
+	Q_ASSERT( pHost->address().isValid() );
+
 	--m_nHostInfo;
 
 	// This handles disconnecting the ruleInfo signal after a completeRefresh() has been finished.
@@ -452,10 +461,33 @@ void HostCacheTableModel::recieveHostInfo(SharedHostPtr pHost)
  */
 void HostCacheTableModel::addHost(SharedHostPtr pHost)
 {
-	hostCache.m_pSection.lock();
-	Q_ASSERT( hostCache.check( pHost ) );
-	insert( new HostData( pHost ) );
-	hostCache.m_pSection.unlock();
+	Q_ASSERT( pHost->address().isValid() );
+
+	if ( pHost->type() == DiscoveryProtocol::G2 )
+	{
+		hostCache.m_pSection.lock();
+
+		SharedG2HostPtr pG2Host = qSharedPointerCast<G2HostCacheHost>(pHost);
+
+		// if iterator is invalid, the host has been removed in the meantime
+		if ( pG2Host->iteratorValid() )
+		{
+			G2HostCacheConstIterator endIterator = hostCache.getEndIterator();
+			G2HostCacheConstIterator hostIterator = pG2Host->iterator();
+
+			// this also checks for a valid iterator in debug mode
+			Q_ASSERT( endIterator != hostIterator );
+			Q_ASSERT( (*hostIterator)->address().isValid() );
+
+			Q_ASSERT( pG2Host->iteratorValid() );
+
+			Q_ASSERT( hostCache.check( pHost ) );
+			insert( new HostData( pHost ) );
+			// TODO: updateView( uplist ); ???
+		}
+
+		hostCache.m_pSection.unlock();
+	}
 }
 
 /**
@@ -484,7 +516,6 @@ void HostCacheTableModel::removeHost(SharedHostPtr pHost)
 void HostCacheTableModel::updateHost(quint32 nHostID)
 {
 	QModelIndexList uplist;
-	bool bSort = m_bNeedSorting;
 
 	const int nHostRowPos = find( nHostID );
 
@@ -493,15 +524,45 @@ void HostCacheTableModel::updateHost(quint32 nHostID)
 	hostCache.m_pSection.lock();
 	if ( m_vHosts[nHostRowPos]->update( nHostRowPos, m_nSortColumn, uplist, this ) )
 	{
-		bSort = true;
+		m_bNeedSorting = true;
 	}
 	hostCache.m_pSection.unlock();
 
+	updateView( uplist );
+}
+
+/**
+ * @brief updateAll updates all hosts in the GUI.
+ */
+void HostCacheTableModel::updateAll()
+{
+	if ( (quint32)m_vHosts.size() != hostCache.size() )
+	{
+		completeRefresh();
+		return;
+	}
+
+	QModelIndexList uplist;
+
+	hostCache.m_pSection.lock();
+	for ( int i = 0, max = (int)m_vHosts.size(); i < max; ++i )
+	{
+		if ( m_vHosts[i]->update( i, m_nSortColumn, uplist, this ) )
+		{
+			m_bNeedSorting = true;
+		}
+	}
+	hostCache.m_pSection.unlock();
+
+	updateView( uplist );
+}
+
+void HostCacheTableModel::updateView(QModelIndexList uplist)
+{
 	// if necessary adjust container order (also updates view)
-	if ( bSort )
+	if ( m_bNeedSorting )
 	{
 		sort( m_nSortColumn, m_nSortOrder );
-		m_bNeedSorting = false;
 	}
 	// update view for all changed model indexes
 	else if ( !uplist.isEmpty() )
@@ -513,46 +574,6 @@ void HostCacheTableModel::updateHost(quint32 nHostID)
 			foreach ( QModelIndex index, uplist )
 			{
 				pView->update( index );
-			}
-		}
-	}
-}
-
-/**
- * @brief updateAll updates all hosts in the GUI.
- */
-void HostCacheTableModel::updateAll()
-{
-	QModelIndexList uplist;
-	bool bSort = m_bNeedSorting;
-
-	hostCache.m_pSection.lock();
-	for ( int i = 0, max = (int)m_vHosts.size(); i < max; ++i )
-	{
-		if ( m_vHosts[i]->update( i, m_nSortColumn, uplist, this ) )
-		{
-			bSort = true;
-		}
-	}
-	hostCache.m_pSection.unlock();
-
-	if ( bSort )
-	{
-		sort( m_nSortColumn, m_nSortOrder );
-		m_bNeedSorting = false;
-	}
-	else
-	{
-		if ( !uplist.isEmpty() )
-		{
-			QAbstractItemView* pView = qobject_cast< QAbstractItemView* >( m_oContainer );
-
-			if( pView )
-			{
-				foreach ( QModelIndex index, uplist )
-				{
-					pView->update( index );
-				}
 			}
 		}
 	}
