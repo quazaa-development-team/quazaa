@@ -77,7 +77,6 @@ T IDProvider<T>::aquire()
 		while ( *it < nBiggest )
 			++it;
 
-
 		// last element must always be biggest element in list
 		Q_ASSERT( it == --itEnd );
 	}
@@ -99,11 +98,13 @@ void IDProvider<T>::release(T nID)
 	// insert it so that it can be reused
 	it = m_lIDs.insert( it, nID );
 
+#ifdef _DEBUG
 	std::list<T>::iterator it2 = m_lIDs.end();
 	--it2;
 
 	// last element in the list is always bigger than any existing ID
 	Q_ASSERT( *it < *it2 );
+#endif
 
 	m_oSection.unlock();
 }
