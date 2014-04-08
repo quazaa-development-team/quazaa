@@ -64,7 +64,7 @@ protected:
 	virtual void keyPressEvent(QKeyEvent *event);
 
 public slots:
-	void update();
+	//void update();
 
 private slots:
 	void tableViewDiscovery_customContextMenuRequested(const QPoint &pos);

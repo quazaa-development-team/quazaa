@@ -39,14 +39,6 @@ class WidgetHostCache : public QMainWindow
 {
 	Q_OBJECT
 public:
-	WidgetHostCache(QWidget* parent = 0);
-	~WidgetHostCache();
-	void saveWidget();
-
-protected:
-	void changeEvent(QEvent* e);
-
-public:
 	HostCacheTableModel*      m_pHosts;
 
 private:
@@ -54,6 +46,18 @@ private:
 
 	QMenu*                  m_pHostCacheMenu;
 	CTableView*             m_pTableViewG2Cache;
+
+public:
+	WidgetHostCache(QWidget* parent = 0);
+	~WidgetHostCache();
+	void saveWidget();
+
+protected:
+	void changeEvent(QEvent* e);
+	virtual void keyPressEvent(QKeyEvent *event);
+
+public slots:
+	//void update();
 
 private slots:
 	void on_splitterHostCache_customContextMenuRequested(QPoint pos);

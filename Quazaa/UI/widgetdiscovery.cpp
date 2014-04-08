@@ -49,7 +49,6 @@ CWidgetDiscovery::CWidgetDiscovery(QWidget* parent) :
 	restoreState( quazaaSettings.WinMain.DiscoveryToolbar );
 
 	tableViewDiscovery = new CTableView();
-	tableViewDiscovery->verticalHeader()->setVisible( false );
 	ui->verticalLayoutDiscoveryTable->addWidget( tableViewDiscovery );
 
 	connect( tableViewDiscovery, &CTableView::clicked,
@@ -183,12 +182,12 @@ void CWidgetDiscovery::keyPressEvent(QKeyEvent *e)
 	QMainWindow::keyPressEvent( e );
 }
 
-void CWidgetDiscovery::update()
+/*void CWidgetDiscovery::update()
 {
 	// TODO: improve
 
 	m_pDiscoveryList->updateAll();
-}
+}*/
 
 void CWidgetDiscovery::tableViewDiscovery_customContextMenuRequested(const QPoint& point)
 {

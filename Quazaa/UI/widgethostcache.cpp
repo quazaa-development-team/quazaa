@@ -46,7 +46,6 @@ WidgetHostCache::WidgetHostCache(QWidget* parent) :
 	ui->splitterHostCache->restoreState( quazaaSettings.WinMain.HostCacheSplitter );
 
 	m_pTableViewG2Cache = new CTableView();
-	m_pTableViewG2Cache->verticalHeader()->setVisible( false );
 
 	ui->splitterHostCache->addWidget( m_pTableViewG2Cache );
 
@@ -60,6 +59,8 @@ WidgetHostCache::WidgetHostCache(QWidget* parent) :
 
 	m_pHosts->sort( m_pTableViewG2Cache->horizontalHeader()->sortIndicatorSection(),
 					m_pTableViewG2Cache->horizontalHeader()->sortIndicatorOrder() );
+
+	m_pTableViewG2Cache->horizontalHeader()->setStretchLastSection( false );
 
 	setSkin();
 }
@@ -83,6 +84,39 @@ void WidgetHostCache::changeEvent(QEvent* e)
 			break;
 	}
 }
+
+void WidgetHostCache::keyPressEvent(QKeyEvent *e)
+{
+	switch ( e->key() )
+	{
+	case Qt::Key_Delete:
+	{
+
+		break;
+	}
+
+	case Qt::Key_Return:
+	{
+
+		break;
+	}
+
+	case Qt::Key_F5:
+	{
+		m_pHosts->completeRefresh();
+		break;
+	}
+	}
+
+	QMainWindow::keyPressEvent( e );
+}
+
+/*void WidgetHostCache::update()
+{
+	// TODO: improve
+
+	m_pDiscoveryList->updateAll();
+}*/
 
 void WidgetHostCache::saveWidget()
 {

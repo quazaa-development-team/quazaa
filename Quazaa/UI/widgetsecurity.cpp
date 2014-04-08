@@ -52,7 +52,6 @@ CWidgetSecurity::CWidgetSecurity(QWidget* parent) :
 	restoreState( quazaaSettings.WinMain.SecurityToolbars );
 
 	m_pTableViewSecurity = new CTableView();
-	m_pTableViewSecurity->verticalHeader()->setVisible( false );
 	ui->verticalLayoutManual->addWidget(m_pTableViewSecurity);
 
 	connect(m_pTableViewSecurity, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tableViewSecurity_customContextMenuRequested(QPoint)));
@@ -60,7 +59,6 @@ CWidgetSecurity::CWidgetSecurity(QWidget* parent) :
 	connect(m_pTableViewSecurity, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(tableViewSecurity_doubleClicked(QModelIndex)));
 
 	m_pTableViewSecurityAuto = new CTableView();
-	m_pTableViewSecurityAuto->verticalHeader()->setVisible( false );
 	ui->verticalLayoutAuto->addWidget(m_pTableViewSecurityAuto);
 
 	connect(m_pTableViewSecurityAuto, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tableViewSecurityAuto_customContextMenuRequested(QPoint)));
