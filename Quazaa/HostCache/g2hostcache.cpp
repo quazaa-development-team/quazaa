@@ -234,7 +234,7 @@ SharedG2HostPtr G2HostCache::update(G2HostCacheIterator& itHost, const quint32 t
 	Q_ASSERT( itHost !=  m_lHosts.end() );
 
 	SharedG2HostPtr pHost = *itHost;
-	SharedG2HostPtr pNew;
+	SharedG2HostPtr pNew; // (shared) NULL ptr
 
 	// TODO: remove in Quazaa beta1
 	Q_ASSERT( pHost->failures() <= m_nMaxFailures );
@@ -659,14 +659,19 @@ quint32 G2HostCache::writeToFile(const void * const pManager, QFile& oFile)
  */
 quint32 G2HostCache::requestHostInfo()
 {
+	qDebug() << "[G2HostCache] requestHostInfo() - Size: " << m_nSizeAtomic.load();
+
 	m_pSection.lock();
 
 	quint32 nHosts = 0;
 
 	for ( G2HostCacheIterator it = m_lHosts.begin(); it != m_lHosts.end(); ++it )
 	{
+		// if the shared pointer represented by the iterator has been initialized
 		if ( !(*it).isNull() )
 		{
+			Q_ASSERT( (*it)->address().isValid() );
+
 			emit hostInfo( *it );
 			++nHosts;
 		}
@@ -1134,6 +1139,8 @@ void G2HostCache::insert(SharedG2HostPtr pNew)
 	// Insert between the current position and the last one with higher timestamp.
 	it = m_lHosts.insert( it, pNew );
 
+	Q_ASSERT( it != m_lHosts.begin() && it != m_lHosts.end() );
+
 	// remember own position in list
 	pNew->setIterator( it );
 
@@ -1406,6 +1413,9 @@ void G2HostCache::startUpInternal()
 	// Includes its own locking.
 	load();
 	maintain();
+
+	// inform GUI about new Hosts
+	emit loadingFinished();
 
 	signalQueue.push( this, "maintain", 10000, true );
 }

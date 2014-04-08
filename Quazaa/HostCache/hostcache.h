@@ -126,6 +126,11 @@ signals:
 	 */
 	void            hostUpdated(quint32 nID);
 
+	/**
+	 * @brief loadingFinished is emitted after new Hosts have been loaded.
+	 */
+	void loadingFinished();
+
 public slots:
 
 private slots:
