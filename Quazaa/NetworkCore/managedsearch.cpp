@@ -237,8 +237,8 @@ void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 	tHostCacheWork.start();
 #endif
 
-	for ( G2HostCacheIterator itHost = hostCache.m_lHosts.begin();
-		  itHost != hostCache.m_lHosts.end(); ++itHost )
+	for ( G2HostCacheConstIterator itHost = hostCache.getIterator();
+		  itHost != hostCache.getEndIterator(); ++itHost )
 	{
 		pHost = *itHost;
 

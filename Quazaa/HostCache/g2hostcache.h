@@ -50,7 +50,7 @@ class G2HostCache : public HostCache
 {
 	Q_OBJECT
 
-public:
+private:
 	// allows access to 0 .. m_nMaxFailures + 1
 	G2HostCacheIterator*    m_pFailures; // = new G2HostCacheIterator[m_nMaxFailures + 2];
 	G2HostCacheList         m_lHosts;
@@ -106,6 +106,10 @@ public:
 
 	quint32 requestHostInfo();
 
+	// These allow access to the list without the possibility of being able to edit the list itself
+	inline G2HostCacheConstIterator getIterator() { return m_lHosts.begin(); }
+	inline G2HostCacheConstIterator getEndIterator() { return m_lHosts.end(); }
+
 signals:
 
 public slots:
@@ -149,6 +153,8 @@ private slots:
 	void asyncUpdateFailures(CEndPoint oAddress, quint32 nNewFailures);
 	void asyncAddXTry(QString sHeader);
 	void asyncOnFailure(CEndPoint addr);
+
+	friend class HostCacheTableModel;
 };
 
 extern G2HostCache hostCache;
