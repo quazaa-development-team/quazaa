@@ -36,6 +36,7 @@ typedef QSharedPointer<G2HostCacheHost> SharedG2HostPtr;
 
 typedef std::list<SharedG2HostPtr>      G2HostCacheList;
 typedef G2HostCacheList::iterator       G2HostCacheIterator;
+typedef G2HostCacheList::const_iterator G2HostCacheConstIterator;
 
 class G2HostCacheHost : public HostCacheHost
 {
@@ -82,6 +83,7 @@ public:
 
 	G2HostCacheIterator iterator() const;
 	void setIterator(const G2HostCacheIterator& it);
+	void invalidateIterator();
 };
 
 #endif // G2HOSTCACHEHOST_H

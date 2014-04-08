@@ -77,6 +77,8 @@ bool G2HostCacheHost::canQuery(const quint32 tNow) const
 {
 	// TODO: remove in beta1
 	Q_ASSERT( m_bIteratorValid );
+	// iterator is supposed to point back to a shared pointer to this instance
+	Q_ASSERT( (*m_iHostCacheIterator).data() == this );
 
 	if ( m_tAck && m_nQueryKey ) // if waiting for an ack, and we have a query key
 	{
@@ -107,6 +109,8 @@ void G2HostCacheHost::setKey(quint32 nKey, const quint32 tNow, CEndPoint* pHost)
 {
 	// TODO: remove in beta1
 	Q_ASSERT( m_bIteratorValid );
+	// iterator is supposed to point back to a shared pointer to this instance
+	Q_ASSERT( (*m_iHostCacheIterator).data() == this );
 
 	m_tAck      = 0;
 	m_nFailures = 0;
@@ -123,11 +127,26 @@ void G2HostCacheHost::setKey(quint32 nKey, const quint32 tNow, CEndPoint* pHost)
 G2HostCacheIterator G2HostCacheHost::iterator() const
 {
 	Q_ASSERT( m_bIteratorValid );
+	// iterator is supposed to point back to a shared pointer to this instance
+	Q_ASSERT( (*m_iHostCacheIterator).data() == this );
+
 	return m_iHostCacheIterator;
 }
 
 void G2HostCacheHost::setIterator(const G2HostCacheIterator& it)
 {
+	// iterator is supposed to point back to a shared pointer to this instance
+	Q_ASSERT( (*it).data() == this );
+
 	m_iHostCacheIterator = it;
 	m_bIteratorValid = true;
+}
+
+void G2HostCacheHost::invalidateIterator()
+{
+	// iterator is supposed to point back to a shared pointer to this instance
+	Q_ASSERT( (*m_iHostCacheIterator).data() == this );
+	Q_ASSERT( m_bIteratorValid );
+
+	m_bIteratorValid = false;
 }

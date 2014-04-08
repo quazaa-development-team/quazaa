@@ -134,7 +134,7 @@ void G2HostCache::addAck(const CEndPoint host, const quint32 tTimeStamp, const q
  * @param oHost: The CEndPoint.
  * @return the CHostCacheHost; NULL if the CEndPoint has not been found in the cache.
  */
-SharedG2HostPtr G2HostCache::get(const CEndPoint& oHost)
+SharedG2HostPtr G2HostCache::get(const CEndPoint& oHost) const
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache,
@@ -143,8 +143,8 @@ SharedG2HostPtr G2HostCache::get(const CEndPoint& oHost)
 
 	ASSUME_LOCK( m_pSection );
 
-	G2HostCacheIterator it = find( oHost );
-	return ( ( it == m_lHosts.end() ) ? SharedG2HostPtr() : *it );
+	G2HostCacheConstIterator it = find( oHost );
+	return ( ( it == getEndIterator() ) ? SharedG2HostPtr() : *it );
 }
 
 /**
@@ -167,10 +167,8 @@ bool G2HostCache::check(const SharedHostPtr pHost) const
 	if ( pHost->type() != DiscoveryProtocol::G2 )
 		return false;
 
-	G2HostCache* pThis = const_cast<G2HostCache*>( this );
-
-	G2HostCacheIterator it = pThis->find( *((SharedG2HostPtr*)&pHost) );
-	return it != pThis->m_lHosts.end();
+	G2HostCacheConstIterator it = find( (G2HostCacheHost*)(pHost.data()) );
+	return it != getEndIterator();
 }
 
 /**
@@ -292,7 +290,7 @@ void G2HostCache::remove(SharedG2HostPtr pHost)
 
 	ASSUME_LOCK( m_pSection );
 
-	G2HostCacheIterator it = find( pHost );
+	G2HostCacheIterator it = find( pHost.data() );
 
 	if ( it != m_lHosts.end() )
 	{
@@ -667,12 +665,15 @@ quint32 G2HostCache::requestHostInfo()
 
 	for ( G2HostCacheIterator it = m_lHosts.begin(); it != m_lHosts.end(); ++it )
 	{
-		// if the shared pointer represented by the iterator has been initialized
-		if ( !(*it).isNull() )
-		{
-			Q_ASSERT( (*it)->address().isValid() );
+		SharedG2HostPtr pHost = *it;
 
-			emit hostInfo( *it );
+		// if the shared pointer represented by the iterator has been initialized
+		if ( pHost )
+		{
+			Q_ASSERT( it == pHost->iterator() );
+			Q_ASSERT( pHost->address().isValid() );
+
+			emit hostInfo( qSharedPointerCast<HostCacheHost>(*it) );
 			++nHosts;
 		}
 	}
@@ -683,6 +684,20 @@ quint32 G2HostCache::requestHostInfo()
 	m_pSection.unlock();
 
 	return nHosts;
+}
+
+void G2HostCache::verifyIterators()
+{
+#ifdef _DEBUG
+	for ( G2HostCacheIterator it = m_lHosts.begin(); it != m_lHosts.end(); ++it )
+	{
+		SharedG2HostPtr pHost = *it;
+		if ( pHost )
+		{
+			Q_ASSERT( pHost->iterator() == it );
+		}
+	}
+#endif
 }
 
 /**
@@ -1172,10 +1187,13 @@ G2HostCacheIterator G2HostCache::erase(G2HostCacheIterator& itHost)
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	ASSUME_LOCK( m_pSection );
-	Q_ASSERT( *itHost ); // only allow removal of hosts; don't touch m_pFailures[]
+
+	SharedG2HostPtr pHost = *itHost;
+	Q_ASSERT( pHost ); // only allow removal of hosts; don't touch m_pFailures[]
 
 	m_nSizeAtomic.fetchAndAddRelaxed( -1 );
-	m_nConnectablesAtomic.fetchAndAddRelaxed( -1 * (*itHost)->connectable() );
+	m_nConnectablesAtomic.fetchAndAddRelaxed( -1 * pHost->connectable() );
+	pHost->invalidateIterator();
 
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	qDebug() << QString( "Removed Host by Iterator. Host was connectable: " ) +
@@ -1280,22 +1298,13 @@ G2HostCacheIterator G2HostCache::find(const CEndPoint& oHost)
 	return m_lHosts.end();
 }
 
-/**
- * @brief CHostCache::find allows to obtain the list iterator of a given CHostCacheHost.
- * Locking: REQUIRED
- * @param pHost: the given CHostCacheHost
- * @return the iterator respectively m_vlHosts[pHost->failures()].end() if not found.
- */
-G2HostCacheIterator G2HostCache::find(const SharedG2HostPtr pHost)
+G2HostCacheConstIterator G2HostCache::find(const CEndPoint& oHost) const
 {
-#if ENABLE_G2_HOST_CACHE_DEBUGGING
-	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "find(CHCHost)" ) );
-#endif //ENABLE_G2_HOST_CACHE_DEBUGGING
-
 	ASSUME_LOCK( m_pSection );
-	Q_ASSERT( pHost->failures() <= m_nMaxFailures );
 
-	return pHost->iteratorValid() ? pHost->iterator() : m_lHosts.end();
+	// I know this is ugly, but it avoids copy/pasting the previous code. ;)
+	G2HostCache* pThis = const_cast<G2HostCache*>( this );
+	return (G2HostCacheConstIterator)(pThis->find( oHost ));
 }
 
 /**
@@ -1304,17 +1313,29 @@ G2HostCacheIterator G2HostCache::find(const SharedG2HostPtr pHost)
  * @param pHost: the given CHostCacheHost
  * @return the iterator respectively m_vlHosts[pHost->failures()].end() if not found.
  */
-/*THostCacheConstIterator CHostCache::find(const CHostCacheHost* const pHost)
+G2HostCacheIterator G2HostCache::find(const G2HostCacheHost* const pHost)
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
-	systemLog.postLog( LogSeverity::Debug, QString( "find(CHCHost)const" ), Components::HostCache );
+	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "find(CHCHost)" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	ASSUME_LOCK( m_pSection );
-	Q_ASSERT( pHost->failures() < m_vlHosts.size() );
+	Q_ASSERT( pHost->failures() <= m_nMaxFailures );
 
-	return pHost->iteratorValid() ? pHost->iterator() : m_vlHosts[pHost->failures()].end();
-}*/
+	// TODO: test this
+	Q_ASSERT( pHost->iteratorValid() );
+
+	return pHost->iteratorValid() ? pHost->iterator() : m_lHosts.end();
+}
+
+G2HostCacheConstIterator G2HostCache::find(const G2HostCacheHost* const pHost) const
+{
+	ASSUME_LOCK( m_pSection );
+
+	// I know this is ugly, but it avoids copy/pasting the previous code. ;)
+	G2HostCache* pThis = const_cast<G2HostCache*>( this );
+	return (G2HostCacheConstIterator)(pThis->find( pHost ));
+}
 
 /**
  * @brief CHostCache::load reads the previously saved hosts from file and adds them to the cache.

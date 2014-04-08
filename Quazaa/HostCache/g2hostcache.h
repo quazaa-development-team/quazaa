@@ -72,7 +72,7 @@ public:
 	void addAck(const CEndPoint host, const quint32 tTimeStamp,
 				const quint32 tAck, const quint32 tNow);
 
-	SharedG2HostPtr get(const CEndPoint& oHost);
+	SharedG2HostPtr get(const CEndPoint& oHost) const;
 	bool check(const SharedHostPtr pHost) const;
 
 	void updateFailures(const CEndPoint& oAddress, const quint32 nFailures);
@@ -107,10 +107,10 @@ public:
 	quint32 requestHostInfo();
 
 	// These allow access to the list without the possibility of being able to edit the list itself
-	inline G2HostCacheConstIterator getIterator() { return m_lHosts.begin(); }
-	inline G2HostCacheConstIterator getEndIterator() { return m_lHosts.end(); }
+	inline G2HostCacheConstIterator getIterator() const { return m_lHosts.begin(); }
+	inline G2HostCacheConstIterator getEndIterator() const { return m_lHosts.end(); }
 
-signals:
+	void verifyIterators();
 
 public slots:
 	void localAddressChanged();
@@ -143,8 +143,10 @@ private:
 	void removeWorst(quint8& nFailures);
 
 	G2HostCacheIterator      find(const CEndPoint& oHost);
-	G2HostCacheIterator      find(const SharedG2HostPtr pHost);
-//	THostCacheConstIterator find(const CHostCacheHost* const pHost) const;
+	G2HostCacheConstIterator find(const CEndPoint& oHost) const;
+
+	G2HostCacheIterator      find(const G2HostCacheHost* const pHost);
+	G2HostCacheConstIterator find(const G2HostCacheHost* const pHost) const;
 
 	void load();
 
@@ -153,8 +155,6 @@ private slots:
 	void asyncUpdateFailures(CEndPoint oAddress, quint32 nNewFailures);
 	void asyncAddXTry(QString sHeader);
 	void asyncOnFailure(CEndPoint addr);
-
-	friend class HostCacheTableModel;
 };
 
 extern G2HostCache hostCache;
