@@ -124,12 +124,12 @@ signals:
 	 * @brief hostUpdated informs about a host having been updated.
 	 * @param nID : the GUI ID of the updated host
 	 */
-	void            hostUpdated(quint32 nID);
+	//void            hostUpdated(quint32 nID);
 
 	/**
 	 * @brief loadingFinished is emitted after new Hosts have been loaded.
 	 */
-	void loadingFinished();
+	void            loadingFinished();
 
 public slots:
 

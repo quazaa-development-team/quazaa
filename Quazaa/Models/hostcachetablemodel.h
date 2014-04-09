@@ -120,7 +120,7 @@ public slots:
 	 * @brief updateHost updates the GUI for a specified host.
 	 * @param nHostID : the ID of the host
 	 */
-	void updateHost(quint32 nHostID);
+	//void updateHost(quint32 nHostID);
 
 	/**
 	 * @brief updateAll updates all hosts in the GUI.

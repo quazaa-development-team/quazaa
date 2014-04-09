@@ -55,7 +55,8 @@ G2HostCache::G2HostCache() :
 	m_nLockWaitTime( 0 ),
 	m_nWorkTime( 0 ),
 #endif
-	m_oLokalAddress( CEndPoint() )
+	m_oLokalAddress( CEndPoint() ),
+	m_bLoading( false )
 {
 	static int foo = qRegisterMetaType<CEndPoint>( "CEndPoint" );
 	static int bar = qRegisterMetaType<CEndPoint*>( "CEndPoint*" );
@@ -1161,6 +1162,10 @@ void G2HostCache::insert(SharedG2HostPtr pNew)
 
 	m_nSizeAtomic.fetchAndAddRelaxed( 1 );
 
+	// Inform GUI
+	if ( !m_bLoading )
+		emit hostAdded( qSharedPointerCast<HostCacheHost>( pNew ) );
+
 	// TODO: remove in beta1
 #ifdef _DEBUG
 	for ( G2HostCacheIterator it = m_lHosts.begin(); it != m_lHosts.end(); ++it )
@@ -1193,7 +1198,6 @@ G2HostCacheIterator G2HostCache::erase(G2HostCacheIterator& itHost)
 
 	m_nSizeAtomic.fetchAndAddRelaxed( -1 );
 	m_nConnectablesAtomic.fetchAndAddRelaxed( -1 * pHost->connectable() );
-	pHost->invalidateIterator();
 
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	qDebug() << QString( "Removed Host by Iterator. Host was connectable: " ) +
@@ -1205,7 +1209,12 @@ G2HostCacheIterator G2HostCache::erase(G2HostCacheIterator& itHost)
 
 	Q_ASSERT( m_nConnectablesAtomic.load() >= 0 );
 
+	pHost->invalidateIterator();
 	G2HostCacheIterator itReturn = m_lHosts.erase( itHost );
+
+	// Inform GUI
+	if ( !m_bLoading )
+		emit hostRemoved( qSharedPointerCast<HostCacheHost>( pHost ) );
 
 	// TODO: remove in beta1
 #ifdef _DEBUG
@@ -1349,6 +1358,7 @@ void G2HostCache::load()
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	m_pSection.lock();
+	m_bLoading = true;
 
 	QFile file( CQuazaaGlobals::DATA_PATH() + "hostcache.dat" );
 
@@ -1391,6 +1401,8 @@ void G2HostCache::load()
 	file.close();
 
 	pruneOldHosts( tNow );
+
+	m_bLoading = false;
 	m_pSection.unlock();
 
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache,

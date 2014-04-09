@@ -156,8 +156,8 @@ HostCacheTableModel::HostCacheTableModel(QObject* parent, QWidget* container) :
 			 SLOT( removeHost( SharedHostPtr ) ), Qt::QueuedConnection );
 
 	// This handles GUI updates on rule changes.
-	connect( &hostCache, SIGNAL( hostUpdated( quint32 ) ), this,
-			 SLOT( updateHost( quint32 ) ), Qt::QueuedConnection );
+	/*connect( &hostCache, SIGNAL( hostUpdated( quint32 ) ), this,
+			 SLOT( updateHost( quint32 ) ), Qt::QueuedConnection );*/
 
 	connect( &hostCache, &HostCache::loadingFinished, this,
 			 &HostCacheTableModel::updateAll, Qt::QueuedConnection );
@@ -513,7 +513,7 @@ void HostCacheTableModel::removeHost(SharedHostPtr pHost)
  * @brief updateHost updates the GUI for a specified host.
  * @param nHostID : the ID of the host
  */
-void HostCacheTableModel::updateHost(quint32 nHostID)
+/*void HostCacheTableModel::updateHost(quint32 nHostID)
 {
 	QModelIndexList uplist;
 
@@ -529,7 +529,7 @@ void HostCacheTableModel::updateHost(quint32 nHostID)
 	hostCache.m_pSection.unlock();
 
 	updateView( uplist );
-}
+}*/
 
 /**
  * @brief updateAll updates all hosts in the GUI.

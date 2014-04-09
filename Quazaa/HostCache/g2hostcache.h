@@ -62,6 +62,8 @@ private:
 
 	CEndPoint               m_oLokalAddress;
 
+	bool                    m_bLoading;
+
 public:
 	G2HostCache();
 	~G2HostCache();
@@ -115,6 +117,7 @@ public:
 public slots:
 	void localAddressChanged();
 
+private slots:
 	SharedG2HostPtr addSync(CEndPoint host, quint32 tTimeStamp, bool bLock);
 	SharedG2HostPtr addSyncKey(CEndPoint host, quint32 tTimeStamp, CEndPoint* pKeyHost,
 							   const quint32 nKey, const quint32 tNow, bool bLock);
@@ -123,6 +126,7 @@ public slots:
 
 	void removeSync(CEndPoint oHost);
 
+public slots:
 	void sanityCheck();
 	void maintain();
 
@@ -137,9 +141,10 @@ private:
 
 	SharedG2HostPtr addSyncHelper(const CEndPoint& oHostIP, quint32 tTimeStamp,
 									const quint32 tNow, quint32 nNewFailures = 0);
-	void insert(SharedG2HostPtr pNew);
 
+	void insert(SharedG2HostPtr pNew);
 	G2HostCacheIterator erase(G2HostCacheIterator& itHost);
+
 	void removeWorst(quint8& nFailures);
 
 	G2HostCacheIterator      find(const CEndPoint& oHost);
