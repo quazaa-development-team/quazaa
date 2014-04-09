@@ -1,7 +1,7 @@
 /*
 ** hostcache.h
 **
-** Copyright © Quazaa Development Team, 2013-2013.
+** Copyright © Quazaa Development Team, 2013-2014.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
 **
 ** Quazaa is free software; this file may be used under the terms of the GNU
@@ -148,6 +148,12 @@ private:
 	 * Locking: REQUIRED
 	 */
 	virtual void    stopInternal() = 0;
+
+	/**
+	 * @brief registerMetaTypesInternal handles registering the necessary meta types of child
+	 * classes.
+	 */
+	virtual void    registerMetaTypesInternal() = 0;
 };
 
 #endif // HOSTCACHE_H

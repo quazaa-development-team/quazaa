@@ -1,7 +1,7 @@
 ﻿/*
 ** g2hostcache.h
 **
-** Copyright © Quazaa Development Team, 2009-2013.
+** Copyright © Quazaa Development Team, 2009-2014.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
 **
 ** Quazaa is free software; this file may be used under the terms of the GNU
@@ -157,6 +157,7 @@ private:
 
 private slots:
 	void startUpInternal();
+	void registerMetaTypesInternal();
 	void asyncUpdateFailures(CEndPoint oAddress, quint32 nNewFailures);
 	void asyncAddXTry(QString sHeader);
 	void asyncOnFailure(CEndPoint addr);

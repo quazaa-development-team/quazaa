@@ -1,7 +1,7 @@
 /*
 ** hostcache.cpp
 **
-** Copyright © Quazaa Development Team, 2013-2013.
+** Copyright © Quazaa Development Team, 2013-2014.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
 **
 ** Quazaa is free software; this file may be used under the terms of the GNU
@@ -86,6 +86,8 @@ void HostCache::registerMetaTypes()
 	static int foo = qRegisterMetaType< SharedHostPtr >( "SharedHostPtr" );
 
 	Q_UNUSED( foo );
+
+	registerMetaTypesInternal();
 }
 
 /**

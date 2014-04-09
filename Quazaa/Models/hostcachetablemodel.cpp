@@ -1,7 +1,7 @@
 /*
 ** g2cachetablemodel.cpp
 **
-** Copyright © Quazaa Development Team, 2013-2013.
+** Copyright © Quazaa Development Team, 2013-2014.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
 **
 ** Quazaa is free software; this file may be used under the terms of the GNU
@@ -27,118 +27,6 @@
 #include "hostcachetablemodel.h"
 
 #include "debug_new.h"
-
-HostData::HostData(SharedHostPtr pHost) :
-	m_pHost(        pHost                ),
-	m_oAddress(     pHost->address()     ),
-	m_sAddress(     m_oAddress.toStringWithPort() ),
-	m_sCountryCode( m_oAddress.country() ),
-	m_sCountry( geoIP.countryNameFromCode( m_sCountryCode ) ),
-	m_iCountry( QIcon(":/Resource/Flags/" + m_sCountryCode.toLower() + ".png") ),
-	m_nID(          pHost->id()          ),
-	m_tLastConnect( pHost->lastConnect() ),
-	m_sLastConnect( m_tLastConnect ? QDateTime::fromTime_t( m_tLastConnect ).toString()
-								   : tr( "never" ) ),
-	m_nFailures(    pHost->failures()    ),
-	m_sFailures( QString::number( m_nFailures ) )
-{
-}
-
-/**
- * @brief update refreshes the data within HostData if necessary.
- * Locking: REQUIRES hostCache.m_pSection
- * @param nRow : the row being refreshed
- * @param nSortCol : the currently sorted column
- * @param lToUpdate : the list of indexes that have changed
- * @param pModel : the model
- * @return true if an entry within the column col has been modified
- */
-bool HostData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
-					  HostCacheTableModel* pModel)
-{
-	Q_ASSERT( !m_pHost.isNull() );
-
-	bool bReturn = false;
-
-	// address and country never change
-	if ( m_tLastConnect != m_pHost->lastConnect() )
-	{
-		lToUpdate.append( pModel->index( nRow, LASTCONNECT ) );
-		m_tLastConnect = m_pHost->lastConnect();
-		m_sLastConnect = m_tLastConnect ? QDateTime::fromTime_t( m_tLastConnect ).toString()
-										: tr( "never" );
-
-		if ( nSortCol == LASTCONNECT )
-			bReturn = true;
-	}
-
-	if ( m_nFailures != m_pHost->failures() )
-	{
-		lToUpdate.append( pModel->index( nRow, FAILURES ) );
-		m_nFailures = m_pHost->failures();
-		m_sFailures = QString::number( m_nFailures );
-
-		if ( nSortCol == FAILURES )
-			bReturn = true;
-	}
-
-	return bReturn;
-}
-
-/**
- * @brief RuleData::data
- * @param col
- * @return
- */
-QVariant HostData::data(int col) const
-{
-	switch ( col )
-	{
-	case ADDRESS:
-		return m_sAddress;
-
-	case LASTCONNECT:
-		return m_sLastConnect;
-
-	case FAILURES:
-		return m_sFailures;
-
-	case COUNTRY:
-		return m_sCountry;
-
-	default:
-		return QVariant();
-	}
-}
-
-/*Rule* RuleData::rule() const
-{
-	return m_bRemoving ? NULL : m_pRule;
-}*/
-
-bool HostData::lessThan(int col, HostData* pOther) const
-{
-	if ( !pOther )
-		return false;
-
-	switch ( col )
-	{
-	case ADDRESS:
-		return m_sAddress     < pOther->m_sAddress;
-
-	case LASTCONNECT:
-		return m_tLastConnect < pOther->m_tLastConnect;
-
-	case FAILURES:
-		return m_nFailures    < pOther->m_nFailures;
-
-	case COUNTRY:
-		return m_sCountryCode < pOther->m_sCountryCode;
-
-	default:
-		return false;
-	}
-}
 
 HostCacheTableModel::HostCacheTableModel(QObject* parent, QWidget* container) :
 	QAbstractTableModel( parent ),
@@ -389,7 +277,7 @@ int HostCacheTableModel::find(quint32 nRuleID)
 	return -1;
 }
 
-HostCacheTableModel::HostData* HostCacheTableModel::dataFromRow(int nRow) const
+HostData* HostCacheTableModel::dataFromRow(int nRow) const
 {
 	if ( nRow < m_vHosts.size() && nRow >= 0 )
 		return m_vHosts[nRow];

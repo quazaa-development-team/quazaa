@@ -1,7 +1,7 @@
 /*
 ** hostcachetablemodel.h
 **
-** Copyright © Quazaa Development Team, 2013-2013.
+** Copyright © Quazaa Development Team, 2013-2014.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
 **
 ** Quazaa is free software; this file may be used under the terms of the GNU
@@ -28,35 +28,11 @@
 #include <QAbstractTableModel>
 
 #include "g2hostcache.h"
+#include "hostcachetablemodeldata.h"
 
 class HostCacheTableModel : public QAbstractTableModel
 {
 	Q_OBJECT
-
-public:
-	struct HostData
-	{
-		SharedHostPtr   m_pHost;
-
-		const CEndPoint m_oAddress;
-		const QString   m_sAddress;
-		const QString   m_sCountryCode;
-		const QString   m_sCountry;
-		const QIcon     m_iCountry;
-		const quint32   m_nID;
-		quint32         m_tLastConnect;
-		QString         m_sLastConnect;
-		quint8          m_nFailures;
-		QString         m_sFailures;
-
-		//QString         m_sUserAgent;
-		//QIcon           m_iNetwork;
-
-		HostData(SharedHostPtr pHost);
-		bool update(int row, int col, QModelIndexList& to_update, HostCacheTableModel* model);
-		QVariant data(int col) const;
-		bool lessThan(int col, HostData* pOther) const;
-	};
 
 private:
 	QWidget*        m_oContainer;
@@ -132,7 +108,5 @@ private:
 	void insert(HostData* pData);
 	void erase(int nPos);
 };
-
-typedef HostCacheTableModel::HostData    HostData;
 
 #endif // G2CACHETABLEMODEL_H

@@ -1,7 +1,7 @@
 /*
 ** g2hostcache.cpp
 **
-** Copyright © Quazaa Development Team, 2009-2013.
+** Copyright © Quazaa Development Team, 2009-2014.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
 **
 ** Quazaa is free software; this file may be used under the terms of the GNU
@@ -1451,6 +1451,16 @@ void G2HostCache::startUpInternal()
 	emit loadingFinished();
 
 	signalQueue.push( this, "maintain", 10000, true );
+}
+
+/**
+ * @brief registerMetaTypesInternal handles registering the necessary meta types of HostCache
+ * classes.
+ */
+void G2HostCache::registerMetaTypesInternal()
+{
+	static int foo = qRegisterMetaType< SharedG2HostPtr >( "SharedG2HostPtr" );
+	Q_UNUSED( foo );
 }
 
 /**
