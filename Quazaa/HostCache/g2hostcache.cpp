@@ -35,8 +35,10 @@
 #include "g2node.h"
 #endif // QUAZAA_SETUP_UNIT_TESTS
 
-#include "networktype.h"
 #include "g2hostcache.h"
+
+#include "g2hostcachehost.h"
+
 #include "geoiplist.h"
 #include "quazaasettings.h"
 #include "Misc/timedsignalqueue.h"
@@ -149,13 +151,13 @@ SharedG2HostPtr G2HostCache::get(const CEndPoint& oHost) const
 }
 
 /**
- * @brief CHostCache::check allows to verify if a given CHostCacheHost is part of the cache. The
+ * @brief CHostCache::check allows to verify if a given HostCacheHost is part of the cache. The
  * information is guaranteed to stay valid as long as the mutex is held.
  * Locking: REQUIRED
  * @param pHost: the CHostCacheHost to check.
  * @return true if the host could be found in the cache, false otherwise.
  */
-bool G2HostCache::check(const SharedHostPtr pHost) const
+/*bool G2HostCache::check(const SharedHostPtr pHost) const
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Components::HostCache,
@@ -170,7 +172,7 @@ bool G2HostCache::check(const SharedHostPtr pHost) const
 
 	G2HostCacheConstIterator it = find( (G2HostCacheHost*)(pHost.data()) );
 	return it != getEndIterator();
-}
+}*/
 
 /**
  * @brief CHostCache::updateFailures updates the number of failures of a given host.
@@ -666,15 +668,15 @@ quint32 G2HostCache::requestHostInfo()
 
 	for ( G2HostCacheIterator it = m_lHosts.begin(); it != m_lHosts.end(); ++it )
 	{
-		SharedG2HostPtr pHost = *it;
+		SharedG2HostPtr pG2Host = *it;
 
 		// if the shared pointer represented by the iterator has been initialized
-		if ( pHost )
+		if ( pG2Host )
 		{
-			Q_ASSERT( it == pHost->iterator() );
-			Q_ASSERT( pHost->address().isValid() );
+			Q_ASSERT( it == pG2Host->iterator() );
+			Q_ASSERT( pG2Host->address().isValid() );
 
-			emit hostInfo( qSharedPointerCast<HostCacheHost>(*it) );
+			emit hostInfo( new HostData( qSharedPointerCast<HostCacheHost>(pG2Host) ) );
 			++nHosts;
 		}
 	}
@@ -1164,7 +1166,9 @@ void G2HostCache::insert(SharedG2HostPtr pNew)
 
 	// Inform GUI
 	if ( !m_bLoading )
-		emit hostAdded( qSharedPointerCast<HostCacheHost>( pNew ) );
+	{
+		emit hostAdded( new HostData( qSharedPointerCast<HostCacheHost>( pNew ) ) );
+	}
 
 	// TODO: remove in beta1
 #ifdef _DEBUG

@@ -33,6 +33,7 @@
 #include "systemlog.h"
 #include "Hashes/hash.h"
 #include "queryhit.h"
+#include "g2hostcachehost.h"
 
 #include <QMutexLocker>
 

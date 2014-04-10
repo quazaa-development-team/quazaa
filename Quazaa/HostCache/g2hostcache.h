@@ -26,7 +26,8 @@
 #define G2HOSTCACHE_H
 
 #include "hostcache.h"
-#include "g2hostcachehost.h"
+
+#include "endpoint.h"
 
 #define ENABLE_G2_HOST_CACHE_DEBUGGING    0
 #define ENABLE_G2_HOST_CACHE_BENCHMARKING 0
@@ -45,6 +46,13 @@
 //  12:59:25 brov: 2. search manager must request query keys directly from other nodes (use a random search string)
 
 class QFile;
+class G2HostCacheHost;
+
+typedef QSharedPointer<G2HostCacheHost> SharedG2HostPtr;
+
+typedef std::list<SharedG2HostPtr>      G2HostCacheList;
+typedef G2HostCacheList::iterator       G2HostCacheIterator;
+typedef G2HostCacheList::const_iterator G2HostCacheConstIterator;
 
 class G2HostCache : public HostCache
 {
@@ -75,7 +83,7 @@ public:
 				const quint32 tAck, const quint32 tNow);
 
 	SharedG2HostPtr get(const CEndPoint& oHost) const;
-	bool check(const SharedHostPtr pHost) const;
+	//bool check(const SharedHostPtr pHost) const;
 
 	void updateFailures(const CEndPoint& oAddress, const quint32 nFailures);
 

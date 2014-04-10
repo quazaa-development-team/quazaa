@@ -30,6 +30,7 @@
 #include "queryhit.h" // needed for signals
 
 #include "g2hostcache.h"
+#include "network.h"
 
 class CQuery;
 

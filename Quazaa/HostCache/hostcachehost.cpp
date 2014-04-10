@@ -25,9 +25,7 @@
 #include "hostcachehost.h"
 #include "g2hostcachehost.h"
 
-#ifdef _DEBUG
-#include "g2hostcache.h"
-#endif // _DEBUG
+#include "hostcachetablemodel.h"
 
 IDProvider<quint32> HostCacheHost::m_oIDProvider;
 bool                HostCacheHost::m_bShutDownFlag = false;
@@ -46,13 +44,6 @@ HostCacheHost::HostCacheHost(const CEndPoint& oAddress, const quint8 nFailures,
 
 HostCacheHost::~HostCacheHost()
 {
-#if ENABLE_G2_HOST_CACHE_DEBUGGING
-	qDebug() << "Deleting Host Cache Host No "
-			 << QString::number( m_nHostCount ).toLocal8Bit().data()
-			 << " with GUI ID "
-			 << QString::number( m_nID ).toLocal8Bit().data();
-#endif // _DEBUG
-
 	if ( !m_bShutDownFlag )
 		m_oIDProvider.release( m_nID );
 }
@@ -100,4 +91,112 @@ void HostCacheHost::save(QDataStream& fsFile)
 	fsFile << m_nFailures;
 	fsFile << m_tTimeStamp;
 	fsFile << m_tLastConnect;
+}
+
+HostData::HostData(SharedHostPtr pHost) :
+	m_pHost(        pHost                ),
+	m_oAddress(     pHost->address()     ),
+	m_sAddress(     m_oAddress.toStringWithPort() ),
+	m_sCountryCode( m_oAddress.country() ),
+	m_sCountry(     geoIP.countryNameFromCode( m_sCountryCode ) ),
+	m_iCountry(     QIcon(":/Resource/Flags/" + m_sCountryCode.toLower() + ".png") ),
+	m_nID(          pHost->id()          ),
+	m_tLastConnect( pHost->lastConnect() ),
+	m_sLastConnect( m_tLastConnect ? QDateTime::fromTime_t( m_tLastConnect ).toString()
+								   : QObject::tr( "never" ) ),
+	m_nFailures(    pHost->failures()    ),
+	m_sFailures(    QString::number( m_nFailures ) ),
+	m_nType(        pHost->type() )
+{
+}
+
+/**
+ * @brief update refreshes the data within HostData if necessary.
+ * Locking: REQUIRES hostCache.m_pSection
+ * @param nRow : the row being refreshed
+ * @param nSortCol : the currently sorted column
+ * @param lToUpdate : the list of indexes that have changed
+ * @param pModel : the model
+ * @return true if an entry within the column col has been modified
+ */
+bool HostData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
+					  HostCacheTableModel* pModel)
+{
+	Q_ASSERT( !m_pHost.isNull() );
+
+	bool bReturn = false;
+
+	// address and country never change
+	if ( m_tLastConnect != m_pHost->lastConnect() )
+	{
+		lToUpdate.append( pModel->index( nRow, HostCacheTableModel::LASTCONNECT ) );
+		m_tLastConnect = m_pHost->lastConnect();
+		m_sLastConnect = m_tLastConnect ? QDateTime::fromTime_t( m_tLastConnect ).toString()
+										: QObject::tr( "never" );
+
+		if ( nSortCol == HostCacheTableModel::LASTCONNECT )
+			bReturn = true;
+	}
+
+	if ( m_nFailures != m_pHost->failures() )
+	{
+		lToUpdate.append( pModel->index( nRow, HostCacheTableModel::FAILURES ) );
+		m_nFailures = m_pHost->failures();
+		m_sFailures = QString::number( m_nFailures );
+
+		if ( nSortCol == HostCacheTableModel::FAILURES )
+			bReturn = true;
+	}
+
+	return bReturn;
+}
+
+/**
+ * @brief RuleData::data
+ * @param col
+ * @return
+ */
+QVariant HostData::data(int col) const
+{
+	switch ( col )
+	{
+	case HostCacheTableModel::ADDRESS:
+		return m_sAddress;
+
+	case HostCacheTableModel::LASTCONNECT:
+		return m_sLastConnect;
+
+	case HostCacheTableModel::FAILURES:
+		return m_sFailures;
+
+	case HostCacheTableModel::COUNTRY:
+		return m_sCountry;
+
+	default:
+		return QVariant();
+	}
+}
+
+bool HostData::lessThan(int col, HostData* pOther) const
+{
+	if ( !pOther )
+		return false;
+
+	switch ( col )
+	{
+	case HostCacheTableModel::ADDRESS:
+		return m_sAddress     < pOther->m_sAddress;
+
+	case HostCacheTableModel::LASTCONNECT:
+		return m_tLastConnect < pOther->m_tLastConnect;
+
+	case HostCacheTableModel::FAILURES:
+		return m_nFailures    < pOther->m_nFailures;
+
+	case HostCacheTableModel::COUNTRY:
+		return m_sCountryCode < pOther->m_sCountryCode;
+
+	default:
+		return false;
+	}
 }

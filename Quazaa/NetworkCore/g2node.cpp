@@ -38,6 +38,7 @@
 #include "securitymanager.h"
 
 #include "g2hostcache.h"
+#include "g2hostcachehost.h"
 
 #include "quazaasettings.h"
 #include "quazaaglobals.h"

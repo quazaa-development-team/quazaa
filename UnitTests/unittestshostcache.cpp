@@ -1,5 +1,7 @@
 #include "unittestshostcache.h"
 
+#include "g2hostcachehost.h"
+
 UnitTestsHostCache::UnitTestsHostCache() :
 	QObject()
 {

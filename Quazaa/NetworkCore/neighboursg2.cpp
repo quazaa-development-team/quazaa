@@ -26,6 +26,7 @@
 
 #include "neighboursg2.h"
 #include "g2hostcache.h"
+#include "g2hostcachehost.h"
 #include "g2node.h"
 #include "g2packet.h"
 #include "network.h"

@@ -23,6 +23,7 @@
 */
 
 #include "hostcache.h"
+#include "hostcachehost.h"
 
 HostCache::HostCache() :
 	m_pHostCacheDiscoveryThread( NULL ),
@@ -83,9 +84,11 @@ void HostCache::stop()
  */
 void HostCache::registerMetaTypes()
 {
-	static int foo = qRegisterMetaType< SharedHostPtr >( "SharedHostPtr" );
+	static int foo = qRegisterMetaType< HostData* >( "HostData*" );
+	static int bar = qRegisterMetaType< QSharedPointer<HostCacheHost> >( "QSharedPointer<HostCacheHost>" );
 
 	Q_UNUSED( foo );
+	Q_UNUSED( bar );
 
 	registerMetaTypesInternal();
 }

@@ -25,7 +25,7 @@
 #include <QAbstractItemView>
 
 #include "hostcachetablemodel.h"
-
+#include "hostcachehost.h"
 #include "debug_new.h"
 
 HostCacheTableModel::HostCacheTableModel(QObject* parent, QWidget* container) :
@@ -37,11 +37,11 @@ HostCacheTableModel::HostCacheTableModel(QObject* parent, QWidget* container) :
 	// register necessary meta types before using them
 	hostCache.registerMetaTypes();
 
-	connect( &hostCache, SIGNAL( hostAdded( SharedHostPtr ) ), this,
-			 SLOT( addHost( SharedHostPtr ) ), Qt::QueuedConnection );
+	connect( &hostCache, SIGNAL( hostAdded( HostData* ) ), this,
+			 SLOT( addHost( HostData* ) ), Qt::QueuedConnection );
 
-	connect( &hostCache, SIGNAL( hostRemoved( SharedHostPtr ) ), this,
-			 SLOT( removeHost( SharedHostPtr ) ), Qt::QueuedConnection );
+	connect( &hostCache, SIGNAL( hostRemoved( QSharedPointer<HostCacheHost> ) ), this,
+			 SLOT( removeHost( QSharedPointer<HostCacheHost> ) ), Qt::QueuedConnection );
 
 	// This handles GUI updates on rule changes.
 	/*connect( &hostCache, SIGNAL( hostUpdated( quint32 ) ), this,
@@ -306,8 +306,8 @@ void HostCacheTableModel::completeRefresh()
 	}
 
 	// Note that this slot is automatically disconnected once all Hosts have been recieved once.
-	connect( &hostCache, SIGNAL( hostInfo( SharedHostPtr ) ), this,
-			 SLOT( recieveHostInfo( SharedHostPtr ) ), Qt::QueuedConnection );
+	connect( &hostCache, SIGNAL( hostInfo( HostData* ) ), this,
+			 SLOT( recieveHostInfo( HostData* ) ), Qt::QueuedConnection );
 
 	hostCache.verifyIterators();
 
@@ -326,9 +326,9 @@ void HostCacheTableModel::triggerHostRemoval(int nIndex)
 	hostCache.remove( m_vHosts[nIndex]->m_oAddress );
 }
 
-void HostCacheTableModel::recieveHostInfo(SharedHostPtr pHost)
+void HostCacheTableModel::recieveHostInfo(HostData* pHostData)
 {
-	Q_ASSERT( pHost->address().isValid() );
+	Q_ASSERT( pHostData->m_oAddress.isValid() );
 
 	--m_nHostInfo;
 
@@ -336,26 +336,26 @@ void HostCacheTableModel::recieveHostInfo(SharedHostPtr pHost)
 	if ( !m_nHostInfo )
 	{
 		// Make sure we don't recieve any signals we don't want once we got all hosts once.
-		disconnect( &hostCache, SIGNAL( hostInfo( SharedHostPtr ) ),
-					this, SLOT( recieveHostInfo( SharedHostPtr ) ) );
+		disconnect( &hostCache, SIGNAL( hostInfo( HostData* ) ),
+					this, SLOT( recieveHostInfo( HostData* ) ) );
 	}
 
-	addHost( pHost );
+	addHost( pHostData );
 }
 
 /**
  * @brief addHost adds a rule to the GUI.
  * @param pHost : the host
  */
-void HostCacheTableModel::addHost(SharedHostPtr pHost)
+void HostCacheTableModel::addHost(HostData* pHostData)
 {
-	Q_ASSERT( pHost->address().isValid() );
+	Q_ASSERT( pHostData->m_oAddress.isValid() );
 
-	if ( pHost->type() == DiscoveryProtocol::G2 )
+	if ( pHostData->m_nType == DiscoveryProtocol::G2 )
 	{
-		hostCache.m_pSection.lock();
+		/*hostCache.m_pSection.lock();
 
-		SharedG2HostPtr pG2Host = qSharedPointerCast<G2HostCacheHost>(pHost);
+		SharedG2HostPtr pG2Host = qSharedPointerCast<G2HostCacheHost>(pHostData);
 
 		// if iterator is invalid, the host has been removed in the meantime
 		if ( pG2Host->iteratorValid() )
@@ -369,12 +369,14 @@ void HostCacheTableModel::addHost(SharedHostPtr pHost)
 
 			Q_ASSERT( pG2Host->iteratorValid() );
 
-			Q_ASSERT( hostCache.check( pHost ) );
-			insert( new HostData( pHost ) );
+			Q_ASSERT( hostCache.check( pHostData ) );
+			insert( new HostData( pHostData ) );
 			// TODO: updateView( uplist ); ???
 		}
 
-		hostCache.m_pSection.unlock();
+		hostCache.m_pSection.unlock();*/
+
+		insert( pHostData );
 	}
 }
 

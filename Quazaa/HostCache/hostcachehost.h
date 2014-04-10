@@ -25,9 +25,11 @@
 #ifndef HOSTCACHEHOST_H
 #define HOSTCACHEHOST_H
 
-#include "types.h"
 #include "quazaasettings.h"
 #include "idprovider.h"
+
+#include "endpoint.h"
+#include "networktype.h"
 
 #ifndef QUAZAA_SETUP_UNIT_TESTS
 #include "network.h"
@@ -87,6 +89,40 @@ public:
 	inline void      setConnectable( bool      bConnectable ) { m_bConnectable = bConnectable; }
 
 	inline static void setShutDownFlag() { m_bShutDownFlag = true; }
+};
+
+typedef QSharedPointer<HostCacheHost> SharedHostPtr;
+
+#include <QIcon>
+#include <QAbstractTableModel>
+
+class HostCacheTableModel;
+
+class HostData
+{
+public:
+	SharedHostPtr   m_pHost;
+
+	const CEndPoint m_oAddress;
+	const QString   m_sAddress;
+	const QString   m_sCountryCode;
+	const QString   m_sCountry;
+	const QIcon     m_iCountry;
+	const quint32   m_nID;
+	quint32         m_tLastConnect;
+	QString         m_sLastConnect;
+	quint8          m_nFailures;
+	QString         m_sFailures;
+
+	DiscoveryProtocol::Protocol m_nType;
+
+	//QString         m_sUserAgent;
+	//QIcon           m_iNetwork;
+
+	HostData(SharedHostPtr pHost);
+	bool update(int row, int col, QModelIndexList& to_update, HostCacheTableModel* model);
+	QVariant data(int col) const;
+	bool lessThan(int col, HostData* pOther) const;
 };
 
 #endif // HOSTCACHEHOST_H

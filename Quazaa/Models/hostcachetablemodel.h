@@ -28,7 +28,6 @@
 #include <QAbstractTableModel>
 
 #include "g2hostcache.h"
-#include "hostcachetablemodeldata.h"
 
 class HostCacheTableModel : public QAbstractTableModel
 {
@@ -77,20 +76,20 @@ public:
 	void triggerHostRemoval(int nIndex);
 
 public slots:
-	void recieveHostInfo(SharedHostPtr pHost);
+	void recieveHostInfo(HostData* pHostData);
 
 	/**
 	 * @brief addHost adds a rule to the GUI.
 	 * @param pHost : the host
 	 */
-	void addHost(SharedHostPtr pHost);
+	void addHost(HostData* pHostData);
 
 	/**
 	 * @brief removeHost removes a host from the table model.
 	 * This is to be triggered from the host cache AFTER the host has been removed.
 	 * @param pHost : the host
 	 */
-	void removeHost(SharedHostPtr pHost);
+	void removeHost(QSharedPointer<HostCacheHost> pHost);
 
 	/**
 	 * @brief updateHost updates the GUI for a specified host.

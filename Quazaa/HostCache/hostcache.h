@@ -31,12 +31,11 @@
 #include <QThread>
 #include <QAtomicInt>
 
-#include "hostcachehost.h"
-
-typedef QSharedPointer<HostCacheHost>   SharedHostPtr;
-
 // TODO: add signal for clear() and clear the HC and GUI on shutdown
 // TODO: add mechanism to remove hosts and discovery services by their origin
+
+class HostData;
+class HostCacheHost;
 
 class HostCache : public QObject
 {
@@ -105,20 +104,20 @@ signals:
 	 * @brief hostAdded informs about a new host having been added.
 	 * @param pHost : the host
 	 */
-	void            hostAdded(SharedHostPtr pHost);
+	void            hostAdded(HostData* pHostData);
 
 	/**
 	 * @brief hostRemoved informs about a host having been removed.
 	 * @param pHost : the host
 	 */
-	void            hostRemoved(SharedHostPtr pHost);
+	void            hostRemoved(QSharedPointer<HostCacheHost> pHost);
 
 	/**
 	 * @brief hostInfo info signal to get informed about all hosts within the cache.
 	 * See requestHostList() for more information.
 	 * @param pHost : the host
 	 */
-	void            hostInfo(SharedHostPtr pHost);
+	void            hostInfo(HostData* pHost);
 
 	/**
 	 * @brief hostUpdated informs about a host having been updated.
