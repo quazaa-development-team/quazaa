@@ -80,7 +80,7 @@ public:
 	SearchTreeItem(const QList<QVariant> &data, SearchTreeItem* parent = 0);
 	~SearchTreeItem();
 
-	SearchHitData::sSearchHitData HitData;
+	SearchHitData::sSearchHitData hitData;
 
 	void appendChild(SearchTreeItem* child);
 	void clearChildren();
@@ -134,7 +134,7 @@ signals:
 	void sort();
 
 private:
-	void setupModelData(const QStringList& lines, SearchTreeItem* parent);
+	//void setupModelData(const QStringList& lines, SearchTreeItem* parent);
 
 public slots:
 	void clear();

@@ -274,12 +274,12 @@ void CWidgetSearchResults::on_actionSearchDownload_triggered()
 				{
 					if( pLast )
 					{
-						pLast->m_pNext = new QueryHit(itemSearch->child(i)->HitData.pQueryHit.data());
+						pLast->m_pNext = new QueryHit(itemSearch->child(i)->hitData.pQueryHit.data());
 						pLast = pLast->m_pNext;
 					}
 					else
 					{
-						pHits = new QueryHit(itemSearch->child(i)->HitData.pQueryHit.data());
+						pHits = new QueryHit(itemSearch->child(i)->hitData.pQueryHit.data());
 						pLast = pHits;
 					}
 				}

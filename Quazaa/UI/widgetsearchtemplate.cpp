@@ -223,12 +223,12 @@ void CWidgetSearchTemplate::on_treeViewSearchResults_doubleClicked(const QModelI
 		{
 			if( pLast )
 			{
-				pLast->m_pNext = new QueryHit(itemSearch->child(i)->HitData.pQueryHit.data());
+				pLast->m_pNext = new QueryHit(itemSearch->child(i)->hitData.pQueryHit.data());
 				pLast = pLast->m_pNext;
 			}
 			else
 			{
-				pHits = new QueryHit(itemSearch->child(i)->HitData.pQueryHit.data());
+				pHits = new QueryHit(itemSearch->child(i)->hitData.pQueryHit.data());
 				pLast = pHits;
 			}
 		}
@@ -271,7 +271,7 @@ void CWidgetSearchTemplate::on_actionViewReviews_triggered()
 
 	if( itemSearch != NULL )
 	{
-		QDesktopServices::openUrl( QUrl(QString("http://bitzi.com/lookup/%1?v=detail&ref=quazaa").arg(itemSearch->HitData.lHashes.at(0).toString()), QUrl::TolerantMode) );
+		QDesktopServices::openUrl( QUrl(QString("http://bitzi.com/lookup/%1?v=detail&ref=quazaa").arg(itemSearch->hitData.lHashes.at(0).toString()), QUrl::TolerantMode) );
 	}
 }
 
@@ -281,7 +281,7 @@ void CWidgetSearchTemplate::on_actionVirusTotalCheck_triggered()
 
 	if( itemSearch != NULL )
 	{
-		QDesktopServices::openUrl( QUrl(QString("www.virustotal.com/latest-report.html?resource=%1").arg(QString(itemSearch->HitData.lHashes.at(0).rawValue().toHex())), QUrl::TolerantMode) );
+		QDesktopServices::openUrl( QUrl(QString("www.virustotal.com/latest-report.html?resource=%1").arg(QString(itemSearch->hitData.lHashes.at(0).rawValue().toHex())), QUrl::TolerantMode) );
 	}
 }
 
@@ -300,7 +300,7 @@ void CWidgetSearchTemplate::on_actionBanNode_triggered()
 		QString reason = QInputDialog::getText( this, tr("Ban Reason"), tr("Please enter a ban reason."), QLineEdit::Normal, "", &ok );
 		if ( ok && !reason.isEmpty() )
 		{
-			CEndPoint address = itemSearch->HitData.pQueryHit.data()->m_pHitInfo.data()->m_oNodeAddress;
+			CEndPoint address = itemSearch->hitData.pQueryHit.data()->m_pHitInfo.data()->m_oNodeAddress;
 			securityManager.ban( address, Security::RuleTime::SixMonths, true, reason, false );
 			m_pSearchModel->removeQueryHit(CurrentItem().row(), m_pSearchModel->parent(CurrentItem()));
 		}
