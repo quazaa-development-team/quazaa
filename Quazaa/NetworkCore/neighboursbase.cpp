@@ -119,15 +119,12 @@ void CNeighboursBase::maintain()
 
 void CNeighboursBase::sanityCheck()
 {
-	//qDebug() << "[Neighbours] Started sanity checking.";
 	securityManager.m_oSanity.lockForRead();
-	//qDebug() << "Got sanity lock. Waiting for Neighbours.";
 
 	uint nCount = 0;
 
 	if ( m_pSection.tryLock() ) // obtain Neighbours lock second in order to minimize lockdown time
 	{
-		//qDebug() << "Neighbours lock.";
 		for ( int i = 0; i < m_lNodes.size(); ++i )
 		{
 			if ( securityManager.m_oSanity.isNewlyDenied( m_lNodes[i]->address() ) )
@@ -137,7 +134,6 @@ void CNeighboursBase::sanityCheck()
 			}
 		}
 
-		//qDebug() << "Neighbours unlock.";
 		m_pSection.unlock();
 	}
 	else
@@ -148,12 +144,8 @@ void CNeighboursBase::sanityCheck()
 		return;
 	}
 
-	//qDebug() << "Sanity unlock.";
 	securityManager.m_oSanity.unlock();
 
 	emit sanityCheckPerformed();
-
-	qDebug() << QString( "[Neighbours] Finished sanity checking. %1 host(s) removed."
-						 ).arg( nCount ).toLocal8Bit().data();
 }
 

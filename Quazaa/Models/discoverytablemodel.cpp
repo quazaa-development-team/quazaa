@@ -609,8 +609,6 @@ void DiscoveryTableModel::addService(ConstServicePtr pService)
 
 		pService->lockForRead();
 
-		qDebug() << QString( "Adding service with ID %1 to GUI."
-							 ).arg( QString::number( pService->id() ) ).toLocal8Bit().data();
 		m_lNodes.append( new Service( pService, this ) );
 		pService->unlock();
 

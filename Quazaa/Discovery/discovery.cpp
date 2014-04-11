@@ -635,9 +635,6 @@ void Manager::asyncRequestServiceListHelper()
 	m_pSection.lock();
 	foreach ( MapPair pair, m_mServices )
 	{
-		qDebug() << "Service info; ID: "
-				 << QString::number( pair.second->id() ).toLocal8Bit().data();
-
 		emit serviceInfo( pair.second );
 	}
 	m_pSection.unlock();
