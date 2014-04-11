@@ -985,7 +985,7 @@ void CDatagrams::onQH2(CEndPoint& addr, G2Packet* pPacket)
 		return;
 	}
 
-	QueryHitInfo* pInfo = CQueryHit::readInfo( pPacket, &addr );
+	QueryHitInfo* pInfo = QueryHit::readInfo( pPacket, &addr );
 
 	if ( pInfo )
 	{

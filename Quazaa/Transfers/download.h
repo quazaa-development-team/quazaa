@@ -6,7 +6,7 @@
 #include "Hashes/hash.h"
 
 class CDownloadSource;
-class CQueryHit;
+class QueryHit;
 class CTransfer;
 
 class CDownload : public QObject
@@ -61,14 +61,14 @@ public:
 		  m_lActive(0),
 		  m_bSignalSources(false), m_bModified(false),m_nTransfers(0)
 	{}
-	CDownload(CQueryHit* pHit, QObject *parent = 0);
+	CDownload(QueryHit* pHit, QObject *parent = 0);
 	~CDownload();
 
 	void start();
 	void pause();
 	void cancelDownload();
 	bool addSource(CDownloadSource* pSource);
-	int  addSource(CQueryHit* pHit);
+	int  addSource(QueryHit* pHit);
 	void removeSource(CDownloadSource* pSource);
 	int  startTransfers(int nMaxTransfers = -1);
 	void stopTransfers();

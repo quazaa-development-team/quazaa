@@ -28,7 +28,7 @@
 
 #include "debug_new.h"
 
-CQueryHit::CQueryHit() :
+QueryHit::QueryHit() :
 	m_pNext( NULL ),
 	m_lHashes( HashVector() ),
 	m_nObjectSize( 0 ),
@@ -39,7 +39,7 @@ CQueryHit::CQueryHit() :
 {
 }
 
-CQueryHit::CQueryHit(CQueryHit *pHit):
+QueryHit::QueryHit(QueryHit *pHit):
 	m_pNext( NULL ),
 	m_pHitInfo( pHit->m_pHitInfo ),
 	m_lHashes( pHit->m_lHashes ),
@@ -55,7 +55,7 @@ CQueryHit::CQueryHit(CQueryHit *pHit):
 {
 }
 
-CQueryHit::~CQueryHit()
+QueryHit::~QueryHit()
 {
 	//qDebug() << "CQueryHit destructor";
 
@@ -65,7 +65,7 @@ CQueryHit::~CQueryHit()
 	}
 }
 
-QueryHitInfo* CQueryHit::readInfo(G2Packet* pPacket, CEndPoint* pSender)
+QueryHitInfo* QueryHit::readInfo(G2Packet* pPacket, CEndPoint* pSender)
 {
 	// do a shallow parsing...
 
@@ -159,7 +159,7 @@ QueryHitInfo* CQueryHit::readInfo(G2Packet* pPacket, CEndPoint* pSender)
 	return pHitInfo;
 }
 
-CQueryHit* CQueryHit::readPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo)
+QueryHit* QueryHit::readPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 {
 	if(!pPacket->m_bCompound)
 	{
@@ -171,7 +171,7 @@ CQueryHit* CQueryHit::readPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 	bool bHaveHits = false;
 	bool bFirstHit = true;
 
-	CQueryHit* pThisHit = new CQueryHit();
+	QueryHit* pThisHit = new QueryHit();
 
 	try
 	{
@@ -185,11 +185,11 @@ CQueryHit* CQueryHit::readPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 
 			if(strcmp("H", szType) == 0 && bCompound)
 			{
-				CQueryHit* pHit = (bFirstHit ? pThisHit : new CQueryHit());
+				QueryHit* pHit = (bFirstHit ? pThisHit : new QueryHit());
 
 				if(!bFirstHit)
 				{
-					CQueryHit* pPrevHit = pThisHit;
+					QueryHit* pPrevHit = pThisHit;
 					while(pPrevHit->m_pNext != 0)
 					{
 						pPrevHit = pPrevHit->m_pNext;
@@ -316,7 +316,7 @@ CQueryHit* CQueryHit::readPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 					{
 						// może teraz się nie wywali...
 						// można by było to lepiej zrobić...
-						for(CQueryHit* pTest = pThisHit; pTest != 0; pTest = pTest->m_pNext)
+						for(QueryHit* pTest = pThisHit; pTest != 0; pTest = pTest->m_pNext)
 						{
 							if(pTest->m_pNext == pHit)
 							{
@@ -351,7 +351,7 @@ CQueryHit* CQueryHit::readPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 		return 0;
 	}
 
-	CQueryHit* pHit = pThisHit;
+	QueryHit* pHit = pThisHit;
 	QSharedPointer<QueryHitInfo> pHitInfoS(pHitInfo);
 
 	while(pHit != 0)
@@ -374,7 +374,7 @@ CQueryHit* CQueryHit::readPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 	return pThisHit;
 }
 
-void CQueryHit::resolveURLs()
+void QueryHit::resolveURLs()
 {
 	if(!m_sURL.isEmpty())
 	{
@@ -389,7 +389,7 @@ void CQueryHit::resolveURLs()
 							 ).arg( m_lHashes[0].toURN() );
 }
 
-bool CQueryHit::isValid(CQuery* pQuery) const
+bool QueryHit::isValid(CQuery* pQuery) const
 {
 	if ( pQuery )
 	{

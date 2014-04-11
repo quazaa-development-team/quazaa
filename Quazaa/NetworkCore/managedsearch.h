@@ -53,7 +53,7 @@ public:
 
 	QUuid       m_oGUID;
 
-	CQueryHit*  m_pCachedHit;
+	QueryHit*  m_pCachedHit;
 	quint32     m_nCachedHits;
 
 	quint32     m_nCookie;
@@ -80,7 +80,7 @@ public:
 	CG2Node* findBestHubForRoutingG2(const CG2Node* const pLastNeighbour);
 
 	void onHostAcknowledge(QHostAddress nHost, const QDateTime& tNow);
-	void onQueryHit(CQueryHit* pHits);
+	void onQueryHit(QueryHit* pHits);
 	void sendHits();
 
 signals:

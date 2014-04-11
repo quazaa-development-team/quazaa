@@ -312,14 +312,14 @@ void UnitTestsSecurity::testCountries_data()
 
 void UnitTestsSecurity::testHashes()
 {
-	QFETCH( CQueryHit, oHit );
+	QFETCH( QueryHit, oHit );
 	QFETCH( bool, isDenied );
 
 	QCOMPARE( m_pManager->isDenied( &oHit ), isDenied );
 }
 void UnitTestsSecurity::testHashes_data()
 {
-	QTest::addColumn< CQueryHit >( "oHit" );
+	QTest::addColumn< QueryHit >( "oHit" );
 	QTest::addColumn< bool >( "isDenied" );
 
 	for ( ushort i = 0; i < NO_OF_TEST_HASHES; ++i )
@@ -329,7 +329,7 @@ void UnitTestsSecurity::testHashes_data()
 						m_vHashData[i].first;
 
 		QString sHitName = QString::number( i );
-		CQueryHit oHit = generateQueryHit( 1, sHitName, m_vHashData[i].first );
+		QueryHit oHit = generateQueryHit( 1, sHitName, m_vHashData[i].first );
 
 		QCOMPARE( oHit.m_sDescriptiveName, sHitName );
 
@@ -341,14 +341,14 @@ void UnitTestsSecurity::testHashes_data()
 
 void UnitTestsSecurity::testContent()
 {
-	QFETCH( CQueryHit, oHit );
+	QFETCH( QueryHit, oHit );
 	QFETCH( bool, isDenied );
 
 	QCOMPARE( m_pManager->isDenied( &oHit ), isDenied );
 }
 void UnitTestsSecurity::testContent_data()
 {
-	QTest::addColumn< CQueryHit >( "oHit" );
+	QTest::addColumn< QueryHit >( "oHit" );
 	QTest::addColumn< bool >( "isDenied" );
 
 	// a hash not used within the hash match testing
@@ -362,7 +362,7 @@ void UnitTestsSecurity::testContent_data()
 						QString::number( m_vContentTestData[i].first.second ) + ")";
 
 		QString sHitName = m_vContentTestData[i].first.first;
-		CQueryHit oHit = generateQueryHit( m_vContentTestData[i].first.second, sHitName, sHash );
+		QueryHit oHit = generateQueryHit( m_vContentTestData[i].first.second, sHitName, sHash );
 		QTest::newRow( sName.toLocal8Bit().data() ) << oHit
 													<< m_vContentTestData[i].second;
 	}
@@ -1338,7 +1338,7 @@ void UnitTestsSecurity::populateRowsWithTestsForCountries()
 	}
 }
 
-CQueryHit UnitTestsSecurity::generateQueryHit(quint64 nSize, QString sName, QString sHashes)
+QueryHit UnitTestsSecurity::generateQueryHit(quint64 nSize, QString sName, QString sHashes)
 {
 	QStringList prefixes;
 	prefixes << "urn:sha1:"
@@ -1400,7 +1400,7 @@ CQueryHit UnitTestsSecurity::generateQueryHit(quint64 nSize, QString sName, QStr
 		}
 	}
 
-	CQueryHit oHit = CQueryHit();
+	QueryHit oHit = QueryHit();
 
 	if ( !vHashes.empty() )
 	{

@@ -44,7 +44,7 @@ CDownloads::CDownloads(QObject *parent) :
 	qRegisterMetaType<CDownload::DownloadState>("CDownload::DownloadState");
 }
 
-void CDownloads::add(CQueryHit *pHit)
+void CDownloads::add(QueryHit *pHit)
 {
 	ASSUME_LOCK( Downloads.m_pSection );
 

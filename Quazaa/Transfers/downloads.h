@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QMutex>
 
-class CQueryHit;
+class QueryHit;
 class CDownload;
 
 class CDownloads : public QObject
@@ -20,7 +20,7 @@ public:
 	void start();
 	void stop();
 
-	void add(CQueryHit* pHit);
+	void add(QueryHit* pHit);
 
 	bool exists(CDownload* pDownload);
 signals:

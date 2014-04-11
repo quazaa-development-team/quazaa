@@ -43,7 +43,7 @@ CDownloadSource::CDownloadSource(CDownload *pDownload, QObject *parent)
 	m_tNextAccess = time(0);
 }
 
-CDownloadSource::CDownloadSource(CDownload *pDownload, CQueryHit *pHit, QObject *parent)
+CDownloadSource::CDownloadSource(CDownload *pDownload, QueryHit *pHit, QObject *parent)
 	: QObject(parent),
 	  m_pDownload(pDownload),
 	  m_pTransfer(0),

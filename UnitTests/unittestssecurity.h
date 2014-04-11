@@ -154,7 +154,7 @@ private:
 	void populateRowsWithTestsForIPRanges();
 	void populateRowsWithTestsForCountries();
 
-	CQueryHit generateQueryHit(quint64 nSize, QString sName, QString sHashes);
+	QueryHit generateQueryHit(quint64 nSize, QString sName, QString sHashes);
 };
 
 #endif // UNITTESTSECURITY_H

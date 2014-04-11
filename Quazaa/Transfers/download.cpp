@@ -204,7 +204,7 @@ QDataStream& operator>>(QDataStream& s, CDownload& rhs)
 	return s;
 }
 
-CDownload::CDownload(CQueryHit* pHit, QObject *parent) :
+CDownload::CDownload(QueryHit* pHit, QObject *parent) :
 	QObject(parent),
 	m_lCompleted(pHit->m_nObjectSize),
 	m_lVerified(pHit->m_nObjectSize),
@@ -278,9 +278,9 @@ bool CDownload::addSource(CDownloadSource *pSource)
 
 	return true;
 }
-int CDownload::addSource(CQueryHit *pHit)
+int CDownload::addSource(QueryHit *pHit)
 {
-	CQueryHit* pCurrentHit = pHit;
+	QueryHit* pCurrentHit = pHit;
 	int nSources = 0;
 
 	while( pCurrentHit )

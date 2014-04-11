@@ -216,19 +216,19 @@ void CWidgetSearchTemplate::on_treeViewSearchResults_doubleClicked(const QModelI
 
 	if( itemSearch != NULL )
 	{
-		CQueryHit* pHits = 0;
-		CQueryHit* pLast = 0;
+		QueryHit* pHits = 0;
+		QueryHit* pLast = 0;
 
 		for(int i = 0; i < itemSearch->childCount(); ++i)
 		{
 			if( pLast )
 			{
-				pLast->m_pNext = new CQueryHit(itemSearch->child(i)->HitData.pQueryHit.data());
+				pLast->m_pNext = new QueryHit(itemSearch->child(i)->HitData.pQueryHit.data());
 				pLast = pLast->m_pNext;
 			}
 			else
 			{
-				pHits = new CQueryHit(itemSearch->child(i)->HitData.pQueryHit.data());
+				pHits = new QueryHit(itemSearch->child(i)->HitData.pQueryHit.data());
 				pLast = pHits;
 			}
 		}

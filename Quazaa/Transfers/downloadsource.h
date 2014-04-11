@@ -5,7 +5,7 @@
 #include "Hashes/hash.h"
 #include "FileFragments.hpp"
 
-class CQueryHit;
+class QueryHit;
 class CDownload;
 class CTransfer;
 
@@ -31,7 +31,7 @@ public:
 	Fragments::List		m_lDownloadedFrags;
 public:
 	CDownloadSource(CDownload* pDownload, QObject* parent = 0);
-	CDownloadSource(CDownload* pDownload, CQueryHit* pHit, QObject* parent = 0);
+	CDownloadSource(CDownload* pDownload, QueryHit* pHit, QObject* parent = 0);
 	virtual ~CDownloadSource();
 
 public slots:

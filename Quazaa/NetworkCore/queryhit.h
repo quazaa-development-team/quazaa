@@ -47,10 +47,10 @@ struct QueryHitInfo
 	}
 };
 
-class CQueryHit
+class QueryHit
 {
 public:
-	CQueryHit*      m_pNext;
+	QueryHit*      m_pNext;
 
 	QSharedPointer<QueryHitInfo>   m_pHitInfo;
 
@@ -67,19 +67,19 @@ public:
 	bool            m_bIsP2PIMCapable;
 
 public:
-	CQueryHit();
-	CQueryHit(CQueryHit* pHit);
-	~CQueryHit();
+	QueryHit();
+	QueryHit(QueryHit* pHit);
+	~QueryHit();
 
 	static QueryHitInfo* readInfo(G2Packet* pPacket, CEndPoint* pSender = 0);
-	static CQueryHit*    readPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo);
+	static QueryHit*    readPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo);
 
 	void resolveURLs();
 	bool isValid(CQuery* pQuery = NULL) const;
 };
 
-Q_DECLARE_METATYPE ( CQueryHit )
+Q_DECLARE_METATYPE ( QueryHit )
 
-typedef QSharedPointer<CQueryHit> QueryHitSharedPtr;
+typedef QSharedPointer<QueryHit> QueryHitSharedPtr;
 
 #endif // QUERYHIT_H

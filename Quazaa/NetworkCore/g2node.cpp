@@ -1374,7 +1374,7 @@ void CG2Node::onQH2(G2Packet* pPacket)
 		return;
 	}
 
-	QueryHitInfo* pInfo = CQueryHit::readInfo(pPacket, &m_oAddress);
+	QueryHitInfo* pInfo = QueryHit::readInfo(pPacket, &m_oAddress);
 
 	if( securityManager.isVendorBlocked( pInfo->m_sVendor ) ) // Block foxy client search results. We can't download from them any way.
 	{

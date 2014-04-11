@@ -302,7 +302,7 @@ void SearchTreeModel::clear()
 
 void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 {
-	CQueryHit* pHit = pHitPtr.data();
+	QueryHit* pHit = pHitPtr.data();
 
 	while ( pHit )
 	{
@@ -355,7 +355,7 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 			m_oHitItem->HitData.iNetwork = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
 			m_oHitItem->HitData.iCountry = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
 
-			QueryHitSharedPtr pHitX( new CQueryHit( pHit ) );
+			QueryHitSharedPtr pHitX( new QueryHit( pHit ) );
 			m_oHitItem->HitData.pQueryHit = pHitX;
 
 			// add both items to the model
@@ -394,7 +394,7 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 			oHitItem->HitData.iNetwork = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
 			oHitItem->HitData.iCountry = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
 
-			QueryHitSharedPtr pHitX( new CQueryHit( pHit ) );
+			QueryHitSharedPtr pHitX( new QueryHit( pHit ) );
 			oHitItem->HitData.pQueryHit = pHitX;
 
 			beginInsertRows( idxParent, rootItem->child( existingFileEntry )->childCount(),

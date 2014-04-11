@@ -552,10 +552,10 @@ void CManagedSearch::onHostAcknowledge(QHostAddress nHost, const QDateTime& tNow
 	m_lSearchedNodes[nHost] = tNow;
 }
 
-void CManagedSearch::onQueryHit(CQueryHit* pHits)
+void CManagedSearch::onQueryHit(QueryHit* pHits)
 {
-	CQueryHit* pHit = pHits;
-	CQueryHit* pLast = 0;
+	QueryHit* pHit = pHits;
+	QueryHit* pLast = 0;
 
 	while ( pHit )
 	{
