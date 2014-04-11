@@ -965,7 +965,7 @@ void CDatagrams::onQA(CEndPoint& addr, G2Packet* pPacket)
 	QUuid oGuid;
 
 	// Hubs are only supposed to route UDP /QA - we'll drop it if we're in leaf mode
-	if ( SearchManager.onQueryAcknowledge( pPacket, addr, oGuid ) && Neighbours.isG2Hub() )
+	if ( searchManager.onQueryAcknowledge( pPacket, addr, oGuid ) && Neighbours.isG2Hub() )
 	{
 		// Add from address
 		G2Packet* pFR = G2Packet::newPacket( "FR" );
@@ -1001,26 +1001,26 @@ void CDatagrams::onQH2(CEndPoint& addr, G2Packet* pPacket)
 		}
 		else
 		{
-			if ( SearchManager.onQueryHit( pPacket, pInfo ) &&
+			if ( searchManager.onQueryHit( pPacket, pInfo ) &&
 				 Neighbours.isG2Hub() && pInfo->m_nHops < 7 )
 			{
 				pPacket->m_pBuffer[pPacket->m_nLength - 17]++;
 
 				networkG2.m_pSection.lock();
 
-				if(pInfo->m_oNodeAddress == pInfo->m_oSenderAddress)
+				if ( pInfo->m_oNodeAddress == pInfo->m_oSenderAddress )
 				{
 					// hits node address matches sender address
-					networkG2.m_oRoutingTable.add(pInfo->m_oNodeGUID, pInfo->m_oSenderAddress);
+					networkG2.m_oRoutingTable.add( pInfo->m_oNodeGUID, pInfo->m_oSenderAddress );
 				}
-				else if(!pInfo->m_lNeighbouringHubs.isEmpty())
+				else if ( !pInfo->m_lNeighbouringHubs.isEmpty() )
 				{
-					// hits address does not match sender address (probably forwarded by a hub)
+					// hit address does not match sender address (probably forwarded by a hub)
 					// and there are neighbouring hubs available, use them instead (sender address can be used instead...)
-					networkG2.m_oRoutingTable.add(pInfo->m_oNodeGUID, pInfo->m_lNeighbouringHubs[0], false);
+					networkG2.m_oRoutingTable.add( pInfo->m_oNodeGUID, pInfo->m_lNeighbouringHubs[0], false );
 				}
 
-				networkG2.routePacket(pInfo->m_oGUID, pPacket, true);
+				networkG2.routePacket( pInfo->m_oGUID, pPacket, true );
 
 				networkG2.m_pSection.unlock();
 			}

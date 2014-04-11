@@ -87,7 +87,7 @@ void ManagedSearch::start()
 {
 	if(!m_bPaused)
 	{
-		SearchManager.add(this);
+		searchManager.add(this);
 	}
 
 	m_bActive = true;
@@ -110,7 +110,7 @@ void ManagedSearch::stop()
 	m_bActive = false;
 	m_bPaused = false;
 
-	SearchManager.remove(this);
+	searchManager.remove(this);
 
 	emit stateChanged();
 }
@@ -585,6 +585,7 @@ void ManagedSearch::onQueryHit(QueryHit* pHits)
 		pause();
 	}
 }
+
 void ManagedSearch::sendHits()
 {
 	if ( !m_pCachedHit )
@@ -592,10 +593,13 @@ void ManagedSearch::sendHits()
 		return;
 	}
 
-	systemLog.postLog(LogSeverity::Debug, Components::G2, QString("Sending hits... %1").arg(m_nCachedHits));
+	systemLog.postLog( LogSeverity::Debug, Components::G2, QString( "Sending hits... %1"
+																	).arg( m_nCachedHits ) );
 	//qDebug() << "Sending hits..." << m_nCachedHits;
-	QueryHitSharedPtr pSHits(m_pCachedHit);
-	emit onHit(pSHits);
+
+	QueryHitSharedPtr pSHits( m_pCachedHit );
+	emit onHit( pSHits );
+
 	m_pCachedHit = 0;
 	m_nCachedHits = 0;
 }

@@ -35,7 +35,7 @@ class ManagedSearch;
 class G2Packet;
 class CG2Node;
 
-class CSearchManager : public QObject
+class SearchManager : public QObject
 {
 	Q_OBJECT
 
@@ -46,7 +46,7 @@ public:
 	quint32 m_nCookie;
 
 public:
-	CSearchManager(QObject* parent = 0);
+	SearchManager(QObject* parent = 0);
 
 	void onTimer();
 
@@ -65,6 +65,6 @@ public slots:
 
 };
 
-extern CSearchManager SearchManager;
+extern SearchManager searchManager;
 
 #endif // SEARCHMANAGER_H

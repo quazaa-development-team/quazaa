@@ -38,11 +38,11 @@
 
 #include "debug_new.h"
 
-CSearchManager SearchManager;
+SearchManager searchManager;
 
 const quint32 PacketsPerSec = 8;
 
-CSearchManager::CSearchManager(QObject* parent) :
+SearchManager::SearchManager(QObject* parent) :
 	QObject(parent)
 {
 	m_nPruneCounter = 0;
@@ -51,19 +51,19 @@ CSearchManager::CSearchManager(QObject* parent) :
 	qRegisterMetaType<QueryHitSharedPtr>("QueryHitSharedPtr");
 }
 
-void CSearchManager::add(ManagedSearch* pSearch)
+void SearchManager::add(ManagedSearch* pSearch)
 {
 	QMutexLocker l(&m_pSection);
 
 	Q_ASSERT(!m_lSearches.contains(pSearch->m_oGUID));
 	m_lSearches.insert(pSearch->m_oGUID, pSearch);
-	if(pSearch->thread() != SearchManager.thread())
+	if(pSearch->thread() != searchManager.thread())
 	{
-		pSearch->moveToThread(SearchManager.thread());
+		pSearch->moveToThread(searchManager.thread());
 	}
 }
 
-void CSearchManager::remove(ManagedSearch* pSearch)
+void SearchManager::remove(ManagedSearch* pSearch)
 {
 	QMutexLocker l(&m_pSection);
 
@@ -71,12 +71,17 @@ void CSearchManager::remove(ManagedSearch* pSearch)
 	m_lSearches.remove(pSearch->m_oGUID);
 }
 
-ManagedSearch* CSearchManager::find(QUuid& oGUID)
+/**
+ * @brief CSearchManager::find allows to find a managed search by its GUID.
+ * @param oGUID
+ * @return A ptr to the ManagedSearch; NULL if the search could not be found.
+ */
+ManagedSearch* SearchManager::find(QUuid& oGUID)
 {
-	return m_lSearches.value(oGUID, 0);
+	return m_lSearches.value( oGUID, NULL );
 }
 
-void CSearchManager::onTimer()
+void SearchManager::onTimer()
 {
 	QMutexLocker l( &m_pSection );
 
@@ -138,7 +143,7 @@ void CSearchManager::onTimer()
  * @param oGUID will be overwritten with the search GUID contained in the packet.
  * @return true: the caller must route the packet; false otherwise
  */
-bool CSearchManager::onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSender, QUuid& oGUID)
+bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSender, QUuid& oGUID)
 {
 	// Note: The query acknowledgement packet is used to inform a search client that a target hub
 	// has received its query and is processing it. It also provides information for the search
@@ -383,19 +388,28 @@ bool CSearchManager::onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSen
 	return true;
 }
 
-bool CSearchManager::onQueryHit(G2Packet* pPacket, QueryHitInfo* pHitInfo)
+/**
+ * @brief CSearchManager::onQueryHit handles a newly arriving QueryHit.
+ * @param pPacket
+ * @param pHitInfo
+ * @return true if the packet is to be routed; false otherwise (e.g. own search)
+ */
+bool SearchManager::onQueryHit(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 {
+	Q_ASSERT( pPacket );
+	Q_ASSERT( pHitInfo );
+
 	QMutexLocker l(&m_pSection);
 
-	if(ManagedSearch* pSearch = find(pHitInfo->m_oGUID))
+	if ( ManagedSearch* pSearch = find( pHitInfo->m_oGUID ) )
 	{
 		// our search
 
-		QueryHit* pHit = QueryHit::readPacket(pPacket, pHitInfo);
+		QueryHit* pHit = QueryHit::readPacket( pPacket, pHitInfo );
 
-		if(pHit)
+		if ( pHit )
 		{
-			pSearch->onQueryHit(pHit);
+			pSearch->onQueryHit( pHit );
 		}
 
 		return false;

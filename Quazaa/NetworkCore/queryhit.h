@@ -33,18 +33,15 @@ class CQuery;
 
 struct QueryHitInfo
 {
-	CEndPoint	    m_oNodeAddress;
-	CEndPoint		m_oSenderAddress;
-	QUuid           m_oGUID;
-	QUuid           m_oNodeGUID;
+	CEndPoint           m_oNodeAddress;
+	CEndPoint           m_oSenderAddress;
+	QUuid               m_oGUID;
+	QUuid               m_oNodeGUID;
 	QList<CEndPoint>    m_lNeighbouringHubs;
-	quint8          m_nHops;
-	QString			m_sVendor;
+	quint8              m_nHops;
+	QString             m_sVendor;
 
-	QueryHitInfo()
-	{
-		m_sVendor = "";
-	}
+	QueryHitInfo() {}
 };
 
 class QueryHit

@@ -87,7 +87,7 @@ void CNetwork::start()
 	networkThread.start("Network", &m_pSection, this);
 
 	Datagrams.moveToThread(&networkThread);
-	SearchManager.moveToThread(&networkThread);
+	searchManager.moveToThread(&networkThread);
 	Neighbours.moveToThread(&networkThread);
 	Neighbours.connectNode();
 }
@@ -168,7 +168,7 @@ void CNetwork::onSecondTimer()
 
 	Neighbours.maintain();
 
-	SearchManager.onTimer();
+	searchManager.onTimer();
 
 	m_pSection.unlock();
 

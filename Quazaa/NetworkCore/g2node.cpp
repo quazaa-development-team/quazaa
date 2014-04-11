@@ -1362,36 +1362,39 @@ void CG2Node::onQKA(G2Packet* pPacket)
 void CG2Node::onQA(G2Packet* pPacket)
 {
 	QUuid oGUID;
-	SearchManager.onQueryAcknowledge(pPacket, m_oAddress, oGUID);
+	searchManager.onQueryAcknowledge(pPacket, m_oAddress, oGUID);
 
 	// TCP /QA - no need for routing, it's either for us or to be dropped
 }
 
 void CG2Node::onQH2(G2Packet* pPacket)
 {
-	if(!pPacket->m_bCompound)
+	if ( !pPacket->m_bCompound )
 	{
 		return;
 	}
 
 	QueryHitInfo* pInfo = QueryHit::readInfo(pPacket, &m_oAddress);
 
-	if( securityManager.isVendorBlocked( pInfo->m_sVendor ) ) // Block foxy client search results. We can't download from them any way.
+	if ( securityManager.isVendorBlocked( pInfo->m_sVendor ) )
 	{
+		// Block foxy client search results. We can't download from them anyway.
 		securityManager.ban( pInfo->m_oNodeAddress, Security::RuleTime::SixHours, true,
 							 QString( "[AUTO] Vendor blocked (%1)" ).arg( pInfo->m_sVendor ), true
 #if SECURITY_LOG_BAN_SOURCES
 							 , QString( "g2node.cpp line 1371" )
 #endif // SECURITY_LOG_BAN_SOURCES
 							 );
-	} else {
-		if(SearchManager.onQueryHit(pPacket, pInfo))
+	}
+	else
+	{
+		if ( searchManager.onQueryHit( pPacket, pInfo ) )
 		{
 			networkG2.m_pSection.lock();
 
-			if(Neighbours.isG2Hub() && pInfo->m_nHops < 7)
+			if ( Neighbours.isG2Hub() && pInfo->m_nHops < 7 )
 			{
-				networkG2.m_oRoutingTable.add(pInfo->m_oNodeGUID, this, false);
+				networkG2.m_oRoutingTable.add( pInfo->m_oNodeGUID, this, false );
 				pPacket->m_pBuffer[pPacket->m_nLength - 17]++;
 				networkG2.routePacket(pInfo->m_oGUID, pPacket);
 			}

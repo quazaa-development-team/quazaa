@@ -53,7 +53,7 @@ public:
 
 	QUuid       m_oGUID;
 
-	QueryHit*  m_pCachedHit;
+	QueryHit*   m_pCachedHit;
 	quint32     m_nCachedHits;
 
 	quint32     m_nCookie;

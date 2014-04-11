@@ -65,6 +65,13 @@ QueryHit::~QueryHit()
 	}
 }
 
+/**
+ * @brief QueryHit::readInfo does a shallow parsing to obtain the most important information
+ * from a query hit.
+ * @param pPacket The packet to be parsed.
+ * @param pSender Where we got the packet from.
+ * @return A new QueryHitInfo struct if the packet could be parsed without errors; NULL otherwise.
+ */
 QueryHitInfo* QueryHit::readInfo(G2Packet* pPacket, CEndPoint* pSender)
 {
 	// do a shallow parsing...
@@ -81,39 +88,42 @@ QueryHitInfo* QueryHit::readInfo(G2Packet* pPacket, CEndPoint* pSender)
 		quint32 nLength = 0, nNext = 0;
 		bool bCompound = false;
 
-		if(pSender)
+		if ( pSender )
 		{
-			pHitInfo->m_oNodeAddress = *pSender;
+			pHitInfo->m_oNodeAddress   = *pSender;
 			pHitInfo->m_oSenderAddress = *pSender;
 			bHaveNA = true;
 		}
 
-		while(pPacket->readPacket(&szType[0], nLength, &bCompound))
+		while ( pPacket->readPacket( &szType[0], nLength, &bCompound ) )
 		{
 			nNext = pPacket->m_nPosition + nLength;
 
-			if(strcmp("H", szType) == 0 && bCompound)
+			// hit
+			if ( strcmp( "H", szType ) == 0 && bCompound )
 			{
 				bHaveHits = true;
 				continue;
 			}
 
-			if(bCompound)
+			if ( bCompound )
 			{
 				pPacket->skipCompound();
 			}
 
-			if(strcmp("NA", szType) == 0 && nLength >= 6)
+			// node address
+			if ( strcmp( "NA", szType ) == 0 && nLength >= 6 )
 			{
 				CEndPoint oNodeAddr;
-				pPacket->readHostAddress(&oNodeAddr, !(nLength >= 18));
-				if(oNodeAddr.isValid())
+				pPacket->readHostAddress( &oNodeAddr, !(nLength >= 18) );
+				if ( oNodeAddr.isValid() )
 				{
 					pHitInfo->m_oNodeAddress = oNodeAddr;
 					bHaveNA = true;
 				}
 			}
-			else if(strcmp("GU", szType) == 0 && nLength >= 16)
+			// GUID
+			else if ( strcmp( "GU", szType ) == 0 && nLength >= 16 )
 			{
 				QUuid oNodeGUID = pPacket->readGUID();
 				if(!oNodeGUID.isNull())
@@ -122,6 +132,7 @@ QueryHitInfo* QueryHit::readInfo(G2Packet* pPacket, CEndPoint* pSender)
 					bHaveGUID = true;
 				}
 			}
+			// neighbouring Hub
 			else if(strcmp("NH", szType) == 0 && nLength >= 6)
 			{
 				CEndPoint oNH;
@@ -131,6 +142,7 @@ QueryHitInfo* QueryHit::readInfo(G2Packet* pPacket, CEndPoint* pSender)
 					pHitInfo->m_lNeighbouringHubs.append(oNH);
 				}
 			}
+			// vendor
 			else if(strcmp("V", szType) == 0 && nLength >= 4)
 			{
 				pHitInfo->m_sVendor = pPacket->readString(4);
@@ -139,16 +151,18 @@ QueryHitInfo* QueryHit::readInfo(G2Packet* pPacket, CEndPoint* pSender)
 			pPacket->m_nPosition = nNext;
 		}
 	}
-	catch(...)
+	catch ( ... )
 	{
 		delete pHitInfo;
 		return 0;
 	}
 
-	if(pPacket->getRemaining() < 17 || !bHaveHits || !bHaveNA || !bHaveGUID)
+	if ( pPacket->getRemaining() < 17 || !bHaveHits || !bHaveNA || !bHaveGUID )
 	{
-		systemLog.postLog(LogSeverity::Debug, QString("Malformatted hit in CSearchManager %1 %2 %3 %4").arg(pPacket->getRemaining()).arg(bHaveHits).arg(bHaveNA).arg(bHaveGUID));
-		//qDebug() << "Malformatted hit in CSearchManager" << pPacket->GetRemaining() << bHaveHits << bHaveNA << bHaveGUID;
+		systemLog.postLog( LogSeverity::Debug,
+						   QObject::tr( "Malformatted hit in SearchManager %1 %2 %3 %4"
+										).arg( pPacket->getRemaining()
+											   ).arg( bHaveHits ).arg( bHaveNA ).arg( bHaveGUID ) );
 		delete pHitInfo;
 		return 0;
 	}
