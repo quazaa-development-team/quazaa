@@ -31,7 +31,7 @@
 #include "types.h"
 #include "queryhit.h"
 
-class CManagedSearch;
+class ManagedSearch;
 class G2Packet;
 class CG2Node;
 
@@ -40,7 +40,7 @@ class CSearchManager : public QObject
 	Q_OBJECT
 
 public:
-	QHash<QUuid, CManagedSearch*> m_lSearches;
+	QHash<QUuid, ManagedSearch*> m_lSearches;
 	QMutex  m_pSection;
 	quint32 m_nPruneCounter;
 	quint32 m_nCookie;
@@ -50,10 +50,10 @@ public:
 
 	void onTimer();
 
-	void add(CManagedSearch* pSearch);
-	void remove(CManagedSearch* pSearch);
+	void add(ManagedSearch* pSearch);
+	void remove(ManagedSearch* pSearch);
 
-	CManagedSearch* find(QUuid& oGUID);
+	ManagedSearch* find(QUuid& oGUID);
 
 	// Returns true if the packet is to be routed
 	bool onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSender, QUuid& oGUID);

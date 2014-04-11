@@ -945,8 +945,7 @@ void G2HostCache::maintainInternal()
 				m_lHosts.pop_back();
 			}
 		}
-		//if ( m_nMaxFailures < nNewMaxFailures )
-		else
+		else // e.g. if ( m_nMaxFailures < nNewMaxFailures )
 		{
 			G2HostCacheIterator* pNewFailures = new G2HostCacheIterator[nNewMaxFailures + 2];
 

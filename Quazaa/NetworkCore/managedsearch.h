@@ -34,7 +34,7 @@
 
 class CQuery;
 
-class CManagedSearch : public QObject
+class ManagedSearch : public QObject
 {
 	Q_OBJECT
 public:
@@ -63,8 +63,8 @@ public:
 	QHash<QHostAddress, QDateTime> m_lSearchedNodes;
 
 public:
-	CManagedSearch(CQuery* pQuery, QObject* parent = NULL);
-	~CManagedSearch();
+	ManagedSearch(CQuery* pQuery, QObject* parent = NULL);
+	~ManagedSearch();
 
 	void start();
 	void stop();

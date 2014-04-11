@@ -35,7 +35,7 @@ namespace Ui
 	class CWidgetSearchTemplate;
 }
 
-class CManagedSearch;
+class ManagedSearch;
 class CQuery;
 //class CQueryHit;
 #include "NetworkCore/queryhit.h"
@@ -62,7 +62,7 @@ public:
 
 	SearchTreeModel*		m_pSearchModel;
 	QSortFilterProxyModel*	m_pSortModel;
-	CManagedSearch*			m_pSearch;
+	ManagedSearch*			m_pSearch;
 
 	int m_nHubs;
 	int m_nLeaves;

@@ -37,7 +37,7 @@ class QTimer;
 class CThread;
 class G2Packet;
 
-class CManagedSearch;
+class ManagedSearch;
 
 class CNetwork : public QObject
 {

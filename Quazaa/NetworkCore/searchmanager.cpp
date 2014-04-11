@@ -51,7 +51,7 @@ CSearchManager::CSearchManager(QObject* parent) :
 	qRegisterMetaType<QueryHitSharedPtr>("QueryHitSharedPtr");
 }
 
-void CSearchManager::add(CManagedSearch* pSearch)
+void CSearchManager::add(ManagedSearch* pSearch)
 {
 	QMutexLocker l(&m_pSection);
 
@@ -63,7 +63,7 @@ void CSearchManager::add(CManagedSearch* pSearch)
 	}
 }
 
-void CSearchManager::remove(CManagedSearch* pSearch)
+void CSearchManager::remove(ManagedSearch* pSearch)
 {
 	QMutexLocker l(&m_pSection);
 
@@ -71,7 +71,7 @@ void CSearchManager::remove(CManagedSearch* pSearch)
 	m_lSearches.remove(pSearch->m_oGUID);
 }
 
-CManagedSearch* CSearchManager::find(QUuid& oGUID)
+ManagedSearch* CSearchManager::find(QUuid& oGUID)
 {
 	return m_lSearches.value(oGUID, 0);
 }
@@ -82,7 +82,7 @@ void CSearchManager::onTimer()
 
 	quint32 nSearches = m_lSearches.size();
 
-	foreach ( CManagedSearch* pSearch, m_lSearches )
+	foreach ( ManagedSearch* pSearch, m_lSearches )
 	{
 		pSearch->sendHits();
 		if ( pSearch->m_bPaused )
@@ -106,7 +106,7 @@ void CSearchManager::onTimer()
 
 	quint32 nExecuted = 0;
 
-	foreach ( CManagedSearch* pSearch, m_lSearches )
+	foreach ( ManagedSearch* pSearch, m_lSearches )
 	{
 		if ( pSearch->m_bPaused )
 			continue;
@@ -160,7 +160,7 @@ bool CSearchManager::onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSen
 
 	QMutexLocker l( &m_pSection );
 
-	if ( CManagedSearch* pSearch = find( oGUID ) )	// is it our Query Ack?
+	if ( ManagedSearch* pSearch = find( oGUID ) )	// is it our Query Ack?
 	{
 		// YES, this is ours, let's parse the packet and process it
 
@@ -387,7 +387,7 @@ bool CSearchManager::onQueryHit(G2Packet* pPacket, QueryHitInfo* pHitInfo)
 {
 	QMutexLocker l(&m_pSection);
 
-	if(CManagedSearch* pSearch = find(pHitInfo->m_oGUID))
+	if(ManagedSearch* pSearch = find(pHitInfo->m_oGUID))
 	{
 		// our search
 

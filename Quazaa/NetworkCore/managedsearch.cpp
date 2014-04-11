@@ -41,7 +41,7 @@
 
 #include "debug_new.h"
 
-CManagedSearch::CManagedSearch(CQuery* pQuery, QObject* parent) :
+ManagedSearch::ManagedSearch(CQuery* pQuery, QObject* parent) :
 	QObject(parent)
 {
 	m_bActive = false;
@@ -63,7 +63,7 @@ CManagedSearch::CManagedSearch(CQuery* pQuery, QObject* parent) :
 	m_nQueryHitLimit = quazaaSettings.Gnutella.MaxResults;
 }
 
-CManagedSearch::~CManagedSearch()
+ManagedSearch::~ManagedSearch()
 {
 	if(m_bActive || m_bPaused)
 	{
@@ -83,7 +83,7 @@ CManagedSearch::~CManagedSearch()
 	}
 }
 
-void CManagedSearch::start()
+void ManagedSearch::start()
 {
 	if(!m_bPaused)
 	{
@@ -98,14 +98,14 @@ void CManagedSearch::start()
 
 	emit stateChanged();
 }
-void CManagedSearch::pause()
+void ManagedSearch::pause()
 {
 	m_bPaused = true;
 	m_bActive = false;
 
 	emit stateChanged();
 }
-void CManagedSearch::stop()
+void ManagedSearch::stop()
 {
 	m_bActive = false;
 	m_bPaused = false;
@@ -115,7 +115,7 @@ void CManagedSearch::stop()
 	emit stateChanged();
 }
 
-void CManagedSearch::execute(const QDateTime& tNowDT, quint32* pnMaxPackets)
+void ManagedSearch::execute(const QDateTime& tNowDT, quint32* pnMaxPackets)
 {
 	if ( !m_bActive )
 	{
@@ -180,7 +180,7 @@ void CManagedSearch::execute(const QDateTime& tNowDT, quint32* pnMaxPackets)
 	}
 }
 
-void CManagedSearch::searchNeighbours(const QDateTime& tNowDT)
+void ManagedSearch::searchNeighbours(const QDateTime& tNowDT)
 {
 	QMutexLocker l( &Neighbours.m_pSection );
 
@@ -213,7 +213,7 @@ void CManagedSearch::searchNeighbours(const QDateTime& tNowDT)
 	}
 }
 
-void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
+void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 {
 	Q_ASSERT( tNowDT.timeSpec() == Qt::UTC );
 	const quint32 tNow      = tNowDT.toTime_t();
@@ -452,7 +452,7 @@ void CManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 #endif
 }
 
-void CManagedSearch::sendG2Query(CEndPoint pReceiver, SharedG2HostPtr pHost,
+void ManagedSearch::sendG2Query(CEndPoint pReceiver, SharedG2HostPtr pHost,
 								 quint32* pnMaxPackets, const QDateTime& tNowDT)
 {
 	Q_ASSERT( !pReceiver.isNull() );
@@ -481,7 +481,7 @@ void CManagedSearch::sendG2Query(CEndPoint pReceiver, SharedG2HostPtr pHost,
 	}
 }
 
-void CManagedSearch::requestG2QueryKey(SharedG2HostPtr pHost)
+void ManagedSearch::requestG2QueryKey(SharedG2HostPtr pHost)
 {
 	// request a key for our address
 	G2Packet* pQKR = G2Packet::newPacket( "QKR", false );
@@ -502,7 +502,7 @@ void CManagedSearch::requestG2QueryKey(SharedG2HostPtr pHost)
 	 * Locking: Requires lock on Neighbours.m_pSection.
 	 * @return
 	 */
-CG2Node* CManagedSearch::findBestHubForRoutingG2(const CG2Node* const pLastNeighbour)
+CG2Node* ManagedSearch::findBestHubForRoutingG2(const CG2Node* const pLastNeighbour)
 {
 	CG2Node* pHub = NULL;
 
@@ -547,12 +547,12 @@ CG2Node* CManagedSearch::findBestHubForRoutingG2(const CG2Node* const pLastNeigh
 	return pHub;
 }
 
-void CManagedSearch::onHostAcknowledge(QHostAddress nHost, const QDateTime& tNow)
+void ManagedSearch::onHostAcknowledge(QHostAddress nHost, const QDateTime& tNow)
 {
 	m_lSearchedNodes[nHost] = tNow;
 }
 
-void CManagedSearch::onQueryHit(QueryHit* pHits)
+void ManagedSearch::onQueryHit(QueryHit* pHits)
 {
 	QueryHit* pHit = pHits;
 	QueryHit* pLast = 0;
@@ -585,7 +585,7 @@ void CManagedSearch::onQueryHit(QueryHit* pHits)
 		pause();
 	}
 }
-void CManagedSearch::sendHits()
+void ManagedSearch::sendHits()
 {
 	if ( !m_pCachedHit )
 	{
