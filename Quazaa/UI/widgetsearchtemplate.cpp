@@ -113,9 +113,10 @@ void CWidgetSearchTemplate::StartSearch(CQuery* pQuery)
 	if ( !m_pSearch )
 	{
 		m_pSearch = new ManagedSearch( pQuery );
-		connect( m_pSearch, SIGNAL( OnHit( QueryHitSharedPtr) ), m_pSearchModel, SLOT( addQueryHit( QueryHitSharedPtr ) ) );
-		connect( m_pSearch, SIGNAL( StatsUpdated() ), this, SLOT( OnStatsUpdated() ) );
-		connect( m_pSearch, SIGNAL( StateChanged() ), this, SLOT( OnStateChanged() ) );
+		connect( m_pSearch, SIGNAL( onHit( QueryHitSharedPtr ) ),
+				 m_pSearchModel, SLOT( addQueryHit( QueryHitSharedPtr ) ) );
+		connect( m_pSearch, SIGNAL( statsUpdated() ), this, SLOT( OnStatsUpdated() ) );
+		connect( m_pSearch, SIGNAL( stateChanged() ), this, SLOT( OnStateChanged() ) );
 	}
 
 	m_searchState = SearchState::Searching;
