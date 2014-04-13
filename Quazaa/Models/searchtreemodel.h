@@ -82,17 +82,18 @@ public:
 
 	SearchHitData::sSearchHitData hitData;
 
-	void appendChild(SearchTreeItem* child);
-	void clearChildren();
+	virtual void appendChild(SearchTreeItem* child);
+	virtual void clearChildren();
 
-	SearchTreeItem* child(int row) const;
-	int childCount() const;
+	virtual SearchTreeItem* child(int row) const;
+	virtual int childCount() const;
 	int columnCount() const;
-	int find(CHash& pHash) const;
+	virtual int find(CHash& pHash) const;
 	void updateHitCount(int count);
 	bool duplicateCheck(SearchTreeItem* containerItem, QString ip);
 	QVariant data(int column) const;
 	int row() const;
+
 	SearchTreeItem* parent();
 	void removeChild(int position);
 
@@ -100,6 +101,22 @@ private:
 	QList<SearchTreeItem*> childItems;
 	QList<QVariant> itemData;
 	SearchTreeItem* parentItem;
+};
+
+class SearchFile : public SearchTreeItem
+{
+	Q_OBJECT
+public:
+private:
+};
+
+class SearchHit : public SearchTreeItem
+{
+	Q_OBJECT
+public:
+	int childCount() const;
+
+private:
 };
 
 class SearchTreeModel : public QAbstractItemModel
@@ -138,7 +155,7 @@ private:
 
 public slots:
 	void clear();
-	bool isRoot(QModelIndex index);
+	//bool isRoot(QModelIndex index);
 	void removeQueryHit(int position, const QModelIndex &parent);
 
 private slots:

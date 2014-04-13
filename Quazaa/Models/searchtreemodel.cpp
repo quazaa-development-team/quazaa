@@ -60,7 +60,7 @@ SearchTreeModel::~SearchTreeModel()
 	delete m_pIconProvider;
 }
 
-bool SearchTreeModel::isRoot(QModelIndex index)
+/*bool SearchTreeModel::isRoot(QModelIndex index)
 {
 	SearchTreeItem* item;
 
@@ -79,7 +79,7 @@ bool SearchTreeModel::isRoot(QModelIndex index)
 	}
 
 	return false;
-}
+}*/
 
 void SearchTreeModel::removeQueryHit(int position, const QModelIndex &parent)
 {
@@ -550,6 +550,11 @@ SearchTreeItem * SearchTreeModel::itemFromIndex(QModelIndex index)
 	}
 
 	return NULL;
+}
+
+int SearchHit::childCount() const
+{
+	return 0;
 }
 
 SearchFilter::SearchFilter() :
