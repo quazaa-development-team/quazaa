@@ -31,18 +31,18 @@
  * @brief The CFileIconProvider class can be used to get icons representing a given file Type. It
  * handles certain Windows versions more gracefully than QFileIconProvider does.
  */
-class CFileIconProvider : public QFileIconProvider
+class FileIconProvider : public QFileIconProvider
 {
 public:
 	/**
 	 * @brief CFileIconProvider creates a new CFileIconProvider object.
 	 */
-	CFileIconProvider();
+	FileIconProvider();
 
 	/**
 	 * @brief ~CFileIconProvider destroys a given CFileIconProvider object.
 	 */
-	virtual ~CFileIconProvider() {}
+	virtual ~FileIconProvider() {}
 
 	/**
 	 * @brief icon provides an icon given a QFileInfo object.

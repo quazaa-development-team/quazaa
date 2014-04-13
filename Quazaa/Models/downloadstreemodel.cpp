@@ -39,7 +39,7 @@ using namespace common;
 
 CDownloadsTreeModel::CDownloadsTreeModel(QObject *parent) :
 	QAbstractItemModel(parent),
-	m_pIconProvider(new CFileIconProvider)
+	m_pIconProvider(new FileIconProvider)
 {
 	rootItem = new CDownloadsItemBase(this);
 	connect(&Downloads, SIGNAL(downloadAdded(CDownload*)), this, SLOT(onDownloadAdded(CDownload*)), Qt::QueuedConnection);

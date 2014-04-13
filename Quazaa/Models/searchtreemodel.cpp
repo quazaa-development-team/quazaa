@@ -213,7 +213,7 @@ int SearchHit::childCount() const
 }
 
 SearchTreeModel::SearchTreeModel() :
-	m_pIconProvider( new CFileIconProvider ),
+	m_pIconProvider( new FileIconProvider ),
 	m_pFilter( new SearchFilter )
 {
 	QList<QVariant> rootItemData;

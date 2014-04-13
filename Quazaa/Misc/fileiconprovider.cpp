@@ -345,12 +345,12 @@ QIcon getWinIcon(const QFileInfo &fileInfo)
 }
 #endif //Q_OS_WIN
 
-CFileIconProvider::CFileIconProvider()
+FileIconProvider::FileIconProvider()
 	:QFileIconProvider()
 {
 }
 
-QIcon CFileIconProvider::icon(const QFileInfo &info) const
+QIcon FileIconProvider::icon(const QFileInfo &info) const
 {
 #ifdef Q_OS_WIN
 	QIcon icon = getWinIcon(info);
@@ -361,7 +361,7 @@ QIcon CFileIconProvider::icon(const QFileInfo &info) const
 	return QFileIconProvider::icon(info);
 }
 
-QIcon CFileIconProvider::icon(const QString &file) const
+QIcon FileIconProvider::icon(const QString &file) const
 {
 	QFileInfo info(file);
 	return icon(info);

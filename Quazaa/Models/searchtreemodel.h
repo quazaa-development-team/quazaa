@@ -31,7 +31,7 @@
 #include "NetworkCore/queryhit.h"
 
 class CHash;
-class CFileIconProvider;
+class FileIconProvider;
 
 namespace SearchHitData
 {
@@ -127,7 +127,7 @@ class SearchTreeModel : public QAbstractItemModel
 
 private:
 	SearchFilter*      m_pFilter;
-	CFileIconProvider* m_pIconProvider;
+	FileIconProvider*  m_pIconProvider;
 
 	SearchTreeItem*    rootItem;
 
