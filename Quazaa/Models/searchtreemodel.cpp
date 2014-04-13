@@ -110,15 +110,21 @@ bool SearchFilter::operator>(const SearchFilter& rOther)
 		   m_bAdult           && !rOther.m_bAdult;
 }
 
-SearchTreeItem::SearchTreeItem(const QList<QVariant> &data, SearchTreeItem* parent)
+SearchTreeItem::SearchTreeItem(const QList<QVariant> &data, SearchTreeItem* parent) :
+	m_eType( Type::SearchTreeItemType ),
+	m_lItemData( data ),
+	m_pParentItem( parent )
 {
-	m_pParentItem = parent;
-	m_lItemData = data;
 }
 
 SearchTreeItem::~SearchTreeItem()
 {
-	qDeleteAll(m_lChildItems);
+	qDeleteAll( m_lChildItems );
+}
+
+SearchTreeItem::Type SearchTreeItem::type() const
+{
+	return m_eType;
 }
 
 void SearchTreeItem::appendChild(SearchTreeItem* item)
@@ -207,6 +213,24 @@ void SearchTreeItem::removeChild(int position)
 	delete m_lChildItems.takeAt(position);
 }
 
+TreeRoot::TreeRoot(const QList<QVariant> &data, SearchTreeItem* parent) :
+	SearchTreeItem( data, parent )
+{
+	m_eType = Type::TreeRootType;
+}
+
+SearchFile::SearchFile(const QList<QVariant> &data, SearchTreeItem* parent) :
+	SearchTreeItem( data, parent )
+{
+	m_eType = Type::SearchFileType;
+}
+
+SearchHit::SearchHit(const QList<QVariant> &data, SearchTreeItem* parent) :
+	SearchTreeItem( data, parent )
+{
+	m_eType = Type::SearchHitType;
+}
+
 int SearchHit::childCount() const
 {
 	return 0;
@@ -226,14 +250,14 @@ SearchTreeModel::SearchTreeModel() :
 				 << "Speed"
 				 << "Client"
 				 << "Country";
-	rootItem = new SearchTreeItem( rootItemData );
+	m_pRootItem = new SearchTreeItem( rootItemData );
 	m_nFileCount = 0;
 }
 
 SearchTreeModel::~SearchTreeModel()
 {
 	clear();
-	delete rootItem;
+	delete m_pRootItem;
 	delete m_pIconProvider;
 }
 
@@ -247,7 +271,7 @@ QModelIndex SearchTreeModel::parent(const QModelIndex& index) const
 	SearchTreeItem* childItem = static_cast<SearchTreeItem*>( index.internalPointer() );
 	SearchTreeItem* parentItem = childItem->parent();
 
-	if ( parentItem == rootItem )
+	if ( parentItem == m_pRootItem )
 	{
 		return QModelIndex();
 	}
@@ -268,7 +292,7 @@ QVariant SearchTreeModel::data(const QModelIndex& index, int role) const
 	{
 		if ( index.column() == 0 ) // Index CAN be a negative value.
 		{
-			if ( item->parent() == rootItem )
+			if ( item->parent() == m_pRootItem )
 				return m_pIconProvider->icon( item->data( 1 ).toString().prepend( "." ) );
 			else
 				return item->m_oHitData.iNetwork;
@@ -302,7 +326,7 @@ QVariant SearchTreeModel::headerData(int section, Qt::Orientation orientation, i
 {
 	if ( orientation == Qt::Horizontal && role == Qt::DisplayRole )
 	{
-		return rootItem->data( section );
+		return m_pRootItem->data( section );
 	}
 
 	return QVariant();
@@ -319,7 +343,7 @@ QModelIndex SearchTreeModel::index(int row, int column, const QModelIndex& paren
 
 	if ( !parent.isValid() )
 	{
-		parentItem = rootItem;
+		parentItem = m_pRootItem;
 	}
 	else
 	{
@@ -347,7 +371,7 @@ int SearchTreeModel::rowCount(const QModelIndex& parent) const
 
 	if ( !parent.isValid() )
 	{
-		parentItem = rootItem;
+		parentItem = m_pRootItem;
 	}
 	else
 	{
@@ -365,7 +389,7 @@ int SearchTreeModel::columnCount(const QModelIndex& parent) const
 	}
 	else
 	{
-		return rootItem->columnCount();
+		return m_pRootItem->columnCount();
 	}
 }
 
@@ -487,7 +511,7 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 		// Check for duplicate file.
 		foreach ( CHash oHash, pHit->m_lHashes )
 		{
-			existingFileEntry = rootItem->find( oHash );
+			existingFileEntry = m_pRootItem->find( oHash );
 			if ( existingFileEntry != -1 )
 				break;
 		}
@@ -510,7 +534,7 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 						<< ""                                 // Speed
 						<< ""                                 // Client
 						<< "";                                // Country
-			SearchTreeItem* m_oFileItem = new SearchTreeItem( lParentData, rootItem );
+			SearchTreeItem* m_oFileItem = new SearchTreeItem( lParentData, m_pRootItem );
 
 			m_oFileItem->m_oHitData.lHashes << pHit->m_lHashes;
 
@@ -535,16 +559,16 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 			m_oHitItem->m_oHitData.pQueryHit = pHitX;
 
 			// add both items to the model
-			beginInsertRows( QModelIndex(), rootItem->childCount(), rootItem->childCount() );
-			rootItem->appendChild( m_oFileItem );
+			beginInsertRows( QModelIndex(), m_pRootItem->childCount(), m_pRootItem->childCount() );
+			m_pRootItem->appendChild( m_oFileItem );
 			m_oFileItem->appendChild( m_oHitItem );
 			endInsertRows();
 
-			m_nFileCount = rootItem->childCount();
+			m_nFileCount = m_pRootItem->childCount();
 		}
 		// We do already have a file for that hit. Check for duplicate IP address. If not duplicate, add item.
-		else if ( !rootItem->child( existingFileEntry
-									)->duplicateCheck( rootItem->child( existingFileEntry ),
+		else if ( !m_pRootItem->child( existingFileEntry
+									)->duplicateCheck( m_pRootItem->child( existingFileEntry ),
 													   pHit->m_pHitInfo.data()->
 													   m_oNodeAddress.toString() ) )
 		{
@@ -564,7 +588,7 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 					   << common::vendorCodeToName( pHit->m_pHitInfo.data()->m_sVendor )
 					   << geoIP.countryNameFromCode( sCountry );
 			SearchTreeItem* oHitItem = new SearchTreeItem( lChildData,
-															 rootItem->child( existingFileEntry ) );
+															 m_pRootItem->child( existingFileEntry ) );
 
 			oHitItem->m_oHitData.lHashes << pHit->m_lHashes;
 			oHitItem->m_oHitData.iNetwork = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
@@ -573,10 +597,10 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 			QueryHitSharedPtr pHitX( new QueryHit( pHit ) );
 			oHitItem->m_oHitData.pQueryHit = pHitX;
 
-			beginInsertRows( idxParent, rootItem->child( existingFileEntry )->childCount(),
-							 rootItem->child( existingFileEntry )->childCount() );
-			rootItem->child( existingFileEntry )->appendChild( oHitItem );
-			rootItem->child( existingFileEntry )->updateHitCount( rootItem->child( existingFileEntry
+			beginInsertRows( idxParent, m_pRootItem->child( existingFileEntry )->childCount(),
+							 m_pRootItem->child( existingFileEntry )->childCount() );
+			m_pRootItem->child( existingFileEntry )->appendChild( oHitItem );
+			m_pRootItem->child( existingFileEntry )->updateHitCount( m_pRootItem->child( existingFileEntry
 																				  )->childCount() );
 			endInsertRows();
 		}
@@ -587,20 +611,20 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 	emit updateStats();
 
 	QModelIndex idx1 = index( 0, 0, QModelIndex() );
-	QModelIndex idx2 = index( rootItem->childCount(), 10, QModelIndex() );
+	QModelIndex idx2 = index( m_pRootItem->childCount(), 10, QModelIndex() );
 	emit dataChanged( idx1, idx2 );
 	emit sort();
 }
 
 void SearchTreeModel::clear()
 {
-	beginRemoveRows( QModelIndex(), 0, rootItem->childCount() );
+	beginRemoveRows( QModelIndex(), 0, m_pRootItem->childCount() );
 	//qDebug() << "clearSearch passing to rootItem";
-	rootItem->clearChildren();
+	m_pRootItem->clearChildren();
 	endRemoveRows();
 
 	QModelIndex idx1 = index( 0, 0, QModelIndex() );
-	QModelIndex idx2 = index( rootItem->childCount(), 10, QModelIndex() );
+	QModelIndex idx2 = index( m_pRootItem->childCount(), 10, QModelIndex() );
 	emit dataChanged( idx1, idx2 );
 }
 
@@ -627,7 +651,7 @@ void SearchTreeModel::clear()
 
 void SearchTreeModel::removeQueryHit(int position, const QModelIndex &parent)
 {
-	SearchTreeItem *parentItem = rootItem;
+	SearchTreeItem *parentItem = m_pRootItem;
 	if (parent.isValid()) {
 		parentItem = static_cast<SearchTreeItem*>(parent.internalPointer());
 	}

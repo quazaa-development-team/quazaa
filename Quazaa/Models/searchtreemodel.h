@@ -77,12 +77,15 @@ class SearchTreeItem : public QObject
 {
 	Q_OBJECT
 public:
-
+	enum Type { SearchTreeItemType, TreeRootType, SearchFileType, SearchHitType };
 
 private:
 	QList<SearchTreeItem*>  m_lChildItems;
 	QList<QVariant>         m_lItemData;
 	SearchTreeItem*         m_pParentItem;
+
+protected:
+	Type                    m_eType;
 
 public:
 	SearchHitData::sSearchHitData m_oHitData;
@@ -90,6 +93,8 @@ public:
 public:
 	SearchTreeItem(const QList<QVariant> &data, SearchTreeItem* parent = 0);
 	~SearchTreeItem();
+
+	Type type() const;
 
 	virtual void appendChild(SearchTreeItem* child);
 	virtual void clearChildren();
@@ -112,6 +117,7 @@ class TreeRoot : public SearchTreeItem
 {
 	Q_OBJECT
 public:
+	TreeRoot(const QList<QVariant> &data, SearchTreeItem* parent = 0);
 private:
 };
 
@@ -119,6 +125,7 @@ class SearchFile : public SearchTreeItem
 {
 	Q_OBJECT
 public:
+	SearchFile(const QList<QVariant> &data, SearchTreeItem* parent = 0);
 private:
 };
 
@@ -126,10 +133,13 @@ class SearchHit : public SearchTreeItem
 {
 	Q_OBJECT
 public:
+	SearchHit(const QList<QVariant> &data, SearchTreeItem* parent = 0);
 	int childCount() const;
 
 private:
 };
+
+typedef std::list<SearchTreeItem*> SearchList;
 
 class SearchTreeModel : public QAbstractItemModel
 {
@@ -139,9 +149,15 @@ private:
 	SearchFilter*      m_pFilter;
 	FileIconProvider*  m_pIconProvider;
 
-	SearchTreeItem*    rootItem;
+	SearchTreeItem*    m_pRootItem;
 
 	int m_nFileCount;
+
+	// lists used to keep track of items for filtering purposes
+	SearchList m_lVisibleHits;          // contains currently visible hits
+	SearchList m_lFilteredHits;         // contains currently hidden hits
+	SearchList m_lNewlyVisibleHits;     // contains hits moved from hidden list on filter change
+	SearchList m_lNewlyFilteredHits;    // contains hits moved from visible list on filter change
 
 public:
 	SearchTreeModel();
