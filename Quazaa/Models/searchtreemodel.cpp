@@ -154,11 +154,6 @@ int SearchTreeItem::columnCount() const
 	return m_lItemData.count();
 }
 
-void SearchTreeItem::updateHitCount(int count)
-{
-	m_lItemData[5] = count;
-}
-
 // TODO: modify
 bool SearchTreeItem::duplicateCheck(SearchTreeItem* containerItem, QString ip)
 {
@@ -223,6 +218,11 @@ SearchFile::SearchFile(const QList<QVariant> &data, SearchTreeItem* parent) :
 	SearchTreeItem( data, parent )
 {
 	m_eType = Type::SearchFileType;
+}
+
+void SearchFile::updateHitCount()
+{
+	m_lItemData[5] = m_lChildItems.size();
 }
 
 SearchHit::SearchHit(const QList<QVariant> &data, SearchTreeItem* parent) :
@@ -600,8 +600,7 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 			beginInsertRows( idxParent, m_pRootItem->child( existingFileEntry )->childCount(),
 							 m_pRootItem->child( existingFileEntry )->childCount() );
 			m_pRootItem->child( existingFileEntry )->appendChild( oHitItem );
-			m_pRootItem->child( existingFileEntry )->updateHitCount( m_pRootItem->child( existingFileEntry
-																				  )->childCount() );
+			((SearchFile*)m_pRootItem->child( existingFileEntry ) )->updateHitCount();
 			endInsertRows();
 		}
 

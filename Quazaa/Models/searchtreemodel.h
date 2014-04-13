@@ -102,7 +102,6 @@ public:
 	virtual int childCount() const;
 
 	int columnCount() const;
-	void updateHitCount(int count); // change number of hits
 	bool duplicateCheck(SearchTreeItem* containerItem, QString ip);
 	QVariant data(int column) const;
 	int row() const;
@@ -125,6 +124,7 @@ class SearchFile : public SearchTreeItem
 	Q_OBJECT
 public:
 	SearchFile(const QList<QVariant> &data, SearchTreeItem* parent = 0);
+	void updateHitCount(); // change number of hits
 private:
 };
 
