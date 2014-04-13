@@ -152,8 +152,9 @@ void CWidgetSearchTemplate::ClearSearch()
 
 void CWidgetSearchTemplate::OnStatsUpdated()
 {
-	m_nFiles = m_pSearchModel->nFileCount;
-	if(m_pSearch)
+	m_nFiles = m_pSearchModel->fileCount();
+
+	if ( m_pSearch )
 	{
 		m_nHits = m_pSearch->m_nHits;
 		m_nHubs = m_pSearch->m_nHubs;

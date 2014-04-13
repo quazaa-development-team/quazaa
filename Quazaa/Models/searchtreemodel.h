@@ -131,6 +131,8 @@ private:
 
 	SearchTreeItem*    rootItem;
 
+	int m_nFileCount;
+
 public:
 	SearchTreeModel();
 	~SearchTreeModel();
@@ -146,7 +148,7 @@ public:
 	SearchTreeItem* itemFromIndex(QModelIndex index);
 	int rowCount(const QModelIndex& parent = QModelIndex()) const;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const;
-	int nFileCount;
+	int fileCount() const;
 
 signals:
 	void updateStats();
@@ -155,13 +157,13 @@ signals:
 private:
 	//void setupModelData(const QStringList& lines, SearchTreeItem* parent);
 
+private slots:
+	void addQueryHit(QueryHitSharedPtr pHit);
+
 public slots:
 	void clear();
 	//bool isRoot(QModelIndex index);
 	void removeQueryHit(int position, const QModelIndex &parent);
-
-private slots:
-	void addQueryHit(QueryHitSharedPtr pHit);
 };
 
 #endif // SEARCHTREEMODEL_H

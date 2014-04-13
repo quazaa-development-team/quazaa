@@ -227,7 +227,7 @@ SearchTreeModel::SearchTreeModel() :
 				 << "Client"
 				 << "Country";
 	rootItem = new SearchTreeItem( rootItemData );
-	nFileCount = 0;
+	m_nFileCount = 0;
 }
 
 SearchTreeModel::~SearchTreeModel()
@@ -282,6 +282,11 @@ int SearchTreeModel::columnCount(const QModelIndex& parent) const
 	{
 		return rootItem->columnCount();
 	}
+}
+
+int SearchTreeModel::fileCount() const
+{
+	return m_nFileCount;
 }
 
 QVariant SearchTreeModel::data(const QModelIndex& index, int role) const
@@ -583,7 +588,7 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 			m_oFileItem->appendChild( m_oHitItem );
 			endInsertRows();
 
-			nFileCount = rootItem->childCount();
+			m_nFileCount = rootItem->childCount();
 		}
 		// We do already have a file for that hit. Check for duplicate IP address. If not duplicate, add item.
 		else if ( !rootItem->child( existingFileEntry
