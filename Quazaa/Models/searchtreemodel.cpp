@@ -237,56 +237,22 @@ SearchTreeModel::~SearchTreeModel()
 	delete m_pIconProvider;
 }
 
-/*bool SearchTreeModel::isRoot(QModelIndex index)
+QModelIndex SearchTreeModel::parent(const QModelIndex& index) const
 {
-	SearchTreeItem* item;
-
 	if ( !index.isValid() )
 	{
-		item = rootItem;
+		return QModelIndex();
 	}
-	else
+
+	SearchTreeItem* childItem = static_cast<SearchTreeItem*>( index.internalPointer() );
+	SearchTreeItem* parentItem = childItem->parent();
+
+	if ( parentItem == rootItem )
 	{
-		item = static_cast<SearchTreeItem*>( index.internalPointer() );
+		return QModelIndex();
 	}
 
-	if ( item == rootItem )
-	{
-		return true;
-	}
-
-	return false;
-}*/
-
-void SearchTreeModel::removeQueryHit(int position, const QModelIndex &parent)
-{
-	SearchTreeItem *parentItem = rootItem;
-	if (parent.isValid()) {
-		parentItem = static_cast<SearchTreeItem*>(parent.internalPointer());
-	}
-
-	if(parentItem) {
-		beginRemoveRows(parent, position, position);
-		parentItem->removeChild(position);
-		endRemoveRows();
-	}
-}
-
-int SearchTreeModel::columnCount(const QModelIndex& parent) const
-{
-	if ( parent.isValid() )
-	{
-		return static_cast<SearchTreeItem*>( parent.internalPointer() )->columnCount();
-	}
-	else
-	{
-		return rootItem->columnCount();
-	}
-}
-
-int SearchTreeModel::fileCount() const
-{
-	return m_nFileCount;
+	return createIndex( parentItem->row(), 0, parentItem );
 }
 
 QVariant SearchTreeModel::data(const QModelIndex& index, int role) const
@@ -371,22 +337,41 @@ QModelIndex SearchTreeModel::index(int row, int column, const QModelIndex& paren
 	}
 }
 
-QModelIndex SearchTreeModel::parent(const QModelIndex& index) const
+int SearchTreeModel::rowCount(const QModelIndex& parent) const
 {
-	if ( !index.isValid() )
+	SearchTreeItem* parentItem;
+	if ( parent.column() > 0 )
 	{
-		return QModelIndex();
+		return 0;
 	}
 
-	SearchTreeItem* childItem = static_cast<SearchTreeItem*>( index.internalPointer() );
-	SearchTreeItem* parentItem = childItem->parent();
-
-	if ( parentItem == rootItem )
+	if ( !parent.isValid() )
 	{
-		return QModelIndex();
+		parentItem = rootItem;
+	}
+	else
+	{
+		parentItem = static_cast<SearchTreeItem*>( parent.internalPointer() );
 	}
 
-	return createIndex( parentItem->row(), 0, parentItem );
+	return parentItem->childCount();
+}
+
+int SearchTreeModel::columnCount(const QModelIndex& parent) const
+{
+	if ( parent.isValid() )
+	{
+		return static_cast<SearchTreeItem*>( parent.internalPointer() )->columnCount();
+	}
+	else
+	{
+		return rootItem->columnCount();
+	}
+}
+
+int SearchTreeModel::fileCount() const
+{
+	return m_nFileCount;
 }
 
 SearchTreeItem* SearchTreeModel::topLevelItemFromIndex(QModelIndex index)
@@ -428,27 +413,6 @@ SearchTreeItem* SearchTreeModel::itemFromIndex(QModelIndex index)
 	}
 
 	return NULL;
-}
-
-
-int SearchTreeModel::rowCount(const QModelIndex& parent) const
-{
-	SearchTreeItem* parentItem;
-	if ( parent.column() > 0 )
-	{
-		return 0;
-	}
-
-	if ( !parent.isValid() )
-	{
-		parentItem = rootItem;
-	}
-	else
-	{
-		parentItem = static_cast<SearchTreeItem*>( parent.internalPointer() );
-	}
-
-	return parentItem->childCount();
 }
 
 /*void SearchTreeModel::setupModelData(const QStringList& lines, SearchTreeItem* parent)
@@ -511,18 +475,6 @@ int SearchTreeModel::rowCount(const QModelIndex& parent) const
 		++number;
 	}
 }*/
-
-void SearchTreeModel::clear()
-{
-	beginRemoveRows( QModelIndex(), 0, rootItem->childCount() );
-	//qDebug() << "clearSearch passing to rootItem";
-	rootItem->clearChildren();
-	endRemoveRows();
-
-	QModelIndex idx1 = index( 0, 0, QModelIndex() );
-	QModelIndex idx2 = index( rootItem->childCount(), 10, QModelIndex() );
-	emit dataChanged( idx1, idx2 );
-}
 
 void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 {
@@ -638,4 +590,51 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 	QModelIndex idx2 = index( rootItem->childCount(), 10, QModelIndex() );
 	emit dataChanged( idx1, idx2 );
 	emit sort();
+}
+
+void SearchTreeModel::clear()
+{
+	beginRemoveRows( QModelIndex(), 0, rootItem->childCount() );
+	//qDebug() << "clearSearch passing to rootItem";
+	rootItem->clearChildren();
+	endRemoveRows();
+
+	QModelIndex idx1 = index( 0, 0, QModelIndex() );
+	QModelIndex idx2 = index( rootItem->childCount(), 10, QModelIndex() );
+	emit dataChanged( idx1, idx2 );
+}
+
+/*bool SearchTreeModel::isRoot(QModelIndex index)
+{
+	SearchTreeItem* item;
+
+	if ( !index.isValid() )
+	{
+		item = rootItem;
+	}
+	else
+	{
+		item = static_cast<SearchTreeItem*>( index.internalPointer() );
+	}
+
+	if ( item == rootItem )
+	{
+		return true;
+	}
+
+	return false;
+}*/
+
+void SearchTreeModel::removeQueryHit(int position, const QModelIndex &parent)
+{
+	SearchTreeItem *parentItem = rootItem;
+	if (parent.isValid()) {
+		parentItem = static_cast<SearchTreeItem*>(parent.internalPointer());
+	}
+
+	if(parentItem) {
+		beginRemoveRows(parent, position, position);
+		parentItem->removeChild(position);
+		endRemoveRows();
+	}
 }
