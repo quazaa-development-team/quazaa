@@ -77,7 +77,15 @@ class SearchTreeItem : public QObject
 {
 	Q_OBJECT
 public:
-	SearchHitData::sSearchHitData hitData;
+
+
+private:
+	QList<SearchTreeItem*>  m_lChildItems;
+	QList<QVariant>         m_lItemData;
+	SearchTreeItem*         m_pParentItem;
+
+public:
+	SearchHitData::sSearchHitData m_oHitData;
 
 public:
 	SearchTreeItem(const QList<QVariant> &data, SearchTreeItem* parent = 0);
@@ -98,11 +106,13 @@ public:
 
 	SearchTreeItem* parent();
 	void removeChild(int position);
+};
 
+class TreeRoot : public SearchTreeItem
+{
+	Q_OBJECT
+public:
 private:
-	QList<SearchTreeItem*> childItems;
-	QList<QVariant> itemData;
-	SearchTreeItem* parentItem;
 };
 
 class SearchFile : public SearchTreeItem

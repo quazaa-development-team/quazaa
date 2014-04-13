@@ -122,7 +122,7 @@ CWinMain::CWinMain(QWidget* parent) :
 	ui->stackedWidgetMain->addWidget(pageLibrary);
 	pageMedia = new CWidgetMedia();
 	ui->stackedWidgetMain->addWidget(pageMedia);
-	pageSearch = new CWidgetSearch();
+	pageSearch = new WidgetSearch();
 	ui->stackedWidgetMain->addWidget(pageSearch);
 	pageTransfers = new CWidgetTransfers();
 	ui->stackedWidgetMain->addWidget(pageTransfers);

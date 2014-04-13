@@ -30,7 +30,7 @@
 #include <QLineEdit>
 #include "widgetsearchtemplate.h"
 
-class CWidgetSearch;
+class WidgetSearch;
 
 namespace Ui
 {
@@ -75,7 +75,7 @@ private slots:
 	void on_actionSearchDownload_triggered();
 	void setSkin();
 
-	friend class CWidgetSearch;
+	friend class WidgetSearch;
 };
 
 #endif // WIDGETSEARCHRESULTS_H

@@ -58,7 +58,7 @@ public:
 	QSortFilterProxyModel*	m_pSortModel;
 	ManagedSearch*			m_pSearch;
 
-	SearchState::SearchState m_searchState;
+	SearchState::SearchState m_eSearchState;
 	QString m_sSearchString;
 
 	int m_nHubs;

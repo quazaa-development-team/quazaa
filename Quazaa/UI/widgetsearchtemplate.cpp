@@ -63,7 +63,7 @@ WidgetSearchTemplate::WidgetSearchTemplate(QString searchString, QWidget* parent
 	m_nHits = 0;
 	m_nHubs = 0;
 	m_nLeaves = 0;
-	m_searchState = SearchState::Default;
+	m_eSearchState = SearchState::Default;
 	m_pSortModel = new QSortFilterProxyModel(this);
 	m_pSearchModel = new SearchTreeModel();
 	m_pSortModel->setSourceModel(m_pSearchModel);
@@ -119,7 +119,7 @@ void WidgetSearchTemplate::startSearch(Query* pQuery)
 		connect( m_pSearch, SIGNAL( stateChanged() ), this, SLOT( onStateChanged() ) );
 	}
 
-	m_searchState = SearchState::Searching;
+	m_eSearchState = SearchState::Searching;
 	m_pSearch->start();
 	m_sSearchString = m_pSearch->m_pQuery->descriptiveName();
 }
@@ -128,7 +128,7 @@ void WidgetSearchTemplate::stopSearch()
 {
 	Q_ASSERT(m_pSearch != 0);
 
-	m_searchState = SearchState::Stopped;
+	m_eSearchState = SearchState::Stopped;
 	m_pSearch->stop();
 	delete m_pSearch;
 	m_pSearch = 0;
@@ -138,14 +138,14 @@ void WidgetSearchTemplate::pauseSearch()
 {
 	Q_ASSERT(m_pSearch != 0);
 
-	m_searchState = SearchState::Paused;
+	m_eSearchState = SearchState::Paused;
 	m_pSearch->pause();
 }
 
 void WidgetSearchTemplate::clearSearch()
 {
 	//qDebug() << "Clear search captured in widget search template.";
-		m_searchState = SearchState::Default;
+		m_eSearchState = SearchState::Default;
 	m_pSearchModel->clear();
 	qApp->processEvents();
 }
@@ -176,20 +176,20 @@ void WidgetSearchTemplate::onStateChanged()
 	{
 		if( m_pSearch->m_bPaused )
 		{
-			m_searchState = SearchState::Paused;
+			m_eSearchState = SearchState::Paused;
 		}
 		else if( m_pSearch->m_bActive && !m_pSearch->m_bPaused )
 		{
-			m_searchState = SearchState::Searching;
+			m_eSearchState = SearchState::Searching;
 		}
 		else
 		{
-			m_searchState = SearchState::Stopped;
+			m_eSearchState = SearchState::Stopped;
 		}
 	}
 	else
 	{
-				m_searchState = SearchState::Stopped;
+				m_eSearchState = SearchState::Stopped;
 	}
 
 	emit stateChanged();
@@ -225,12 +225,12 @@ void WidgetSearchTemplate::on_treeViewSearchResults_doubleClicked(const QModelIn
 		{
 			if( pLast )
 			{
-				pLast->m_pNext = new QueryHit(itemSearch->child(i)->hitData.pQueryHit.data());
+				pLast->m_pNext = new QueryHit(itemSearch->child(i)->m_oHitData.pQueryHit.data());
 				pLast = pLast->m_pNext;
 			}
 			else
 			{
-				pHits = new QueryHit(itemSearch->child(i)->hitData.pQueryHit.data());
+				pHits = new QueryHit(itemSearch->child(i)->m_oHitData.pQueryHit.data());
 				pLast = pHits;
 			}
 		}
@@ -273,7 +273,7 @@ void WidgetSearchTemplate::on_actionViewReviews_triggered()
 
 	if( itemSearch != NULL )
 	{
-		QDesktopServices::openUrl( QUrl(QString("http://bitzi.com/lookup/%1?v=detail&ref=quazaa").arg(itemSearch->hitData.lHashes.at(0).toString()), QUrl::TolerantMode) );
+		QDesktopServices::openUrl( QUrl(QString("http://bitzi.com/lookup/%1?v=detail&ref=quazaa").arg(itemSearch->m_oHitData.lHashes.at(0).toString()), QUrl::TolerantMode) );
 	}
 }
 
@@ -283,7 +283,7 @@ void WidgetSearchTemplate::on_actionVirusTotalCheck_triggered()
 
 	if( itemSearch != NULL )
 	{
-		QDesktopServices::openUrl( QUrl(QString("www.virustotal.com/latest-report.html?resource=%1").arg(QString(itemSearch->hitData.lHashes.at(0).rawValue().toHex())), QUrl::TolerantMode) );
+		QDesktopServices::openUrl( QUrl(QString("www.virustotal.com/latest-report.html?resource=%1").arg(QString(itemSearch->m_oHitData.lHashes.at(0).rawValue().toHex())), QUrl::TolerantMode) );
 	}
 }
 
@@ -302,7 +302,7 @@ void WidgetSearchTemplate::on_actionBanNode_triggered()
 		QString reason = QInputDialog::getText( this, tr("Ban Reason"), tr("Please enter a ban reason."), QLineEdit::Normal, "", &ok );
 		if ( ok && !reason.isEmpty() )
 		{
-			CEndPoint address = itemSearch->hitData.pQueryHit.data()->m_pHitInfo.data()->m_oNodeAddress;
+			CEndPoint address = itemSearch->m_oHitData.pQueryHit.data()->m_pHitInfo.data()->m_oNodeAddress;
 			securityManager.ban( address, Security::RuleTime::SixMonths, true, reason, false );
 			m_pSearchModel->removeQueryHit(currentItem().row(), m_pSearchModel->parent(currentItem()));
 		}

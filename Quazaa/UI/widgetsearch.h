@@ -30,15 +30,15 @@
 
 namespace Ui
 {
-	class CWidgetSearch;
+	class WidgetSearch;
 }
 
-class CWidgetSearch : public QWidget
+class WidgetSearch : public QWidget
 {
 	Q_OBJECT
 public:
-	CWidgetSearch(QWidget* parent = 0);
-	~CWidgetSearch();
+	WidgetSearch(QWidget* parent = 0);
+	~WidgetSearch();
 	CWidgetSearchResults* panelSearchResults;
 	WidgetSearchTemplate* currentPage;
 	void saveWidget();
@@ -47,7 +47,7 @@ protected:
 	void changeEvent(QEvent* e);
 
 private:
-	Ui::CWidgetSearch* ui;
+	Ui::WidgetSearch* ui;
 
 public slots:
 	void startNewSearch(QString* searchString);

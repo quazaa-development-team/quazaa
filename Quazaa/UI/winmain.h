@@ -83,7 +83,7 @@ public:
 	CWidgetHome* pageHome;
 	CWidgetLibrary* pageLibrary;
 	CWidgetMedia* pageMedia;
-	CWidgetSearch* pageSearch;
+	WidgetSearch* pageSearch;
 	CWidgetTransfers* pageTransfers;
 	CWidgetSecurity* pageSecurity;
 	CWidgetActivity* pageActivity;

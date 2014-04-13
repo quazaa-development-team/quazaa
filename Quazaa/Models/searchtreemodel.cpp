@@ -112,47 +112,47 @@ bool SearchFilter::operator>(const SearchFilter& rOther)
 
 SearchTreeItem::SearchTreeItem(const QList<QVariant> &data, SearchTreeItem* parent)
 {
-	parentItem = parent;
-	itemData = data;
+	m_pParentItem = parent;
+	m_lItemData = data;
 }
 
 SearchTreeItem::~SearchTreeItem()
 {
-	qDeleteAll(childItems);
+	qDeleteAll(m_lChildItems);
 }
 
 void SearchTreeItem::appendChild(SearchTreeItem* item)
 {
-	item->parentItem = this;
-	childItems.append(item);
+	item->m_pParentItem = this;
+	m_lChildItems.append(item);
 }
 
 void SearchTreeItem::clearChildren()
 {
-	qDeleteAll(childItems);
-	childItems.clear();
+	qDeleteAll(m_lChildItems);
+	m_lChildItems.clear();
 }
 
 SearchTreeItem* SearchTreeItem::child(int row) const
 {
-	return childItems.value( row );
+	return m_lChildItems.value( row );
 }
 
 int SearchTreeItem::childCount() const
 {
-	return childItems.count();
+	return m_lChildItems.count();
 }
 
 int SearchTreeItem::columnCount() const
 {
-	return itemData.count();
+	return m_lItemData.count();
 }
 
 int SearchTreeItem::find(CHash& pHash) const
 {
-	for ( int i = 0; i < childItems.size(); ++i )
+	for ( int i = 0; i < m_lChildItems.size(); ++i )
 	{
-		if ( child( i )->hitData.lHashes.contains( pHash ) )
+		if ( child( i )->m_oHitData.lHashes.contains( pHash ) )
 		{
 			return i;
 		}
@@ -162,13 +162,13 @@ int SearchTreeItem::find(CHash& pHash) const
 
 void SearchTreeItem::updateHitCount(int count)
 {
-	itemData[5] = count;
+	m_lItemData[5] = count;
 }
 
 // TODO: modify
 bool SearchTreeItem::duplicateCheck(SearchTreeItem* containerItem, QString ip)
 {
-	for(int index = 0; index < containerItem->childItems.size(); ++index)
+	for(int index = 0; index < containerItem->m_lChildItems.size(); ++index)
 	{
 		if(containerItem->child(index)->data(5).toString() == ip)
 		{
@@ -181,14 +181,14 @@ bool SearchTreeItem::duplicateCheck(SearchTreeItem* containerItem, QString ip)
 
 QVariant SearchTreeItem::data(int column) const
 {
-	return itemData.value(column);
+	return m_lItemData.value(column);
 }
 
 int SearchTreeItem::row() const
 {
-	if ( parentItem )
+	if ( m_pParentItem )
 	{
-		return parentItem->childItems.indexOf( const_cast<SearchTreeItem*>(this) );
+		return m_pParentItem->m_lChildItems.indexOf( const_cast<SearchTreeItem*>(this) );
 	}
 
 	return 0;
@@ -196,15 +196,15 @@ int SearchTreeItem::row() const
 
 SearchTreeItem* SearchTreeItem::parent()
 {
-	return parentItem;
+	return m_pParentItem;
 }
 
 void SearchTreeItem::removeChild(int position)
 {
-	if (position < 0 || position  > childItems.size())
+	if (position < 0 || position  > m_lChildItems.size())
 		return;
 
-	delete childItems.takeAt(position);
+	delete m_lChildItems.takeAt(position);
 }
 
 int SearchHit::childCount() const
@@ -271,12 +271,12 @@ QVariant SearchTreeModel::data(const QModelIndex& index, int role) const
 			if ( item->parent() == rootItem )
 				return m_pIconProvider->icon( item->data( 1 ).toString().prepend( "." ) );
 			else
-				return item->hitData.iNetwork;
+				return item->m_oHitData.iNetwork;
 		}
 
 		if ( index.column() == 8 )
 		{
-			return item->hitData.iCountry;
+			return item->m_oHitData.iCountry;
 		}
 	}
 
@@ -512,7 +512,7 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 						<< "";                                // Country
 			SearchTreeItem* m_oFileItem = new SearchTreeItem( lParentData, rootItem );
 
-			m_oFileItem->hitData.lHashes << pHit->m_lHashes;
+			m_oFileItem->m_oHitData.lHashes << pHit->m_lHashes;
 
 			// Create SearchTreeItem representing hit
 			QList<QVariant> lChildData;
@@ -527,12 +527,12 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 					   << geoIP.countryNameFromCode( sCountry );
 			SearchTreeItem* m_oHitItem = new SearchTreeItem(lChildData, m_oFileItem);
 
-			m_oHitItem->hitData.lHashes << pHit->m_lHashes;
-			m_oHitItem->hitData.iNetwork = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
-			m_oHitItem->hitData.iCountry = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
+			m_oHitItem->m_oHitData.lHashes << pHit->m_lHashes;
+			m_oHitItem->m_oHitData.iNetwork = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
+			m_oHitItem->m_oHitData.iCountry = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
 
 			QueryHitSharedPtr pHitX( new QueryHit( pHit ) );
-			m_oHitItem->hitData.pQueryHit = pHitX;
+			m_oHitItem->m_oHitData.pQueryHit = pHitX;
 
 			// add both items to the model
 			beginInsertRows( QModelIndex(), rootItem->childCount(), rootItem->childCount() );
@@ -566,12 +566,12 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 			SearchTreeItem* oHitItem = new SearchTreeItem( lChildData,
 															 rootItem->child( existingFileEntry ) );
 
-			oHitItem->hitData.lHashes << pHit->m_lHashes;
-			oHitItem->hitData.iNetwork = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
-			oHitItem->hitData.iCountry = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
+			oHitItem->m_oHitData.lHashes << pHit->m_lHashes;
+			oHitItem->m_oHitData.iNetwork = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
+			oHitItem->m_oHitData.iCountry = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
 
 			QueryHitSharedPtr pHitX( new QueryHit( pHit ) );
-			oHitItem->hitData.pQueryHit = pHitX;
+			oHitItem->m_oHitData.pQueryHit = pHitX;
 
 			beginInsertRows( idxParent, rootItem->child( existingFileEntry )->childCount(),
 							 rootItem->child( existingFileEntry )->childCount() );

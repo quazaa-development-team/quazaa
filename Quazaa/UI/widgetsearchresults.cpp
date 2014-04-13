@@ -181,11 +181,11 @@ void CWidgetSearchResults::stopSearch()
 	WidgetSearchTemplate* tabSearch = qobject_cast<WidgetSearchTemplate*>(ui->tabWidgetSearch->currentWidget());
 	if(tabSearch)
 	{
-		if(tabSearch->m_searchState == SearchState::Searching)
+		if(tabSearch->m_eSearchState == SearchState::Searching)
 		{
 			tabSearch->pauseSearch();
 		}
-		else if(tabSearch->m_searchState == SearchState::Paused)
+		else if(tabSearch->m_eSearchState == SearchState::Paused)
 		{
 			tabSearch->stopSearch();
 		}
@@ -274,12 +274,12 @@ void CWidgetSearchResults::on_actionSearchDownload_triggered()
 				{
 					if( pLast )
 					{
-						pLast->m_pNext = new QueryHit(itemSearch->child(i)->hitData.pQueryHit.data());
+						pLast->m_pNext = new QueryHit(itemSearch->child(i)->m_oHitData.pQueryHit.data());
 						pLast = pLast->m_pNext;
 					}
 					else
 					{
-						pHits = new QueryHit(itemSearch->child(i)->hitData.pQueryHit.data());
+						pHits = new QueryHit(itemSearch->child(i)->m_oHitData.pQueryHit.data());
 						pLast = pHits;
 					}
 				}
