@@ -154,18 +154,6 @@ int SearchTreeItem::columnCount() const
 	return m_lItemData.count();
 }
 
-int SearchTreeItem::find(CHash& pHash) const
-{
-	for ( int i = 0; i < m_lChildItems.size(); ++i )
-	{
-		if ( child( i )->m_oHitData.lHashes.contains( pHash ) )
-		{
-			return i;
-		}
-	}
-	return -1;
-}
-
 void SearchTreeItem::updateHitCount(int count)
 {
 	m_lItemData[5] = count;
@@ -219,6 +207,18 @@ TreeRoot::TreeRoot(const QList<QVariant> &data, SearchTreeItem* parent) :
 	m_eType = Type::TreeRootType;
 }
 
+int TreeRoot::find(CHash& pHash) const
+{
+	for ( int i = 0; i < m_lChildItems.size(); ++i )
+	{
+		if ( child( i )->m_oHitData.lHashes.contains( pHash ) )
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
 SearchFile::SearchFile(const QList<QVariant> &data, SearchTreeItem* parent) :
 	SearchTreeItem( data, parent )
 {
@@ -238,7 +238,8 @@ int SearchHit::childCount() const
 
 SearchTreeModel::SearchTreeModel() :
 	m_pIconProvider( new FileIconProvider ),
-	m_pFilter( new SearchFilter )
+	m_pFilter( new SearchFilter ),
+	m_nFileCount( 0 )
 {
 	QList<QVariant> rootItemData;
 	rootItemData << "File"
@@ -250,8 +251,7 @@ SearchTreeModel::SearchTreeModel() :
 				 << "Speed"
 				 << "Client"
 				 << "Country";
-	m_pRootItem = new SearchTreeItem( rootItemData );
-	m_nFileCount = 0;
+	m_pRootItem = new TreeRoot( rootItemData );
 }
 
 SearchTreeModel::~SearchTreeModel()

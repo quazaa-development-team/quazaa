@@ -79,12 +79,11 @@ class SearchTreeItem : public QObject
 public:
 	enum Type { SearchTreeItemType, TreeRootType, SearchFileType, SearchHitType };
 
-private:
+protected:
 	QList<SearchTreeItem*>  m_lChildItems;
 	QList<QVariant>         m_lItemData;
 	SearchTreeItem*         m_pParentItem;
 
-protected:
 	Type                    m_eType;
 
 public:
@@ -103,7 +102,6 @@ public:
 	virtual int childCount() const;
 
 	int columnCount() const;
-	virtual int find(CHash& pHash) const; // find child number with given hash
 	void updateHitCount(int count); // change number of hits
 	bool duplicateCheck(SearchTreeItem* containerItem, QString ip);
 	QVariant data(int column) const;
@@ -118,6 +116,7 @@ class TreeRoot : public SearchTreeItem
 	Q_OBJECT
 public:
 	TreeRoot(const QList<QVariant> &data, SearchTreeItem* parent = 0);
+	int find(CHash& pHash) const; // find child number with given hash
 private:
 };
 
@@ -149,7 +148,7 @@ private:
 	SearchFilter*      m_pFilter;
 	FileIconProvider*  m_pIconProvider;
 
-	SearchTreeItem*    m_pRootItem;
+	TreeRoot*          m_pRootItem;
 
 	int m_nFileCount;
 
