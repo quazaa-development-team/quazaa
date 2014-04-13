@@ -29,9 +29,9 @@
 #include "neighboursbase.h"
 
 class G2Packet;
-class CQuery;
+class Query;
 
-typedef QSharedPointer<CQuery> CQueryPtr;
+typedef QSharedPointer<Query> CQueryPtr;
 
 class CNeighboursRouting : public CNeighboursBase
 {

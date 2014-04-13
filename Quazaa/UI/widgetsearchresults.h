@@ -48,8 +48,8 @@ public:
 	void saveWidget();
 
 signals:
-	void searchTabChanged(CWidgetSearchTemplate* searchPage);
-	void statsUpdated(CWidgetSearchTemplate* searchPage);
+	void searchTabChanged(WidgetSearchTemplate* searchPage);
+	void statsUpdated(WidgetSearchTemplate* searchPage);
 	void stateChanged();
 
 protected:
@@ -65,7 +65,7 @@ public slots:
 	void addSearchTab();
 	void stopSearch();
 	bool clearSearch();
-	void onStatsUpdated(CWidgetSearchTemplate* searchWidget);
+	void onStatsUpdated(WidgetSearchTemplate* searchWidget);
 
 private slots:
 	void on_tabWidgetSearch_currentChanged(int index);

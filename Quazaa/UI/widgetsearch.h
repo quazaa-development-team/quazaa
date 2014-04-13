@@ -40,7 +40,7 @@ public:
 	CWidgetSearch(QWidget* parent = 0);
 	~CWidgetSearch();
 	CWidgetSearchResults* panelSearchResults;
-	CWidgetSearchTemplate* currentPage;
+	WidgetSearchTemplate* currentPage;
 	void saveWidget();
 
 protected:
@@ -58,8 +58,8 @@ private slots:
 	void on_toolButtonNewSearch_clicked();
 	void on_toolButtonSearchClear_clicked();
 	void on_toolButtonSearch_clicked();
-	void onSearchTabChanged(CWidgetSearchTemplate* searchPage);
-	void updateStats(CWidgetSearchTemplate* searchWidget);
+	void onSearchTabChanged(WidgetSearchTemplate* searchPage);
+	void updateStats(WidgetSearchTemplate* searchWidget);
 	void updateButtons(bool bInitial = false);
 	void setSkin();
 };

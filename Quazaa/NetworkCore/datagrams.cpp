@@ -1030,7 +1030,7 @@ void CDatagrams::onQH2(CEndPoint& addr, G2Packet* pPacket)
 
 void CDatagrams::onQuery(CEndPoint &addr, G2Packet *pPacket)
 {
-	CQueryPtr pQuery = CQuery::fromPacket(pPacket, &addr);
+	CQueryPtr pQuery = Query::fromPacket(pPacket, &addr);
 
 	if(pQuery.isNull())
 	{

@@ -29,7 +29,7 @@
 #include "NetworkCore/Hashes/hash.h"
 
 class G2Packet;
-class CQuery;
+class Query;
 
 struct QueryHitInfo
 {
@@ -72,7 +72,7 @@ public:
 	static QueryHit*    readPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo);
 
 	void resolveURLs();
-	bool isValid(CQuery* pQuery = NULL) const;
+	bool isValid(Query* pQuery = NULL) const;
 };
 
 Q_DECLARE_METATYPE ( QueryHit )

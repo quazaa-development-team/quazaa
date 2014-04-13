@@ -34,9 +34,9 @@ class G2Packet;
 class QByteArray;
 class Buffer;
 class CQueryHashGroup;
-class CQuery;
+class Query;
 
-typedef QSharedPointer<CQuery> CQueryPtr;
+typedef QSharedPointer<Query> CQueryPtr;
 
 class CQueryHashTable : public QObject
 {

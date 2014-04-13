@@ -1489,7 +1489,7 @@ void CG2Node::onQuery(G2Packet* pPacket)
 		return;
 	}
 
-	CQueryPtr pQuery = CQuery::fromPacket(pPacket);
+	CQueryPtr pQuery = Query::fromPacket(pPacket);
 
 	if ( pQuery.isNull() )
 	{

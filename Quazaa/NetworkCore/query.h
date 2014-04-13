@@ -28,12 +28,12 @@
 #include "types.h"
 
 class G2Packet;
-class CQuery;
+class Query;
 class CHash;
 
-typedef QSharedPointer<CQuery> CQueryPtr;
+typedef QSharedPointer<Query> CQueryPtr;
 
-class CQuery
+class Query
 {
 public:
 	QUuid           m_oGUID;
@@ -50,7 +50,7 @@ public:
 	QList<quint32>	m_lHashedKeywords;
 
 public:
-	CQuery();
+	Query();
 	QString descriptiveName()
 	{
 		return m_sDescriptiveName;

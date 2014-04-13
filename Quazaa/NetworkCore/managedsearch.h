@@ -32,7 +32,7 @@
 #include "g2hostcache.h"
 #include "network.h"
 
-class CQuery;
+class Query;
 
 class ManagedSearch : public QObject
 {
@@ -41,7 +41,7 @@ public:
 	QDateTime   m_tStarted;
 	bool        m_bActive;
 	bool        m_bPaused;
-	CQuery*     m_pQuery;
+	Query*     m_pQuery;
 
 	bool        m_bCanRequestKey;
 
@@ -63,7 +63,7 @@ public:
 	QHash<QHostAddress, QDateTime> m_lSearchedNodes;
 
 public:
-	ManagedSearch(CQuery* pQuery, QObject* parent = NULL);
+	ManagedSearch(Query* pQuery, QObject* parent = NULL);
 	~ManagedSearch();
 
 	void start();

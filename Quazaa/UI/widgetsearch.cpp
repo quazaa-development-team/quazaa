@@ -51,8 +51,8 @@ CWidgetSearch::CWidgetSearch(QWidget* parent) :
 	ui->toolButtonSearchTaskHeader->setChecked( quazaaSettings.WinMain.SearchTaskVisible );
 	panelSearchResults = new CWidgetSearchResults();
 	ui->verticalLayoutSearchResults->addWidget( panelSearchResults );
-	connect( panelSearchResults, SIGNAL( searchTabChanged( CWidgetSearchTemplate* ) ), this, SLOT( onSearchTabChanged( CWidgetSearchTemplate* ) ) );
-	connect( panelSearchResults, SIGNAL( statsUpdated( CWidgetSearchTemplate* ) ), this, SLOT( updateStats( CWidgetSearchTemplate* ) ) );
+	connect( panelSearchResults, SIGNAL( searchTabChanged( WidgetSearchTemplate* ) ), this, SLOT( onSearchTabChanged( WidgetSearchTemplate* ) ) );
+	connect( panelSearchResults, SIGNAL( statsUpdated( WidgetSearchTemplate* ) ), this, SLOT( updateStats( WidgetSearchTemplate* ) ) );
 	connect( panelSearchResults, SIGNAL( stateChanged() ), this, SLOT( updateButtons() ) );
 	panelSearchResults->on_tabWidgetSearch_currentChanged( -1 );
 	setSkin();
@@ -162,7 +162,7 @@ void CWidgetSearch::on_splitterSearch_customContextMenuRequested(QPoint pos)
 	}
 }
 
-void CWidgetSearch::onSearchTabChanged(CWidgetSearchTemplate* searchPage)
+void CWidgetSearch::onSearchTabChanged(WidgetSearchTemplate* searchPage)
 {
 	currentPage = searchPage;
 	ui->lineEditSearch->setText( searchPage->m_sSearchString );
@@ -171,7 +171,7 @@ void CWidgetSearch::onSearchTabChanged(CWidgetSearchTemplate* searchPage)
 	focusSearchInput();
 }
 
-void CWidgetSearch::updateStats(CWidgetSearchTemplate* searchWidget)
+void CWidgetSearch::updateStats(WidgetSearchTemplate* searchWidget)
 {
 	ui->labelSearchResultsSearching->setText( tr( "%1 hubs,%2 leaves." ).arg( searchWidget->m_nHubs ).arg( searchWidget->m_nLeaves ) );
 	ui->labelSearchResultsFound->setText( tr( "%1 files in %2 hits." ).arg( searchWidget->m_nFiles ).arg( searchWidget->m_nHits ) );
@@ -187,7 +187,7 @@ void CWidgetSearch::updateStats(CWidgetSearchTemplate* searchWidget)
 
 void CWidgetSearch::updateButtons(bool bInitial)
 {
-	CWidgetSearchTemplate* searchPage = currentPage;
+	WidgetSearchTemplate* searchPage = currentPage;
 
 	switch( searchPage->m_searchState )
 	{

@@ -403,7 +403,7 @@ void QueryHit::resolveURLs()
 							 ).arg( m_lHashes[0].toURN() );
 }
 
-bool QueryHit::isValid(CQuery* pQuery) const
+bool QueryHit::isValid(Query* pQuery) const
 {
 	if ( pQuery )
 	{

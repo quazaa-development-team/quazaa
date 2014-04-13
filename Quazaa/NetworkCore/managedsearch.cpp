@@ -41,7 +41,7 @@
 
 #include "debug_new.h"
 
-ManagedSearch::ManagedSearch(CQuery* pQuery, QObject* parent) :
+ManagedSearch::ManagedSearch(Query* pQuery, QObject* parent) :
 	QObject(parent)
 {
 	m_bActive = false;

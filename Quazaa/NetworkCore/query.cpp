@@ -30,36 +30,36 @@
 
 #include "debug_new.h"
 
-CQuery::CQuery()
+Query::Query()
 {
 	m_nMinimumSize = 0;
 	m_nMaximumSize = Q_UINT64_C(0xffffffffffffffff);
 }
 
-void CQuery::setGUID(QUuid& guid)
+void Query::setGUID(QUuid& guid)
 {
 	m_oGUID = guid;
 }
 
-void CQuery::setDescriptiveName(QString sDN)
+void Query::setDescriptiveName(QString sDN)
 {
 	m_sDescriptiveName = sDN;
 }
-void CQuery::setMetadata(QString sMeta)
+void Query::setMetadata(QString sMeta)
 {
 	m_sMetadata = sMeta;
 }
-void CQuery::setSizeRestriction(quint64 nMin, quint64 nMax)
+void Query::setSizeRestriction(quint64 nMin, quint64 nMax)
 {
 	m_nMinimumSize = nMin;
 	m_nMaximumSize = nMax;
 }
-void CQuery::addURN(const CHash& pHash)
+void Query::addURN(const CHash& pHash)
 {
 	m_lHashes.append(pHash);
 }
 
-G2Packet* CQuery::toG2Packet(CEndPoint* pAddr, quint32 nKey)
+G2Packet* Query::toG2Packet(CEndPoint* pAddr, quint32 nKey)
 {
 	G2Packet* pPacket = G2Packet::newPacket("Q2", true);
 
@@ -128,7 +128,7 @@ G2Packet* CQuery::toG2Packet(CEndPoint* pAddr, quint32 nKey)
 	return pPacket;
 }
 
-void CQuery::buildG2Keywords(QString strPhrase)
+void Query::buildG2Keywords(QString strPhrase)
 {
 	QStringList lPositive, lNegative;
 
@@ -239,9 +239,9 @@ void CQuery::buildG2Keywords(QString strPhrase)
 	}
 }
 
-CQueryPtr CQuery::fromPacket(G2Packet *pPacket, CEndPoint *pEndpoint)
+CQueryPtr Query::fromPacket(G2Packet *pPacket, CEndPoint *pEndpoint)
 {
-	CQueryPtr pQuery(new CQuery());
+	CQueryPtr pQuery(new Query());
 
 	try
 	{
@@ -256,7 +256,7 @@ CQueryPtr CQuery::fromPacket(G2Packet *pPacket, CEndPoint *pEndpoint)
 	return CQueryPtr();
 }
 
-bool CQuery::fromG2Packet(G2Packet *pPacket, CEndPoint *pEndpoint)
+bool Query::fromG2Packet(G2Packet *pPacket, CEndPoint *pEndpoint)
 {
 	if( !pPacket->m_bCompound )
 		return false;
@@ -358,7 +358,7 @@ bool CQuery::fromG2Packet(G2Packet *pPacket, CEndPoint *pEndpoint)
 	return checkValid();
 }
 
-bool CQuery::checkValid()
+bool Query::checkValid()
 {
 	buildG2Keywords(m_sDescriptiveName);
 
