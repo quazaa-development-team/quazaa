@@ -72,6 +72,7 @@ public:
 	bool isValid() const;
 
 	QString country() const;
+	QString countryName() const;
 
 	void clear();
 

@@ -81,6 +81,9 @@ public:
 protected:
 	void changeEvent(QEvent* e);
 
+private:
+	CHash* getHash();
+
 signals:
 	void statsUpdated(WidgetSearchTemplate* thisSearch);
 	void stateChanged();

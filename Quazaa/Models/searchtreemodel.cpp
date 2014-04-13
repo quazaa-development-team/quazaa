@@ -25,7 +25,6 @@
 #include "searchtreemodel.h"
 #include <QFileInfo>
 #include "systemlog.h"
-#include "geoiplist.h"
 #include "commonfunctions.h"
 #include "Hashes/hash.h"
 #include "fileiconprovider.h"
@@ -139,40 +138,6 @@ void SearchTreeItem::clearChildren()
 	m_lChildItems.clear();
 }
 
-SearchTreeItem* SearchTreeItem::child(int row) const
-{
-	return m_lChildItems.value( row );
-}
-
-int SearchTreeItem::childCount() const
-{
-	return m_lChildItems.count();
-}
-
-int SearchTreeItem::columnCount() const
-{
-	return m_lItemData.count();
-}
-
-// TODO: modify
-bool SearchTreeItem::duplicateCheck(SearchTreeItem* containerItem, QString ip)
-{
-	for(int index = 0; index < containerItem->m_lChildItems.size(); ++index)
-	{
-		if(containerItem->child(index)->data(5).toString() == ip)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-
-QVariant SearchTreeItem::data(int column) const
-{
-	return m_lItemData.value(column);
-}
-
 int SearchTreeItem::row() const
 {
 	if ( m_pParentItem )
@@ -183,11 +148,6 @@ int SearchTreeItem::row() const
 	return 0;
 }
 
-SearchTreeItem* SearchTreeItem::parent()
-{
-	return m_pParentItem;
-}
-
 void SearchTreeItem::removeChild(int position)
 {
 	if (position < 0 || position  > m_lChildItems.size())
@@ -196,21 +156,96 @@ void SearchTreeItem::removeChild(int position)
 	delete m_lChildItems.takeAt(position);
 }
 
-TreeRoot::TreeRoot(const QList<QVariant> &data, SearchTreeItem* parent) :
-	SearchTreeItem( data, parent )
+TreeRoot::TreeRoot(const QList<QVariant> &data, SearchTreeModel* pModel) :
+	SearchTreeItem( data, 0 ),
+	m_pModel( pModel )
 {
 	m_eType = Type::TreeRootType;
+
+	Q_ASSERT( pModel );
 }
 
-int TreeRoot::find(CHash& pHash) const
+TreeRoot::~TreeRoot()
+{
+	// m_pModel is being taken care of somewhere else.
+}
+
+void TreeRoot::addQueryHit(QueryHit* pHit)
+{
+	int existingFileEntry = -1;
+
+	// Check for duplicate file.
+	foreach ( CHash oHash, pHit->m_lHashes )
+	{
+		existingFileEntry = find( oHash );
+		if ( existingFileEntry != -1 )
+			break;
+	}
+
+	QFileInfo fileInfo( pHit->m_sDescriptiveName );
+	SearchFile* pFileItem = NULL;
+	bool bNew = false;
+
+	// This hit is a new non duplicate file.
+	if ( existingFileEntry == -1 )
+	{
+		// Create SearchTreeItem representing the new file
+		QList<QVariant> lFileData;
+		lFileData << fileInfo.completeBaseName()        // File name
+					<< fileInfo.suffix()                  // Extension
+					<< formatBytes( pHit->m_nObjectSize ) // Size
+					<< ""                                 // Rating
+					<< ""                                 // Status
+					<< 1                                  // Host/Count
+					<< ""                                 // Speed
+					<< ""                                 // Client
+					<< "";                                // Country
+		pFileItem = new SearchFile( lFileData, this );
+		pFileItem->m_lHashes = HashVector( pHit->m_lHashes );
+
+		bNew = true;
+	}
+	else
+	{
+		Q_ASSERT( child( existingFileEntry )->type() == Type::SearchFileType );
+
+		pFileItem = (SearchFile*)child( existingFileEntry );
+		if ( pFileItem->duplicateHitCheck( pHit ) )
+		{
+			pFileItem = NULL;
+		}
+	}
+
+	if ( bNew )
+	{
+		// TODO: valid parent?
+		m_pModel->beginInsertRows( QModelIndex(), childCount(), childCount() );
+		appendChild( pFileItem );
+		pFileItem->addQueryHit( pHit, fileInfo );
+		m_pModel->endInsertRows();
+	}
+	else if ( pFileItem )
+	{
+		QModelIndex idxParent = m_pModel->index( existingFileEntry, 0, QModelIndex() );
+
+		m_pModel->beginInsertRows( idxParent, pFileItem->childCount(), pFileItem->childCount() );
+		pFileItem->addQueryHit( pHit, fileInfo );
+		m_pModel->endInsertRows();
+	}
+}
+
+// TODO: maybe add all hashes to a map for faster access?
+int TreeRoot::find(CHash& hash) const
 {
 	for ( int i = 0; i < m_lChildItems.size(); ++i )
 	{
-		if ( child( i )->m_oHitData.lHashes.contains( pHash ) )
+		Q_ASSERT( child( i )->type() == Type::SearchFileType );
+		if ( ((SearchFile*)child( i ))->manages( hash ) )
 		{
 			return i;
 		}
 	}
+
 	return -1;
 }
 
@@ -220,15 +255,98 @@ SearchFile::SearchFile(const QList<QVariant> &data, SearchTreeItem* parent) :
 	m_eType = Type::SearchFileType;
 }
 
+SearchFile::~SearchFile()
+{
+}
+
+bool SearchFile::manages(CHash hash) const
+{
+	Q_ASSERT( m_lHashes.size() > 0 );
+
+	const CHash* pHashes = &m_lHashes[0];
+
+	for ( char i = 0; i < m_lHashes.size(); ++i )
+	{
+		if ( pHashes[i] == hash )
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * @brief SearchFile::duplicateHitCheck checks for hits with the same node address within a file.
+ * @param pNewHit The new hit to check.
+ * @return true if a hit from the same IP is already part of this file; false otherwise.
+ */
+bool SearchFile::duplicateHitCheck(QueryHit* pNewHit) const
+{
+	for ( int index = 0; index < m_lChildItems.size(); ++index)
+	{
+		if ( child( index )->m_oHitData.pQueryHit->m_pHitInfo->m_oNodeAddress
+			 == pNewHit->m_pHitInfo->m_oNodeAddress )
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void SearchFile::updateHitCount()
 {
 	m_lItemData[5] = m_lChildItems.size();
+}
+
+void SearchFile::insertHashes(const HashVector& hashes)
+{
+	// TODO: hash collision detection
+	foreach ( CHash oHash, hashes )
+	{
+		if ( !manages( oHash ) )
+		{
+			m_lHashes.push_back( oHash );
+		}
+	}
+}
+
+void SearchFile::addQueryHit(QueryHit* pHit, const QFileInfo& fileInfo)
+{
+	QString sCountry = pHit->m_pHitInfo.data()->m_oNodeAddress.country();
+
+	// Create SearchTreeItem representing hit
+	QList<QVariant> lChildData;
+	lChildData << fileInfo.completeBaseName()
+			   << fileInfo.suffix()
+			   << formatBytes( pHit->m_nObjectSize )
+			   << ""
+			   << ""
+			   << pHit->m_pHitInfo.data()->m_oNodeAddress.toString()
+			   << ""
+			   << common::vendorCodeToName( pHit->m_pHitInfo.data()->m_sVendor )
+			   << pHit->m_pHitInfo.data()->m_oNodeAddress.countryName();
+	SearchHit* oHitItem = new SearchHit( lChildData, this );
+
+	insertHashes( pHit->m_lHashes );
+	oHitItem->m_oHitData.iNetwork = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
+	oHitItem->m_oHitData.iCountry = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
+
+	QueryHitSharedPtr pSharedHit( new QueryHit( pHit ) );
+	oHitItem->m_oHitData.pQueryHit = pSharedHit;
+
+	appendChild( oHitItem );
+	updateHitCount();
 }
 
 SearchHit::SearchHit(const QList<QVariant> &data, SearchTreeItem* parent) :
 	SearchTreeItem( data, parent )
 {
 	m_eType = Type::SearchHitType;
+}
+
+SearchHit::~SearchHit()
+{
 }
 
 int SearchHit::childCount() const
@@ -251,7 +369,7 @@ SearchTreeModel::SearchTreeModel() :
 				 << "Speed"
 				 << "Client"
 				 << "Country";
-	m_pRootItem = new TreeRoot( rootItemData );
+	m_pRootItem = new TreeRoot( rootItemData, this );
 }
 
 SearchTreeModel::~SearchTreeModel()
@@ -439,6 +557,7 @@ SearchTreeItem* SearchTreeModel::itemFromIndex(QModelIndex index)
 	return NULL;
 }
 
+// TODO: fix when uncommenting.
 /*void SearchTreeModel::setupModelData(const QStringList& lines, SearchTreeItem* parent)
 {
 	QList<SearchTreeItem*> parents;
@@ -504,111 +623,19 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 {
 	QueryHit* pHit = pHitPtr.data();
 
+	// TODO: redesign shared pointer usage.
 	while ( pHit )
 	{
-		int existingFileEntry = -1;
-
-		// Check for duplicate file.
-		foreach ( CHash oHash, pHit->m_lHashes )
-		{
-			existingFileEntry = m_pRootItem->find( oHash );
-			if ( existingFileEntry != -1 )
-				break;
-		}
-
-		// This hit is a new non duplicate file.
-		if ( existingFileEntry == -1 )
-		{
-			QFileInfo fileInfo( pHit->m_sDescriptiveName );
-
-			QString sCountry = geoIP.findCountryCode(pHit->m_pHitInfo.data()->m_oNodeAddress.toIPv4Address());
-
-			// Create SearchTreeItem representing the new file
-			QList<QVariant> lParentData;
-			lParentData << fileInfo.completeBaseName()        // File name
-						<< fileInfo.suffix()                  // Extension
-						<< formatBytes( pHit->m_nObjectSize ) // Size
-						<< ""                                 // Rating
-						<< ""                                 // Status
-						<< 1                                  // Host/Count
-						<< ""                                 // Speed
-						<< ""                                 // Client
-						<< "";                                // Country
-			SearchTreeItem* m_oFileItem = new SearchTreeItem( lParentData, m_pRootItem );
-
-			m_oFileItem->m_oHitData.lHashes << pHit->m_lHashes;
-
-			// Create SearchTreeItem representing hit
-			QList<QVariant> lChildData;
-			lChildData << fileInfo.completeBaseName()
-					   << fileInfo.suffix()
-					   << formatBytes( pHit->m_nObjectSize )
-					   << ""
-					   << ""
-					   << pHit->m_pHitInfo.data()->m_oNodeAddress.toString()
-					   << ""
-					   << common::vendorCodeToName( pHit->m_pHitInfo.data()->m_sVendor )
-					   << geoIP.countryNameFromCode( sCountry );
-			SearchTreeItem* m_oHitItem = new SearchTreeItem(lChildData, m_oFileItem);
-
-			m_oHitItem->m_oHitData.lHashes << pHit->m_lHashes;
-			m_oHitItem->m_oHitData.iNetwork = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
-			m_oHitItem->m_oHitData.iCountry = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
-
-			QueryHitSharedPtr pHitX( new QueryHit( pHit ) );
-			m_oHitItem->m_oHitData.pQueryHit = pHitX;
-
-			// add both items to the model
-			beginInsertRows( QModelIndex(), m_pRootItem->childCount(), m_pRootItem->childCount() );
-			m_pRootItem->appendChild( m_oFileItem );
-			m_oFileItem->appendChild( m_oHitItem );
-			endInsertRows();
-
-			m_nFileCount = m_pRootItem->childCount();
-		}
-		// We do already have a file for that hit. Check for duplicate IP address. If not duplicate, add item.
-		else if ( !m_pRootItem->child( existingFileEntry
-									)->duplicateCheck( m_pRootItem->child( existingFileEntry ),
-													   pHit->m_pHitInfo.data()->
-													   m_oNodeAddress.toString() ) )
-		{
-			QModelIndex idxParent = index( existingFileEntry, 0, QModelIndex() );
-			QFileInfo fileInfo( pHit->m_sDescriptiveName );
-
-			QString sCountry = geoIP.findCountryCode(pHit->m_pHitInfo.data()->m_oNodeAddress.toIPv4Address());
-
-			QList<QVariant> lChildData;
-			lChildData << fileInfo.completeBaseName()
-					   << fileInfo.suffix()
-					   << formatBytes( pHit->m_nObjectSize )
-					   << ""
-					   << ""
-					   << pHit->m_pHitInfo.data()->m_oNodeAddress.toString()
-					   << ""
-					   << common::vendorCodeToName( pHit->m_pHitInfo.data()->m_sVendor )
-					   << geoIP.countryNameFromCode( sCountry );
-			SearchTreeItem* oHitItem = new SearchTreeItem( lChildData,
-															 m_pRootItem->child( existingFileEntry ) );
-
-			oHitItem->m_oHitData.lHashes << pHit->m_lHashes;
-			oHitItem->m_oHitData.iNetwork = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
-			oHitItem->m_oHitData.iCountry = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
-
-			QueryHitSharedPtr pHitX( new QueryHit( pHit ) );
-			oHitItem->m_oHitData.pQueryHit = pHitX;
-
-			beginInsertRows( idxParent, m_pRootItem->child( existingFileEntry )->childCount(),
-							 m_pRootItem->child( existingFileEntry )->childCount() );
-			m_pRootItem->child( existingFileEntry )->appendChild( oHitItem );
-			((SearchFile*)m_pRootItem->child( existingFileEntry ) )->updateHitCount();
-			endInsertRows();
-		}
+		m_pRootItem->addQueryHit( pHit );
 
 		pHit = pHit->m_pNext;
 	}
 
+	m_nFileCount = m_pRootItem->childCount();
+
 	emit updateStats();
 
+	// TODO: choose better boundaries.
 	QModelIndex idx1 = index( 0, 0, QModelIndex() );
 	QModelIndex idx2 = index( m_pRootItem->childCount(), 10, QModelIndex() );
 	emit dataChanged( idx1, idx2 );

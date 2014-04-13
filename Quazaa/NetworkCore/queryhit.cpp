@@ -39,6 +39,11 @@ QueryHit::QueryHit() :
 {
 }
 
+/**
+ * @brief QueryHit::QueryHit creates a deep copy from a provided hit WITHOUT m_pNext. m_pNext is set
+ * to NULL.
+ * @param pHit The hit to copy.
+ */
 QueryHit::QueryHit(QueryHit *pHit):
 	m_pNext( NULL ),
 	m_pHitInfo( pHit->m_pHitInfo ),
@@ -57,9 +62,9 @@ QueryHit::QueryHit(QueryHit *pHit):
 
 QueryHit::~QueryHit()
 {
-	//qDebug() << "CQueryHit destructor";
+	//qDebug() << "QueryHit destructor";
 
-	if(m_pNext)
+	if ( m_pNext )
 	{
 		delete m_pNext;
 	}

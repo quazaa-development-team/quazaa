@@ -31,13 +31,13 @@
 #include "NetworkCore/queryhit.h"
 
 class CHash;
+class QFileInfo;
 class FileIconProvider;
 
 namespace SearchHitData
 {
 	struct sSearchHitData
 	{
-		QList<CHash> lHashes;
 		QIcon iNetwork;
 		QIcon iCountry;
 		QueryHitSharedPtr pQueryHit;
@@ -90,31 +90,61 @@ public:
 	SearchHitData::sSearchHitData m_oHitData;
 
 public:
-	SearchTreeItem(const QList<QVariant> &data, SearchTreeItem* parent = 0);
-	~SearchTreeItem();
+	SearchTreeItem(const QList<QVariant> &data, SearchTreeItem* parent);
+	virtual ~SearchTreeItem();
 
 	Type type() const;
 
-	virtual void appendChild(SearchTreeItem* child);
-	virtual void clearChildren();
+	void appendChild(SearchTreeItem* child);
+	void clearChildren();
 
-	virtual SearchTreeItem* child(int row) const;
-	virtual int childCount() const;
-
-	int columnCount() const;
-	bool duplicateCheck(SearchTreeItem* containerItem, QString ip);
-	QVariant data(int column) const;
 	int row() const;
-
-	SearchTreeItem* parent();
 	void removeChild(int position);
+
+	inline SearchTreeItem* child(int row) const;
+	inline virtual int childCount() const;
+
+	inline int columnCount() const;
+	inline QVariant data(int column) const;
+	inline SearchTreeItem* parent() const;
 };
 
+SearchTreeItem* SearchTreeItem::child(int row) const
+{
+	return m_lChildItems.value( row );
+}
+
+int SearchTreeItem::childCount() const
+{
+	return m_lChildItems.count();
+}
+
+int SearchTreeItem::columnCount() const
+{
+	return m_lItemData.count();
+}
+
+QVariant SearchTreeItem::data(int column) const
+{
+	return m_lItemData.value(column);
+}
+
+SearchTreeItem* SearchTreeItem::parent() const
+{
+	return m_pParentItem;
+}
+
+class SearchTreeModel;
 class TreeRoot : public SearchTreeItem
 {
 	Q_OBJECT
+private:
+	SearchTreeModel* m_pModel; // The model the root node is part of.
 public:
-	TreeRoot(const QList<QVariant> &data, SearchTreeItem* parent = 0);
+	TreeRoot(const QList<QVariant> &data, SearchTreeModel* pModel);
+	~TreeRoot();
+
+	void addQueryHit(QueryHit* pHit);
 	int find(CHash& pHash) const; // find child number with given hash
 private:
 };
@@ -123,21 +153,36 @@ class SearchFile : public SearchTreeItem
 {
 	Q_OBJECT
 public:
-	SearchFile(const QList<QVariant> &data, SearchTreeItem* parent = 0);
+	HashVector m_lHashes;
+
+public:
+	SearchFile(const QList<QVariant> &data, SearchTreeItem* parent);
+	~SearchFile();
+
+	bool manages(CHash hash) const;
 	void updateHitCount(); // change number of hits
+
 private:
+	void insertHashes(const HashVector& hashes);
+	bool duplicateHitCheck(QueryHit* pNewHit) const;
+	void addQueryHit(QueryHit* pHit, const QFileInfo& fileInfo);
+
+	friend class TreeRoot;
 };
 
 class SearchHit : public SearchTreeItem
 {
 	Q_OBJECT
 public:
-	SearchHit(const QList<QVariant> &data, SearchTreeItem* parent = 0);
+	SearchHit(const QList<QVariant> &data, SearchTreeItem* parent);
+	~SearchHit();
+
 	int childCount() const;
 
 private:
 };
 
+// TODO: replace with forward_list (C++11)
 typedef std::list<SearchTreeItem*> SearchList;
 
 class SearchTreeModel : public QAbstractItemModel
@@ -190,6 +235,8 @@ public slots:
 	void clear();
 	//bool isRoot(QModelIndex index);
 	void removeQueryHit(int position, const QModelIndex &parent);
+
+	friend class TreeRoot;
 };
 
 #endif // SEARCHTREEMODEL_H

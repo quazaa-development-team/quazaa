@@ -406,6 +406,11 @@ QString CEndPoint::country() const
 	return m_sCountryCode;
 }
 
+QString CEndPoint::countryName() const
+{
+	return geoIP.countryNameFromCode( country() );
+}
+
 void CEndPoint::clear()
 {
 	m_nPort = 0;

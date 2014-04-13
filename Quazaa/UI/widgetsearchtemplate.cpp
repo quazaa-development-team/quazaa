@@ -102,6 +102,44 @@ void WidgetSearchTemplate::changeEvent(QEvent* e)
 	}
 }
 
+/**
+ * @brief WidgetSearchTemplate::getHash allows acces to the first hash of the currently
+ * selected item
+ * @return A pointer to the hash or NULL if the hash does not exist.
+ */
+CHash* WidgetSearchTemplate::getHash()
+{
+	SearchTreeItem* itemSearch = m_pSearchModel->topLevelItemFromIndex(currentItem());
+
+	CHash* pReturnValue = NULL;
+
+	if ( itemSearch != NULL )
+	{
+		if ( itemSearch->type() == SearchTreeItem::Type::SearchFileType )
+		{
+			SearchFile* pFile = (SearchFile*)itemSearch;
+
+			Q_ASSERT( pFile->m_lHashes.size() );
+
+			if ( pFile->m_lHashes.size() )
+				pReturnValue = &( pFile->m_lHashes.front() );
+		}
+		else if ( itemSearch->type() == SearchTreeItem::Type::SearchHitType )
+		{
+			Q_ASSERT( false ); // top level node should be a SearchFile
+
+			SearchHit* pHit = (SearchHit*)itemSearch;
+
+			Q_ASSERT( pHit->m_oHitData.pQueryHit->m_lHashes.size() );
+
+			if ( pHit->m_oHitData.pQueryHit->m_lHashes.size() )
+				pReturnValue = &( pHit->m_oHitData.pQueryHit->m_lHashes.front() );
+		}
+	}
+
+	return pReturnValue;
+}
+
 void WidgetSearchTemplate::startSearch(Query* pQuery)
 {
 	if ( m_pSearch && m_pSearch->m_pQuery != pQuery )
@@ -269,21 +307,27 @@ void WidgetSearchTemplate::on_actionDownload_triggered()
 
 void WidgetSearchTemplate::on_actionViewReviews_triggered()
 {
-	SearchTreeItem* itemSearch = m_pSearchModel->topLevelItemFromIndex(currentItem());
+	CHash* pHash = getHash();
 
-	if( itemSearch != NULL )
+	if ( pHash )
 	{
-		QDesktopServices::openUrl( QUrl(QString("http://bitzi.com/lookup/%1?v=detail&ref=quazaa").arg(itemSearch->m_oHitData.lHashes.at(0).toString()), QUrl::TolerantMode) );
+		QString hashString = pHash->toString();
+		QString sURL = QString( "http://bitzi.com/lookup/%1?v=detail&ref=quazaa"
+								).arg( hashString );
+		QDesktopServices::openUrl( QUrl( sURL, QUrl::TolerantMode ) );
 	}
 }
 
 void WidgetSearchTemplate::on_actionVirusTotalCheck_triggered()
 {
-	SearchTreeItem* itemSearch = m_pSearchModel->topLevelItemFromIndex(currentItem());
+	CHash* pHash = getHash();
 
-	if( itemSearch != NULL )
+	if ( pHash )
 	{
-		QDesktopServices::openUrl( QUrl(QString("www.virustotal.com/latest-report.html?resource=%1").arg(QString(itemSearch->m_oHitData.lHashes.at(0).rawValue().toHex())), QUrl::TolerantMode) );
+		QString hashString = QString( getHash()->rawValue().toHex() );
+		QString sURL =  QString( "www.virustotal.com/latest-report.html?resource=%1"
+								 ).arg( hashString );
+		QDesktopServices::openUrl( QUrl( sURL , QUrl::TolerantMode ) );
 	}
 }
 

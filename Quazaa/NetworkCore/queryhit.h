@@ -65,7 +65,7 @@ public:
 
 public:
 	QueryHit();
-	QueryHit(QueryHit* pHit);
+	QueryHit(QueryHit* pHit); // deep copies hit without m_pNext
 	~QueryHit();
 
 	static QueryHitInfo* readInfo(G2Packet* pPacket, CEndPoint* pSender = 0);
