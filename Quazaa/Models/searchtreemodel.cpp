@@ -35,6 +35,183 @@
 
 using namespace common;
 
+SearchFilter::SearchFilter() :
+	m_sMatchString( "" ),
+	m_bRegExp( false ),
+	m_nMinSize( 0 ),
+	m_nMaxSize( 18446744073709551615 ), // max value of 64 bit int
+	m_nMinSources( 0 ),
+	m_bBusy( true ),
+	m_bFirewalled( true ),
+	m_bUnstable( true ),
+	m_bDRM( true ),
+	m_bSuspicious( true ),
+	m_bNonMatching( true ),
+	m_bExistsInLibrary( true ),
+	m_bBogus( true ),
+	m_bAdult( true )
+{
+}
+
+bool SearchFilter::operator==(const SearchFilter& rOther)
+{
+	return m_sMatchString     == rOther.m_sMatchString     &&
+		   m_bRegExp          == rOther.m_bRegExp          &&
+		   m_nMinSize         == rOther.m_nMinSize         &&
+		   m_nMaxSize         == rOther.m_nMaxSize         &&
+		   m_nMinSources      == rOther.m_nMinSources      &&
+		   m_bBusy            == rOther.m_bBusy            &&
+		   m_bFirewalled      == rOther.m_bFirewalled      &&
+		   m_bUnstable        == rOther.m_bUnstable        &&
+		   m_bDRM             == rOther.m_bDRM             &&
+		   m_bSuspicious      == rOther.m_bSuspicious      &&
+		   m_bNonMatching     == rOther.m_bNonMatching     &&
+		   m_bExistsInLibrary == rOther.m_bExistsInLibrary &&
+		   m_bBogus           == rOther.m_bBogus           &&
+		   m_bAdult           == rOther.m_bAdult;
+}
+
+bool SearchFilter::operator!=(const SearchFilter& rOther)
+{
+	return !operator==( rOther );
+}
+
+// smaller amount of files
+bool SearchFilter::operator<(const SearchFilter& rOther)
+{
+	return m_nMinSize         >  rOther.m_nMinSize         ||
+		   m_nMaxSize         <  rOther.m_nMaxSize         ||
+		   m_nMinSources      >  rOther.m_nMinSources      ||
+		  !m_bBusy            && rOther.m_bBusy            ||
+		  !m_bFirewalled      && rOther.m_bFirewalled      ||
+		  !m_bUnstable        && rOther.m_bUnstable        ||
+		  !m_bDRM             && rOther.m_bDRM             ||
+		  !m_bSuspicious      && rOther.m_bSuspicious      ||
+		  !m_bNonMatching     && rOther.m_bNonMatching     ||
+		  !m_bExistsInLibrary && rOther.m_bExistsInLibrary ||
+		  !m_bBogus           && rOther.m_bBogus           ||
+		  !m_bAdult           && rOther.m_bAdult;
+}
+
+// bigger amount of files
+bool SearchFilter::operator>(const SearchFilter& rOther)
+{
+	return m_nMinSize         <   rOther.m_nMinSize         ||
+		   m_nMaxSize         >   rOther.m_nMaxSize         ||
+		   m_nMinSources      <   rOther.m_nMinSources      ||
+		   m_bBusy            && !rOther.m_bBusy            ||
+		   m_bFirewalled      && !rOther.m_bFirewalled      ||
+		   m_bUnstable        && !rOther.m_bUnstable        ||
+		   m_bDRM             && !rOther.m_bDRM             ||
+		   m_bSuspicious      && !rOther.m_bSuspicious      ||
+		   m_bNonMatching     && !rOther.m_bNonMatching     ||
+		   m_bExistsInLibrary && !rOther.m_bExistsInLibrary ||
+		   m_bBogus           && !rOther.m_bBogus           ||
+		   m_bAdult           && !rOther.m_bAdult;
+}
+
+SearchTreeItem::SearchTreeItem(const QList<QVariant> &data, SearchTreeItem* parent)
+{
+	parentItem = parent;
+	itemData = data;
+}
+
+SearchTreeItem::~SearchTreeItem()
+{
+	qDeleteAll(childItems);
+}
+
+void SearchTreeItem::appendChild(SearchTreeItem* item)
+{
+	item->parentItem = this;
+	childItems.append(item);
+}
+
+void SearchTreeItem::clearChildren()
+{
+	qDeleteAll(childItems);
+	childItems.clear();
+}
+
+SearchTreeItem* SearchTreeItem::child(int row) const
+{
+	return childItems.value( row );
+}
+
+int SearchTreeItem::childCount() const
+{
+	return childItems.count();
+}
+
+int SearchTreeItem::columnCount() const
+{
+	return itemData.count();
+}
+
+int SearchTreeItem::find(CHash& pHash) const
+{
+	for ( int i = 0; i < childItems.size(); ++i )
+	{
+		if ( child( i )->hitData.lHashes.contains( pHash ) )
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+void SearchTreeItem::updateHitCount(int count)
+{
+	itemData[5] = count;
+}
+
+// TODO: modify
+bool SearchTreeItem::duplicateCheck(SearchTreeItem* containerItem, QString ip)
+{
+	for(int index = 0; index < containerItem->childItems.size(); ++index)
+	{
+		if(containerItem->child(index)->data(5).toString() == ip)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+QVariant SearchTreeItem::data(int column) const
+{
+	return itemData.value(column);
+}
+
+int SearchTreeItem::row() const
+{
+	if ( parentItem )
+	{
+		return parentItem->childItems.indexOf( const_cast<SearchTreeItem*>(this) );
+	}
+
+	return 0;
+}
+
+SearchTreeItem* SearchTreeItem::parent()
+{
+	return parentItem;
+}
+
+void SearchTreeItem::removeChild(int position)
+{
+	if (position < 0 || position  > childItems.size())
+		return;
+
+	delete childItems.takeAt(position);
+}
+
+int SearchHit::childCount() const
+{
+	return 0;
+}
+
 SearchTreeModel::SearchTreeModel() :
 	m_pIconProvider( new CFileIconProvider ),
 	m_pFilter( new SearchFilter )
@@ -206,6 +383,48 @@ QModelIndex SearchTreeModel::parent(const QModelIndex& index) const
 
 	return createIndex( parentItem->row(), 0, parentItem );
 }
+
+SearchTreeItem* SearchTreeModel::topLevelItemFromIndex(QModelIndex index)
+{
+	Q_ASSERT(index.model() == this);
+
+	if(index.isValid())
+	{
+		QModelIndex idxThis = index;
+
+		while( parent(idxThis).isValid() )
+		{
+			idxThis = parent(idxThis);
+		}
+
+		SearchTreeItem* pThis = static_cast<SearchTreeItem*>(idxThis.internalPointer());
+
+		Q_ASSERT(pThis != NULL);
+
+		return pThis;
+	}
+
+	return NULL;
+}
+
+SearchTreeItem* SearchTreeModel::itemFromIndex(QModelIndex index)
+{
+	Q_ASSERT(index.model() == this);
+
+	if(index.isValid())
+	{
+		QModelIndex idxThis = index;
+
+		SearchTreeItem* pThis = static_cast<SearchTreeItem*>(idxThis.internalPointer());
+
+		Q_ASSERT(pThis != NULL);
+
+		return pThis;
+	}
+
+	return NULL;
+}
+
 
 int SearchTreeModel::rowCount(const QModelIndex& parent) const
 {
@@ -415,220 +634,3 @@ void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
 	emit dataChanged( idx1, idx2 );
 	emit sort();
 }
-
-SearchTreeItem::SearchTreeItem(const QList<QVariant> &data, SearchTreeItem* parent)
-{
-	parentItem = parent;
-	itemData = data;
-}
-
-SearchTreeItem::~SearchTreeItem()
-{
-	qDeleteAll(childItems);
-}
-
-void SearchTreeItem::appendChild(SearchTreeItem* item)
-{
-	item->parentItem = this;
-	childItems.append(item);
-}
-
-void SearchTreeItem::clearChildren()
-{
-	qDeleteAll(childItems);
-	childItems.clear();
-}
-
-SearchTreeItem* SearchTreeItem::child(int row) const
-{
-	return childItems.value( row );
-}
-
-int SearchTreeItem::childCount() const
-{
-	return childItems.count();
-}
-
-int SearchTreeItem::columnCount() const
-{
-	return itemData.count();
-}
-
-int SearchTreeItem::find(CHash& pHash) const
-{
-	for ( int i = 0; i < childItems.size(); ++i )
-	{
-		if ( child( i )->hitData.lHashes.contains( pHash ) )
-		{
-			return i;
-		}
-	}
-	return -1;
-}
-
-QVariant SearchTreeItem::data(int column) const
-{
-	return itemData.value(column);
-}
-
-SearchTreeItem* SearchTreeItem::parent()
-{
-	return parentItem;
-}
-
-void SearchTreeItem::removeChild(int position)
-{
-	if (position < 0 || position  > childItems.size())
-		return;
-
-	delete childItems.takeAt(position);
-}
-
-int SearchTreeItem::row() const
-{
-	if(parentItem)
-	{
-		return parentItem->childItems.indexOf(const_cast<SearchTreeItem*>(this));
-	}
-
-	return 0;
-}
-
-void SearchTreeItem::updateHitCount(int count)
-{
-	itemData[5] = count;
-}
-
-bool SearchTreeItem::duplicateCheck(SearchTreeItem* containerItem, QString ip)
-{
-	for(int index = 0; index < containerItem->childItems.size(); ++index)
-	{
-		if(containerItem->child(index)->data(5).toString() == ip)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-SearchTreeItem * SearchTreeModel::topLevelItemFromIndex(QModelIndex index)
-{
-	Q_ASSERT(index.model() == this);
-
-	if(index.isValid())
-	{
-		QModelIndex idxThis = index;
-
-		while( parent(idxThis).isValid() )
-		{
-			idxThis = parent(idxThis);
-		}
-
-		SearchTreeItem* pThis = static_cast<SearchTreeItem*>(idxThis.internalPointer());
-
-		Q_ASSERT(pThis != NULL);
-
-		return pThis;
-	}
-
-	return NULL;
-}
-
-SearchTreeItem * SearchTreeModel::itemFromIndex(QModelIndex index)
-{
-	Q_ASSERT(index.model() == this);
-
-	if(index.isValid())
-	{
-		QModelIndex idxThis = index;
-
-		SearchTreeItem* pThis = static_cast<SearchTreeItem*>(idxThis.internalPointer());
-
-		Q_ASSERT(pThis != NULL);
-
-		return pThis;
-	}
-
-	return NULL;
-}
-
-int SearchHit::childCount() const
-{
-	return 0;
-}
-
-SearchFilter::SearchFilter() :
-	m_sMatchString( "" ),
-	m_bRegExp( false ),
-	m_nMinSize( 0 ),
-	m_nMaxSize( 18446744073709551615 ), // max value of 64 bit int
-	m_nMinSources( 0 ),
-	m_bBusy( true ),
-	m_bFirewalled( true ),
-	m_bUnstable( true ),
-	m_bDRM( true ),
-	m_bSuspicious( true ),
-	m_bNonMatching( true ),
-	m_bExistsInLibrary( true ),
-	m_bBogus( true ),
-	m_bAdult( true )
-{
-}
-
-bool SearchFilter::operator==(const SearchFilter& rOther)
-{
-	return m_sMatchString     == rOther.m_sMatchString     &&
-		   m_bRegExp          == rOther.m_bRegExp          &&
-		   m_nMinSize         == rOther.m_nMinSize         &&
-		   m_nMaxSize         == rOther.m_nMaxSize         &&
-		   m_nMinSources      == rOther.m_nMinSources      &&
-		   m_bBusy            == rOther.m_bBusy            &&
-		   m_bFirewalled      == rOther.m_bFirewalled      &&
-		   m_bUnstable        == rOther.m_bUnstable        &&
-		   m_bDRM             == rOther.m_bDRM             &&
-		   m_bSuspicious      == rOther.m_bSuspicious      &&
-		   m_bNonMatching     == rOther.m_bNonMatching     &&
-		   m_bExistsInLibrary == rOther.m_bExistsInLibrary &&
-		   m_bBogus           == rOther.m_bBogus           &&
-		   m_bAdult           == rOther.m_bAdult;
-}
-
-bool SearchFilter::operator!=(const SearchFilter& rOther)
-{
-	return !operator==( rOther );
-}
-
-// smaller amount of files
-bool SearchFilter::operator<(const SearchFilter& rOther)
-{
-	return m_nMinSize         >  rOther.m_nMinSize         ||
-		   m_nMaxSize         <  rOther.m_nMaxSize         ||
-		   m_nMinSources      >  rOther.m_nMinSources      ||
-		  !m_bBusy            && rOther.m_bBusy            ||
-		  !m_bFirewalled      && rOther.m_bFirewalled      ||
-		  !m_bUnstable        && rOther.m_bUnstable        ||
-		  !m_bDRM             && rOther.m_bDRM             ||
-		  !m_bSuspicious      && rOther.m_bSuspicious      ||
-		  !m_bNonMatching     && rOther.m_bNonMatching     ||
-		  !m_bExistsInLibrary && rOther.m_bExistsInLibrary ||
-		  !m_bBogus           && rOther.m_bBogus           ||
-		  !m_bAdult           && rOther.m_bAdult;
-}
-
-// bigger amount of files
-bool SearchFilter::operator>(const SearchFilter& rOther)
-{
-	return m_nMinSize         <   rOther.m_nMinSize         ||
-		   m_nMaxSize         >   rOther.m_nMaxSize         ||
-		   m_nMinSources      <   rOther.m_nMinSources      ||
-		   m_bBusy            && !rOther.m_bBusy            ||
-		   m_bFirewalled      && !rOther.m_bFirewalled      ||
-		   m_bUnstable        && !rOther.m_bUnstable        ||
-		   m_bDRM             && !rOther.m_bDRM             ||
-		   m_bSuspicious      && !rOther.m_bSuspicious      ||
-		   m_bNonMatching     && !rOther.m_bNonMatching     ||
-		   m_bExistsInLibrary && !rOther.m_bExistsInLibrary ||
-		   m_bBogus           && !rOther.m_bBogus           ||
-		   m_bAdult           && !rOther.m_bAdult;
-}
-

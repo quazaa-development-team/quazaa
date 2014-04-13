@@ -77,19 +77,21 @@ class SearchTreeItem : public QObject
 {
 	Q_OBJECT
 public:
+	SearchHitData::sSearchHitData hitData;
+
+public:
 	SearchTreeItem(const QList<QVariant> &data, SearchTreeItem* parent = 0);
 	~SearchTreeItem();
-
-	SearchHitData::sSearchHitData hitData;
 
 	virtual void appendChild(SearchTreeItem* child);
 	virtual void clearChildren();
 
 	virtual SearchTreeItem* child(int row) const;
 	virtual int childCount() const;
+
 	int columnCount() const;
-	virtual int find(CHash& pHash) const;
-	void updateHitCount(int count);
+	virtual int find(CHash& pHash) const; // find child number with given hash
+	void updateHitCount(int count); // change number of hits
 	bool duplicateCheck(SearchTreeItem* containerItem, QString ip);
 	QVariant data(int column) const;
 	int row() const;
