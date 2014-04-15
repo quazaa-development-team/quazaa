@@ -190,12 +190,10 @@ signals:
 private:
 	//void setupModelData(const QStringList& lines, SearchTreeItem* parent);
 
-private slots:
-	void addQueryHit(QueryHitSharedPtr pHit);
-
 public slots:
 	void clear();
 	//bool isRoot(QModelIndex index);
+	void addQueryHit(QueryHitSharedPtr pHit);
 	void removeQueryHit(int position, const QModelIndex &parent);
 
 	friend class TreeRoot;

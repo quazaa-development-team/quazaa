@@ -587,29 +587,6 @@ SearchTreeItem* SearchTreeModel::itemFromIndex(QModelIndex index)
 	}
 }*/
 
-void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
-{
-	QueryHit* pHit = pHitPtr.data();
-
-	// TODO: redesign shared pointer usage.
-	while ( pHit )
-	{
-		m_pRootItem->addQueryHit( pHit );
-
-		pHit = pHit->m_pNext;
-	}
-
-	m_nFileCount = m_pRootItem->childCount();
-
-	emit updateStats();
-
-	// TODO: choose better boundaries.
-	QModelIndex idx1 = index( 0, 0, QModelIndex() );
-	QModelIndex idx2 = index( m_pRootItem->childCount(), 10, QModelIndex() );
-	emit dataChanged( idx1, idx2 );
-	emit sort();
-}
-
 void SearchTreeModel::clear()
 {
 	beginRemoveRows( QModelIndex(), 0, m_pRootItem->childCount() );
@@ -642,6 +619,30 @@ void SearchTreeModel::clear()
 
 	return false;
 }*/
+
+void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
+{
+	QueryHit* pHit = pHitPtr.data();
+
+	// TODO: redesign shared pointer usage.
+	while ( pHit )
+	{
+		m_pRootItem->addQueryHit( pHit );
+
+		pHit = pHit->m_pNext;
+	}
+
+	m_nFileCount = m_pRootItem->childCount();
+
+	emit updateStats();
+
+	// TODO: choose better boundaries.
+	QModelIndex idx1 = index( 0, 0, QModelIndex() );
+	QModelIndex idx2 = index( m_pRootItem->childCount(), 10, QModelIndex() );
+	emit dataChanged( idx1, idx2 );
+	emit sort();
+}
+
 
 void SearchTreeModel::removeQueryHit(int position, const QModelIndex &parent)
 {
