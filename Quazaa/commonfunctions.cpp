@@ -46,7 +46,7 @@ void common::folderOpen(QString file)
 
 QString common::formatBytes(quint64 nBytesPerSec)
 {
-	const char* szUnit[5] = {"B", "KiB", "MiB", "GiB", "TiB"};
+	const char* szUnit[5] = { "B", "KiB", "MiB", "GiB", "TiB" };
 
 	double nBPS = nBytesPerSec;
 
@@ -85,39 +85,39 @@ QString common::vendorCodeToName(QString vendorCode)
 	{
 		return "Quazaa";
 	}
-	if (vendorCode == "QAZB" )
+	if ( vendorCode == "QAZB" )
 	{
 		return "Quazaa Beta";
 	}
-	if (vendorCode == "SHLN" )
+	if ( vendorCode == "SHLN" )
 	{
 		return "Sharelin";
 	}
-	if (vendorCode == "RZCB" )
+	if ( vendorCode == "RZCB" )
 	{
 		return "Shareaza Plus";
 	}
-	if (vendorCode == "FSCP" )
+	if ( vendorCode == "FSCP" )
 	{
 		return "FileScope";
 	}
-	if (vendorCode == "AGIO" )
+	if ( vendorCode == "AGIO" )
 	{
 		return "Adiago";
 	}
-	if (vendorCode == "GNUC" )
+	if ( vendorCode == "GNUC" )
 	{
 		return "Gnucleus";
 	}
-	if (vendorCode == "MLDK" )
+	if ( vendorCode == "MLDK" )
 	{
 		return "MLDonkey";
 	}
-	if (vendorCode == "MMMM" || vendorCode == "MRPH" )
+	if ( vendorCode == "MMMM" || vendorCode == "MRPH" )
 	{
 		return "Morpheus";
 	}
-	if (vendorCode == "PEER" )
+	if ( vendorCode == "PEER" )
 	{
 		return "PeerProject";
 	}
