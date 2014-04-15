@@ -108,7 +108,7 @@ public:
 	TreeRoot(SearchTreeModel* pModel);
 	~TreeRoot();
 
-	void addQueryHit(QueryHit* pHit);
+	QueryHit* addQueryHit(QueryHit* pHit);
 	int find(CHash& pHash) const; // find child number with given hash
 };
 
@@ -119,7 +119,7 @@ public:
 	HashVector      m_lHashes;
 
 public:
-	SearchFile(SearchTreeItem* parent, QueryHit* pHit, const QFileInfo& fileInfo);
+	SearchFile(SearchTreeItem* parent, const QueryHit* const pHit, const QFileInfo& fileInfo);
 	~SearchFile();
 
 	bool manages(CHash hash) const;
@@ -138,6 +138,7 @@ class SearchHit : public SearchTreeItem
 	Q_OBJECT
 
 public:
+	// Note: SearchHit takes ownership of Query hit on creation
 	SearchHit(SearchTreeItem* parent, QueryHit* pHit, const QFileInfo& fileInfo);
 	~SearchHit();
 
@@ -193,7 +194,7 @@ private:
 public slots:
 	void clear();
 	//bool isRoot(QModelIndex index);
-	void addQueryHit(QueryHitSharedPtr pHit);
+	void addQueryHit(QueryHit* pHit);
 	void removeQueryHit(int position, const QModelIndex &parent);
 
 	friend class TreeRoot;

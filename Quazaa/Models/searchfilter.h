@@ -82,7 +82,7 @@ struct FileFilterData
 	bool m_bSuspicious      : 1; // There is a suspicious hit
 	bool m_bUnstable        : 1; // All sources are unstable
 
-	FileFilterData(SearchHit* pHit);
+	FileFilterData(const SearchHit* const pHit);
 	void update(const HitFilterData& hitData);
 };
 
@@ -98,7 +98,7 @@ struct HitFilterData
 	bool m_bSuspicious      : 1; // Hit is flagged as being suspicious
 	bool m_bUnstable        : 1; // Source is unstable
 
-	HitFilterData(QueryHit* pHit);
+	HitFilterData(const QueryHit* const pHit);
 };
 
 struct FileFilterState
@@ -159,7 +159,7 @@ public:
 	HitFilterData   m_oHitFilterData;
 	HitFilterState  m_oHitFilterState;
 
-	HitFilter(FilterControl* pFilter, QueryHit* pHit);
+	HitFilter(FilterControl* pFilter, const QueryHit* const pHit);
 };
 
 }

@@ -155,8 +155,16 @@ TreeRoot::~TreeRoot()
 {
 }*/
 
-void TreeRoot::addQueryHit(QueryHit* pHit)
+/**
+ * @brief TreeRoot::addQueryHit
+ * @param pHit
+ * @return The next queued QueryHit.
+ */
+QueryHit* TreeRoot::addQueryHit(QueryHit* pHit)
 {
+	QueryHit* pNext = pHit->m_pNext;
+	pHit->m_pNext   = NULL;
+
 	int existingFileEntry = -1;
 
 	// Check for duplicate file.
@@ -169,41 +177,38 @@ void TreeRoot::addQueryHit(QueryHit* pHit)
 
 	QFileInfo fileInfo( pHit->m_sDescriptiveName );
 	SearchFile* pFileItem = NULL;
-	bool bNew = false;
 
 	// This hit is a new non duplicate file.
 	if ( existingFileEntry == -1 )
 	{
+		// TODO: valid parent?
 		pFileItem = new SearchFile( this, pHit, fileInfo );
-		bNew = true;
+		m_pModel->beginInsertRows( QModelIndex(), childCount(), childCount() );
+		appendChild( pFileItem );
+		pFileItem->addQueryHit( pHit, fileInfo );
+		m_pModel->endInsertRows();
 	}
 	else
 	{
 		Q_ASSERT( child( existingFileEntry )->type() == Type::SearchFileType );
 
 		pFileItem = (SearchFile*)child( existingFileEntry );
-		if ( pFileItem->duplicateHitCheck( pHit ) )
+		if ( !pFileItem->duplicateHitCheck( pHit ) )
 		{
-			pFileItem = NULL;
+			QModelIndex idxParent = m_pModel->index( existingFileEntry, 0, QModelIndex() );
+
+			m_pModel->beginInsertRows( idxParent, pFileItem->childCount(), pFileItem->childCount() );
+			pFileItem->addQueryHit( pHit, fileInfo );
+			m_pModel->endInsertRows();
+		}
+		else
+		{
+			// we don't need the duplicate hit anymore
+			delete pHit;
 		}
 	}
 
-	if ( bNew )
-	{
-		// TODO: valid parent?
-		m_pModel->beginInsertRows( QModelIndex(), childCount(), childCount() );
-		appendChild( pFileItem );
-		pFileItem->addQueryHit( pHit, fileInfo );
-		m_pModel->endInsertRows();
-	}
-	else if ( pFileItem )
-	{
-		QModelIndex idxParent = m_pModel->index( existingFileEntry, 0, QModelIndex() );
-
-		m_pModel->beginInsertRows( idxParent, pFileItem->childCount(), pFileItem->childCount() );
-		pFileItem->addQueryHit( pHit, fileInfo );
-		m_pModel->endInsertRows();
-	}
+	return pNext;
 }
 
 // TODO: maybe add all hashes to a map for faster access?
@@ -221,7 +226,8 @@ int TreeRoot::find(CHash& hash) const
 	return -1;
 }
 
-SearchFile::SearchFile(SearchTreeItem* parent, QueryHit* pHit, const QFileInfo& fileInfo) :
+SearchFile::SearchFile(SearchTreeItem* parent, const QueryHit* const pHit,
+					   const QFileInfo& fileInfo) :
 	SearchTreeItem( parent )
 {
 	m_eType = Type::SearchFileType;
@@ -297,6 +303,7 @@ void SearchFile::insertHashes(const HashVector& hashes)
 
 void SearchFile::addQueryHit(QueryHit* pHit, const QFileInfo& fileInfo)
 {
+	// Note: SearchHit takes ownership of QueryHit on creation
 	appendChild( new SearchHit( this, pHit, fileInfo ) );
 	insertHashes( pHit->m_lHashes );
 	updateHitCount();
@@ -317,11 +324,11 @@ SearchHit::SearchHit(SearchTreeItem* parent, QueryHit* pHit, const QFileInfo& fi
 	m_pItemData[CLIENT]    = vendorCodeToName( pHit->m_pHitInfo.data()->m_sVendor );
 	m_pItemData[COUNTRY]   = pHit->m_pHitInfo.data()->m_oNodeAddress.countryName();
 
-	QString sCountry = pHit->m_pHitInfo.data()->m_oNodeAddress.country();
+	QString sCountry       = pHit->m_pHitInfo.data()->m_oNodeAddress.country();
 
 	m_oHitData.iNetwork  = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
 	m_oHitData.iCountry  = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
-	m_oHitData.pQueryHit = QueryHitSharedPtr( new QueryHit( pHit ) );
+	m_oHitData.pQueryHit = QueryHitSharedPtr( pHit );
 }
 
 SearchHit::~SearchHit()
@@ -620,16 +627,12 @@ void SearchTreeModel::clear()
 	return false;
 }*/
 
-void SearchTreeModel::addQueryHit(QueryHitSharedPtr pHitPtr)
+void SearchTreeModel::addQueryHit(QueryHit* pHit)
 {
-	QueryHit* pHit = pHitPtr.data();
-
-	// TODO: redesign shared pointer usage.
 	while ( pHit )
 	{
-		m_pRootItem->addQueryHit( pHit );
-
-		pHit = pHit->m_pNext;
+		// this returns the next cashed query hit or NULL if there are none
+		pHit = m_pRootItem->addQueryHit( pHit );
 	}
 
 	m_nFileCount = m_pRootItem->childCount();

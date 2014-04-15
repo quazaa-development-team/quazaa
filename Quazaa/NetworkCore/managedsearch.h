@@ -84,7 +84,7 @@ public:
 	void sendHits();
 
 signals:
-	void onHit(QueryHitSharedPtr);
+	void onHit(QueryHit*);
 	void statsUpdated();
 	void stateChanged();
 

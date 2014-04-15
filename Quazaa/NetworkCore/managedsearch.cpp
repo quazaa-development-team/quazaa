@@ -599,10 +599,9 @@ void ManagedSearch::sendHits()
 																	).arg( m_nCachedHits ) );
 	//qDebug() << "Sending hits..." << m_nCachedHits;
 
-	QueryHitSharedPtr pSHits( m_pCachedHit );
-	emit onHit( pSHits );
+	emit onHit( m_pCachedHit );
 
-	m_pCachedHit = 0;
+	m_pCachedHit  = NULL;
 	m_nCachedHits = 0;
 }
 

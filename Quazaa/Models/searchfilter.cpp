@@ -102,7 +102,7 @@ bool FilterControl::operator>(const FilterControl& rOther)
 		   m_bAdult           && !rOther.m_bAdult;
 }
 
-FileFilterData::FileFilterData(SearchHit* pHit) :
+FileFilterData::FileFilterData(const SearchHit* const pHit) :
 	m_nSize( pHit->m_oHitData.pQueryHit->m_nObjectSize ),
 	m_bExistsInLibrary( false )
 {
@@ -132,7 +132,7 @@ void FileFilterData::update(const HitFilterData& hitData)
 	m_bUnstable       &= hitData.m_bUnstable;
 }
 
-HitFilterData::HitFilterData(QueryHit* pHit) :
+HitFilterData::HitFilterData(const QueryHit* const pHit) :
 	m_bAdult( false ),
 	m_bBogus( false ),
 	m_bBusy( false ),
@@ -188,7 +188,7 @@ FileFilter::FileFilter(FilterControl* pFilter, SearchHit* pHit) :
 {
 }
 
-HitFilter::HitFilter(FilterControl* pFilter, QueryHit* pHit) :
+HitFilter::HitFilter(FilterControl* pFilter, const QueryHit* const pHit) :
 	m_pFilter( pFilter ),
 	m_oHitFilterData( HitFilterData( pHit ) ),
 	m_oHitFilterState( HitFilterState() )
