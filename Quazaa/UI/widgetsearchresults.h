@@ -47,19 +47,18 @@ public:
 	QLineEdit* lineEditFilter;
 	void saveWidget();
 
-signals:
-	void searchTabChanged(WidgetSearchTemplate* searchPage);
-	void statsUpdated(WidgetSearchTemplate* searchPage);
-	void stateChanged();
-
 protected:
 	void changeEvent(QEvent* e);
 
 private:
 	Ui::CWidgetSearchResults* ui;
 
-public slots:
+signals:
+	void searchTabChanged(WidgetSearchTemplate* searchPage);
+	void statsUpdated(WidgetSearchTemplate* searchPage);
+	void stateChanged();
 
+public slots:
 	void startSearch(QString searchString);
 	void startNewSearch(QString* searchString);
 	void addSearchTab();

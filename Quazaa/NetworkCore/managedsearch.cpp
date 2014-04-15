@@ -244,7 +244,9 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 		pHost = *itHost;
 
 		if ( !pHost )
+		{
 			continue;
+		}
 
 		qDebug() << "**** [Search] Trying new Host: "
 				 << pHost->address().toString().toLocal8Bit().data();
@@ -253,7 +255,10 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 			break; // timestamp sorted cache
 
 		if ( !pHost->canQuery( tNow ) )
+		{
+			qDebug() << "**** [Search] cannot query";
 			continue;
+		}
 
 		// don't query already queried hosts
 		// this applies to query key requests as well,
@@ -263,6 +268,7 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 			if ( m_lSearchedNodes[pHost->address()].secsTo( tNowDT ) <
 				 (int)(quazaaSettings.Gnutella2.RequeryDelay) )
 			{
+				qDebug() << "**** [Search] already searched";
 				continue;
 			}
 		}
@@ -271,6 +277,7 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 		if ( Neighbours.find( (QHostAddress)(pHost->address()) ) )
 		{
 			// don't udp to neighbours
+			qDebug() << "**** [Search] is neighbour";
 			Neighbours.m_pSection.unlock();
 			continue;
 		}
@@ -288,11 +295,7 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 
 		bool bRefreshKey = false;
 
-		if ( !pHost->queryKey() )
-		{
-			// we don't have a key
-		}
-		else
+		if ( pHost->queryKey() )
 		{
 			if ( tNow - pHost->keyTime() > quazaaSettings.Gnutella2.QueryKeyTime)
 			{
@@ -336,8 +339,7 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 		if ( pHost->queryKey() )
 		{
 			sendG2Query( pReceiver, pHost, pnMaxPackets, tNowDT );
-
-	}
+		}
 		else if ( m_bCanRequestKey &&
 				  tNow - pHost->keyTime() > quazaaSettings.Gnutella2.QueryHostThrottle )
 		{
