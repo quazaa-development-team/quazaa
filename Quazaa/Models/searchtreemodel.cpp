@@ -1,5 +1,5 @@
 /*
-** $Id$
+** searchtreemodel.cpp
 **
 ** Copyright © Quazaa Development Team, 2009-2014.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
@@ -30,95 +30,29 @@
 #include "fileiconprovider.h"
 #include "networkiconprovider.h"
 
+#include "securitymanager.h"
+
 #include "debug_new.h"
 
 using namespace common;
 
-SearchFilter::SearchFilter() :
-	m_sMatchString( "" ),
-	m_bRegExp( false ),
-	m_nMinSize( 0 ),
-	m_nMaxSize( 18446744073709551615 ), // max value of 64 bit int
-	m_nMinSources( 0 ),
-	m_bBusy( true ),
-	m_bFirewalled( true ),
-	m_bUnstable( true ),
-	m_bDRM( true ),
-	m_bSuspicious( true ),
-	m_bNonMatching( true ),
-	m_bExistsInLibrary( true ),
-	m_bBogus( true ),
-	m_bAdult( true )
-{
-}
-
-bool SearchFilter::operator==(const SearchFilter& rOther)
-{
-	return m_sMatchString     == rOther.m_sMatchString     &&
-		   m_bRegExp          == rOther.m_bRegExp          &&
-		   m_nMinSize         == rOther.m_nMinSize         &&
-		   m_nMaxSize         == rOther.m_nMaxSize         &&
-		   m_nMinSources      == rOther.m_nMinSources      &&
-		   m_bBusy            == rOther.m_bBusy            &&
-		   m_bFirewalled      == rOther.m_bFirewalled      &&
-		   m_bUnstable        == rOther.m_bUnstable        &&
-		   m_bDRM             == rOther.m_bDRM             &&
-		   m_bSuspicious      == rOther.m_bSuspicious      &&
-		   m_bNonMatching     == rOther.m_bNonMatching     &&
-		   m_bExistsInLibrary == rOther.m_bExistsInLibrary &&
-		   m_bBogus           == rOther.m_bBogus           &&
-		   m_bAdult           == rOther.m_bAdult;
-}
-
-bool SearchFilter::operator!=(const SearchFilter& rOther)
-{
-	return !operator==( rOther );
-}
-
-// smaller amount of files
-bool SearchFilter::operator<(const SearchFilter& rOther)
-{
-	return m_nMinSize         >  rOther.m_nMinSize         ||
-		   m_nMaxSize         <  rOther.m_nMaxSize         ||
-		   m_nMinSources      >  rOther.m_nMinSources      ||
-		  !m_bBusy            && rOther.m_bBusy            ||
-		  !m_bFirewalled      && rOther.m_bFirewalled      ||
-		  !m_bUnstable        && rOther.m_bUnstable        ||
-		  !m_bDRM             && rOther.m_bDRM             ||
-		  !m_bSuspicious      && rOther.m_bSuspicious      ||
-		  !m_bNonMatching     && rOther.m_bNonMatching     ||
-		  !m_bExistsInLibrary && rOther.m_bExistsInLibrary ||
-		  !m_bBogus           && rOther.m_bBogus           ||
-		  !m_bAdult           && rOther.m_bAdult;
-}
-
-// bigger amount of files
-bool SearchFilter::operator>(const SearchFilter& rOther)
-{
-	return m_nMinSize         <   rOther.m_nMinSize         ||
-		   m_nMaxSize         >   rOther.m_nMaxSize         ||
-		   m_nMinSources      <   rOther.m_nMinSources      ||
-		   m_bBusy            && !rOther.m_bBusy            ||
-		   m_bFirewalled      && !rOther.m_bFirewalled      ||
-		   m_bUnstable        && !rOther.m_bUnstable        ||
-		   m_bDRM             && !rOther.m_bDRM             ||
-		   m_bSuspicious      && !rOther.m_bSuspicious      ||
-		   m_bNonMatching     && !rOther.m_bNonMatching     ||
-		   m_bExistsInLibrary && !rOther.m_bExistsInLibrary ||
-		   m_bBogus           && !rOther.m_bBogus           ||
-		   m_bAdult           && !rOther.m_bAdult;
-}
-
-SearchTreeItem::SearchTreeItem(const QList<QVariant> &data, SearchTreeItem* parent) :
+SearchTreeItem::SearchTreeItem(SearchTreeItem* parent) :
 	m_eType( Type::SearchTreeItemType ),
-	m_lItemData( data ),
-	m_pParentItem( parent )
+	m_lChildItems( QList<SearchTreeItem*>() ),
+	m_pParentItem( parent ),
+	m_pItemData( new QVariant[_NO_OF_COLUMNS] )
 {
 }
 
 SearchTreeItem::~SearchTreeItem()
 {
+	delete[] m_pItemData;
 	qDeleteAll( m_lChildItems );
+}
+
+SearchTreeItem* SearchTreeItem::parent() const
+{
+	return m_pParentItem;
 }
 
 SearchTreeItem::Type SearchTreeItem::type() const
@@ -126,41 +60,88 @@ SearchTreeItem::Type SearchTreeItem::type() const
 	return m_eType;
 }
 
-void SearchTreeItem::appendChild(SearchTreeItem* item)
+bool SearchTreeItem::visible() const
 {
-	item->m_pParentItem = this;
-	m_lChildItems.append(item);
-}
-
-void SearchTreeItem::clearChildren()
-{
-	qDeleteAll(m_lChildItems);
-	m_lChildItems.clear();
+	return true;
 }
 
 int SearchTreeItem::row() const
 {
 	if ( m_pParentItem )
 	{
-		return m_pParentItem->m_lChildItems.indexOf( const_cast<SearchTreeItem*>(this) );
+		return m_pParentItem->m_lChildItems.indexOf( const_cast<SearchTreeItem*>( this ) );
 	}
 
 	return 0;
 }
 
+void SearchTreeItem::appendChild(SearchTreeItem* pItem)
+{
+	Q_ASSERT( pItem->m_pParentItem == this ); // this should have been set by the constructor.
+	m_lChildItems.append( pItem );
+}
+
 void SearchTreeItem::removeChild(int position)
 {
-	if (position < 0 || position  > m_lChildItems.size())
+	if ( position < 0 || position  > m_lChildItems.size() )
 		return;
 
 	delete m_lChildItems.takeAt(position);
 }
 
-TreeRoot::TreeRoot(const QList<QVariant> &data, SearchTreeModel* pModel) :
-	SearchTreeItem( data, 0 ),
+void SearchTreeItem::clearChildren()
+{
+	qDeleteAll( m_lChildItems );
+	m_lChildItems.clear();
+}
+
+SearchTreeItem* SearchTreeItem::child(int row) const
+{
+	return m_lChildItems.value( row );
+}
+
+int SearchTreeItem::childCount() const
+{
+	return m_lChildItems.count();
+}
+
+int SearchTreeItem::columnCount() const
+{
+	return _NO_OF_COLUMNS;
+}
+
+QVariant SearchTreeItem::data(int column) const
+{
+	Q_ASSERT( column > -1 && column < _NO_OF_COLUMNS );
+	//return column > -1 && column < _NO_OF_COLUMNS ? m_pItemData[column] : QVariant();
+	return m_pItemData[column];
+}
+
+TreeRoot::TreeRoot(SearchTreeModel* pModel) :
+	SearchTreeItem( NULL ),
 	m_pModel( pModel )
 {
 	m_eType = Type::TreeRootType;
+
+	/*FILE           = 0,
+	EXTENSION      = 1,
+	SIZE           = 2,
+	RATING         = 3,
+	STATUS         = 4,
+	HOSTCOUNT      = 5,
+	SPEED          = 6,
+	CLIENT         = 7,
+	COUNTRY        = 8*/
+
+	m_pItemData[FILE]      = "File";
+	m_pItemData[EXTENSION] = "Extension";
+	m_pItemData[SIZE]      = "Size";
+	m_pItemData[RATING]    = "Rating";
+	m_pItemData[STATUS]    = "Status";
+	m_pItemData[HOSTCOUNT] = "Host/Count";
+	m_pItemData[SPEED]     = "Speed";
+	m_pItemData[CLIENT]    = "Client";
+	m_pItemData[COUNTRY]   = "Country";
 
 	Q_ASSERT( pModel );
 }
@@ -169,6 +150,10 @@ TreeRoot::~TreeRoot()
 {
 	// m_pModel is being taken care of somewhere else.
 }
+
+/*void TreeRoot::filter(SearchFilter::SearchFilter* pFilter)
+{
+}*/
 
 void TreeRoot::addQueryHit(QueryHit* pHit)
 {
@@ -189,20 +174,7 @@ void TreeRoot::addQueryHit(QueryHit* pHit)
 	// This hit is a new non duplicate file.
 	if ( existingFileEntry == -1 )
 	{
-		// Create SearchTreeItem representing the new file
-		QList<QVariant> lFileData;
-		lFileData << fileInfo.completeBaseName()        // File name
-					<< fileInfo.suffix()                  // Extension
-					<< formatBytes( pHit->m_nObjectSize ) // Size
-					<< ""                                 // Rating
-					<< ""                                 // Status
-					<< 1                                  // Host/Count
-					<< ""                                 // Speed
-					<< ""                                 // Client
-					<< "";                                // Country
-		pFileItem = new SearchFile( lFileData, this );
-		pFileItem->m_lHashes = HashVector( pHit->m_lHashes );
-
+		pFileItem = new SearchFile( this, pHit, fileInfo );
 		bNew = true;
 	}
 	else
@@ -249,10 +221,22 @@ int TreeRoot::find(CHash& hash) const
 	return -1;
 }
 
-SearchFile::SearchFile(const QList<QVariant> &data, SearchTreeItem* parent) :
-	SearchTreeItem( data, parent )
+SearchFile::SearchFile(SearchTreeItem* parent, QueryHit* pHit, const QFileInfo& fileInfo) :
+	SearchTreeItem( parent )
 {
 	m_eType = Type::SearchFileType;
+
+	m_pItemData[FILE]      = fileInfo.completeBaseName();
+	m_pItemData[EXTENSION] = fileInfo.suffix();
+	m_pItemData[SIZE]      = formatBytes( pHit->m_nObjectSize );
+	m_pItemData[RATING]    = "";
+	m_pItemData[STATUS]    = "";
+	m_pItemData[HOSTCOUNT] = 1;
+	m_pItemData[SPEED]     = "";
+	m_pItemData[CLIENT]    = "";
+	m_pItemData[COUNTRY]   = "";
+
+	m_lHashes = HashVector( pHit->m_lHashes );
 }
 
 SearchFile::~SearchFile()
@@ -296,7 +280,7 @@ bool SearchFile::duplicateHitCheck(QueryHit* pNewHit) const
 
 void SearchFile::updateHitCount()
 {
-	m_lItemData[5] = m_lChildItems.size();
+	m_pItemData[HOSTCOUNT] = m_lChildItems.size();
 }
 
 void SearchFile::insertHashes(const HashVector& hashes)
@@ -313,36 +297,31 @@ void SearchFile::insertHashes(const HashVector& hashes)
 
 void SearchFile::addQueryHit(QueryHit* pHit, const QFileInfo& fileInfo)
 {
-	QString sCountry = pHit->m_pHitInfo.data()->m_oNodeAddress.country();
-
-	// Create SearchTreeItem representing hit
-	QList<QVariant> lChildData;
-	lChildData << fileInfo.completeBaseName()
-			   << fileInfo.suffix()
-			   << formatBytes( pHit->m_nObjectSize )
-			   << ""
-			   << ""
-			   << pHit->m_pHitInfo.data()->m_oNodeAddress.toString()
-			   << ""
-			   << common::vendorCodeToName( pHit->m_pHitInfo.data()->m_sVendor )
-			   << pHit->m_pHitInfo.data()->m_oNodeAddress.countryName();
-	SearchHit* oHitItem = new SearchHit( lChildData, this );
-
+	appendChild( new SearchHit( this, pHit, fileInfo ) );
 	insertHashes( pHit->m_lHashes );
-	oHitItem->m_oHitData.iNetwork = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
-	oHitItem->m_oHitData.iCountry = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
-
-	QueryHitSharedPtr pSharedHit( new QueryHit( pHit ) );
-	oHitItem->m_oHitData.pQueryHit = pSharedHit;
-
-	appendChild( oHitItem );
 	updateHitCount();
 }
 
-SearchHit::SearchHit(const QList<QVariant> &data, SearchTreeItem* parent) :
-	SearchTreeItem( data, parent )
+SearchHit::SearchHit(SearchTreeItem* parent, QueryHit* pHit, const QFileInfo& fileInfo) :
+	SearchTreeItem( parent )
 {
 	m_eType = Type::SearchHitType;
+
+	m_pItemData[FILE]      = fileInfo.completeBaseName();
+	m_pItemData[EXTENSION] = fileInfo.suffix();
+	m_pItemData[SIZE]      = formatBytes( pHit->m_nObjectSize );
+	m_pItemData[RATING]    = "";
+	m_pItemData[STATUS]    = "";
+	m_pItemData[HOSTCOUNT] = pHit->m_pHitInfo.data()->m_oNodeAddress.toString();
+	m_pItemData[SPEED]     = "";
+	m_pItemData[CLIENT]    = vendorCodeToName( pHit->m_pHitInfo.data()->m_sVendor );
+	m_pItemData[COUNTRY]   = pHit->m_pHitInfo.data()->m_oNodeAddress.countryName();
+
+	QString sCountry = pHit->m_pHitInfo.data()->m_oNodeAddress.country();
+
+	m_oHitData.iNetwork  = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
+	m_oHitData.iCountry  = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
+	m_oHitData.pQueryHit = QueryHitSharedPtr( new QueryHit( pHit ) );
 }
 
 SearchHit::~SearchHit()
@@ -356,20 +335,9 @@ int SearchHit::childCount() const
 
 SearchTreeModel::SearchTreeModel() :
 	m_pIconProvider( new FileIconProvider ),
-	m_pFilter( new SearchFilter ),
+	m_pRootItem( new TreeRoot( this ) ),
 	m_nFileCount( 0 )
 {
-	QList<QVariant> rootItemData;
-	rootItemData << "File"
-				 << "Extension"
-				 << "Size"
-				 << "Rating"
-				 << "Status"
-				 << "Host/Count"
-				 << "Speed"
-				 << "Client"
-				 << "Country";
-	m_pRootItem = new TreeRoot( rootItemData, this );
 }
 
 SearchTreeModel::~SearchTreeModel()
@@ -677,14 +645,22 @@ void SearchTreeModel::clear()
 
 void SearchTreeModel::removeQueryHit(int position, const QModelIndex &parent)
 {
-	SearchTreeItem *parentItem = m_pRootItem;
-	if (parent.isValid()) {
+	SearchTreeItem* parentItem;
+	if ( parent.isValid() )
+	{
 		parentItem = static_cast<SearchTreeItem*>(parent.internalPointer());
 	}
-
-	if(parentItem) {
-		beginRemoveRows(parent, position, position);
-		parentItem->removeChild(position);
-		endRemoveRows();
+	else
+	{
+		parentItem = m_pRootItem;
 	}
+
+	Q_ASSERT( parentItem );
+
+	//if ( parentItem )
+	//{
+		beginRemoveRows( parent, position, position );
+		parentItem->removeChild( position );
+		endRemoveRows();
+	//}
 }

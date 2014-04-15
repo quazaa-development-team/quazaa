@@ -275,6 +275,8 @@ HEADERS += \
 		Models/hostcachetablemodel.h \
 		Models/ircuserlistmodel.h \
 		Models/neighbourstablemodel.h \
+		Models/searchfilter.h \
+		Models/searchsortfilterproxymodel.h \
 		Models/searchtreemodel.h \
 		Models/securityfiltermodel.h \
 		Models/securitytablemodel.h \
@@ -436,6 +438,8 @@ SOURCES += \
 		Models/hostcachetablemodel.cpp \
 		Models/ircuserlistmodel.cpp \
 		Models/neighbourstablemodel.cpp \
+		Models/searchfilter.cpp \
+		Models/searchsortfilterproxymodel.cpp \
 		Models/searchtreemodel.cpp \
 		Models/securityfiltermodel.cpp \
 		Models/securitytablemodel.cpp \

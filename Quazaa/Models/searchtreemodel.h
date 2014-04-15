@@ -28,7 +28,8 @@
 #include <QObject>
 #include <QIcon>
 #include <QAbstractItemModel>
-#include "NetworkCore/queryhit.h"
+
+#include "searchfilter.h"
 
 class CHash;
 class QFileInfo;
@@ -42,36 +43,7 @@ namespace SearchHitData
 		QIcon iCountry;
 		QueryHitSharedPtr pQueryHit;
 	};
-}
-
-class SearchFilter
-{
-public:
-	QString m_sMatchString;
-	bool m_bRegExp;
-
-	quint64 m_nMinSize;
-	quint64 m_nMaxSize;
-	quint16 m_nMinSources;
-
-	// bools: state allowed
-	bool m_bBusy;
-	bool m_bFirewalled;
-	bool m_bUnstable;
-	bool m_bDRM;
-	bool m_bSuspicious;
-	bool m_bNonMatching;
-	bool m_bExistsInLibrary;
-	bool m_bBogus;
-	bool m_bAdult;
-
-public:
-	SearchFilter();
-	bool operator==(const SearchFilter& rOther);
-	bool operator!=(const SearchFilter& rOther);
-	bool operator<(const SearchFilter& rOther);
-	bool operator>(const SearchFilter& rOther);
-};
+} // namespace SearchHitData
 
 class SearchTreeItem : public QObject
 {
@@ -79,60 +51,51 @@ class SearchTreeItem : public QObject
 public:
 	enum Type { SearchTreeItemType, TreeRootType, SearchFileType, SearchHitType };
 
-protected:
-	QList<SearchTreeItem*>  m_lChildItems;
-	QList<QVariant>         m_lItemData;
-	SearchTreeItem*         m_pParentItem;
+	enum Column
+	{
+		FILE           = 0,
+		EXTENSION      = 1,
+		SIZE           = 2,
+		RATING         = 3,
+		STATUS         = 4,
+		HOSTCOUNT      = 5,
+		SPEED          = 6,
+		CLIENT         = 7,
+		COUNTRY        = 8,
+		_NO_OF_COLUMNS = 9
+	};
 
-	Type                    m_eType;
+protected:
+	Type                    m_eType;        // item type
+
+	QList<SearchTreeItem*>  m_lChildItems;
+	SearchTreeItem* const   m_pParentItem;  // must be set by constructor
+	QVariant*               m_pItemData;    // = new QVariant[_NO_OF_COLUMNS]
 
 public:
 	SearchHitData::sSearchHitData m_oHitData;
 
 public:
-	SearchTreeItem(const QList<QVariant> &data, SearchTreeItem* parent);
+	SearchTreeItem(SearchTreeItem* parent);
 	virtual ~SearchTreeItem();
 
-	Type type() const;
+	SearchTreeItem* parent() const;
 
-	void appendChild(SearchTreeItem* child);
+	Type type() const;
+	bool visible() const;
+	int row() const;
+
+	void appendChild(SearchTreeItem* pItem);
+	void removeChild(int position);
 	void clearChildren();
 
-	int row() const;
-	void removeChild(int position);
+	SearchTreeItem* child(int row) const;
+	virtual int childCount() const;
 
-	inline SearchTreeItem* child(int row) const;
-	inline virtual int childCount() const;
+	int columnCount() const;
+	QVariant data(int column) const;
 
-	inline int columnCount() const;
-	inline QVariant data(int column) const;
-	inline SearchTreeItem* parent() const;
 };
-
-SearchTreeItem* SearchTreeItem::child(int row) const
-{
-	return m_lChildItems.value( row );
-}
-
-int SearchTreeItem::childCount() const
-{
-	return m_lChildItems.count();
-}
-
-int SearchTreeItem::columnCount() const
-{
-	return m_lItemData.count();
-}
-
-QVariant SearchTreeItem::data(int column) const
-{
-	return m_lItemData.value(column);
-}
-
-SearchTreeItem* SearchTreeItem::parent() const
-{
-	return m_pParentItem;
-}
 
 class SearchTreeModel;
 class TreeRoot : public SearchTreeItem
@@ -140,23 +103,23 @@ class TreeRoot : public SearchTreeItem
 	Q_OBJECT
 private:
 	SearchTreeModel* m_pModel; // The model the root node is part of.
+
 public:
-	TreeRoot(const QList<QVariant> &data, SearchTreeModel* pModel);
+	TreeRoot(SearchTreeModel* pModel);
 	~TreeRoot();
 
 	void addQueryHit(QueryHit* pHit);
 	int find(CHash& pHash) const; // find child number with given hash
-private:
 };
 
 class SearchFile : public SearchTreeItem
 {
 	Q_OBJECT
 public:
-	HashVector m_lHashes;
+	HashVector      m_lHashes;
 
 public:
-	SearchFile(const QList<QVariant> &data, SearchTreeItem* parent);
+	SearchFile(SearchTreeItem* parent, QueryHit* pHit, const QFileInfo& fileInfo);
 	~SearchFile();
 
 	bool manages(CHash hash) const;
@@ -173,13 +136,13 @@ private:
 class SearchHit : public SearchTreeItem
 {
 	Q_OBJECT
+
 public:
-	SearchHit(const QList<QVariant> &data, SearchTreeItem* parent);
+	SearchHit(SearchTreeItem* parent, QueryHit* pHit, const QFileInfo& fileInfo);
 	~SearchHit();
 
 	int childCount() const;
-
-private:
+	void updateFilterData();
 };
 
 // TODO: replace with forward_list (C++11)
@@ -190,9 +153,7 @@ class SearchTreeModel : public QAbstractItemModel
 	Q_OBJECT
 
 private:
-	SearchFilter*      m_pFilter;
 	FileIconProvider*  m_pIconProvider;
-
 	TreeRoot*          m_pRootItem;
 
 	int m_nFileCount;
@@ -224,6 +185,7 @@ public:
 signals:
 	void updateStats();
 	void sort();
+	void filter();
 
 private:
 	//void setupModelData(const QStringList& lines, SearchTreeItem* parent);

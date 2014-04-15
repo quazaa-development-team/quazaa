@@ -64,17 +64,28 @@ WidgetSearchTemplate::WidgetSearchTemplate(QString searchString, QWidget* parent
 	m_nHubs = 0;
 	m_nLeaves = 0;
 	m_eSearchState = SearchState::Default;
-	m_pSortModel = new QSortFilterProxyModel(this);
+
 	m_pSearchModel = new SearchTreeModel();
-	m_pSortModel->setSourceModel(m_pSearchModel);
-	ui->treeViewSearchResults->setModel(m_pSortModel);
-	m_pSortModel->setDynamicSortFilter(false);
-	connect(m_pSearchModel, SIGNAL(sort()), this, SLOT(sort()));
-	connect(m_pSearchModel, SIGNAL(updateStats()), this, SLOT(onStatsUpdated()));
+
+	m_pSortModel = new SearchSortFilterProxyModel( this );
+	m_pSortModel->setSourceModel( m_pSearchModel );
+	ui->treeViewSearchResults->setModel( m_pSortModel );
+
+	connect( m_pSearchModel, &SearchTreeModel::sort,
+			 this, &WidgetSearchTemplate::sort );
+	connect( m_pSearchModel, &SearchTreeModel::updateStats,
+			 this, &WidgetSearchTemplate::onStatsUpdated );
+	connect( m_pSearchModel, &SearchTreeModel::filter,
+			 this, &WidgetSearchTemplate::refreshFilter );
+
 	loadHeaderState();
-	connect(ui->treeViewSearchResults->header(), SIGNAL(sectionMoved(int,int,int)), this, SLOT(saveHeaderState()));
-	connect(ui->treeViewSearchResults->header(), SIGNAL(sectionResized(int,int,int)), this, SLOT(saveHeaderState()));
-	connect(ui->treeViewSearchResults->header(), SIGNAL(sectionClicked(int)), this, SLOT(saveHeaderState()));
+	connect( ui->treeViewSearchResults->header(), SIGNAL( sectionMoved( int, int, int ) ),
+			 this, SLOT( saveHeaderState() ) );
+	connect( ui->treeViewSearchResults->header(), SIGNAL( sectionResized( int,int,int) ),
+			 this, SLOT( saveHeaderState() ) );
+	connect( ui->treeViewSearchResults->header(), SIGNAL( sectionClicked( int ) ),
+			 this, SLOT( saveHeaderState() ) );
+
 	setSkin();
 }
 
@@ -235,7 +246,12 @@ void WidgetSearchTemplate::onStateChanged()
 
 void WidgetSearchTemplate::sort()
 {
-	m_pSortModel->sort(m_pSortModel->sortColumn(), m_pSortModel->sortOrder());
+	m_pSortModel->sort( m_pSortModel->sortColumn(), m_pSortModel->sortOrder() );
+}
+
+void WidgetSearchTemplate::refreshFilter()
+{
+	m_pSortModel->refreshFilter();
 }
 
 void WidgetSearchTemplate::saveHeaderState()

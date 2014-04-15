@@ -26,11 +26,11 @@
 #define WIDGETSEARCHTEMPLATE_H
 
 #include <QDialog>
-#include <QSortFilterProxyModel>
 #include <QMenu>
 
 #include "types.h"
 #include "searchtreemodel.h"
+#include "searchsortfilterproxymodel.h"
 #include "NetworkCore/queryhit.h"
 
 namespace Ui
@@ -54,9 +54,9 @@ private:
 	QMenu *searchMenu;
 
 public:
-	SearchTreeModel*		m_pSearchModel;
-	QSortFilterProxyModel*	m_pSortModel;
-	ManagedSearch*			m_pSearch;
+	SearchTreeModel*            m_pSearchModel;
+	SearchSortFilterProxyModel* m_pSortModel;
+	ManagedSearch*              m_pSearch;
 
 	SearchState::SearchState m_eSearchState;
 	QString m_sSearchString;
@@ -101,6 +101,7 @@ protected slots:
 	void onStatsUpdated();
 	void onStateChanged();
 	void sort();
+	void refreshFilter();
 
 public slots:
 	void saveHeaderState();
