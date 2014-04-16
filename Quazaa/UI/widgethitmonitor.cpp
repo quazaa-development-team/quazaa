@@ -65,7 +65,7 @@ void CWidgetHitMonitor::saveWidget()
 
 void CWidgetHitMonitor::on_actionMore_triggered()
 {
-	CDialogFilterSearch* dlgFilterSearch = new CDialogFilterSearch(this);
+	DialogFilterSearch* dlgFilterSearch = new DialogFilterSearch(this);
 	dlgFilterSearch->show();
 }
 

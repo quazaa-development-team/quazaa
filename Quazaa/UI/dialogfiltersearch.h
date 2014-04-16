@@ -32,12 +32,12 @@ namespace Ui
 	class CDialogFilterSearch;
 }
 
-class CDialogFilterSearch : public QDialog
+class DialogFilterSearch : public QDialog
 {
 	Q_OBJECT
 public:
-	CDialogFilterSearch(QWidget* parent = 0);
-	~CDialogFilterSearch();
+	DialogFilterSearch(QWidget* parent = 0);
+	~DialogFilterSearch();
 
 protected:
 	void changeEvent(QEvent* e);

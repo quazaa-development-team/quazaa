@@ -222,7 +222,7 @@ bool CWidgetSearchResults::clearSearch()
 
 void CWidgetSearchResults::on_actionFilterMore_triggered()
 {
-	CDialogFilterSearch* dlgFilterSearch = new CDialogFilterSearch(this);
+	DialogFilterSearch* dlgFilterSearch = new DialogFilterSearch( this );
 	dlgFilterSearch->show();
 }
 
