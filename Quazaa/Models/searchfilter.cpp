@@ -27,7 +27,7 @@
 
 using namespace SearchFilter;
 
-FilterControl::FilterControl() :
+FilterControlData::FilterControlData() :
 	m_sMatchString( "" ),
 	m_bRegExp( false ),
 	m_nMinSize( 0 ),
@@ -45,7 +45,12 @@ FilterControl::FilterControl() :
 {
 }
 
-bool FilterControl::operator==(const FilterControl& rOther)
+FilterControl::FilterControl() :
+	m_oFilterControlData( FilterControlData() )
+{
+}
+
+/*bool FilterControl::operator==(const FilterControl& rOther)
 {
 	return m_sMatchString     == rOther.m_sMatchString     &&
 		   m_bRegExp          == rOther.m_bRegExp          &&
@@ -100,25 +105,88 @@ bool FilterControl::operator>(const FilterControl& rOther)
 		   m_bExistsInLibrary && !rOther.m_bExistsInLibrary ||
 		   m_bBogus           && !rOther.m_bBogus           ||
 		   m_bAdult           && !rOther.m_bAdult;
-}
+}*/
 
-FileFilterData::FileFilterData(const SearchHit* const pHit) :
-	m_nSize( pHit->m_oHitData.pQueryHit->m_nObjectSize ),
-	m_bExistsInLibrary( false )
+void FilterControl::add(SearchTreeItem* pItem)
 {
-	/*HitFilter* filter  = (HitFilter*)(&pHit->m_oFilter);
+	Q_ASSERT( pItem->m_oFilter.dataInitialized() );
 
-	m_bAdult           = filter->m_oHitFilterData.m_bAdult;
-	m_bBogus           = filter->m_oHitFilterData.m_bBogus;
-	m_bBusy            = filter->m_oHitFilterData.m_bBusy;
-	m_bDRM             = filter->m_oHitFilterData.m_bDRM;
-	m_bFirewalled      = filter->m_oHitFilterData.m_bFirewalled;
-	m_bIncomplete      = filter->m_oHitFilterData.m_bIncomplete;
-	m_bNonMatching     = filter->m_oHitFilterData.m_bNonMatching;
-	m_bSuspicious      = filter->m_oHitFilterData.m_bSuspicious;
-	m_bUnstable        = filter->m_oHitFilterData.m_bUnstable;*/
+	if ( pItem->type() == SearchTreeItem::Type::SearchHitType )
+	{
+		SearchHit* pHitItem   = (SearchHit*)pItem;
+		HitFilter* pHitFilter = (HitFilter*)&pItem->m_oFilter;
+
+		pHitFilter->initializeFilterState( this );
+
+		if ( pHitFilter->visible() )
+		{
+			m_lVisibleHits.push_back( pHitItem );
+		}
+		else
+		{
+			m_lFilteredHits.push_back( pHitItem );
+		}
+	}
+	else if ( pItem->type() == SearchTreeItem::Type::SearchFileType )
+	{
+		SearchFile* pFileItem   = (SearchFile*)pItem;
+		FileFilter* pFileFilter = (FileFilter*)&pItem->m_oFilter;
+
+		pFileFilter->initializeFilterState( this );
+
+		if ( pFileFilter->visible() )
+		{
+			m_lVisibleFiles.push_back( pFileItem );
+		}
+		else
+		{
+			m_lFilteredFiles.push_back( pFileItem );
+		}
+	}
+	else
+	{
+		Q_ASSERT( false );
+	}
 }
 
+void FilterControl::remove(SearchTreeItem* pItem)
+{
+	// TODO: do something
+}
+
+void FilterControl::update(const FilterControlData& rControlData)
+{
+	m_oFilterControlData = rControlData;
+	// TODO: do actual filtering
+}
+
+FileFilterData::FileFilterData(const SearchHit* const pHit)
+{
+	initialize( pHit );
+}
+
+void FileFilterData::initialize(const SearchHit* const pHit)
+{
+	m_nSize = pHit->m_oHitData.pQueryHit->m_nObjectSize;
+	m_bExistsInLibrary = false;
+
+	const HitFilter* const pHitFilter  = (HitFilter*)(pHit->getFilter());
+
+	m_bAdult           = pHitFilter->m_oHitFilterData.m_bAdult;
+	m_bBogus           = pHitFilter->m_oHitFilterData.m_bBogus;
+	m_bBusy            = pHitFilter->m_oHitFilterData.m_bBusy;
+	m_bDRM             = pHitFilter->m_oHitFilterData.m_bDRM;
+	m_bFirewalled      = pHitFilter->m_oHitFilterData.m_bFirewalled;
+	m_bIncomplete      = pHitFilter->m_oHitFilterData.m_bIncomplete;
+	m_bNonMatching     = pHitFilter->m_oHitFilterData.m_bNonMatching;
+	m_bSuspicious      = pHitFilter->m_oHitFilterData.m_bSuspicious;
+	m_bUnstable        = pHitFilter->m_oHitFilterData.m_bUnstable;
+}
+
+/**
+ * @brief FileFilterData::update updates the filter data after a new hit has been added to the file.
+ * @param hitData
+ */
 void FileFilterData::update(const HitFilterData& hitData)
 {
 	m_bAdult          |= hitData.m_bAdult;
@@ -130,6 +198,23 @@ void FileFilterData::update(const HitFilterData& hitData)
 	m_bNonMatching    &= hitData.m_bNonMatching;
 	m_bSuspicious     |= hitData.m_bSuspicious;
 	m_bUnstable       &= hitData.m_bUnstable;
+}
+
+/**
+ * @brief FileFilterData::refresh completely refreshes the filter data fer example after a hit has
+ * been removed from the file.
+ * @param pThisFile
+ */
+void FileFilterData::refresh(const SearchFile* const pThisFile)
+{
+	Q_ASSERT( pThisFile->childCount() > 0 );
+
+	initialize( (SearchHit*)pThisFile->child( 0 ) );
+
+	for ( int i = 1; i < pThisFile->childCount(); ++i )
+	{
+		update( ((HitFilter*)pThisFile->child( i )->getFilter())->m_oHitFilterData );
+	}
 }
 
 HitFilterData::HitFilterData(const QueryHit* const pHit) :
@@ -172,7 +257,8 @@ HitFilterState::HitFilterState() :
 }
 
 Filter::Filter() :
-	m_bVisible( true )
+	m_bVisible( true ),
+	m_bInitialized( false )
 {
 }
 
@@ -181,17 +267,36 @@ bool Filter::visible() const
 	return m_bVisible;
 }
 
-FileFilter::FileFilter(FilterControl* pFilter, SearchHit* pHit) :
-	m_pFilter( pFilter ),
+/**
+ * @brief Filter::initialized allows to find out whether the filter has been properly initialized.
+ * @return true if the filter has been properly initialized as either a HitFilter or a FileFilter;
+ * false otherwise.
+ */
+bool Filter::dataInitialized() const
+{
+	return m_bInitialized;
+}
+
+FileFilter::FileFilter(SearchHit* pHit) :
 	m_oFileFilterData( FileFilterData( pHit ) ),
 	m_oFileFilterState( FileFilterState() )
 {
+	m_bInitialized = true;
 }
 
-HitFilter::HitFilter(FilterControl* pFilter, const QueryHit* const pHit) :
-	m_pFilter( pFilter ),
+void FileFilter::initializeFilterState(FilterControl* pControl)
+{
+	// TODO: do something
+}
+
+HitFilter::HitFilter(const QueryHit* const pHit) :
 	m_oHitFilterData( HitFilterData( pHit ) ),
 	m_oHitFilterState( HitFilterState() )
 {
+	m_bInitialized = true;
 }
 
+void HitFilter::initializeFilterState(FilterControl* pControl)
+{
+	// TODO: do something
+}

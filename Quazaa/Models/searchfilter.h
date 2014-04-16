@@ -31,14 +31,17 @@
 
 class SearchHit;
 class SearchFile;
+class SearchTreeItem;
 
-#include "searchtreemodel.h"
+// TODO: replace with forward_list (C++11)
+typedef std::list<SearchHit*>  HitList;
+typedef std::list<SearchFile*> FileList;
 
 namespace SearchFilter
 {
-class FilterControl
+struct FilterControlData
 {
-public:
+	// filter attributes
 	QString m_sMatchString;
 	bool m_bRegExp;
 
@@ -57,12 +60,37 @@ public:
 	bool m_bBogus;
 	bool m_bAdult;
 
+	FilterControlData();
+};
+
+class FilterControl
+{
+private:
+	// lists used to keep track of items for filtering purposes
+	HitList m_lVisibleHits;         // contains currently visible hits
+	HitList m_lFilteredHits;        // contains currently hidden hits
+	HitList m_lNewlyVisibleHits;    // contains hits moved from hidden list on filter change
+	HitList m_lNewlyFilteredHits;   // contains hits moved from visible list on filter change
+
+	FileList m_lVisibleFiles;       // contains currently visible files
+	FileList m_lFilteredFiles;      // contains currently hidden files
+	FileList m_lNewlyVisibleFiles;  // contains files moved from hidden list on filter change
+	FileList m_lNewlyFilteredFiles; // contains files moved from visible list on filter change
+
+	FilterControlData m_oFilterControlData;
+
 public:
 	FilterControl();
-	bool operator==(const FilterControl& rOther);
+
+	/*bool operator==(const FilterControl& rOther);
 	bool operator!=(const FilterControl& rOther);
 	bool operator<(const FilterControl& rOther);
-	bool operator>(const FilterControl& rOther);
+	bool operator>(const FilterControl& rOther);*/
+
+	void add(SearchTreeItem* pItem);
+	void remove(SearchTreeItem* pItem);
+
+	void update(const FilterControlData& rControlData);
 };
 
 struct HitFilterData;
@@ -83,7 +111,9 @@ struct FileFilterData
 	bool m_bUnstable        : 1; // All sources are unstable
 
 	FileFilterData(const SearchHit* const pHit);
+	void initialize(const SearchHit* const pHit);
 	void update(const HitFilterData& hitData);
+	void refresh(const SearchFile* const pThisFile);
 };
 
 struct HitFilterData
@@ -132,34 +162,36 @@ class Filter
 {
 protected:
 	bool m_bVisible;     // Is the item visible in GUI?
+	bool m_bInitialized;
 
 public:
 	Filter();
 	bool visible() const;
+	bool dataInitialized() const;
 };
 
 class FileFilter : public Filter
 {
 private:
-	FilterControl*   m_pFilter;
 
 public:
 	FileFilterData  m_oFileFilterData;
 	FileFilterState m_oFileFilterState;
 
-	FileFilter(FilterControl* pFilter, SearchHit* pHit);
+	FileFilter(SearchHit* pHit);
+	void initializeFilterState(FilterControl* pControl);
 };
 
 class HitFilter : public Filter
 {
 private:
-	FilterControl*   m_pFilter;
 
 public:
 	HitFilterData   m_oHitFilterData;
 	HitFilterState  m_oHitFilterState;
 
-	HitFilter(FilterControl* pFilter, const QueryHit* const pHit);
+	HitFilter(const QueryHit* const pHit);
+	void initializeFilterState(FilterControl* pControl);
 };
 
 }

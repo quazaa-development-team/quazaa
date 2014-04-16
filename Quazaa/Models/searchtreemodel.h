@@ -45,6 +45,12 @@ namespace SearchHitData
 	};
 } // namespace SearchHitData
 
+namespace SearchFilter {
+class Filter;
+class FilterControl;
+struct FilterControlData;
+}
+
 class SearchTreeItem : public QObject
 {
 	Q_OBJECT
@@ -72,11 +78,13 @@ protected:
 	SearchTreeItem* const   m_pParentItem;  // must be set by constructor
 	QVariant*               m_pItemData;    // = new QVariant[_NO_OF_COLUMNS]
 
+	SearchFilter::Filter    m_oFilter;
+
 public:
 	SearchHitData::sSearchHitData m_oHitData;
 
 public:
-	SearchTreeItem(SearchTreeItem* parent);
+	SearchTreeItem(SearchTreeItem* pParent);
 	virtual ~SearchTreeItem();
 
 	SearchTreeItem* parent() const;
@@ -85,8 +93,8 @@ public:
 	bool visible() const;
 	int row() const;
 
-	void appendChild(SearchTreeItem* pItem);
-	void removeChild(int position);
+	virtual void appendChild(SearchTreeItem* pItem);
+	virtual void removeChild(int position);
 	void clearChildren();
 
 	SearchTreeItem* child(int row) const;
@@ -95,6 +103,9 @@ public:
 	int columnCount() const;
 	QVariant data(int column) const;
 
+	const SearchFilter::Filter* const getFilter() const;
+
+	friend class SearchFilter::FilterControl; // for access to m_oFilter
 };
 
 class SearchTreeModel;
@@ -108,8 +119,16 @@ public:
 	TreeRoot(SearchTreeModel* pModel);
 	~TreeRoot();
 
+	void appendChild(SearchTreeItem* pItem);
+	void removeChild(int position);
+
 	QueryHit* addQueryHit(QueryHit* pHit);
 	int find(CHash& pHash) const; // find child number with given hash
+
+private:
+	void addToFilterControl(SearchTreeItem* pItem);
+	void removeFromFilterControl(SearchTreeItem* pItem);
+	friend class SearchFile;
 };
 
 class SearchFile : public SearchTreeItem
@@ -121,6 +140,9 @@ public:
 public:
 	SearchFile(SearchTreeItem* parent, const QueryHit* const pHit, const QFileInfo& fileInfo);
 	~SearchFile();
+
+	void appendChild(SearchTreeItem* pItem);
+	void removeChild(int position);
 
 	bool manages(CHash hash) const;
 	void updateHitCount(); // change number of hits
@@ -142,12 +164,12 @@ public:
 	SearchHit(SearchTreeItem* parent, QueryHit* pHit, const QFileInfo& fileInfo);
 	~SearchHit();
 
+	void appendChild(SearchTreeItem* pItem);
+	void removeChild(int position);
+
 	int childCount() const;
 	void updateFilterData();
 };
-
-// TODO: replace with forward_list (C++11)
-typedef std::list<SearchTreeItem*> SearchList;
 
 class SearchTreeModel : public QAbstractItemModel
 {
@@ -159,11 +181,7 @@ private:
 
 	int m_nFileCount;
 
-	// lists used to keep track of items for filtering purposes
-	SearchList m_lVisibleHits;          // contains currently visible hits
-	SearchList m_lFilteredHits;         // contains currently hidden hits
-	SearchList m_lNewlyVisibleHits;     // contains hits moved from hidden list on filter change
-	SearchList m_lNewlyFilteredHits;    // contains hits moved from visible list on filter change
+	SearchFilter::FilterControl* m_pFilterControl;
 
 public:
 	SearchTreeModel();

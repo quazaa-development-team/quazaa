@@ -62,7 +62,7 @@ SearchTreeItem::Type SearchTreeItem::type() const
 
 bool SearchTreeItem::visible() const
 {
-	return true;
+	return m_oFilter.visible();
 }
 
 int SearchTreeItem::row() const
@@ -117,6 +117,11 @@ QVariant SearchTreeItem::data(int column) const
 	return m_pItemData[column];
 }
 
+const SearchFilter::Filter* const SearchTreeItem::getFilter() const
+{
+	return &m_oFilter;
+}
+
 TreeRoot::TreeRoot(SearchTreeModel* pModel) :
 	SearchTreeItem( NULL ),
 	m_pModel( pModel )
@@ -151,6 +156,23 @@ TreeRoot::~TreeRoot()
 	// m_pModel is being taken care of somewhere else.
 }
 
+void TreeRoot::appendChild(SearchTreeItem* pItem)
+{
+	Q_ASSERT( pItem->type() == Type::SearchFileType );
+
+	addToFilterControl( pItem );
+	SearchTreeItem::appendChild( pItem );
+}
+
+void TreeRoot::removeChild(int position)
+{
+	SearchTreeItem* pItem = m_lChildItems.at( position );
+	Q_ASSERT( pItem->type() == Type::SearchFileType );
+
+	removeFromFilterControl( pItem );
+	SearchTreeItem::removeChild( position );
+}
+
 /*void TreeRoot::filter(SearchFilter::SearchFilter* pFilter)
 {
 }*/
@@ -176,23 +198,24 @@ QueryHit* TreeRoot::addQueryHit(QueryHit* pHit)
 	}
 
 	QFileInfo fileInfo( pHit->m_sDescriptiveName );
-	SearchFile* pFileItem = NULL;
 
 	// This hit is a new non duplicate file.
 	if ( existingFileEntry == -1 )
 	{
 		// TODO: valid parent?
-		pFileItem = new SearchFile( this, pHit, fileInfo );
+		SearchFile* pFileItem = new SearchFile( this, pHit, fileInfo );
 		m_pModel->beginInsertRows( QModelIndex(), childCount(), childCount() );
-		appendChild( pFileItem );
 		pFileItem->addQueryHit( pHit, fileInfo );
+
+		// appendChild() initializes filter data structures. Requires hit to be added already.
+		appendChild( pFileItem );
 		m_pModel->endInsertRows();
 	}
 	else
 	{
 		Q_ASSERT( child( existingFileEntry )->type() == Type::SearchFileType );
 
-		pFileItem = (SearchFile*)child( existingFileEntry );
+		SearchFile* pFileItem = (SearchFile*)child( existingFileEntry );
 		if ( !pFileItem->duplicateHitCheck( pHit ) )
 		{
 			QModelIndex idxParent = m_pModel->index( existingFileEntry, 0, QModelIndex() );
@@ -226,9 +249,25 @@ int TreeRoot::find(CHash& hash) const
 	return -1;
 }
 
-SearchFile::SearchFile(SearchTreeItem* parent, const QueryHit* const pHit,
-					   const QFileInfo& fileInfo) :
-	SearchTreeItem( parent )
+void TreeRoot::addToFilterControl(SearchTreeItem* pItem)
+{
+	m_pModel->m_pFilterControl->add( pItem );
+}
+
+/**
+ * @brief removeFromFilterControl() allows to remove an Item from the filter list. This must be
+ * done for all Items that have been added to the list before removing them from the tree.
+ * @param pItem The item to be removed.
+ */
+void TreeRoot::removeFromFilterControl(SearchTreeItem* pItem)
+{
+	m_pModel->m_pFilterControl->remove( pItem );
+}
+
+SearchFile::SearchFile(SearchTreeItem* parent,
+					   const QueryHit* const pHit, const QFileInfo& fileInfo) :
+	SearchTreeItem( parent ),
+	m_lHashes( HashVector( pHit->m_lHashes ) )
 {
 	m_eType = Type::SearchFileType;
 
@@ -241,12 +280,27 @@ SearchFile::SearchFile(SearchTreeItem* parent, const QueryHit* const pHit,
 	m_pItemData[SPEED]     = "";
 	m_pItemData[CLIENT]    = "";
 	m_pItemData[COUNTRY]   = "";
-
-	m_lHashes = HashVector( pHit->m_lHashes );
 }
 
 SearchFile::~SearchFile()
 {
+}
+
+void SearchFile::appendChild(SearchTreeItem* pItem)
+{
+	Q_ASSERT( pItem->type() == Type::SearchHitType );
+
+	((TreeRoot*)m_pParentItem)->addToFilterControl( pItem );
+	SearchTreeItem::appendChild( pItem );
+}
+
+void SearchFile::removeChild(int position)
+{
+	SearchTreeItem* pItem = m_lChildItems.at( position );
+	Q_ASSERT( pItem->type() == Type::SearchHitType );
+
+	((TreeRoot*)m_pParentItem)->removeFromFilterControl( pItem );
+	SearchTreeItem::removeChild( position );
 }
 
 bool SearchFile::manages(CHash hash) const
@@ -304,12 +358,21 @@ void SearchFile::insertHashes(const HashVector& hashes)
 void SearchFile::addQueryHit(QueryHit* pHit, const QFileInfo& fileInfo)
 {
 	// Note: SearchHit takes ownership of QueryHit on creation
-	appendChild( new SearchHit( this, pHit, fileInfo ) );
+	// (e.g. is responsible for deleting it uppon its own destruction)
+	SearchHit* pSearchHit = new SearchHit( this, pHit, fileInfo);
+	appendChild( pSearchHit );
 	insertHashes( pHit->m_lHashes );
 	updateHitCount();
+
+	if ( childCount() == 1 )
+	{
+		// initialize filter
+		m_oFilter = SearchFilter::FileFilter( pSearchHit );
+	}
 }
 
-SearchHit::SearchHit(SearchTreeItem* parent, QueryHit* pHit, const QFileInfo& fileInfo) :
+SearchHit::SearchHit(SearchTreeItem* parent,
+					 QueryHit* pHit, const QFileInfo& fileInfo) :
 	SearchTreeItem( parent )
 {
 	m_eType = Type::SearchHitType;
@@ -329,10 +392,23 @@ SearchHit::SearchHit(SearchTreeItem* parent, QueryHit* pHit, const QFileInfo& fi
 	m_oHitData.iNetwork  = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
 	m_oHitData.iCountry  = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
 	m_oHitData.pQueryHit = QueryHitSharedPtr( pHit );
+
+	// properly initialize filter data
+	m_oFilter = SearchFilter::HitFilter( pHit );
 }
 
 SearchHit::~SearchHit()
 {
+}
+
+void SearchHit::appendChild(SearchTreeItem*)
+{
+	Q_ASSERT( false );
+}
+
+void SearchHit::removeChild(int)
+{
+	Q_ASSERT( false );
 }
 
 int SearchHit::childCount() const
@@ -343,7 +419,8 @@ int SearchHit::childCount() const
 SearchTreeModel::SearchTreeModel() :
 	m_pIconProvider( new FileIconProvider ),
 	m_pRootItem( new TreeRoot( this ) ),
-	m_nFileCount( 0 )
+	m_nFileCount( 0 ),
+	m_pFilterControl( new SearchFilter::FilterControl )
 {
 }
 
@@ -352,6 +429,7 @@ SearchTreeModel::~SearchTreeModel()
 	clear();
 	delete m_pRootItem;
 	delete m_pIconProvider;
+	delete m_pFilterControl;
 }
 
 QModelIndex SearchTreeModel::parent(const QModelIndex& index) const

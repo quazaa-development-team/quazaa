@@ -43,7 +43,8 @@
 
 CWidgetSearchResults::CWidgetSearchResults(QWidget* parent) :
 	QMainWindow( parent ),
-	ui( new Ui::CWidgetSearchResults )
+	ui( new Ui::CWidgetSearchResults ),
+	m_pFilterData( NULL )
 {
 	ui->setupUi( this );
 	labelFilter = new QLabel();
@@ -63,6 +64,7 @@ CWidgetSearchResults::CWidgetSearchResults(QWidget* parent) :
 CWidgetSearchResults::~CWidgetSearchResults()
 {
 	delete ui;
+	delete m_pFilterData;
 }
 
 void CWidgetSearchResults::changeEvent(QEvent* e)
@@ -222,7 +224,10 @@ bool CWidgetSearchResults::clearSearch()
 
 void CWidgetSearchResults::on_actionFilterMore_triggered()
 {
-	DialogFilterSearch* dlgFilterSearch = new DialogFilterSearch( this );
+	Q_ASSERT( m_pFilterData ); // if this is an issue create one here
+
+	DialogFilterSearch* dlgFilterSearch = new DialogFilterSearch( m_pFilterData, this );
+
 	dlgFilterSearch->show();
 }
 
@@ -259,6 +264,9 @@ void CWidgetSearchResults::on_tabWidgetSearch_currentChanged(int index)
 	emit searchTabChanged(tabSearch);
 	emit statsUpdated(tabSearch);
 	tabSearch->loadHeaderState();
+
+	delete m_pFilterData;
+	m_pFilterData = tabSearch->getFilterData();
 }
 
 void CWidgetSearchResults::onStatsUpdated(WidgetSearchTemplate* searchWidget)
@@ -311,5 +319,10 @@ void CWidgetSearchResults::on_actionSearchDownload_triggered()
 
 void CWidgetSearchResults::setSkin()
 {
+}
 
+void CWidgetSearchResults::updateSearchFilter()
+{
+	WidgetSearchTemplate* tabSearch = qobject_cast<WidgetSearchTemplate*>( ui->tabWidgetSearch->currentWidget() );
+	tabSearch->filter( m_pFilterData );
 }

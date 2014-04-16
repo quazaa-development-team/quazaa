@@ -47,6 +47,8 @@ public:
 	QLineEdit* lineEditFilter;
 	void saveWidget();
 
+	SearchFilter::FilterControlData* m_pFilterData;
+
 protected:
 	void changeEvent(QEvent* e);
 
@@ -73,6 +75,8 @@ private slots:
 	void on_tabWidgetSearch_tabCloseRequested(int index);
 	void on_actionSearchDownload_triggered();
 	void setSkin();
+
+	void updateSearchFilter();
 
 	friend class WidgetSearch;
 };

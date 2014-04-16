@@ -338,6 +338,7 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 		// if we still have a key, send the query
 		if ( pHost->queryKey() )
 		{
+			qDebug() << "**** [Search] sending search query to " << pHost->address().toString();
 			sendG2Query( pReceiver, pHost, pnMaxPackets, tNowDT );
 		}
 		else if ( m_bCanRequestKey &&

@@ -29,14 +29,19 @@
 
 namespace Ui
 {
-	class CDialogFilterSearch;
+class CDialogFilterSearch;
+}
+
+namespace SearchFilter
+{
+struct FilterControlData;
 }
 
 class DialogFilterSearch : public QDialog
 {
 	Q_OBJECT
 public:
-	DialogFilterSearch(QWidget* parent = 0);
+	DialogFilterSearch(SearchFilter::FilterControlData*& pData, QWidget* parent = 0);
 	~DialogFilterSearch();
 
 protected:
@@ -44,6 +49,7 @@ protected:
 
 private:
 	Ui::CDialogFilterSearch* ui;
+	SearchFilter::FilterControlData*& m_pData;
 
 signals:
 	void closed();

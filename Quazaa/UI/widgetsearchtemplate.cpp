@@ -228,6 +228,16 @@ QModelIndex WidgetSearchTemplate::currentItem()
 	return pModel->mapToSource( idx );
 }
 
+void WidgetSearchTemplate::filter(const SearchFilter::FilterControlData* const pData)
+{
+	// TODO: do something
+}
+
+SearchFilter::FilterControlData*WidgetSearchTemplate::getFilterData()
+{
+	return NULL;
+}
+
 void WidgetSearchTemplate::onStateChanged()
 {
 	if ( m_pSearch )
