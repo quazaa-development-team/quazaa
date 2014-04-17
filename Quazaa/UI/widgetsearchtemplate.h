@@ -77,7 +77,7 @@ public:
 	QModelIndex currentItem();
 
 	void filter(const SearchFilter::FilterControlData* const pData);
-	SearchFilter::FilterControlData* getFilterData();
+	SearchFilter::FilterControlData* getFilterDataCopy() const;
 	//void getStats(quint32& nHubs, quint32& nLeaves, quint32& nHits);
 
 protected:

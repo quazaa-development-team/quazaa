@@ -201,6 +201,8 @@ public:
 	SearchTreeItem* topLevelItemFromIndex(QModelIndex index);
 	SearchTreeItem* itemFromIndex(QModelIndex index);
 
+	SearchFilter::FilterControlData* getFilterControlDataCopy() const;
+
 signals:
 	void updateStats();
 	void sort();

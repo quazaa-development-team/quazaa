@@ -61,6 +61,7 @@ struct FilterControlData
 	bool m_bAdult;
 
 	FilterControlData();
+	FilterControlData(const FilterControlData& other);
 };
 
 class FilterControl
@@ -91,6 +92,8 @@ public:
 	void remove(SearchTreeItem* pItem);
 
 	void update(const FilterControlData& rControlData);
+
+	FilterControlData* getDataCopy() const;
 };
 
 struct HitFilterData;

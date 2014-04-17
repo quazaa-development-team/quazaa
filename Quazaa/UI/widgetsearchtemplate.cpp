@@ -233,9 +233,9 @@ void WidgetSearchTemplate::filter(const SearchFilter::FilterControlData* const p
 	// TODO: do something
 }
 
-SearchFilter::FilterControlData*WidgetSearchTemplate::getFilterData()
+SearchFilter::FilterControlData* WidgetSearchTemplate::getFilterDataCopy() const
 {
-	return NULL;
+	return m_pSearchModel->getFilterControlDataCopy();
 }
 
 void WidgetSearchTemplate::onStateChanged()

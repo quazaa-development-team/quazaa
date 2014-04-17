@@ -32,13 +32,45 @@
 
 DialogFilterSearch::DialogFilterSearch(SearchFilter::FilterControlData*& pData, QWidget* parent) :
 	QDialog(parent),
-	ui(new Ui::CDialogFilterSearch),
+	ui(new Ui::DialogFilterSearch),
 	m_pData( pData )
 {
 	Q_ASSERT( pData );
 
 	ui->setupUi(this);
 	setSkin();
+
+	// TODO: replace with QRegularExpression oMatch( "\\A...\\z", QRegularExpression::
+	// CaseInsensitiveOption ); once Qt has finised integrating new RegularExpression class.
+	QRegExp pattern = QRegExp( "^(|[0-9]+\\s*(|B|KB|KiB|MB|MiB|GB|GiB|TB|TiB))$" );
+	pattern.setCaseSensitivity( Qt::CaseInsensitive );
+
+	QValidator* pValidator = new QRegExpValidator( pattern, this );
+	ui->lineEditMinimumSize->setValidator( pValidator );
+	ui->lineEditMaximumSize->setValidator( pValidator );
+
+	ui->lineEditWords->setText( m_pData->m_sMatchString );
+	ui->checkBoxRegularExpression->setChecked( m_pData->m_bRegExp );
+
+	const quint64 MAX_VAL = 18446744073709551615; // max value of 64 bit int
+	QString sMinSize = m_pData->m_nMinSize ? QString::number( m_pData->m_nMinSize ) + "B" : "";
+	QString sMaxSize = m_pData->m_nMaxSize != MAX_VAL ?
+												  QString::number( m_pData->m_nMaxSize ) + "B" : "";
+
+	ui->lineEditMinimumSize->setText( sMinSize );
+	ui->lineEditMaximumSize->setText( sMaxSize );
+
+	ui->spinBoxMinimumSources->setValue( m_pData->m_nMinSources );
+
+	ui->checkBoxBusyHosts->setChecked(m_pData->m_bBusy);
+	ui->checkBoxFirewalledPushHosts->setChecked(m_pData->m_bFirewalled);
+	ui->checkBoxUnreachableHosts->setChecked(m_pData->m_bUnstable);
+	ui->checkBoxDRMFiles->setChecked(m_pData->m_bDRM);
+	ui->checkBoxSuspiciousFiles->setChecked(m_pData->m_bSuspicious);
+	ui->checkBoxNonMatchingFiles->setChecked(m_pData->m_bNonMatching);
+	ui->checkBoxFilesAlreadyHave->setChecked(m_pData->m_bExistsInLibrary);
+	ui->checkBoxBogusResults->setChecked(m_pData->m_bBogus);
+	ui->checkBoxAdultResults->setChecked(m_pData->m_bAdult);
 }
 
 DialogFilterSearch::~DialogFilterSearch()
@@ -81,10 +113,29 @@ void DialogFilterSearch::on_pushButtonFilter_clicked()
 	bool m_bBogus;
 	bool m_bAdult; */
 
-	m_pData->m_sMatchString = ui->lineEditWords->text();
-	m_pData->m_bRegExp      = ui->checkBoxRegularExpression->isChecked();
-	m_pData->m_nMinSize     = ui->lineEditMinimumSize->text().toLongLong();
-	m_pData->m_nMaxSize     = ui->lineEditMaximumSize->text().toLongLong();
+	const quint64 MAX_VAL = 18446744073709551615; // max value of 64 bit int
+
+	m_pData->m_sMatchString     = ui->lineEditWords->text();
+	m_pData->m_bRegExp          = ui->checkBoxRegularExpression->isChecked();
+
+	bool bOK = true;
+	m_pData->m_nMinSize         = common::readSizeInBytes( ui->lineEditMinimumSize->text(), bOK );
+	m_pData->m_nMinSize         = bOK ? m_pData->m_nMinSize : 0;
+
+	m_pData->m_nMaxSize         = common::readSizeInBytes( ui->lineEditMaximumSize->text(), bOK );
+	m_pData->m_nMaxSize         = bOK ? m_pData->m_nMaxSize : MAX_VAL;
+
+	m_pData->m_nMinSources      = ui->spinBoxMinimumSources->value();
+
+	m_pData->m_bBusy            = ui->checkBoxBusyHosts->isChecked();
+	m_pData->m_bFirewalled      = ui->checkBoxFirewalledPushHosts->isChecked();
+	m_pData->m_bUnstable        = ui->checkBoxUnreachableHosts->isChecked();
+	m_pData->m_bDRM             = ui->checkBoxDRMFiles->isChecked();
+	m_pData->m_bSuspicious      = ui->checkBoxSuspiciousFiles->isChecked();
+	m_pData->m_bNonMatching     = ui->checkBoxNonMatchingFiles->isChecked();
+	m_pData->m_bExistsInLibrary = ui->checkBoxFilesAlreadyHave->isChecked();
+	m_pData->m_bBogus           = ui->checkBoxBogusResults->isChecked();
+	m_pData->m_bAdult           = ui->checkBoxAdultResults->isChecked();
 
 	emit closed();
 	close();
@@ -99,6 +150,16 @@ void DialogFilterSearch::on_pushButtonCancel_clicked()
 }
 
 void DialogFilterSearch::setSkin()
+{
+
+}
+
+void DialogFilterSearch::on_pushButtonSaveAs_clicked()
+{
+
+}
+
+void DialogFilterSearch::on_pushButtonDelete_clicked()
 {
 
 }

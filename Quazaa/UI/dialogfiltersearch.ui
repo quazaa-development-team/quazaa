@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CDialogFilterSearch</class>
+ <class>DialogFilterSearch</class>
  <widget class="QDialog" name="DialogFilterSearch">
   <property name="geometry">
    <rect>
@@ -32,60 +32,23 @@
   <property name="autoFillBackground">
    <bool>true</bool>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
-   <property name="margin">
+  <layout class="QVBoxLayout" name="verticalLayoutDialogFilterSearch">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="3" column="0">
-    <layout class="QGridLayout" name="gridLayoutControlButtons">
-     <property name="leftMargin">
-      <number>4</number>
-     </property>
-     <property name="topMargin">
-      <number>4</number>
-     </property>
-     <property name="rightMargin">
-      <number>4</number>
-     </property>
-     <property name="bottomMargin">
-      <number>2</number>
-     </property>
-     <property name="spacing">
-      <number>4</number>
-     </property>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="pushButtonCancel">
-       <property name="text">
-        <string>Cancel</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="pushButtonFilter">
-       <property name="text">
-        <string>Filter</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item row="0" column="0">
+   <item>
     <widget class="QFrame" name="frameBody">
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
@@ -93,49 +56,63 @@
      <property name="frameShadow">
       <enum>QFrame::Sunken</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <property name="margin">
-       <number>4</number>
+     <layout class="QGridLayout" name="gridLayoutBody">
+      <property name="leftMargin">
+       <number>5</number>
+      </property>
+      <property name="topMargin">
+       <number>5</number>
+      </property>
+      <property name="rightMargin">
+       <number>5</number>
+      </property>
+      <property name="bottomMargin">
+       <number>5</number>
       </property>
       <property name="spacing">
-       <number>4</number>
+       <number>5</number>
       </property>
       <item row="0" column="0">
        <widget class="QGroupBox" name="groupBoxWords">
         <property name="title">
          <string>Only show matches which include the words</string>
         </property>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <property name="margin">
-          <number>2</number>
+        <layout class="QGridLayout" name="gridLayoutWords">
+         <property name="leftMargin">
+          <number>5</number>
+         </property>
+         <property name="topMargin">
+          <number>5</number>
+         </property>
+         <property name="rightMargin">
+          <number>5</number>
+         </property>
+         <property name="bottomMargin">
+          <number>5</number>
          </property>
          <property name="spacing">
-          <number>2</number>
+          <number>5</number>
          </property>
-         <item row="0" column="0">
-          <layout class="QGridLayout" name="gridLayoutWords">
-           <item row="0" column="1">
-            <widget class="QCheckBox" name="checkBoxRegularExpression">
-             <property name="text">
-              <string>Regular Expression</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="2">
-            <widget class="QLabel" name="labelWordsInstruction">
-             <property name="text">
-              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+		 <item row="0" column="0">
+          <widget class="QLineEdit" name="lineEditWords"/>
+         </item>
+         <item row="0" column="1">
+          <widget class="QCheckBox" name="checkBoxRegularExpression">
+           <property name="text">
+            <string>Regular Expression</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="2">
+          <widget class="QLabel" name="labelWordsInstruction">
+           <property name="text">
+            <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;(you can exclude words with -word)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLineEdit" name="lineEditWords"/>
-           </item>
-          </layout>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -145,14 +122,63 @@ p, li { white-space: pre-wrap; }
         <property name="title">
          <string>And are of the size</string>
         </property>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <property name="margin">
-          <number>2</number>
+        <layout class="QGridLayout" name="gridLayoutSize">
+         <property name="leftMargin">
+          <number>5</number>
+         </property>
+         <property name="topMargin">
+          <number>5</number>
+         </property>
+         <property name="rightMargin">
+          <number>5</number>
+         </property>
+         <property name="bottomMargin">
+          <number>5</number>
          </property>
          <property name="spacing">
-          <number>2</number>
+          <number>5</number>
          </property>
-         <item row="2" column="0" colspan="2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="labelMinimum">
+           <property name="text">
+            <string>Minimum:</string>
+           </property>
+          </widget>
+         </item>
+		 <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEditMinimumSize">
+           <property name="text">
+            <string notr="true"/>
+           </property>
+           <property name="maxLength">
+            <number>21</number>
+           </property>
+           <property name="placeholderText">
+            <string notr="true"/>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="labelMaximum">
+           <property name="text">
+            <string>Maximum:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QLineEdit" name="lineEditMaximumSize">
+           <property name="text">
+            <string notr="true"/>
+           </property>
+           <property name="maxLength">
+            <number>21</number>
+           </property>
+           <property name="placeholderText">
+            <string notr="true"/>
+           </property>
+          </widget>
+         </item>
+		 <item row="1" column="0" colspan="2">
           <widget class="QSpinBox" name="spinBoxMinimumSources">
            <property name="suffix">
             <string> sources.</string>
@@ -161,47 +187,36 @@ p, li { white-space: pre-wrap; }
             <string>With at least </string>
            </property>
            <property name="maximum">
-            <number>256</number>
+            <number>65535</number>
            </property>
            <property name="value">
             <number>1</number>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="lineEditMinimumSize"/>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="labelMinimum">
-           <property name="text">
-            <string>Minimum:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="labelMaximum">
-           <property name="text">
-            <string>Maximum:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="3">
-          <widget class="QLineEdit" name="lineEditMaximumSize"/>
-         </item>
         </layout>
        </widget>
       </item>
-      <item row="2" column="0">
+	  <item row="2" column="0">
        <widget class="QGroupBox" name="groupBoxHide">
         <property name="title">
-         <string>Hide</string>
+         <string>Show</string>
         </property>
-        <layout class="QGridLayout" name="gridLayout_6">
-         <property name="margin">
-          <number>2</number>
+        <layout class="QGridLayout" name="gridLayoutHide">
+         <property name="leftMargin">
+          <number>5</number>
+         </property>
+         <property name="topMargin">
+          <number>5</number>
+         </property>
+         <property name="rightMargin">
+          <number>5</number>
+         </property>
+         <property name="bottomMargin">
+          <number>5</number>
          </property>
          <property name="spacing">
-          <number>2</number>
+          <number>5</number>
          </property>
          <item row="0" column="0">
           <widget class="QCheckBox" name="checkBoxBusyHosts">
@@ -224,10 +239,24 @@ p, li { white-space: pre-wrap; }
            </property>
           </widget>
          </item>
+         <item row="1" column="1">
+          <widget class="QCheckBox" name="checkBoxFilesAlreadyHave">
+           <property name="text">
+            <string>Files You Have Already</string>
+           </property>
+          </widget>
+         </item>
          <item row="2" column="0">
           <widget class="QCheckBox" name="checkBoxUnreachableHosts">
            <property name="text">
             <string>Unstable Hosts</string>
+           </property>
+          </widget>
+         </item>
+		 <item row="2" column="1">
+          <widget class="QCheckBox" name="checkBoxBogusResults">
+           <property name="text">
+            <string>Bogus Results</string>
            </property>
           </widget>
          </item>
@@ -238,48 +267,56 @@ p, li { white-space: pre-wrap; }
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
-          <widget class="QCheckBox" name="checkBoxSuspiciousFiles">
-           <property name="text">
-            <string>Suspicious Files</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QCheckBox" name="checkBoxFilesAlreadyHave">
-           <property name="text">
-            <string>Files You Have Already</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QCheckBox" name="checkBoxBogusResults">
-           <property name="text">
-            <string>Bogus Results</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
+		 <item row="3" column="1">
           <widget class="QCheckBox" name="checkBoxAdultResults">
            <property name="text">
             <string>Adult Results</string>
            </property>
           </widget>
          </item>
+         <item row="4" column="0">
+          <widget class="QCheckBox" name="checkBoxSuspiciousFiles">
+           <property name="text">
+            <string>Suspicious Files</string>
+           </property>
+          </widget>
+		 </item>
         </layout>
        </widget>
       </item>
       <item row="3" column="0">
+       <spacer name="verticalSpacerBody">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="4" column="0">
        <widget class="QGroupBox" name="groupBoxFilters">
         <property name="title">
          <string>Filters</string>
         </property>
-        <layout class="QGridLayout" name="gridLayout_7">
-         <property name="margin">
-          <number>2</number>
+        <layout class="QGridLayout" name="gridLayoutFilters">
+         <property name="leftMargin">
+          <number>5</number>
+         </property>
+         <property name="topMargin">
+          <number>5</number>
+         </property>
+         <property name="rightMargin">
+          <number>5</number>
+         </property>
+         <property name="bottomMargin">
+          <number>5</number>
          </property>
          <property name="spacing">
-          <number>2</number>
+          <number>5</number>
          </property>
          <item row="0" column="0">
           <widget class="QComboBox" name="comboBoxFilters">
@@ -291,17 +328,17 @@ p, li { white-space: pre-wrap; }
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QCheckBox" name="checkBoxSetDefault">
-           <property name="text">
-            <string>Set As Default</string>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="1">
           <widget class="QPushButton" name="pushButtonSaveAs">
            <property name="text">
             <string>Save As</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="checkBoxSetDefault">
+           <property name="text">
+            <string>Set As Default</string>
            </property>
           </widget>
          </item>
@@ -315,8 +352,67 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
       </item>
-     </layout>
+	 </layout>
     </widget>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayoutControlButtons">
+     <property name="leftMargin">
+      <number>5</number>
+     </property>
+     <property name="topMargin">
+      <number>5</number>
+     </property>
+     <property name="rightMargin">
+      <number>5</number>
+     </property>
+     <property name="bottomMargin">
+      <number>5</number>
+     </property>
+     <property name="spacing">
+      <number>5</number>
+     </property>
+	 <item row="0" column="0">
+      <spacer name="verticalSpacerControlButtons">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+	 <item row="1" column="0">
+      <spacer name="horizontalSpacerControlButtons">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="pushButtonFilter">
+       <property name="text">
+        <string>Filter</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="pushButtonCancel">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

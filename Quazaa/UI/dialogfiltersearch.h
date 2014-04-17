@@ -29,7 +29,7 @@
 
 namespace Ui
 {
-class CDialogFilterSearch;
+class DialogFilterSearch;
 }
 
 namespace SearchFilter
@@ -48,7 +48,7 @@ protected:
 	void changeEvent(QEvent* e);
 
 private:
-	Ui::CDialogFilterSearch* ui;
+	Ui::DialogFilterSearch* ui;
 	SearchFilter::FilterControlData*& m_pData;
 
 signals:
@@ -58,6 +58,8 @@ private slots:
 	void on_pushButtonFilter_clicked();
 	void on_pushButtonCancel_clicked();
 	void setSkin();
+	void on_pushButtonSaveAs_clicked();
+	void on_pushButtonDelete_clicked();
 };
 
 #endif // DIALOGFILTERSEARCH_H

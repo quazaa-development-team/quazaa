@@ -610,6 +610,11 @@ SearchTreeItem* SearchTreeModel::itemFromIndex(QModelIndex index)
 	return NULL;
 }
 
+SearchFilter::FilterControlData*SearchTreeModel::getFilterControlDataCopy() const
+{
+	return m_pFilterControl->getDataCopy();
+}
+
 // TODO: fix when uncommenting.
 /*void SearchTreeModel::setupModelData(const QStringList& lines, SearchTreeItem* parent)
 {

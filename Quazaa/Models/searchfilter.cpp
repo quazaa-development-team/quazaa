@@ -45,6 +45,24 @@ FilterControlData::FilterControlData() :
 {
 }
 
+FilterControlData::FilterControlData(const FilterControlData& other) :
+	m_sMatchString(     other.m_sMatchString     ),
+	m_bRegExp(          other.m_bRegExp          ),
+	m_nMinSize(         other.m_nMinSize         ),
+	m_nMaxSize(         other.m_nMaxSize         ),
+	m_nMinSources(      other.m_nMinSources      ),
+	m_bBusy(            other.m_bBusy            ),
+	m_bFirewalled(      other.m_bFirewalled      ),
+	m_bUnstable(        other.m_bUnstable        ),
+	m_bDRM(             other.m_bDRM             ),
+	m_bSuspicious(      other.m_bSuspicious      ),
+	m_bNonMatching(     other.m_bNonMatching     ),
+	m_bExistsInLibrary( other.m_bExistsInLibrary ),
+	m_bBogus(           other.m_bBogus           ),
+	m_bAdult(           other.m_bAdult           )
+{
+}
+
 FilterControl::FilterControl() :
 	m_oFilterControlData( FilterControlData() )
 {
@@ -158,6 +176,11 @@ void FilterControl::update(const FilterControlData& rControlData)
 {
 	m_oFilterControlData = rControlData;
 	// TODO: do actual filtering
+}
+
+FilterControlData* FilterControl::getDataCopy() const
+{
+	return new FilterControlData( m_oFilterControlData );
 }
 
 FileFilterData::FileFilterData(const SearchHit* const pHit)

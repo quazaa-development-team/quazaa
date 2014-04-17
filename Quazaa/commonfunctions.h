@@ -40,11 +40,12 @@
 namespace common
 {
 	void folderOpen(QString file);
-	QString formatBytes(quint64 nBytesPerSec);
 	QString vendorCodeToName(QString vendorCode);
 	QString fixFileName(QString sName);
 	QString getTempFileName(QString sName);
 
+	QString formatBytes(quint64 nBytesPerSec);
+	quint64 readSizeInBytes(QString sInput, bool& bOK);
 
 	/**
 	 * Used to indicate the 3 locations where settings and data files are stored on the system.

@@ -224,7 +224,7 @@ bool CWidgetSearchResults::clearSearch()
 
 void CWidgetSearchResults::on_actionFilterMore_triggered()
 {
-	Q_ASSERT( m_pFilterData ); // if this is an issue create one here
+	Q_ASSERT( m_pFilterData );
 
 	DialogFilterSearch* dlgFilterSearch = new DialogFilterSearch( m_pFilterData, this );
 
@@ -266,7 +266,7 @@ void CWidgetSearchResults::on_tabWidgetSearch_currentChanged(int index)
 	tabSearch->loadHeaderState();
 
 	delete m_pFilterData;
-	m_pFilterData = tabSearch->getFilterData();
+	m_pFilterData = tabSearch->getFilterDataCopy();
 }
 
 void CWidgetSearchResults::onStatsUpdated(WidgetSearchTemplate* searchWidget)

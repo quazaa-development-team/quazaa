@@ -24,6 +24,7 @@
 
 #include <QDir>
 
+#include <QRegularExpression>
 #include <QDesktopServices>
 #include <QUrl>
 #include <QtGlobal>
@@ -42,33 +43,6 @@ void common::folderOpen(QString file)
 		completePath.mkpath( file );
 	}
 	QDesktopServices::openUrl( QUrl::fromLocalFile(file) );
-}
-
-QString common::formatBytes(quint64 nBytesPerSec)
-{
-	const char* szUnit[5] = { "B", "KiB", "MiB", "GiB", "TiB" };
-
-	double nBPS = nBytesPerSec;
-
-	int nStep = 0;
-	while ( nBPS > 1024 )
-	{
-		nBPS /= 1024;
-		++nStep;
-		if ( nStep == 4 )
-		{
-			break;
-		}
-	}
-
-	if ( nStep )
-	{
-		return QString().sprintf( "%1.2f %s", nBPS, szUnit[nStep] );
-	}
-	else
-	{
-		return QString().sprintf( "%1.0f %s", nBPS, szUnit[nStep] );
-	}
 }
 
 QString common::vendorCodeToName(QString vendorCode)
@@ -142,6 +116,113 @@ QString common::getTempFileName(QString sName)
 	oHashName.addData(QString().number(qrand() % qrand()).append(getDateTimeUTC().toString(Qt::ISODate)).toLocal8Bit());
 	oHashName.finalize();
 	return oHashName.toString();
+}
+
+QString common::formatBytes(quint64 nBytesPerSec)
+{
+	const char* szUnit[5] = { "B", "KiB", "MiB", "GiB", "TiB" };
+
+	double nBPS = nBytesPerSec;
+
+	int nStep = 0;
+	while ( nBPS > 1024 )
+	{
+		nBPS /= 1024;
+		++nStep;
+		if ( nStep == 4 )
+		{
+			break;
+		}
+	}
+
+	if ( nStep )
+	{
+		return QString().sprintf( "%1.2f %s", nBPS, szUnit[nStep] );
+	}
+	else
+	{
+		return QString().sprintf( "%1.0f %s", nBPS, szUnit[nStep] );
+	}
+}
+
+quint64 common::readSizeInBytes(QString sInput, bool& bOK)
+{
+	sInput.remove( QRegularExpression( "\\s") );
+
+	// \A and \z force it to match the entire string, not only the line like ^ and $ do.
+	QRegularExpression oMatch( "\\A[0-9]+(|B|KB|KiB|MB|MiB|GB|GiB|TB|TiB)\\z",
+							   QRegularExpression::CaseInsensitiveOption );
+	bOK = oMatch.match( sInput, 0, QRegularExpression::NormalMatch ).hasMatch();
+
+	if ( !bOK )
+		return 0;
+
+
+	// TODO: replace with QRegularExpression once there is a respective QString overload
+	// use \\z instead of $
+	QRegExp suffix = QRegExp("(B|KB|KiB|MB|MiB|GB|GiB|TB|TiB)$");
+	suffix .setCaseSensitivity( Qt::CaseInsensitive );
+	int nSuffixPos = sInput.indexOf( suffix );
+
+	QString sNumber = sInput.left( nSuffixPos );
+	QString sSuffix = sInput.right( sInput.length() - sNumber.size() );
+
+#ifdef _DEBUG
+	Q_ASSERT( QRegularExpression( "\\A(B|KB|KiB|MB|MiB|GB|GiB|TB|TiB)\\z",
+								  QRegularExpression::CaseInsensitiveOption
+								  ).match( sSuffix, 0, QRegularExpression::NormalMatch ).hasMatch()
+			  );
+
+	Q_ASSERT( QRegularExpression( "\\A[0-9]+\\z", QRegularExpression::CaseInsensitiveOption
+								  ).match( sNumber, 0, QRegularExpression::NormalMatch ).hasMatch()
+			  );
+#endif //_DEBUG
+
+	quint64 nMultiplier = 1;
+
+	if ( sSuffix.isEmpty() )
+	{
+		nMultiplier = 1;
+	}
+	else if ( !sSuffix.compare( "B", Qt::CaseInsensitive ) )
+	{
+		nMultiplier = 1;
+	}
+	else if ( !sSuffix.compare( "KB", Qt::CaseInsensitive ) )
+	{
+		nMultiplier = 1000;
+	}
+	else if ( !sSuffix.compare( "KiB", Qt::CaseInsensitive ) )
+	{
+		nMultiplier = 1024;
+	}
+	else if ( !sSuffix.compare( "MB", Qt::CaseInsensitive ) )
+	{
+		nMultiplier = 1000 * 1000;
+	}
+	else if ( !sSuffix.compare( "MiB", Qt::CaseInsensitive ) )
+	{
+		nMultiplier = 1024 * 1024;
+	}
+	else if ( !sSuffix.compare( "TB", Qt::CaseInsensitive ) )
+	{
+		nMultiplier = 1000 * 1000 * 1000;
+	}
+	else if ( !sSuffix.compare( "TiB", Qt::CaseInsensitive ) )
+	{
+		nMultiplier = 1024 * 1024 * 1024;
+	}
+	else
+	{
+		bOK = false;
+	}
+
+	if ( !bOK )
+		return 0;
+
+	quint64 nValue = sNumber.toLongLong( &bOK );
+
+	return bOK ? nValue * nMultiplier : 0;
 }
 
 quint32 common::securedSaveFile(const QString& sPath, const QString& sFileName,
@@ -1730,3 +1811,4 @@ bool common::unregisterNumber(registeredSet registered)
 	}
 	return false;
 }*/
+
