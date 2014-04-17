@@ -39,7 +39,7 @@ class WidgetSearch : public QWidget
 public:
 	WidgetSearch(QWidget* parent = 0);
 	~WidgetSearch();
-	CWidgetSearchResults* panelSearchResults;
+	WidgetSearchResults* panelSearchResults;
 	WidgetSearchTemplate* currentPage;
 	void saveWidget();
 

@@ -41,9 +41,9 @@
 
 #include "debug_new.h"
 
-CWidgetSearchResults::CWidgetSearchResults(QWidget* parent) :
+WidgetSearchResults::WidgetSearchResults(QWidget* parent) :
 	QMainWindow( parent ),
-	ui( new Ui::CWidgetSearchResults ),
+	ui( new Ui::WidgetSearchResults ),
 	m_pFilterData( NULL )
 {
 	ui->setupUi( this );
@@ -61,13 +61,13 @@ CWidgetSearchResults::CWidgetSearchResults(QWidget* parent) :
 	setSkin();
 }
 
-CWidgetSearchResults::~CWidgetSearchResults()
+WidgetSearchResults::~WidgetSearchResults()
 {
 	delete ui;
 	delete m_pFilterData;
 }
 
-void CWidgetSearchResults::changeEvent(QEvent* e)
+void WidgetSearchResults::changeEvent(QEvent* e)
 {
 	QMainWindow::changeEvent( e );
 	switch ( e->type() )
@@ -81,13 +81,13 @@ void CWidgetSearchResults::changeEvent(QEvent* e)
 	}
 }
 
-void CWidgetSearchResults::saveWidget()
+void WidgetSearchResults::saveWidget()
 {
 	quazaaSettings.WinMain.SearchToolbar = saveState();
 	quazaaSettings.WinMain.SearchDetailsSplitter = ui->splitterSearchDetails->saveState();
 }
 
-void CWidgetSearchResults::startSearch(QString searchString)
+void WidgetSearchResults::startSearch(QString searchString)
 {
 	if ( !searchString.isEmpty() )
 	{
@@ -137,7 +137,7 @@ void CWidgetSearchResults::startSearch(QString searchString)
 }
 
 // Makes a new search tab and starts a search in it
-void CWidgetSearchResults::startNewSearch(QString* searchString)
+void WidgetSearchResults::startNewSearch(QString* searchString)
 {
 	if(searchString != QString(""))
 	{
@@ -158,7 +158,7 @@ void CWidgetSearchResults::startNewSearch(QString* searchString)
 
 
 
-void CWidgetSearchResults::on_tabWidgetSearch_tabCloseRequested(int index)
+void WidgetSearchResults::on_tabWidgetSearch_tabCloseRequested(int index)
 {
 	WidgetSearchTemplate* tabSearch = qobject_cast<WidgetSearchTemplate*>(ui->tabWidgetSearch->widget(index));
 	ui->tabWidgetSearch->removeTab(index);
@@ -169,7 +169,7 @@ void CWidgetSearchResults::on_tabWidgetSearch_tabCloseRequested(int index)
 	}
 }
 
-void CWidgetSearchResults::addSearchTab()
+void WidgetSearchResults::addSearchTab()
 {
 	WidgetSearchTemplate* tabSearch = new WidgetSearchTemplate();
 	int nTab = ui->tabWidgetSearch->addTab( tabSearch, QIcon( ":/Resource/Generic/Search.png" ),
@@ -186,12 +186,12 @@ void CWidgetSearchResults::addSearchTab()
 	}
 
 	connect( tabSearch, &WidgetSearchTemplate::statsUpdated,
-			 this, &CWidgetSearchResults::onStatsUpdated );
+			 this, &WidgetSearchResults::onStatsUpdated );
 
 	emit searchTabChanged( tabSearch );
 }
 
-void CWidgetSearchResults::stopSearch()
+void WidgetSearchResults::stopSearch()
 {
 	WidgetSearchTemplate* tabSearch =
 			qobject_cast<WidgetSearchTemplate*>( ui->tabWidgetSearch->currentWidget() );
@@ -209,29 +209,33 @@ void CWidgetSearchResults::stopSearch()
 	}
 }
 
-bool CWidgetSearchResults::clearSearch()
+bool WidgetSearchResults::clearSearch()
 {
-	WidgetSearchTemplate* tabSearch = qobject_cast<WidgetSearchTemplate*>(ui->tabWidgetSearch->currentWidget());
-	if(tabSearch)
+	WidgetSearchTemplate* tabSearch =
+			qobject_cast<WidgetSearchTemplate*>( ui->tabWidgetSearch->currentWidget() );
+
+	if ( tabSearch )
 	{
 		//qDebug() << "Clear search captured in WidgetSearchResults.";
 		tabSearch->clearSearch();
-		ui->tabWidgetSearch->setTabText(ui->tabWidgetSearch->currentIndex(), tr("Search"));
+		ui->tabWidgetSearch->setTabText( ui->tabWidgetSearch->currentIndex(), tr( "Search" ) );
 		return true;
 	}
 	return false;
 }
 
-void CWidgetSearchResults::on_actionFilterMore_triggered()
+void WidgetSearchResults::on_actionFilterMore_triggered()
 {
 	Q_ASSERT( m_pFilterData );
 
 	DialogFilterSearch* dlgFilterSearch = new DialogFilterSearch( m_pFilterData, this );
+	connect( dlgFilterSearch, &DialogFilterSearch::closed,
+			 this, &WidgetSearchResults::updateSearchFilter );
 
 	dlgFilterSearch->show();
 }
 
-void CWidgetSearchResults::on_splitterSearchDetails_customContextMenuRequested(QPoint pos)
+void WidgetSearchResults::on_splitterSearchDetails_customContextMenuRequested(QPoint pos)
 {
 	Q_UNUSED(pos);
 
@@ -256,7 +260,7 @@ void CWidgetSearchResults::on_splitterSearchDetails_customContextMenuRequested(Q
 	}
 }
 
-void CWidgetSearchResults::on_tabWidgetSearch_currentChanged(int index)
+void WidgetSearchResults::on_tabWidgetSearch_currentChanged(int index)
 {
 	Q_UNUSED(index);
 
@@ -269,7 +273,7 @@ void CWidgetSearchResults::on_tabWidgetSearch_currentChanged(int index)
 	m_pFilterData = tabSearch->getFilterDataCopy();
 }
 
-void CWidgetSearchResults::onStatsUpdated(WidgetSearchTemplate* searchWidget)
+void WidgetSearchResults::onStatsUpdated(WidgetSearchTemplate* searchWidget)
 {
 	ui->tabWidgetSearch->setTabText(ui->tabWidgetSearch->indexOf(searchWidget), (QString("%1 [%2,%3]").arg(searchWidget->m_sSearchString).arg(searchWidget->m_nFiles).arg(searchWidget->m_nHits)));
 	if((searchWidget = qobject_cast<WidgetSearchTemplate*>(ui->tabWidgetSearch->currentWidget())))
@@ -278,7 +282,7 @@ void CWidgetSearchResults::onStatsUpdated(WidgetSearchTemplate* searchWidget)
 	}
 }
 
-void CWidgetSearchResults::on_actionSearchDownload_triggered()
+void WidgetSearchResults::on_actionSearchDownload_triggered()
 {
 	if( ui->tabWidgetSearch->currentIndex() != -1 )
 	{
@@ -317,12 +321,14 @@ void CWidgetSearchResults::on_actionSearchDownload_triggered()
 	}
 }
 
-void CWidgetSearchResults::setSkin()
+void WidgetSearchResults::setSkin()
 {
 }
 
-void CWidgetSearchResults::updateSearchFilter()
+void WidgetSearchResults::updateSearchFilter()
 {
-	WidgetSearchTemplate* tabSearch = qobject_cast<WidgetSearchTemplate*>( ui->tabWidgetSearch->currentWidget() );
-	tabSearch->filter( m_pFilterData );
+	WidgetSearchTemplate* tabSearch =
+			qobject_cast<WidgetSearchTemplate*>( ui->tabWidgetSearch->currentWidget() );
+
+	tabSearch->filter( *m_pFilterData );
 }

@@ -202,6 +202,7 @@ public:
 	SearchTreeItem* itemFromIndex(QModelIndex index);
 
 	SearchFilter::FilterControlData* getFilterControlDataCopy() const;
+	void updateFilter(const SearchFilter::FilterControlData& rControlData);
 
 signals:
 	void updateStats();

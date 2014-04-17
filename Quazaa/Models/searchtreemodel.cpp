@@ -615,6 +615,11 @@ SearchFilter::FilterControlData*SearchTreeModel::getFilterControlDataCopy() cons
 	return m_pFilterControl->getDataCopy();
 }
 
+void SearchTreeModel::updateFilter(const SearchFilter::FilterControlData& rControlData)
+{
+	m_pFilterControl->update( rControlData );
+}
+
 // TODO: fix when uncommenting.
 /*void SearchTreeModel::setupModelData(const QStringList& lines, SearchTreeItem* parent)
 {

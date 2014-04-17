@@ -49,7 +49,7 @@ WidgetSearch::WidgetSearch(QWidget* parent) :
 	ui->toolButtonSearchNetworksTaskHeader->setChecked( quazaaSettings.WinMain.SearchNetworksTaskVisible );
 	ui->toolButtonSearchResultsTaskHeader->setChecked( quazaaSettings.WinMain.SearchResultsTaskVisible );
 	ui->toolButtonSearchTaskHeader->setChecked( quazaaSettings.WinMain.SearchTaskVisible );
-	panelSearchResults = new CWidgetSearchResults();
+	panelSearchResults = new WidgetSearchResults();
 	ui->verticalLayoutSearchResults->addWidget( panelSearchResults );
 	connect( panelSearchResults, SIGNAL( searchTabChanged( WidgetSearchTemplate* ) ), this, SLOT( onSearchTabChanged( WidgetSearchTemplate* ) ) );
 	connect( panelSearchResults, SIGNAL( statsUpdated( WidgetSearchTemplate* ) ), this, SLOT( updateStats( WidgetSearchTemplate* ) ) );

@@ -228,9 +228,9 @@ QModelIndex WidgetSearchTemplate::currentItem()
 	return pModel->mapToSource( idx );
 }
 
-void WidgetSearchTemplate::filter(const SearchFilter::FilterControlData* const pData)
+void WidgetSearchTemplate::filter(const SearchFilter::FilterControlData& rData)
 {
-	// TODO: do something
+	m_pSearchModel->updateFilter( rData );
 }
 
 SearchFilter::FilterControlData* WidgetSearchTemplate::getFilterDataCopy() const

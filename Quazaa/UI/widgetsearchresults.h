@@ -34,15 +34,15 @@ class WidgetSearch;
 
 namespace Ui
 {
-	class CWidgetSearchResults;
+	class WidgetSearchResults;
 }
 
-class CWidgetSearchResults : public QMainWindow
+class WidgetSearchResults : public QMainWindow
 {
 	Q_OBJECT
 public:
-	CWidgetSearchResults(QWidget* parent = 0);
-	~CWidgetSearchResults();
+	WidgetSearchResults(QWidget* parent = 0);
+	~WidgetSearchResults();
 	QLabel* labelFilter;
 	QLineEdit* lineEditFilter;
 	void saveWidget();
@@ -53,7 +53,7 @@ protected:
 	void changeEvent(QEvent* e);
 
 private:
-	Ui::CWidgetSearchResults* ui;
+	Ui::WidgetSearchResults* ui;
 
 signals:
 	void searchTabChanged(WidgetSearchTemplate* searchPage);
