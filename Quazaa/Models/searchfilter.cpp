@@ -298,11 +298,11 @@ char FilterControl::updateHitFilterStatus(const FilterControlData& rControlData)
 				if ( lNewWords.size() )
 				{
 					// build filter word lists
-					QStringList lMustHave, lMustNotHave;
-					separateFilter( lNewWords, lMustHave, lMustNotHave );
+					QStringList lNewMustHave, lNewMustNotHave;
+					separateFilter( lNewWords, lNewMustHave, lNewMustNotHave );
 
 					// apply filter to visible hits
-					applyStringFilter( m_lVisibleHits, lMustHave, lMustNotHave );
+					applyStringFilter( m_lVisibleHits, lNewMustHave, lNewMustNotHave );
 
 					// filter only applied to visible hits => filter state of invisible hits unknown
 					m_bStringFilterInvisibleHitsInvalidated = true;
@@ -325,6 +325,9 @@ char FilterControl::updateHitFilterStatus(const FilterControlData& rControlData)
 				}
 			}
 		}
+
+		m_oFilterControlData.m_bRegExp      = rControlData.m_bRegExp;
+		m_oFilterControlData.m_sMatchString = rControlData.m_sMatchString;
 	}
 
 	if ( m_bStringFilterInvisibleHitsInvalidated && m_bHitBoolsChanged )
@@ -462,10 +465,49 @@ void FilterControl::separateFilter(const QStringList& lWords, QStringList& lMust
 	}
 }
 
+/**
+ * @brief FilterControl::applyStringFilter refreshes m_oFilter)->m_oHitFilterState.m_bFileName for
+ * all hits in lHits.
+ * @param lHits
+ * @param lMustHaveWords
+ * @param lMustNotHaveWords
+ */
 void FilterControl::applyStringFilter(HitList& lHits, const QStringList& lMustHaveWords,
-									  const QStringList& lMustNotHaveWords)
+									  const QStringList& lMustNotHaveWords) const
 {
-	// TODO: do something
+	foreach ( SearchHit* pHit, lHits )
+	{
+		((HitFilter*)&pHit->m_oFilter)->m_oHitFilterState.m_bFileName =
+				matchStringFilter( pHit, lMustHaveWords, lMustNotHaveWords );
+	}
+}
+
+/**
+ * @brief FilterControl::matchStringFilter
+ * @param pHit
+ * @param lMustHaveWords
+ * @param lMustNotHaveWords
+ * @return
+ */
+bool FilterControl::matchStringFilter(SearchHit* pHit, const QStringList& lMustHaveWords,
+									  const QStringList& lMustNotHaveWords) const
+{
+	foreach ( QString sMust, lMustHaveWords )
+	{
+		if ( !pHit->m_oHitData.pQueryHit->m_sDescriptiveName.contains( sMust ) )
+		{
+			return false;
+		}
+	}
+	foreach ( QString sMustNot, lMustNotHaveWords )
+	{
+		if ( pHit->m_oHitData.pQueryHit->m_sDescriptiveName.contains( sMustNot ) )
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 /**

@@ -112,7 +112,10 @@ private:
 						QStringList& lMustNotHaveWords) const;
 
 	void applyStringFilter(HitList& lHits, const QStringList& lMustHaveWords,
-						   const QStringList& lMustNotHaveWords);
+						   const QStringList& lMustNotHaveWords) const;
+
+	bool matchStringFilter(SearchHit* pHit, const QStringList& lMustHaveWords,
+								  const QStringList& lMustNotHaveWords) const;
 
 	void applyRegExpFilter(const QString& sRegExp);
 
