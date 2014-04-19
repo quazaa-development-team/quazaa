@@ -62,6 +62,9 @@ struct FilterControlData
 
 	FilterControlData();
 	FilterControlData(const FilterControlData& other);
+
+	bool operator==(const FilterControlData& rOther);
+	bool operator!=(const FilterControlData& rOther);
 };
 
 class FilterControl

@@ -65,6 +65,29 @@ FilterControlData::FilterControlData(const FilterControlData& other) :
 {
 }
 
+bool FilterControlData::operator==(const FilterControlData& rOther)
+{
+	return m_sMatchString     == rOther.m_sMatchString     &&
+		   m_bRegExp          == rOther.m_bRegExp          &&
+		   m_nMinSize         == rOther.m_nMinSize         &&
+		   m_nMaxSize         == rOther.m_nMaxSize         &&
+		   m_nMinSources      == rOther.m_nMinSources      &&
+		   m_bBusy            == rOther.m_bBusy            &&
+		   m_bFirewalled      == rOther.m_bFirewalled      &&
+		   m_bUnstable        == rOther.m_bUnstable        &&
+		   m_bDRM             == rOther.m_bDRM             &&
+		   m_bSuspicious      == rOther.m_bSuspicious      &&
+		   m_bNonMatching     == rOther.m_bNonMatching     &&
+		   m_bExistsInLibrary == rOther.m_bExistsInLibrary &&
+		   m_bBogus           == rOther.m_bBogus           &&
+		   m_bAdult           == rOther.m_bAdult;
+}
+
+bool FilterControlData::operator!=(const FilterControlData& rOther)
+{
+	return !operator==( rOther );
+}
+
 FilterControl::FilterControl() :
 	m_oFilterControlData( FilterControlData() ),
 	m_bStringChanged( false ),
@@ -217,7 +240,7 @@ void FilterControl::update(const FilterControlData& rControlData)
 
 	// TODO: continue here
 
-	// Q_ASSERT( m_oFilterControlData == rControlData );
+	Q_ASSERT( m_oFilterControlData == rControlData );
 }
 
 FilterControlData* FilterControl::getDataCopy() const
