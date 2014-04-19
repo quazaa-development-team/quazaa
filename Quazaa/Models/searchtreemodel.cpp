@@ -37,6 +37,7 @@
 using namespace common;
 
 SearchTreeItem::SearchTreeItem(SearchTreeItem* parent) :
+	m_nVisibleChildren( 0 ),
 	m_eType( Type::SearchTreeItemType ),
 	m_lChildItems( QList<SearchTreeItem*>() ),
 	m_pParentItem( parent ),
@@ -120,6 +121,25 @@ QVariant SearchTreeItem::data(int column) const
 const SearchFilter::Filter* const SearchTreeItem::getFilter() const
 {
 	return &m_oFilter;
+}
+
+void SearchTreeItem::addVisibleChild()
+{
+	// TODO: remove after testing
+	Q_ASSERT( m_nVisibleChildren < m_lChildItems.count() );
+	++m_nVisibleChildren;
+}
+
+void SearchTreeItem::removeVisibleChild()
+{
+	// TODO: remove after testing
+	Q_ASSERT( m_nVisibleChildren );
+	--m_nVisibleChildren;
+}
+
+quint32 SearchTreeItem::visibleChildCount()
+{
+	return m_nVisibleChildren;
 }
 
 TreeRoot::TreeRoot(SearchTreeModel* pModel) :

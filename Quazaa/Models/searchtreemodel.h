@@ -71,6 +71,9 @@ public:
 		_NO_OF_COLUMNS = 9
 	};
 
+private:
+	quint32                 m_nVisibleChildren;
+
 protected:
 	Type                    m_eType;        // item type
 
@@ -104,6 +107,11 @@ public:
 	QVariant data(int column) const;
 
 	const SearchFilter::Filter* const getFilter() const;
+
+private:
+	void addVisibleChild();
+	void removeVisibleChild();
+	quint32 visibleChildCount();
 
 	friend class SearchFilter::FilterControl; // for access to m_oFilter
 };

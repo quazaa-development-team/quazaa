@@ -70,15 +70,20 @@ private:
 	// lists used to keep track of items for filtering purposes
 	HitList m_lVisibleHits;         // contains currently visible hits
 	HitList m_lFilteredHits;        // contains currently hidden hits
-	HitList m_lNewlyVisibleHits;    // contains hits moved from hidden list on filter change
-	HitList m_lNewlyFilteredHits;   // contains hits moved from visible list on filter change
 
 	FileList m_lVisibleFiles;       // contains currently visible files
 	FileList m_lFilteredFiles;      // contains currently hidden files
-	FileList m_lNewlyVisibleFiles;  // contains files moved from hidden list on filter change
-	FileList m_lNewlyFilteredFiles; // contains files moved from visible list on filter change
 
 	FilterControlData m_oFilterControlData;
+
+	bool m_bStringChanged;
+	bool m_bSizeChanged;
+	bool m_bMinSourcesChanged;
+	bool m_bHitBoolsChanged;
+	bool m_bFileBoolsChanged;
+
+	// allows lazy evaluation of string filter in case of an additionnal filter word
+	bool m_bStringFilterInvisibleHitsInvalidated;
 
 public:
 	FilterControl();
@@ -94,6 +99,21 @@ public:
 	void update(const FilterControlData& rControlData);
 
 	FilterControlData* getDataCopy() const;
+
+private:
+	char updateHitFilterStatus(const FilterControlData& rControlData);
+
+	void analyseFilter(const QString& sNewMatchString,
+					   QStringList& lNewWords, QStringList& lRemovedWords) const;
+	void separateFilter(const QStringList& lWords, QStringList& lMustHaveWords,
+						QStringList& lMustNotHaveWords) const;
+
+	void applyStringFilter(HitList& lHits, const QStringList& lMustHaveWords,
+						   const QStringList& lMustNotHaveWords);
+
+	void applyRegExpFilter(const QString& sRegExp);
+
+	char filterFiles(const FilterControlData& rControlData);
 };
 
 struct HitFilterData;
@@ -142,7 +162,8 @@ struct FileFilterState
 	bool m_bExistsInLibrary : 1;
 	bool m_bIncomplete      : 1;
 	bool m_bSize            : 1;
-	bool m_bSourceCount     : 1;
+	bool m_bEnoughHits      : 1;
+	bool m_bVisibleHits     : 1;
 
 	FileFilterState();
 };
@@ -183,6 +204,10 @@ public:
 
 	FileFilter(SearchHit* pHit);
 	void initializeFilterState(FilterControl* pControl);
+
+	void updateBoolState(const FilterControlData& rControlData);
+
+	bool updateVisible();
 };
 
 class HitFilter : public Filter
@@ -195,6 +220,8 @@ public:
 
 	HitFilter(const QueryHit* const pHit);
 	void initializeFilterState(FilterControl* pControl);
+
+	bool updateBoolState(const FilterControlData& rControlData);
 };
 
 }
