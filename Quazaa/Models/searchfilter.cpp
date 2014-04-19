@@ -165,7 +165,7 @@ void FilterControl::add(SearchTreeItem* pItem)
 		SearchHit* pHitItem   = (SearchHit*)pItem;
 		HitFilter* pHitFilter = (HitFilter*)&pItem->m_oFilter;
 
-		pHitFilter->initializeFilterState( this );
+		pHitFilter->initializeFilterState( *this );
 
 		if ( pHitFilter->visible() )
 		{
@@ -184,7 +184,7 @@ void FilterControl::add(SearchTreeItem* pItem)
 		SearchFile* pFileItem   = (SearchFile*)pItem;
 		FileFilter* pFileFilter = (FileFilter*)&pItem->m_oFilter;
 
-		pFileFilter->initializeFilterState( this );
+		pFileFilter->initializeFilterState( *this );
 
 		if ( pFileFilter->visible() )
 		{
@@ -710,6 +710,11 @@ FileFilterState::FileFilterState() :
 {
 }
 
+void FileFilterState::initialize(const FilterControl& rControl)
+{
+	// TODO: do something
+}
+
 HitFilterState::HitFilterState() :
 	// false: filtered out; true: visible in GUI
 	m_bBogus( true ),
@@ -720,6 +725,11 @@ HitFilterState::HitFilterState() :
 	m_bSuspicious( true ),
 	m_bUnstable( true )
 {
+}
+
+void HitFilterState::initialize(const FilterControl& rControl)
+{
+	// TODO: do something
 }
 
 Filter::Filter() :
@@ -750,9 +760,9 @@ FileFilter::FileFilter(SearchHit* pHit) :
 	m_bInitialized = true;
 }
 
-void FileFilter::initializeFilterState(FilterControl* pControl)
+void FileFilter::initializeFilterState(const FilterControl& rControl)
 {
-	// TODO: do something
+	m_oFileFilterState.initialize( rControl );
 }
 
 /**
@@ -786,9 +796,9 @@ HitFilter::HitFilter(const QueryHit* const pHit) :
 	m_bInitialized = true;
 }
 
-void HitFilter::initializeFilterState(FilterControl* pControl)
+void HitFilter::initializeFilterState(const FilterControl& rControl)
 {
-	// TODO: do something
+	m_oHitFilterState.initialize( rControl );
 }
 
 /**

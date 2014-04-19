@@ -172,6 +172,8 @@ struct FileFilterState
 	bool m_bVisibleHits     : 1;
 
 	FileFilterState();
+
+	void initialize(const FilterControl& rControl);
 };
 
 struct HitFilterState
@@ -186,6 +188,8 @@ struct HitFilterState
 	bool m_bUnstable        : 1;
 
 	HitFilterState();
+
+	void initialize(const FilterControl& rControl);
 };
 
 class Filter
@@ -209,7 +213,7 @@ public:
 	FileFilterState m_oFileFilterState;
 
 	FileFilter(SearchHit* pHit);
-	void initializeFilterState(FilterControl* pControl);
+	void initializeFilterState(const FilterControl& rControl);
 
 	void updateBoolState(const FilterControlData& rControlData);
 
@@ -225,7 +229,7 @@ public:
 	HitFilterState  m_oHitFilterState;
 
 	HitFilter(const QueryHit* const pHit);
-	void initializeFilterState(FilterControl* pControl);
+	void initializeFilterState(const FilterControl& rControl);
 
 	bool updateBoolState(const FilterControlData& rControlData);
 };
