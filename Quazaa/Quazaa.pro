@@ -268,6 +268,7 @@ HEADERS += \
 		Misc/timedsignalqueue.h \
 		Misc/timeoutreadlocker.h \
 		Misc/timeoutwritelocker.h \
+		Misc/unorderedptrvector.h \
 		Models/categorynavigatortreemodel.h \
 		Models/discoverytablemodel.h \
 		Models/downloadstreemodel.h \
