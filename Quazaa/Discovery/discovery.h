@@ -151,6 +151,9 @@ private:
 	// true if current Discovery Manager state has already been saved to file, false otherwise.
 	bool                    m_bSaved;
 
+	// 1 after the manager has been successfully started and 0 as soon as stop() is called
+	QAtomicInt              m_bRunning;
+
 	// service ID provider
 	IDProvider< ServiceID > m_oIDProvider;
 
@@ -158,7 +161,7 @@ private:
 	QThread*                m_pHostCacheDiscoveryThread;
 
 public:
-	quint16*                m_pActive;
+	QAtomicInt*             m_pActive;
 
 	/* ========================================================================================== */
 	/* ====================================== Construction ====================================== */
@@ -260,12 +263,21 @@ public:
 	void initiateSearchForDuplicates(ServiceID nID);
 
 	/**
-	 * @brief isActive allows to find out whether the Discovery Manager is currently active.
+	 * @brief isActive allows to find out whether the Discovery Manager is currently doing an
+	 * update/query for a specified network.
 	 * Locking: YES (synchronous)
 	 * @param eSType
 	 * @return true if active; false otherwise
 	 */
 	bool isActive(const ServiceType::Type eSType);
+
+	/**
+	 * @brief isOperating allows to find out whether the Manager has finished starting up and not
+	 * started to shut down.
+	 * @return true if the Manager is operating; false if not finished starting up/started shutting
+	 * down
+	 */
+	bool isOperating();
 
 	/**
 	 * @brief requestNAM provides a shared pointer to the discovery services network

@@ -357,10 +357,14 @@ protected:
 	/* ========================================================================================== */
 	/* ============================= Specialized Attribute Setters  ============================= */
 	/* ========================================================================================== */
+
 	/**
-	 * @brief updateStatistics updates statistics, failure counters etc.
+	 * @brief updateStatistics: Updates statistics, failure counters etc.
 	 * Requires locking: RW
+	 * @param bCanceled
 	 * @param nHosts
+	 * @param nURLs
+	 * @param bUpdateOK
 	 */
 	void updateStatistics(bool bCanceled, quint16 nHosts = 0, quint16 nURLs = 0,
 						  bool bUpdateOK = false);

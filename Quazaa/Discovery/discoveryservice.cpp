@@ -397,6 +397,9 @@ void DiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16 
 	if ( bCanceled )
 	{
 		Q_ASSERT( !m_oSQCancelRequestID.isNull() );
+
+		// This might be a manual canceling, so we still have to remove the ID from the queue
+		signalQueue.pop( m_oSQCancelRequestID );
 	}
 	else
 	{
@@ -425,7 +428,7 @@ void DiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16 
 		m_bZero = false;
 		m_nZeroRevivals = 0;
 	}
-	else // fail
+	else if ( discoveryManager.isOperating() ) // fail and not currently shutting down
 	{
 		// Check network connected status and skip this if network is not connected
 		QNAMPtr pNAM = discoveryManager.requestNAM();
@@ -467,10 +470,7 @@ void DiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16 
 		}
 	}
 
-	if ( discoveryManager.m_pActive[m_nServiceType] )
-		--discoveryManager.m_pActive[m_nServiceType];
-	else
-		Q_ASSERT( false );
+	Q_ASSERT( discoveryManager.m_pActive[m_nServiceType].fetchAndAddRelaxed( -1 ) > 0 );
 
 	emit updated( m_nID );
 }

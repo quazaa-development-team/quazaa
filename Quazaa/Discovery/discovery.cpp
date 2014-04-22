@@ -47,11 +47,12 @@ using namespace Discovery;
 Manager::Manager(QObject *parent) :
 	QObject( parent ),
 	m_bSaved( true ),
-	m_pActive( new quint16[Discovery::ServiceType::NoOfTypes] )
+	m_bRunning( 0 ),
+	m_pActive( new QAtomicInt[Discovery::ServiceType::NoOfTypes] )
 {
 	for ( quint8 i = 0; i < ServiceType::NoOfTypes; ++i )
 	{
-		m_pActive[i] = 0;
+		m_pActive[i].store( 0 );
 	}
 
 	// reg. meta types
@@ -109,6 +110,8 @@ void Manager::start()
 
 	// Includes its own locking.
 	load();
+
+	m_bRunning.store( 1 );
 }
 
 /**
@@ -118,6 +121,8 @@ void Manager::start()
  */
 bool Manager::stop()
 {
+	m_bRunning.store( 0 );
+
 	bool bSaved = save( true );
 	clear();
 
@@ -335,8 +340,18 @@ void Manager::initiateSearchForDuplicates(ServiceID nID)
  */
 bool Manager::isActive(const ServiceType::Type eSType)
 {
-	QMutexLocker l( &m_pSection );
-	return m_pActive[eSType];
+	return m_pActive[eSType].load() > 0;
+}
+
+/**
+ * @brief isOperating allows to find out whether the Manager has finished starting up and not
+ * started to shut down.
+ * @return true if the Manager is operating; false if not finished starting up/started shutting
+ * down
+ */
+bool Manager::isOperating()
+{
+	return m_bRunning.load() == 1;
 }
 
 /**
@@ -660,7 +675,7 @@ void Manager::asyncUpdateServiceHelper(const CNetworkType type)
 
 			postLog( LogSeverity::Notice, tr( "Updating service: " ) + pService->url() );
 
-			++m_pActive[pService.data()->m_nServiceType];
+			m_pActive[pService.data()->m_nServiceType].fetchAndAddRelaxed( 1 );
 			pService->update();
 		}
 		else
@@ -708,7 +723,7 @@ void Manager::asyncUpdateServiceHelper(ServiceID nID)
 
 	postLog( LogSeverity::Notice, tr( "Updating service: " ) + pService->url() );
 
-	++m_pActive[pService.data()->m_nServiceType];
+	m_pActive[pService.data()->m_nServiceType].fetchAndAddRelaxed( 1 );
 	pService->update();
 }
 
@@ -750,7 +765,7 @@ void Manager::asyncQueryServiceHelper(const CNetworkType type)
 				pService.data()->cancelRequest();
 			}
 
-			++m_pActive[pService.data()->serviceType()];
+			m_pActive[pService.data()->serviceType()].fetchAndAddRelaxed( 1 );
 			pService->query();
 
 #if ENABLE_DISCOVERY_DEBUGGING
@@ -821,7 +836,7 @@ void Manager::asyncQueryServiceHelper(ServiceID nID)
 
 	postLog( LogSeverity::Notice, tr( "Querying service: " ) + pService->url() );
 
-	++m_pActive[pService.data()->serviceType()];
+	m_pActive[pService.data()->serviceType()].fetchAndAddRelaxed( 1 );
 	pService->query();
 
 #if ENABLE_DISCOVERY_DEBUGGING
