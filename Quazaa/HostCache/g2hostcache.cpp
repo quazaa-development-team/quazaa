@@ -1366,7 +1366,11 @@ void G2HostCache::load()
 	QFile file( CQuazaaGlobals::DATA_PATH() + "hostcache.dat" );
 
 	if ( !file.exists() || !file.open( QIODevice::ReadOnly ) )
+	{
+		m_bLoading = false;
+		m_pSection.unlock();
 		return;
+	}
 
 	QDataStream fsFile( &file );
 
@@ -1415,13 +1419,13 @@ void G2HostCache::load()
 }
 
 /**
- * @brief CHostCache::asyncStartUpHelper helper method for start().
+ * @brief CHostCache::startUpInternal helper method for start().
  * Locking: YES
  */
 void G2HostCache::startUpInternal()
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
-	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "asyncStartUpH()" ) );
+	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "startUpInternal()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	connect( &securityManager.m_oSanity, SIGNAL( beginSanityCheck() ), SLOT( sanityCheck() ) );
