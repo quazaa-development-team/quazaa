@@ -38,7 +38,7 @@ using namespace common;
 
 SearchTreeItem::SearchTreeItem(SearchTreeItem* parent) :
 	m_nVisibleChildren( 0 ),
-	m_eType( Type::SearchTreeItemType ),
+	m_eType( SearchTreeItemType ),
 	m_lChildItems( QList<SearchTreeItem*>() ),
 	m_pParentItem( parent ),
 	m_pItemData( new QVariant[_NO_OF_COLUMNS] )
@@ -126,7 +126,7 @@ const SearchFilter::Filter* const SearchTreeItem::getFilter() const
 void SearchTreeItem::addVisibleChild()
 {
 	// TODO: remove after testing
-	Q_ASSERT( m_nVisibleChildren < m_lChildItems.count() );
+	Q_ASSERT( m_nVisibleChildren < (quint32)m_lChildItems.count() );
 	++m_nVisibleChildren;
 }
 
@@ -146,7 +146,7 @@ TreeRoot::TreeRoot(SearchTreeModel* pModel) :
 	SearchTreeItem( NULL ),
 	m_pModel( pModel )
 {
-	m_eType = Type::TreeRootType;
+	m_eType = TreeRootType;
 
 	/*FILE           = 0,
 	EXTENSION      = 1,
@@ -178,7 +178,7 @@ TreeRoot::~TreeRoot()
 
 void TreeRoot::appendChild(SearchTreeItem* pItem)
 {
-	Q_ASSERT( pItem->type() == Type::SearchFileType );
+	Q_ASSERT( pItem->type() == SearchFileType );
 
 	addToFilterControl( pItem );
 	SearchTreeItem::appendChild( pItem );
@@ -187,7 +187,7 @@ void TreeRoot::appendChild(SearchTreeItem* pItem)
 void TreeRoot::removeChild(int position)
 {
 	SearchTreeItem* pItem = m_lChildItems.at( position );
-	Q_ASSERT( pItem->type() == Type::SearchFileType );
+	Q_ASSERT( pItem->type() == SearchFileType );
 
 	removeFromFilterControl( pItem );
 	SearchTreeItem::removeChild( position );
@@ -233,7 +233,7 @@ QueryHit* TreeRoot::addQueryHit(QueryHit* pHit)
 	}
 	else
 	{
-		Q_ASSERT( child( existingFileEntry )->type() == Type::SearchFileType );
+		Q_ASSERT( child( existingFileEntry )->type() == SearchFileType );
 
 		SearchFile* pFileItem = (SearchFile*)child( existingFileEntry );
 		if ( !pFileItem->duplicateHitCheck( pHit ) )
@@ -259,7 +259,7 @@ int TreeRoot::find(CHash& hash) const
 {
 	for ( int i = 0; i < m_lChildItems.size(); ++i )
 	{
-		Q_ASSERT( child( i )->type() == Type::SearchFileType );
+		Q_ASSERT( child( i )->type() == SearchFileType );
 		if ( ((SearchFile*)child( i ))->manages( hash ) )
 		{
 			return i;
@@ -289,7 +289,7 @@ SearchFile::SearchFile(SearchTreeItem* parent,
 	SearchTreeItem( parent ),
 	m_lHashes( HashVector( pHit->m_lHashes ) )
 {
-	m_eType = Type::SearchFileType;
+	m_eType = SearchFileType;
 
 	m_pItemData[FILE]      = fileInfo.completeBaseName();
 	m_pItemData[EXTENSION] = fileInfo.suffix();
@@ -308,7 +308,7 @@ SearchFile::~SearchFile()
 
 void SearchFile::appendChild(SearchTreeItem* pItem)
 {
-	Q_ASSERT( pItem->type() == Type::SearchHitType );
+	Q_ASSERT( pItem->type() == SearchHitType );
 
 	((TreeRoot*)m_pParentItem)->addToFilterControl( pItem );
 	SearchTreeItem::appendChild( pItem );
@@ -317,7 +317,7 @@ void SearchFile::appendChild(SearchTreeItem* pItem)
 void SearchFile::removeChild(int position)
 {
 	SearchTreeItem* pItem = m_lChildItems.at( position );
-	Q_ASSERT( pItem->type() == Type::SearchHitType );
+	Q_ASSERT( pItem->type() == SearchHitType );
 
 	((TreeRoot*)m_pParentItem)->removeFromFilterControl( pItem );
 	SearchTreeItem::removeChild( position );
@@ -395,7 +395,7 @@ SearchHit::SearchHit(SearchTreeItem* parent,
 					 QueryHit* pHit, const QFileInfo& fileInfo) :
 	SearchTreeItem( parent )
 {
-	m_eType = Type::SearchHitType;
+	m_eType = SearchHitType;
 
 	m_pItemData[FILE]      = fileInfo.completeBaseName();
 	m_pItemData[EXTENSION] = fileInfo.suffix();

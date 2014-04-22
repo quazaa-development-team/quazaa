@@ -34,11 +34,11 @@ G2PacketPool G2Packets;
 
 G2Packet::G2Packet() :
 	m_pNext( NULL ),
-	m_nReference( NULL ),
-	m_nPosition( 0 ),
+	m_nReference( 0 ),
 	m_pBuffer( NULL ),
 	m_nBuffer( 0 ),
 	m_nLength( 0 ),
+	m_nPosition( 0 ),
 	m_bCompound( false ),
 	m_bBigEndian( false )
 {
@@ -47,28 +47,28 @@ G2Packet::G2Packet() :
 
 G2Packet::~G2Packet()
 {
-	if(m_nReference != 0)
+	if ( m_nReference )
 	{
 		systemLog.postLog( LogSeverity::Debug, Components::G2,
-						   QString("%1 not released").arg((char*)&m_sType[0]));
+						   QString( "%1 not released" ).arg( (char*)&m_sType[0] ) );
 	}
-	Q_ASSERT(m_nReference == 0);
+	Q_ASSERT( !m_nReference );
 
-	if(m_pBuffer)
+	if ( m_pBuffer )
 	{
-		free(m_pBuffer);
+		free( m_pBuffer );
 	}
 }
 
 void G2Packet::reset()
 {
-	Q_ASSERT(m_nReference == 0);
+	Q_ASSERT( !m_nReference );
 
 	m_pNext			= 0;
 	m_nLength		= 0;
 	m_nPosition		= 0;
 
-	memset(&m_sType[0], 0, sizeof(m_sType));
+	memset( &m_sType[0], 0, sizeof( m_sType ) );
 	m_bCompound = false;
 }
 

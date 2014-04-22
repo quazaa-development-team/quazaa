@@ -71,8 +71,8 @@ T IDProvider<T>::aquire()
 	{
 		const T nBiggest = m_lIDs.back();
 
-		std::list<T>::iterator it    = m_lIDs.begin();
-		std::list<T>::iterator itEnd = m_lIDs.end();
+		typename std::list<T>::iterator it    = m_lIDs.begin();
+		typename std::list<T>::iterator itEnd = m_lIDs.end();
 
 		while ( *it < nBiggest )
 			++it;
@@ -92,14 +92,14 @@ void IDProvider<T>::release(T nID)
 {
 	m_oSection.lock();
 
-	std::list<T>::iterator it = m_lIDs.end();
+	typename std::list<T>::iterator it = m_lIDs.end();
 	--it; // is always a valid operation as there is always at least 1 ID in the list
 
 	// insert it so that it can be reused
 	it = m_lIDs.insert( it, nID );
 
 #ifdef _DEBUG
-	std::list<T>::iterator it2 = m_lIDs.end();
+	typename std::list<T>::iterator it2 = m_lIDs.end();
 	--it2;
 
 	// last element in the list is always bigger than any existing ID

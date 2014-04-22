@@ -87,6 +87,9 @@ CHash::~CHash()
 		case CHash::MD5:
 		case CHash::MD4:
 			delete ( (QCryptographicHash*)m_pContext );
+			break;
+		default:
+			Q_ASSERT( false );
 		}
 	}
 }
@@ -173,19 +176,19 @@ CHash* CHash::fromRaw(QByteArray &baRaw, CHash::Algorithm algo)
 
 int CHash::lengthForUrn(const QString &urn)
 {
-	if(urn == "urn:sha1:")
+	if ( urn == "urn:sha1:" )
 		return 32;
-	if(urn == "urn:ed2k:")
+	if ( urn == "urn:ed2k:" )
 		return 32;
-	if(urn == "urn:ed2khash:")
+	if ( urn == "urn:ed2khash:" )
 		return 32;
-	if(urn == "urn:tree:tiger:")
+	if ( urn == "urn:tree:tiger:" )
 		return 39;
-	if(urn == "urn:btih:")
+	if ( urn == "urn:btih:" )
 		return 40;
-	if(urn == "urn:bitprint:")
+	if ( urn == "urn:bitprint:" )
 		return 72;
-	if(urn == "urn:md5:")
+	if ( urn == "urn:md5:" )
 		return 32;
 	return -1;
 }
@@ -193,14 +196,16 @@ int CHash::lengthForUrn(const QString &urn)
 // Returns URN as string
 QString CHash::toURN() const
 {
-	switch( m_nHashAlgorithm )
+	switch ( m_nHashAlgorithm )
 	{
-		case CHash::SHA1:
-			return QString( "urn:sha1:" ) + toString();
-		case CHash::MD5:
-			return QString("urn:md5:") + toString();
-		case CHash::MD4:
-			break;
+	case CHash::SHA1:
+		return QString( "urn:sha1:" ) + toString();
+	case CHash::MD5:
+		return QString("urn:md5:") + toString();
+	case CHash::MD4:
+		break;
+	default:
+		Q_ASSERT( false );
 	}
 
 	return QString();
@@ -214,14 +219,16 @@ QString CHash::toString() const
 
 	switch( m_nHashAlgorithm )
 	{
-		case CHash::SHA1:
-			cyoBase32Encode( (char*)&pBuff, rawValue().data(), 20 );
-			break;
-		case CHash::MD5:
-			cyoBase16Encode((char*)&pBuff, rawValue().data(), 16);
-			break;
-		case CHash::MD4:
-			break;
+	case CHash::SHA1:
+		cyoBase32Encode( (char*)&pBuff, rawValue().data(), 20 );
+		break;
+	case CHash::MD5:
+		cyoBase16Encode((char*)&pBuff, rawValue().data(), 16);
+		break;
+	case CHash::MD4:
+		break;
+	default:
+		Q_ASSERT( false );
 	}
 
 	return QString( pBuff );
@@ -242,6 +249,9 @@ void CHash::finalize()
 			delete((QCryptographicHash*)m_pContext);
 			m_pContext = 0;
 			m_bFinalized = true;
+			break;
+		default:
+			Q_ASSERT( false );
 		}
 	}
 }
@@ -256,6 +266,9 @@ void CHash::addData(const char *pData, quint32 nLength)
 	case CHash::MD5:
 	case CHash::MD4:
 		( (QCryptographicHash*)m_pContext )->addData( pData, nLength );
+		break;
+	default:
+		Q_ASSERT( false );
 	}
 }
 void CHash::addData(QByteArray baData)
@@ -273,6 +286,8 @@ QString CHash::getFamilyName()
 		return QString( "md5" );
 	case CHash::MD4:
 		return QString( "md4" );
+	default:
+		Q_ASSERT( false );
 	}
 
 	return "";

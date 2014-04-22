@@ -312,7 +312,7 @@ template< class list_type >
 list_type inverse(const list_type& src)
 {
 	typedef typename list_type::range_type range_type;
-	typedef typename list_type::payload_type payload_type;
+//	typedef typename list_type::payload_type payload_type;
 	typedef typename list_type::range_size_type range_size_type;
 	typedef typename list_type::const_iterator const_iterator;
 	list_type result( src.limit() );

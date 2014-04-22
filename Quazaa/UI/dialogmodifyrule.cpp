@@ -33,8 +33,8 @@
 
 CDialogModifyRule::CDialogModifyRule(CWidgetSecurity* parent, RuleDataPtr pRule) :
 	QDialog( parent ),
-	ui( new Ui::CDialogModifyRule ),
-	m_pParent( parent )
+	m_pParent( parent ),
+	ui( new Ui::CDialogModifyRule )
 {
 	m_pRule = pRule;
 

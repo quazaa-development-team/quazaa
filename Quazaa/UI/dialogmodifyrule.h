@@ -60,26 +60,6 @@ class CDialogModifyRule : public QDialog
 {
 	Q_OBJECT
 
-	/*typedef Security::ID                    ID;
-	typedef Security::Rule                  Rule;
-	typedef Security::RuleType::Type        Type;
-	typedef Security::RuleAction::Action    Action;
-	typedef Security::SharedRulePtr         SharedRulePtr;
-
-private:
-	typedef Security::Rule                  Rule;
-	typedef Security::IPRule                IPRule;
-	typedef Security::IPRangeRule           IPRangeRule;
-#if SECURITY_ENABLE_GEOIP
-	typedef Security::CountryRule           CountryRule;
-#endif // SECURITY_ENABLE_GEOIP
-	typedef Security::HashRule              HashRule;
-	typedef Security::RegularExpressionRule RegExpRule;
-	typedef Security::UserAgentRule         UserAgentRule;
-	typedef Security::ContentRule           ContentRule;
-
-	typedef Security::Manager               Manager;*/
-
 	RuleDataPtr            m_pRule;
 	CWidgetSecurity*       m_pParent;
 	Ui::CDialogModifyRule* ui;

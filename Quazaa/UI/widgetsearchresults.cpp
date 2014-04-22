@@ -43,8 +43,8 @@
 
 WidgetSearchResults::WidgetSearchResults(QWidget* parent) :
 	QMainWindow( parent ),
-	ui( new Ui::WidgetSearchResults ),
-	m_pFilterData( NULL )
+	m_pFilterData( NULL ),
+	ui( new Ui::WidgetSearchResults )
 {
 	ui->setupUi( this );
 	labelFilter = new QLabel();

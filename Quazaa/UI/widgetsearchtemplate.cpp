@@ -129,7 +129,7 @@ CHash* WidgetSearchTemplate::getHash()
 
 	if ( itemSearch )
 	{
-		if ( itemSearch->type() == SearchTreeItem::Type::SearchFileType )
+		if ( itemSearch->type() == SearchTreeItem::SearchFileType )
 		{
 			SearchFile* pFile = (SearchFile*)itemSearch;
 
@@ -140,7 +140,7 @@ CHash* WidgetSearchTemplate::getHash()
 				pReturnValue = &( pFile->m_lHashes.front() );
 			}
 		}
-		else if ( itemSearch->type() == SearchTreeItem::Type::SearchHitType )
+		else if ( itemSearch->type() == SearchTreeItem::SearchHitType )
 		{
 			Q_ASSERT( false ); // top level node should be a SearchFile
 

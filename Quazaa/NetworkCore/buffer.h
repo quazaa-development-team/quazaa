@@ -113,7 +113,7 @@ public:
 	QString dump() const;
 
 private:
-	void reallocate(quint32 nNewSize);
+	void reallocate(quint32 nNewSize) throw(std::bad_alloc);
 };
 
 char* Buffer::data()

@@ -160,7 +160,7 @@ void FilterControl::add(SearchTreeItem* pItem)
 {
 	Q_ASSERT( pItem->m_oFilter.dataInitialized() );
 
-	if ( pItem->type() == SearchTreeItem::Type::SearchHitType )
+	if ( pItem->type() == SearchTreeItem::SearchHitType )
 	{
 		SearchHit* pHitItem   = (SearchHit*)pItem;
 		HitFilter* pHitFilter = (HitFilter*)&pItem->m_oFilter;
@@ -179,7 +179,7 @@ void FilterControl::add(SearchTreeItem* pItem)
 			m_lFilteredHits.push_back( pHitItem );
 		}
 	}
-	else if ( pItem->type() == SearchTreeItem::Type::SearchFileType )
+	else if ( pItem->type() == SearchTreeItem::SearchFileType )
 	{
 		SearchFile* pFileItem   = (SearchFile*)pItem;
 		FileFilter* pFileFilter = (FileFilter*)&pItem->m_oFilter;
