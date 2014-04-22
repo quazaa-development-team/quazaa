@@ -30,6 +30,7 @@
 #include <QSharedPointer>
 #include <QString>
 #include <QThread>
+#include <QFile>
 
 #include <map>
 #include <list>
@@ -331,6 +332,15 @@ public:
 	 */
 	static void postLog(LogSeverity::Severity severity, QString message,
 						bool bDebug = false, ServiceID nID = 0);
+
+	/**
+	 * @brief writeToFile is a helper method for save()
+	 * Locking: YES (synchronous)
+	 * @param pManager
+	 * @param oFile
+	 * @return The number of services written to the specified file
+	 */
+	static quint32 writeToFile(const void* const pManager, QFile& oFile);
 
 signals:
 	/**

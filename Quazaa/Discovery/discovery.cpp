@@ -22,7 +22,6 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include <QFile>
 #include <QDateTime>
 #include <QDir>
 #include <QRegularExpression>
@@ -519,126 +518,9 @@ bool Manager::asyncSyncSavingHelper()
 	postLog( LogSeverity::Debug, "asyncSyncSavingHelper()", true );
 #endif
 
-	QString sPath          = CQuazaaGlobals::DATA_PATH() + "discovery.dat";
-	QString sBackupPath    = CQuazaaGlobals::DATA_PATH() + "discovery_backup.dat";
-	QString sTemporaryPath = sBackupPath + "_tmp";
-
-	postLog( LogSeverity::Debug, tr( "Saving to file: %1" ).arg( sPath ) );
-
-#if ENABLE_DISCOVERY_DEBUGGING
-	postLog( LogSeverity::Debug, "defined paths", true );
-#endif
-
-	if ( QFile::exists( sTemporaryPath ) && !QFile::remove( sTemporaryPath ) )
-	{
-		postLog( LogSeverity::Error,
-				 tr( "Could not free space required for data backup: " ) + sPath );
-
-#if ENABLE_DISCOVERY_DEBUGGING
-	postLog( LogSeverity::Debug, "error temp path used...", true );
-#endif
-		return false;
-	}
-
-	QFile oFile( sTemporaryPath );
-
-#if ENABLE_DISCOVERY_DEBUGGING
-	postLog( LogSeverity::Debug, "created file", true );
-#endif
-
-	if ( !oFile.open( QIODevice::WriteOnly ) )
-	{
-		postLog( LogSeverity::Error, tr( "Could open data file for write: " ) + sTemporaryPath );
-
-#if ENABLE_DISCOVERY_DEBUGGING
-	postLog( LogSeverity::Debug, "could not write to file", true );
-#endif
-		return false;
-	}
-
-	m_pSection.lock();
-
-#if ENABLE_DISCOVERY_DEBUGGING
-	postLog( LogSeverity::Debug, "got mutex lock", true );
-#endif
-
-	quint16 nVersion = DISCOVERY_CODE_VERSION;
-	quint32 nCount   = doCount();
-
-#if ENABLE_DISCOVERY_DEBUGGING
-	postLog( LogSeverity::Debug, "before try", true );
-#endif
-
-	try
-	{
-		QDataStream fsFile( &oFile );
-
-		fsFile << nVersion;
-		fsFile << nCount;
-
-#if ENABLE_DISCOVERY_DEBUGGING
-	postLog( LogSeverity::Debug, "before writing services to file", true );
-#endif
-
-		ServicePtr pService;
-
-		// write services to stream
-		foreach (  MapPair pair, m_mServices )
-		{
-			pService = pair.second;
-			pService->cancelRequest( true );
-			DiscoveryService::save( pService.data(), fsFile );
-			pService->unlock();
-		}
-
-#if ENABLE_DISCOVERY_DEBUGGING
-	postLog( LogSeverity::Debug, "saved all services", true );
-#endif
-	}
-	catch ( ... )
-	{
-		m_pSection.unlock();
-
-		postLog( LogSeverity::Error,
-				 tr( "Unspecified problem while writing discovery services to disk." ) );
-
-#if ENABLE_DISCOVERY_DEBUGGING
-	postLog( LogSeverity::Debug, "Caught exception!", true );
-#endif
-		return false;
-	}
-
-	m_bSaved = true;
-	m_pSection.unlock();
-
-#if ENABLE_DISCOVERY_DEBUGGING
-	postLog( LogSeverity::Debug, "mutex unlocked", true );
-#endif
-
-	oFile.close();
-
-	if ( QFile::exists( sPath ) && !QFile::remove( sPath ) )
-	{
-		postLog( LogSeverity::Error, tr( "Could not remove old data file: " ) + sPath );
-		return false;
-	}
-
-	if ( !QFile::rename( sTemporaryPath, sPath ) )
-	{
-		postLog( LogSeverity::Error, tr( "Could not rename data file: " ) + sPath );
-		return false;
-	}
-
-	if ( QFile::exists( sBackupPath ) && !QFile::remove( sBackupPath ) )
-	{
-		postLog( LogSeverity::Warning, tr( "Could not remove old backup file: " ) + sBackupPath );
-	}
-
-	if ( !QFile::copy( sPath, sBackupPath ) )
-	{
-		postLog( LogSeverity::Warning, tr( "Could not create create new backup file: " )
-						   + sBackupPath );
-	}
+	const quint32 nCount = common::securedSaveFile( CQuazaaGlobals::DATA_PATH(), "discovery.dat",
+													Components::Discovery, this,
+													&Manager::writeToFile );
 
 	postLog( LogSeverity::Debug, tr( "%1 services saved." ).arg( nCount ) );
 
@@ -1792,4 +1674,57 @@ void Manager::postLog(LogSeverity::Severity severity, QString message,
 	{
 		systemLog.postLog( severity, Components::Discovery, sMessage );
 	}
+}
+
+/**
+ * @brief writeToFile is a helper method for save()
+ * Locking: YES (synchronous)
+ * @param pManager
+ * @param oFile
+ * @return The number of services written to the specified file
+ */
+quint32 Manager::writeToFile(const void * const pManager, QFile& oFile)
+{
+#if ENABLE_DISCOVERY_DEBUGGING
+	postLog( LogSeverity::Debug, QString( "Manager::writeToFile()" ) ), true );
+#endif
+
+	Manager* pDiscovery = (Manager*)pManager;
+
+	pDiscovery->m_pSection.lock();
+
+	const quint16 nVersion = DISCOVERY_CODE_VERSION;
+	const quint32 nCount   = pDiscovery->doCount();
+
+	try
+	{
+		QDataStream fsFile( &oFile );
+
+		fsFile << nVersion;
+		fsFile << nCount;
+
+		ServicePtr pService;
+
+		// write services to stream
+		foreach (  MapPair pair, pDiscovery->m_mServices )
+		{
+			pService = pair.second;
+			pService->cancelRequest( true );
+			DiscoveryService::save( pService.data(), fsFile );
+			pService->unlock();
+		}
+	}
+	catch ( ... )
+	{
+		pDiscovery->m_pSection.unlock();
+
+		postLog( LogSeverity::Error,
+				 tr( "Unspecified problem while writing discovery services to disk." ) );
+
+		return 0;
+	}
+
+	pDiscovery->m_bSaved = true;
+	pDiscovery->m_pSection.unlock();
+	return nCount;
 }
