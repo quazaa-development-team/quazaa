@@ -391,9 +391,9 @@ char FilterControl::updateHitFilterStatus(const FilterControlData& rControlData)
 		}
 	}
 
-	foreach ( SearchHit* pHit, lNewlyFilteredHits )
+	for ( quint32 i = 0, count = lNewlyFilteredHits.count(); i < count; ++i )
 	{
-		m_lFilteredHits.push_back( pHit );
+		m_lFilteredHits.push_back( lNewlyFilteredHits[i] );
 	}
 
 	char nReturn = 0;
@@ -475,10 +475,10 @@ void FilterControl::separateFilter(const QStringList& lWords, QStringList& lMust
 void FilterControl::applyStringFilter(HitList& lHits, const QStringList& lMustHaveWords,
 									  const QStringList& lMustNotHaveWords) const
 {
-	foreach ( SearchHit* pHit, lHits )
+	for ( quint32 i = 0, count = lHits.count(); i < count; ++i )
 	{
-		((HitFilter*)&pHit->m_oFilter)->m_oHitFilterState.m_bFileName =
-				matchStringFilter( pHit, lMustHaveWords, lMustNotHaveWords );
+		((HitFilter*)&lHits[i]->m_oFilter)->m_oHitFilterState.m_bFileName =
+				matchStringFilter( lHits[i], lMustHaveWords, lMustNotHaveWords );
 	}
 }
 
@@ -518,17 +518,20 @@ void FilterControl::applyRegExpFilter(const QString& sRegExp)
 {
 	QRegularExpression oRegExp( sRegExp );
 
-	foreach ( SearchHit* pHit, m_lVisibleHits )
+	for ( quint32 i = 0, count = m_lVisibleHits.count(); i < count; ++i )
 	{
 		// false: filtered out; true: visible in GUI
-		((HitFilter*)&pHit->m_oFilter)->m_oHitFilterState.m_bFileName =
-				oRegExp.match( pHit->m_oHitData.pQueryHit->m_sDescriptiveName ).hasMatch();
+		((HitFilter*)&m_lVisibleHits[i]->m_oFilter)->m_oHitFilterState.m_bFileName =
+				oRegExp.match( m_lVisibleHits[i]->m_oHitData.pQueryHit->m_sDescriptiveName
+							   ).hasMatch();
 	}
-	foreach ( SearchHit* pHit, m_lFilteredHits )
+
+	for ( quint32 i = 0, count = m_lFilteredHits.count(); i < count; ++i )
 	{
 		// false: filtered out; true: visible in GUI
-		((HitFilter*)&pHit->m_oFilter)->m_oHitFilterState.m_bFileName =
-				oRegExp.match( pHit->m_oHitData.pQueryHit->m_sDescriptiveName ).hasMatch();
+		((HitFilter*)&m_lFilteredHits[i]->m_oFilter)->m_oHitFilterState.m_bFileName =
+				oRegExp.match( m_lFilteredHits[i]->m_oHitData.pQueryHit->m_sDescriptiveName
+							   ).hasMatch();
 	}
 }
 

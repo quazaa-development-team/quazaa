@@ -310,8 +310,8 @@ void SearchFile::appendChild(SearchTreeItem* pItem)
 {
 	Q_ASSERT( pItem->type() == SearchHitType );
 
-	((TreeRoot*)m_pParentItem)->addToFilterControl( pItem );
 	SearchTreeItem::appendChild( pItem );
+	((TreeRoot*)m_pParentItem)->addToFilterControl( pItem );
 }
 
 void SearchFile::removeChild(int position)

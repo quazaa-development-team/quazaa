@@ -28,14 +28,14 @@
 #include <QtGlobal>
 
 #include "NetworkCore/queryhit.h"
+#include "Misc/unorderedptrvector.h"
 
 class SearchHit;
 class SearchFile;
 class SearchTreeItem;
 
-// TODO: replace with forward_list (C++11)
-typedef std::list<SearchHit*>  HitList;
-typedef std::list<SearchFile*> FileList;
+typedef UnorderedPtrVector<SearchHit>  HitList;
+typedef UnorderedPtrVector<SearchFile> FileList;
 
 namespace SearchFilter
 {
