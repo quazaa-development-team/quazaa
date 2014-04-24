@@ -89,6 +89,10 @@ bool FilterControlData::operator!=(const FilterControlData& rOther)
 }
 
 FilterControl::FilterControl() :
+	m_lVisibleHits( HitList( 4095 ) ),
+	m_lFilteredHits( HitList( 4095 ) ),
+	m_lVisibleFiles( FileList( 2047 ) ),
+	m_lFilteredFiles( FileList( 2047 ) ),
 	m_oFilterControlData( FilterControlData() ),
 	m_bStringChanged( false ),
 	m_bSizeChanged( false ),
@@ -99,29 +103,7 @@ FilterControl::FilterControl() :
 {
 }
 
-/*bool FilterControl::operator==(const FilterControl& rOther)
-{
-	return m_sMatchString     == rOther.m_sMatchString     &&
-		   m_bRegExp          == rOther.m_bRegExp          &&
-		   m_nMinSize         == rOther.m_nMinSize         &&
-		   m_nMaxSize         == rOther.m_nMaxSize         &&
-		   m_nMinSources      == rOther.m_nMinSources      &&
-		   m_bBusy            == rOther.m_bBusy            &&
-		   m_bFirewalled      == rOther.m_bFirewalled      &&
-		   m_bUnstable        == rOther.m_bUnstable        &&
-		   m_bDRM             == rOther.m_bDRM             &&
-		   m_bSuspicious      == rOther.m_bSuspicious      &&
-		   m_bNonMatching     == rOther.m_bNonMatching     &&
-		   m_bExistsInLibrary == rOther.m_bExistsInLibrary &&
-		   m_bBogus           == rOther.m_bBogus           &&
-		   m_bAdult           == rOther.m_bAdult;
-}
-
-bool FilterControl::operator!=(const FilterControl& rOther)
-{
-	return !operator==( rOther );
-}
-
+/*
 // smaller amount of files
 bool FilterControl::operator<(const FilterControl& rOther)
 {
@@ -348,7 +330,8 @@ char FilterControl::updateHitFilterStatus(const FilterControlData& rControlData)
 		m_bStringFilterInvisibleHitsInvalidated = false;
 	}
 
-	HitList lNewlyFilteredHits;   // contains hits moved from visible list on filter change
+	// contains hits moved from visible list on filter change
+	HitList lNewlyFilteredHits = HitList( m_lVisibleHits.count() );
 
 	int nNewlyVisible = 0, nNewlyFiltered = 0;
 
@@ -576,7 +559,8 @@ char FilterControl::filterFiles(const FilterControlData& rControlData)
 		m_oFilterControlData.m_bIncompleteAllowed      = rControlData.m_bIncompleteAllowed;
 	}
 
-	FileList lNewlyFilteredFiles; // contains files moved from visible list on filter change
+	// contains files moved from visible list on filter change
+	FileList lNewlyFilteredFiles = FileList( m_lVisibleFiles.count() );
 	int nNewlyVisible = 0, nNewlyFiltered = 0;
 
 	FileList::iterator it = m_lVisibleFiles.begin();
