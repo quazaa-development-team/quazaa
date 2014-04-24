@@ -42,23 +42,24 @@ namespace SearchFilter
 struct FilterControlData
 {
 	// filter attributes
-	QString m_sMatchString;
+	QString m_sMatchString;         // applied to hit names
 	bool m_bRegExp;
 
-	quint64 m_nMinSize;
+	quint64 m_nMinSize;             // file size
 	quint64 m_nMaxSize;
-	quint16 m_nMinSources;
+	quint16 m_nMinSources;          // minimum number of hits per file
 
 	// bools: state allowed
-	bool m_bBusy;
-	bool m_bFirewalled;
-	bool m_bUnstable;
-	bool m_bDRM;
-	bool m_bSuspicious;
-	bool m_bNonMatching;
-	bool m_bExistsInLibrary;
-	bool m_bBogus;
-	bool m_bAdult;
+	bool m_bAdultAllowed;           // adult files
+	bool m_bBogusAllowed;           // bogus hits
+	bool m_bBusyAllowed;            // busy hits/sources
+	bool m_bDRMAllowed;             // DRM files
+	bool m_bExistsInLibraryAllowed; // existing files
+	bool m_bFirewalledAllowed;      // firewalled hits
+	bool m_bIncompleteAllowed;      // incomplete files
+	bool m_bNonMatchingAllowed;     // non matching hits
+	bool m_bSuspiciousAllowed;      // suspicious hits
+	bool m_bUnstableAllowed;        // unstable hits/sources
 
 	FilterControlData();
 	FilterControlData(const FilterControlData& other);
@@ -120,6 +121,9 @@ private:
 	void applyRegExpFilter(const QString& sRegExp);
 
 	char filterFiles(const FilterControlData& rControlData);
+
+	friend class HitFilter;
+	friend class FileFilter;
 };
 
 struct HitFilterData;
@@ -172,8 +176,6 @@ struct FileFilterState
 	bool m_bVisibleHits     : 1;
 
 	FileFilterState();
-
-	void initialize(const FilterControl& rControl);
 };
 
 struct HitFilterState
@@ -181,15 +183,13 @@ struct HitFilterState
 	// false: filtered out; true: visible in GUI
 	bool m_bBogus           : 1;
 	bool m_bBusy            : 1;
-	bool m_bFileName        : 1;
+	bool m_bFileName        : 1;    // used by string filter
 	bool m_bFirewalled      : 1;
 	bool m_bNonMatching     : 1;
 	bool m_bSuspicious      : 1;
 	bool m_bUnstable        : 1;
 
 	HitFilterState();
-
-	void initialize(const FilterControl& rControl);
 };
 
 class Filter

@@ -228,6 +228,11 @@ QModelIndex WidgetSearchTemplate::currentItem()
 	return pModel->mapToSource( idx );
 }
 
+/**
+ * @brief WidgetSearchTemplate::filter updetes the search filter data and filters the displayed
+ * results.
+ * @param rData The new search filter data.
+ */
 void WidgetSearchTemplate::filter(const SearchFilter::FilterControlData& rData)
 {
 	m_pSearchModel->updateFilter( rData );

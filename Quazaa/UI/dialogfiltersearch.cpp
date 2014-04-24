@@ -62,15 +62,16 @@ DialogFilterSearch::DialogFilterSearch(SearchFilter::FilterControlData*& pData, 
 
 	ui->spinBoxMinimumSources->setValue( m_pData->m_nMinSources );
 
-	ui->checkBoxBusyHosts->setChecked(m_pData->m_bBusy);
-	ui->checkBoxFirewalledPushHosts->setChecked(m_pData->m_bFirewalled);
-	ui->checkBoxUnreachableHosts->setChecked(m_pData->m_bUnstable);
-	ui->checkBoxDRMFiles->setChecked(m_pData->m_bDRM);
-	ui->checkBoxSuspiciousFiles->setChecked(m_pData->m_bSuspicious);
-	ui->checkBoxNonMatchingFiles->setChecked(m_pData->m_bNonMatching);
-	ui->checkBoxFilesAlreadyHave->setChecked(m_pData->m_bExistsInLibrary);
-	ui->checkBoxBogusResults->setChecked(m_pData->m_bBogus);
-	ui->checkBoxAdultResults->setChecked(m_pData->m_bAdult);
+	ui->checkBoxAdultResults       ->setChecked( m_pData->m_bAdultAllowed          );
+	ui->checkBoxBogusResults       ->setChecked( m_pData->m_bBogusAllowed          );
+	ui->checkBoxBusyHosts          ->setChecked( m_pData->m_bBusyAllowed           );
+	ui->checkBoxDRMFiles           ->setChecked( m_pData->m_bDRMAllowed            );
+	ui->checkBoxFilesAlreadyHave   ->setChecked( m_pData->m_bExistsInLibraryAllowed);
+	ui->checkBoxFirewalledPushHosts->setChecked( m_pData->m_bFirewalledAllowed     );
+	ui->checkBoxIncompleteFiles    ->setChecked( m_pData->m_bIncompleteAllowed     );
+	ui->checkBoxNonMatchingFiles   ->setChecked( m_pData->m_bNonMatchingAllowed    );
+	ui->checkBoxSuspiciousFiles    ->setChecked( m_pData->m_bSuspiciousAllowed     );
+	ui->checkBoxUnreachableHosts   ->setChecked( m_pData->m_bUnstableAllowed       );
 }
 
 DialogFilterSearch::~DialogFilterSearch()
@@ -127,15 +128,16 @@ void DialogFilterSearch::on_pushButtonFilter_clicked()
 
 	m_pData->m_nMinSources      = ui->spinBoxMinimumSources->value();
 
-	m_pData->m_bBusy            = ui->checkBoxBusyHosts->isChecked();
-	m_pData->m_bFirewalled      = ui->checkBoxFirewalledPushHosts->isChecked();
-	m_pData->m_bUnstable        = ui->checkBoxUnreachableHosts->isChecked();
-	m_pData->m_bDRM             = ui->checkBoxDRMFiles->isChecked();
-	m_pData->m_bSuspicious      = ui->checkBoxSuspiciousFiles->isChecked();
-	m_pData->m_bNonMatching     = ui->checkBoxNonMatchingFiles->isChecked();
-	m_pData->m_bExistsInLibrary = ui->checkBoxFilesAlreadyHave->isChecked();
-	m_pData->m_bBogus           = ui->checkBoxBogusResults->isChecked();
-	m_pData->m_bAdult           = ui->checkBoxAdultResults->isChecked();
+	m_pData->m_bAdultAllowed           = ui->checkBoxAdultResults->isChecked();
+	m_pData->m_bBogusAllowed           = ui->checkBoxBogusResults->isChecked();
+	m_pData->m_bBusyAllowed            = ui->checkBoxBusyHosts->isChecked();
+	m_pData->m_bDRMAllowed             = ui->checkBoxDRMFiles->isChecked();
+	m_pData->m_bExistsInLibraryAllowed = ui->checkBoxFilesAlreadyHave->isChecked();
+	m_pData->m_bFirewalledAllowed      = ui->checkBoxFirewalledPushHosts->isChecked();
+	m_pData->m_bIncompleteAllowed      = ui->checkBoxIncompleteFiles->isChecked();
+	m_pData->m_bNonMatchingAllowed     = ui->checkBoxNonMatchingFiles->isChecked();
+	m_pData->m_bSuspiciousAllowed      = ui->checkBoxSuspiciousFiles->isChecked();
+	m_pData->m_bUnstableAllowed        = ui->checkBoxUnreachableHosts->isChecked();
 
 	emit closed();
 	close();

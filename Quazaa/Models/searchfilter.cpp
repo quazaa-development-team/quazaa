@@ -35,52 +35,52 @@ FilterControlData::FilterControlData() :
 	m_nMinSize( 0 ),
 	m_nMaxSize( 18446744073709551615 ), // max value of 64 bit int
 	m_nMinSources( 0 ),
-	m_bBusy( true ),
-	m_bFirewalled( true ),
-	m_bUnstable( true ),
-	m_bDRM( true ),
-	m_bSuspicious( true ),
-	m_bNonMatching( true ),
-	m_bExistsInLibrary( true ),
-	m_bBogus( true ),
-	m_bAdult( true )
+	m_bBusyAllowed( true ),
+	m_bFirewalledAllowed( true ),
+	m_bUnstableAllowed( true ),
+	m_bDRMAllowed( true ),
+	m_bSuspiciousAllowed( true ),
+	m_bNonMatchingAllowed( true ),
+	m_bExistsInLibraryAllowed( true ),
+	m_bBogusAllowed( true ),
+	m_bAdultAllowed( true )
 {
 }
 
 FilterControlData::FilterControlData(const FilterControlData& other) :
-	m_sMatchString(     other.m_sMatchString     ),
-	m_bRegExp(          other.m_bRegExp          ),
-	m_nMinSize(         other.m_nMinSize         ),
-	m_nMaxSize(         other.m_nMaxSize         ),
-	m_nMinSources(      other.m_nMinSources      ),
-	m_bBusy(            other.m_bBusy            ),
-	m_bFirewalled(      other.m_bFirewalled      ),
-	m_bUnstable(        other.m_bUnstable        ),
-	m_bDRM(             other.m_bDRM             ),
-	m_bSuspicious(      other.m_bSuspicious      ),
-	m_bNonMatching(     other.m_bNonMatching     ),
-	m_bExistsInLibrary( other.m_bExistsInLibrary ),
-	m_bBogus(           other.m_bBogus           ),
-	m_bAdult(           other.m_bAdult           )
+	m_sMatchString(   other.m_sMatchString     ),
+	m_bRegExp(        other.m_bRegExp          ),
+	m_nMinSize(       other.m_nMinSize         ),
+	m_nMaxSize(       other.m_nMaxSize         ),
+	m_nMinSources(    other.m_nMinSources      ),
+	m_bBusyAllowed(            other.m_bBusyAllowed            ),
+	m_bFirewalledAllowed(      other.m_bFirewalledAllowed      ),
+	m_bUnstableAllowed(        other.m_bUnstableAllowed        ),
+	m_bDRMAllowed(             other.m_bDRMAllowed             ),
+	m_bSuspiciousAllowed(      other.m_bSuspiciousAllowed      ),
+	m_bNonMatchingAllowed(     other.m_bNonMatchingAllowed     ),
+	m_bExistsInLibraryAllowed( other.m_bExistsInLibraryAllowed ),
+	m_bBogusAllowed(           other.m_bBogusAllowed           ),
+	m_bAdultAllowed(           other.m_bAdultAllowed           )
 {
 }
 
 bool FilterControlData::operator==(const FilterControlData& rOther)
 {
-	return m_sMatchString     == rOther.m_sMatchString     &&
-		   m_bRegExp          == rOther.m_bRegExp          &&
-		   m_nMinSize         == rOther.m_nMinSize         &&
-		   m_nMaxSize         == rOther.m_nMaxSize         &&
-		   m_nMinSources      == rOther.m_nMinSources      &&
-		   m_bBusy            == rOther.m_bBusy            &&
-		   m_bFirewalled      == rOther.m_bFirewalled      &&
-		   m_bUnstable        == rOther.m_bUnstable        &&
-		   m_bDRM             == rOther.m_bDRM             &&
-		   m_bSuspicious      == rOther.m_bSuspicious      &&
-		   m_bNonMatching     == rOther.m_bNonMatching     &&
-		   m_bExistsInLibrary == rOther.m_bExistsInLibrary &&
-		   m_bBogus           == rOther.m_bBogus           &&
-		   m_bAdult           == rOther.m_bAdult;
+	return m_sMatchString   == rOther.m_sMatchString     &&
+		   m_bRegExp        == rOther.m_bRegExp          &&
+		   m_nMinSize       == rOther.m_nMinSize         &&
+		   m_nMaxSize       == rOther.m_nMaxSize         &&
+		   m_nMinSources    == rOther.m_nMinSources      &&
+		   m_bBusyAllowed            == rOther.m_bBusyAllowed            &&
+		   m_bFirewalledAllowed      == rOther.m_bFirewalledAllowed      &&
+		   m_bUnstableAllowed        == rOther.m_bUnstableAllowed        &&
+		   m_bDRMAllowed             == rOther.m_bDRMAllowed             &&
+		   m_bSuspiciousAllowed      == rOther.m_bSuspiciousAllowed      &&
+		   m_bNonMatchingAllowed     == rOther.m_bNonMatchingAllowed     &&
+		   m_bExistsInLibraryAllowed == rOther.m_bExistsInLibraryAllowed &&
+		   m_bBogusAllowed           == rOther.m_bBogusAllowed           &&
+		   m_bAdultAllowed           == rOther.m_bAdultAllowed;
 }
 
 bool FilterControlData::operator!=(const FilterControlData& rOther)
@@ -219,15 +219,16 @@ void FilterControl::update(const FilterControlData& rControlData)
 	m_bSizeChanged        = m_oFilterControlData.m_nMinSize         != rControlData.m_nMinSize ||
 							m_oFilterControlData.m_nMaxSize         != rControlData.m_nMaxSize;
 	m_bMinSourcesChanged  = m_oFilterControlData.m_nMinSources      != rControlData.m_nMinSources;
-	m_bHitBoolsChanged    = m_oFilterControlData.m_bBogus           != rControlData.m_bBogus           ||
-							m_oFilterControlData.m_bBusy            != rControlData.m_bBusy            ||
-							m_oFilterControlData.m_bFirewalled      != rControlData.m_bFirewalled      ||
-							m_oFilterControlData.m_bNonMatching     != rControlData.m_bNonMatching     ||
-							m_oFilterControlData.m_bSuspicious      != rControlData.m_bSuspicious      ||
-							m_oFilterControlData.m_bUnstable        != rControlData.m_bUnstable;
-	m_bFileBoolsChanged =   m_oFilterControlData.m_bDRM             != rControlData.m_bDRM             ||
-							m_oFilterControlData.m_bExistsInLibrary != rControlData.m_bExistsInLibrary ||
-							m_oFilterControlData.m_bAdult           != rControlData.m_bAdult;
+	m_bHitBoolsChanged    = m_oFilterControlData.m_bBogusAllowed           != rControlData.m_bBogusAllowed           ||
+							m_oFilterControlData.m_bBusyAllowed            != rControlData.m_bBusyAllowed            ||
+							m_oFilterControlData.m_bFirewalledAllowed      != rControlData.m_bFirewalledAllowed      ||
+							m_oFilterControlData.m_bNonMatchingAllowed     != rControlData.m_bNonMatchingAllowed     ||
+							m_oFilterControlData.m_bSuspiciousAllowed      != rControlData.m_bSuspiciousAllowed      ||
+							m_oFilterControlData.m_bUnstableAllowed        != rControlData.m_bUnstableAllowed;
+	m_bFileBoolsChanged =   m_oFilterControlData.m_bAdultAllowed           != rControlData.m_bAdultAllowed           ||
+							m_oFilterControlData.m_bDRMAllowed             != rControlData.m_bDRMAllowed             ||
+							m_oFilterControlData.m_bExistsInLibraryAllowed != rControlData.m_bExistsInLibraryAllowed ||
+							m_oFilterControlData.m_bIncompleteAllowed      != rControlData.m_bIncompleteAllowed;
 
 	if ( m_bStringChanged || m_bSizeChanged || m_bMinSourcesChanged ||
 		 m_bHitBoolsChanged || m_bFileBoolsChanged )
@@ -353,47 +354,51 @@ char FilterControl::updateHitFilterStatus(const FilterControlData& rControlData)
 
 	// Updating all bools no matter their change state should be faster than using an if to check
 	// for the respective change state each time.
-	HitList::iterator it = m_lVisibleHits.begin();
-	while ( it != m_lVisibleHits.end() )
+	const quint32 nCount1 = m_lVisibleHits.count();
+	// after i == 0, it overflows to MAX_VALUE, which is bigger than nCount1
+	for ( quint32 i = nCount1 - 1; i < nCount1; --i )
 	{
-		if ( ((HitFilter*)&(*it)->m_oFilter)->updateBoolState( rControlData ) )
+		if ( !((HitFilter*)&m_lVisibleHits[i]->m_oFilter)->updateBoolState( rControlData ) )
 		{
-			++it;
-		}
-		else
-		{
-			(*it)->parent()->removeVisibleChild();
+			m_lVisibleHits[i]->parent()->removeVisibleChild();
 
 			// if hit invisible after filtering, move it to temp list
-			lNewlyFilteredHits.push_back( *it );
-			it = m_lVisibleHits.erase( it );
+			lNewlyFilteredHits.push_back( m_lVisibleHits[i] );
+			m_lVisibleHits.erase( i );
 
 			++nNewlyFiltered;
 		}
 	}
 
-	it = m_lFilteredHits.begin();
-	while ( it != m_lFilteredHits.end() )
+	const quint32 nCount2 = m_lFilteredHits.count();
+	for ( quint32 i = nCount2 - 1; i < nCount2; --i )
 	{
-		if ( ((HitFilter*)&(*it)->m_oFilter)->updateBoolState( rControlData ) )
+		if ( ((HitFilter*)&m_lFilteredHits[i]->m_oFilter)->updateBoolState( rControlData ) )
 		{
-			(*it)->parent()->addVisibleChild();
+			m_lFilteredHits[i]->parent()->addVisibleChild();
 
 			// if hit visible after filtering, move it to visible list
-			m_lVisibleHits.push_back( *it );
-			it = m_lFilteredHits.erase( it );
+			m_lVisibleHits.push_back( m_lFilteredHits[i] );
+			m_lFilteredHits.erase( i );
 
 			++nNewlyVisible;
-		}
-		else
-		{
-			++it;
 		}
 	}
 
 	for ( quint32 i = 0, count = lNewlyFilteredHits.count(); i < count; ++i )
 	{
 		m_lFilteredHits.push_back( lNewlyFilteredHits[i] );
+	}
+
+	// make sure the m_oFilterControlData state is updated properly
+	if ( m_bHitBoolsChanged )
+	{
+		m_oFilterControlData.m_bBogusAllowed           = rControlData.m_bBogusAllowed;
+		m_oFilterControlData.m_bBusyAllowed            = rControlData.m_bBusyAllowed;
+		m_oFilterControlData.m_bFirewalledAllowed      = rControlData.m_bFirewalledAllowed;
+		m_oFilterControlData.m_bNonMatchingAllowed     = rControlData.m_bNonMatchingAllowed;
+		m_oFilterControlData.m_bSuspiciousAllowed      = rControlData.m_bSuspiciousAllowed;
+		m_oFilterControlData.m_bUnstableAllowed        = rControlData.m_bUnstableAllowed;
 	}
 
 	char nReturn = 0;
@@ -564,6 +569,11 @@ char FilterControl::filterFiles(const FilterControlData& rControlData)
 		m_oFilterControlData.m_nMinSize    = rControlData.m_nMinSize;
 		m_oFilterControlData.m_nMaxSize    = rControlData.m_nMaxSize;
 		m_oFilterControlData.m_nMinSources = rControlData.m_nMinSources;
+
+		m_oFilterControlData.m_bAdultAllowed           = rControlData.m_bAdultAllowed;
+		m_oFilterControlData.m_bDRMAllowed             = rControlData.m_bDRMAllowed;
+		m_oFilterControlData.m_bExistsInLibraryAllowed = rControlData.m_bExistsInLibraryAllowed;
+		m_oFilterControlData.m_bIncompleteAllowed      = rControlData.m_bIncompleteAllowed;
 	}
 
 	FileList lNewlyFilteredFiles; // contains files moved from visible list on filter change
@@ -713,11 +723,6 @@ FileFilterState::FileFilterState() :
 {
 }
 
-void FileFilterState::initialize(const FilterControl& rControl)
-{
-	// TODO: do something
-}
-
 HitFilterState::HitFilterState() :
 	// false: filtered out; true: visible in GUI
 	m_bBogus( true ),
@@ -728,11 +733,6 @@ HitFilterState::HitFilterState() :
 	m_bSuspicious( true ),
 	m_bUnstable( true )
 {
-}
-
-void HitFilterState::initialize(const FilterControl& rControl)
-{
-	// TODO: do something
 }
 
 Filter::Filter() :
@@ -765,7 +765,8 @@ FileFilter::FileFilter(SearchHit* pHit) :
 
 void FileFilter::initializeFilterState(const FilterControl& rControl)
 {
-	m_oFileFilterState.initialize( rControl );
+	updateBoolState( rControl.m_oFilterControlData );
+	updateVisible();
 }
 
 /**
@@ -776,17 +777,27 @@ void FileFilter::initializeFilterState(const FilterControl& rControl)
  */
 void FileFilter::updateBoolState(const FilterControlData& rControlData)
 {
-	// TODO: do something
+	// false: filtered out; true: visible in GUI
+	m_oFileFilterState.m_bAdult           = m_oFileFilterData.m_bAdult ?
+												rControlData.m_bAdultAllowed           : true;
+	m_oFileFilterState.m_bDRM             = m_oFileFilterData.m_bDRM   ?
+												rControlData.m_bDRMAllowed             : true;
+	m_oFileFilterState.m_bExistsInLibrary = m_oFileFilterData.m_bExistsInLibrary ?
+												rControlData.m_bExistsInLibraryAllowed : true;
+	m_oFileFilterState.m_bIncomplete      = m_oFileFilterData.m_bIncomplete ?
+												rControlData.m_bIncompleteAllowed      : true;
+	m_oFileFilterState.m_bSize            = m_oFileFilterData.m_nSize >= rControlData.m_nMinSize &&
+											m_oFileFilterData.m_nSize <= rControlData.m_nMaxSize;
 }
 
 bool FileFilter::updateVisible()
 {
-	m_bVisible = m_oFileFilterState.m_bAdult &&
-				 m_oFileFilterState.m_bDRM &&
-				 m_oFileFilterState.m_bEnoughHits &&
+	m_bVisible = m_oFileFilterState.m_bAdult           &&
+				 m_oFileFilterState.m_bDRM             &&
+				 m_oFileFilterState.m_bEnoughHits      &&
 				 m_oFileFilterState.m_bExistsInLibrary &&
-				 m_oFileFilterState.m_bIncomplete &&
-				 m_oFileFilterState.m_bSize &&
+				 m_oFileFilterState.m_bIncomplete      &&
+				 m_oFileFilterState.m_bSize            &&
 				 m_oFileFilterState.m_bVisibleHits;
 
 	return m_bVisible;
@@ -801,21 +812,38 @@ HitFilter::HitFilter(const QueryHit* const pHit) :
 
 void HitFilter::initializeFilterState(const FilterControl& rControl)
 {
-	m_oHitFilterState.initialize( rControl );
+	updateBoolState( rControl.m_oFilterControlData );
 }
 
 /**
- * @brief HitFilter::updateBoolState
+ * @brief HitFilter::updateBoolState updates all bool states (except m_bFileName which is handled
+ * dircetly by the string filter) using the provided control data.
  * @param rControlData
  * @return true if hit is visible after update; false otherwise
  */
 bool HitFilter::updateBoolState(const FilterControlData& rControlData)
 {
+	// false: filtered out; true: visible in GUI
+	m_oHitFilterState.m_bBogus       = m_oHitFilterData.m_bBogus ?
+										   rControlData.m_bBogusAllowed       : true;
+	m_oHitFilterState.m_bBusy        = m_oHitFilterData.m_bBusy ?
+										   rControlData.m_bBusyAllowed        : true;
+	m_oHitFilterState.m_bFirewalled  = m_oHitFilterData.m_bFirewalled ?
+										   rControlData.m_bFirewalledAllowed  : true;
+	m_oHitFilterState.m_bNonMatching = m_oHitFilterData.m_bNonMatching ?
+										   rControlData.m_bNonMatchingAllowed : true;
+	m_oHitFilterState.m_bSuspicious  = m_oHitFilterData.m_bSuspicious ?
+										   rControlData.m_bSuspiciousAllowed  : true;
+	m_oHitFilterState.m_bUnstable    = m_oHitFilterData.m_bUnstable ?
+										   rControlData.m_bUnstableAllowed    : true;
 
-	// TODO: do something
+	m_bVisible = m_oHitFilterState.m_bBogus       &&
+				 m_oHitFilterState.m_bBusy        &&
+				 m_oHitFilterState.m_bFileName    &&
+				 m_oHitFilterState.m_bFirewalled  &&
+				 m_oHitFilterState.m_bNonMatching &&
+				 m_oHitFilterState.m_bSuspicious  &&
+				 m_oHitFilterState.m_bUnstable;
 
-
-
-
-	return true;
+	return m_bVisible;
 }

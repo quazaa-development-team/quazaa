@@ -254,33 +254,40 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
 		 <item row="2" column="1">
-          <widget class="QCheckBox" name="checkBoxBogusResults">
-           <property name="text">
-            <string>Bogus Results</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
           <widget class="QCheckBox" name="checkBoxDRMFiles">
            <property name="text">
             <string>DRM Files</string>
            </property>
           </widget>
          </item>
-		 <item row="3" column="1">
-          <widget class="QCheckBox" name="checkBoxAdultResults">
+		 <item row="3" column="0">
+          <widget class="QCheckBox" name="checkBoxBogusResults">
            <property name="text">
-            <string>Adult Results</string>
+            <string>Bogus Results</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
+		 <item row="3" column="1">
           <widget class="QCheckBox" name="checkBoxSuspiciousFiles">
            <property name="text">
             <string>Suspicious Files</string>
            </property>
           </widget>
 		 </item>
+		 <item row="4" column="0">
+          <widget class="QCheckBox" name="checkBoxAdultResults">
+           <property name="text">
+            <string>Adult Results</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QCheckBox" name="checkBoxIncompleteFiles">
+           <property name="text">
+            <string>Incomplete Files</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
