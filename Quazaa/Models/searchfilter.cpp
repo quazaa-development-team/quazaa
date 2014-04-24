@@ -185,10 +185,84 @@ void FilterControl::add(SearchTreeItem* pItem)
 
 void FilterControl::remove(SearchTreeItem* pItem)
 {
-	// TODO: do something
+	Q_ASSERT( pItem->m_oFilter.dataInitialized() );
 
+	if ( pItem->type() == SearchTreeItem::SearchHitType )
+	{
+		SearchHit* pHitItem   = (SearchHit*)pItem;
+		HitFilter* pHitFilter = (HitFilter*)&pItem->m_oFilter;
 
-	//pHitItem->parent()->removeVisibleChild();
+		if ( pHitFilter->visible() )
+		{
+			bool bFound = false;
+			for ( quint32 i = 0, count = m_lVisibleHits.count(); i < count; ++i )
+			{
+				if ( m_lVisibleHits[i] == pHitItem )
+				{
+					m_lVisibleHits.erase( i );
+					bFound = true;
+					break;
+				}
+			}
+			Q_ASSERT( bFound );
+
+			pHitItem->parent()->removeVisibleChild();
+
+			// TODO: handle file becoming visible!
+		}
+		else
+		{
+			bool bFound = false;
+			for ( quint32 i = 0, count = m_lFilteredHits.count(); i < count; ++i )
+			{
+				if ( m_lFilteredHits[i] == pHitItem )
+				{
+					m_lFilteredHits.erase( i );
+					bFound = true;
+					break;
+				}
+			}
+			Q_ASSERT( bFound );
+		}
+	}
+	else if ( pItem->type() == SearchTreeItem::SearchFileType )
+	{
+		SearchFile* pFileItem   = (SearchFile*)pItem;
+		FileFilter* pFileFilter = (FileFilter*)&pItem->m_oFilter;
+
+		if ( pFileFilter->visible() )
+		{
+			bool bFound = false;
+			for ( quint32 i = 0, count = m_lVisibleFiles.count(); i < count; ++i )
+			{
+				if ( m_lVisibleFiles[i] == pFileItem )
+				{
+					m_lVisibleFiles.erase( i );
+					bFound = true;
+					break;
+				}
+			}
+			Q_ASSERT( bFound );
+		}
+		else
+		{
+			bool bFound = false;
+			for ( quint32 i = 0, count = m_lFilteredFiles.count(); i < count; ++i )
+			{
+				if ( m_lFilteredFiles[i] == pFileItem )
+				{
+					m_lFilteredFiles.erase( i );
+					bFound = true;
+					break;
+				}
+			}
+			Q_ASSERT( bFound );
+		}
+	}
+	else
+	{
+		Q_ASSERT( false );
+	}
 }
 
 #define MOVED_FROM_INVISIBLE_TO_VISIBLE 1
