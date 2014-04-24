@@ -286,16 +286,16 @@ void FilterControl::update(const FilterControlData& rControlData)
 							m_oFilterControlData.m_bExistsInLibraryAllowed != rControlData.m_bExistsInLibraryAllowed ||
 							m_oFilterControlData.m_bIncompleteAllowed      != rControlData.m_bIncompleteAllowed;
 
-	if ( m_bStringChanged || m_bSizeChanged || m_bMinSourcesChanged ||
-		 m_bHitBoolsChanged || m_bFileBoolsChanged )
+	bool bHitFilterChanges = m_bStringChanged || m_bHitBoolsChanged;
+	if ( bHitFilterChanges || m_bSizeChanged || m_bMinSourcesChanged || m_bFileBoolsChanged )
 	{
-		char c1 = updateHitFilterStatus( rControlData );
-		char c2 = filterFiles( rControlData );
+		if ( bHitFilterChanges )
+		{
+			filterHits( rControlData );
+		}
 
-		// TODO: do I need these return values?
+		filterFiles( rControlData );
 	}
-
-	// TODO: continue here
 
 	Q_ASSERT( m_oFilterControlData == rControlData );
 }
@@ -308,9 +308,8 @@ FilterControlData* FilterControl::getDataCopy() const
 /**
  * @brief FilterControl::updateHitFilterStatus
  * @param rControlData
- * @return (0, 1, 2, 3): hits moved to (no, visible, invisible, both) hit lists
  */
-char FilterControl::updateHitFilterStatus(const FilterControlData& rControlData)
+void FilterControl::filterHits(const FilterControlData& rControlData)
 {
 	if ( m_bStringChanged )
 	{
@@ -457,17 +456,6 @@ char FilterControl::updateHitFilterStatus(const FilterControlData& rControlData)
 		m_oFilterControlData.m_bSuspiciousAllowed      = rControlData.m_bSuspiciousAllowed;
 		m_oFilterControlData.m_bUnstableAllowed        = rControlData.m_bUnstableAllowed;
 	}
-
-	char nReturn = 0;
-	if ( nNewlyVisible )
-	{
-		nReturn |= MOVED_FROM_INVISIBLE_TO_VISIBLE;
-	}
-	if ( nNewlyFiltered )
-	{
-		nReturn |= MOVED_FROM_VISIBLE_TO_INVISIBLE;
-	}
-	return nReturn;
 }
 
 /**
@@ -601,9 +589,8 @@ void FilterControl::applyRegExpFilter(const QString& sRegExp)
  * @brief FilterControl::filterFiles filters all file entries according to the new control data.
  * Note: this requires the hit filtering to have been applied already.
  * @param rControlData
- * @return (0, 1, 2, 3): files moved to (no, visible, invisible, both) file lists
  */
-char FilterControl::filterFiles(const FilterControlData& rControlData)
+void FilterControl::filterFiles(const FilterControlData& rControlData)
 {
 	// Update all of these state bools only if there has actually been a change.
 	if ( m_bSizeChanged || m_bMinSourcesChanged || m_bFileBoolsChanged )
@@ -683,17 +670,6 @@ char FilterControl::filterFiles(const FilterControlData& rControlData)
 	{
 		m_lFilteredFiles.push_back( pFile );
 	}
-
-	char nReturn = 0;
-	if ( nNewlyVisible )
-	{
-		nReturn |= MOVED_FROM_INVISIBLE_TO_VISIBLE;
-	}
-	if ( nNewlyFiltered )
-	{
-		nReturn |= MOVED_FROM_VISIBLE_TO_INVISIBLE;
-	}
-	return nReturn;
 }
 
 FileFilterData::FileFilterData(const SearchHit* const pHit)

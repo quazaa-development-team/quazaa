@@ -105,7 +105,7 @@ public:
 	FilterControlData* getDataCopy() const;
 
 private:
-	char updateHitFilterStatus(const FilterControlData& rControlData);
+	void filterHits(const FilterControlData& rControlData);
 
 	void analyseFilter(const QString& sNewMatchString,
 					   QStringList& lNewWords, QStringList& lRemovedWords) const;
@@ -120,7 +120,7 @@ private:
 
 	void applyRegExpFilter(const QString& sRegExp);
 
-	char filterFiles(const FilterControlData& rControlData);
+	void filterFiles(const FilterControlData& rControlData);
 
 	friend class HitFilter;
 	friend class FileFilter;
