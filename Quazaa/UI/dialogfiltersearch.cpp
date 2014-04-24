@@ -145,8 +145,6 @@ void DialogFilterSearch::on_pushButtonFilter_clicked()
 
 void DialogFilterSearch::on_pushButtonCancel_clicked()
 {
-	delete m_pData;
-	m_pData = NULL;
 	emit closed();
 	close();
 }
