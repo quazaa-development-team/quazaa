@@ -103,6 +103,7 @@ private:
 
 public:
 	UnorderedPtrVector(quint32 nReserve = 1023);
+	~UnorderedPtrVector();
 
 	T*& operator[](quint32 nPos);
 
@@ -346,6 +347,12 @@ UnorderedPtrVector<T>::UnorderedPtrVector(quint32 nReserve) :
 	m_nAllocatedSize( 0 )
 {
 	reserve( nReserve );
+}
+
+template <typename T>
+UnorderedPtrVector<T>::~UnorderedPtrVector()
+{
+	free( m_pBuffer );
 }
 
 /**
