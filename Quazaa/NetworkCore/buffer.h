@@ -25,9 +25,13 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
+// avoid visual studio exception specificaton ignored warnings...
+#pragma warning( disable : 4290 )
+
 #include <exception>
 
 #include "types.h"
+
 class QByteArray;
 
 /**

@@ -41,12 +41,14 @@ SearchTreeItem::SearchTreeItem(SearchTreeItem* parent) :
 	m_eType( SearchTreeItemType ),
 	m_lChildItems( QList<SearchTreeItem*>() ),
 	m_pParentItem( parent ),
-	m_pItemData( new QVariant[_NO_OF_COLUMNS] )
+	m_pItemData( new QVariant[_NO_OF_COLUMNS] ),
+	m_pFilter( new SearchFilter::Filter )
 {
 }
 
 SearchTreeItem::~SearchTreeItem()
 {
+	delete m_pFilter;
 	delete[] m_pItemData;
 	qDeleteAll( m_lChildItems );
 }
@@ -63,7 +65,7 @@ SearchTreeItem::Type SearchTreeItem::type() const
 
 bool SearchTreeItem::visible() const
 {
-	return m_oFilter.visible();
+	return m_pFilter->visible();
 }
 
 int SearchTreeItem::row() const
@@ -120,7 +122,7 @@ QVariant SearchTreeItem::data(int column) const
 
 const SearchFilter::Filter* const SearchTreeItem::getFilter() const
 {
-	return &m_oFilter;
+	return m_pFilter;
 }
 
 void SearchTreeItem::addVisibleChild()
@@ -387,7 +389,8 @@ void SearchFile::addQueryHit(QueryHit* pHit, const QFileInfo& fileInfo)
 	if ( childCount() == 1 )
 	{
 		// initialize filter
-		m_oFilter = SearchFilter::FileFilter( pSearchHit );
+		delete m_pFilter; // remove placeholder of parent class
+		m_pFilter = new SearchFilter::FileFilter( pSearchHit );
 	}
 }
 
@@ -414,7 +417,8 @@ SearchHit::SearchHit(SearchTreeItem* parent,
 	m_oHitData.pQueryHit = QueryHitSharedPtr( pHit );
 
 	// properly initialize filter data
-	m_oFilter = SearchFilter::HitFilter( pHit );
+	delete m_pFilter;
+	m_pFilter = new SearchFilter::HitFilter( pHit );
 }
 
 SearchHit::~SearchHit()

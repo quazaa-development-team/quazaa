@@ -140,12 +140,12 @@ bool FilterControl::operator>(const FilterControl& rOther)
 
 void FilterControl::add(SearchTreeItem* pItem)
 {
-	Q_ASSERT( pItem->m_oFilter.dataInitialized() );
+	Q_ASSERT( pItem->m_pFilter->dataInitialized() );
 
 	if ( pItem->type() == SearchTreeItem::SearchHitType )
 	{
 		SearchHit* pHitItem   = (SearchHit*)pItem;
-		HitFilter* pHitFilter = (HitFilter*)&pItem->m_oFilter;
+		HitFilter* pHitFilter = (HitFilter*)pItem->m_pFilter;
 
 		pHitFilter->initializeFilterState( *this );
 
@@ -164,7 +164,7 @@ void FilterControl::add(SearchTreeItem* pItem)
 	else if ( pItem->type() == SearchTreeItem::SearchFileType )
 	{
 		SearchFile* pFileItem   = (SearchFile*)pItem;
-		FileFilter* pFileFilter = (FileFilter*)&pItem->m_oFilter;
+		FileFilter* pFileFilter = (FileFilter*)pItem->m_pFilter;
 
 		pFileFilter->initializeFilterState( *this );
 
@@ -185,12 +185,13 @@ void FilterControl::add(SearchTreeItem* pItem)
 
 void FilterControl::remove(SearchTreeItem* pItem)
 {
-	Q_ASSERT( pItem->m_oFilter.dataInitialized() );
+	// TODO: remove an alpha 1
+	Q_ASSERT( pItem->m_pFilter->dataInitialized() );
 
 	if ( pItem->type() == SearchTreeItem::SearchHitType )
 	{
 		SearchHit* pHitItem   = (SearchHit*)pItem;
-		HitFilter* pHitFilter = (HitFilter*)&pItem->m_oFilter;
+		HitFilter* pHitFilter = (HitFilter*)pItem->m_pFilter;
 
 		if ( pHitFilter->visible() )
 		{
@@ -228,7 +229,7 @@ void FilterControl::remove(SearchTreeItem* pItem)
 	else if ( pItem->type() == SearchTreeItem::SearchFileType )
 	{
 		SearchFile* pFileItem   = (SearchFile*)pItem;
-		FileFilter* pFileFilter = (FileFilter*)&pItem->m_oFilter;
+		FileFilter* pFileFilter = (FileFilter*)pItem->m_pFilter;
 
 		if ( pFileFilter->visible() )
 		{
@@ -414,7 +415,7 @@ void FilterControl::filterHits(const FilterControlData& rControlData)
 	// after i == 0, it overflows to MAX_VALUE, which is bigger than nCount1
 	for ( quint32 i = nCount1 - 1; i < nCount1; --i )
 	{
-		if ( !((HitFilter*)&m_lVisibleHits[i]->m_oFilter)->updateBoolState( rControlData ) )
+		if ( !((HitFilter*)m_lVisibleHits[i]->m_pFilter)->updateBoolState( rControlData ) )
 		{
 			m_lVisibleHits[i]->parent()->removeVisibleChild();
 
@@ -429,7 +430,7 @@ void FilterControl::filterHits(const FilterControlData& rControlData)
 	const quint32 nCount2 = m_lFilteredHits.count();
 	for ( quint32 i = nCount2 - 1; i < nCount2; --i )
 	{
-		if ( ((HitFilter*)&m_lFilteredHits[i]->m_oFilter)->updateBoolState( rControlData ) )
+		if ( ((HitFilter*)m_lFilteredHits[i]->m_pFilter)->updateBoolState( rControlData ) )
 		{
 			m_lFilteredHits[i]->parent()->addVisibleChild();
 
@@ -527,7 +528,7 @@ void FilterControl::applyStringFilter(HitList& lHits, const QStringList& lMustHa
 {
 	for ( quint32 i = 0, count = lHits.count(); i < count; ++i )
 	{
-		((HitFilter*)&lHits[i]->m_oFilter)->m_oHitFilterState.m_bFileName =
+		((HitFilter*)lHits[i]->m_pFilter)->m_oHitFilterState.m_bFileName =
 				matchStringFilter( lHits[i], lMustHaveWords, lMustNotHaveWords );
 	}
 }
@@ -571,7 +572,7 @@ void FilterControl::applyRegExpFilter(const QString& sRegExp)
 	for ( quint32 i = 0, count = m_lVisibleHits.count(); i < count; ++i )
 	{
 		// false: filtered out; true: visible in GUI
-		((HitFilter*)&m_lVisibleHits[i]->m_oFilter)->m_oHitFilterState.m_bFileName =
+		((HitFilter*)m_lVisibleHits[i]->m_pFilter)->m_oHitFilterState.m_bFileName =
 				oRegExp.match( m_lVisibleHits[i]->m_oHitData.pQueryHit->m_sDescriptiveName
 							   ).hasMatch();
 	}
@@ -579,7 +580,7 @@ void FilterControl::applyRegExpFilter(const QString& sRegExp)
 	for ( quint32 i = 0, count = m_lFilteredHits.count(); i < count; ++i )
 	{
 		// false: filtered out; true: visible in GUI
-		((HitFilter*)&m_lFilteredHits[i]->m_oFilter)->m_oHitFilterState.m_bFileName =
+		((HitFilter*)m_lFilteredHits[i]->m_pFilter)->m_oHitFilterState.m_bFileName =
 				oRegExp.match( m_lFilteredHits[i]->m_oHitData.pQueryHit->m_sDescriptiveName
 							   ).hasMatch();
 	}
@@ -597,14 +598,14 @@ void FilterControl::filterFiles(const FilterControlData& rControlData)
 	{
 		foreach ( SearchFile* pFile, m_lVisibleFiles )
 		{
-			FileFilter* pFilter = (FileFilter*)&pFile->m_oFilter;
+			FileFilter* pFilter = (FileFilter*)pFile->m_pFilter;
 			pFilter->updateBoolState( rControlData );
 			pFilter->m_oFileFilterState.m_bEnoughHits =
 					pFile->childCount() >= rControlData.m_nMinSources;
 		}
 		foreach ( SearchFile* pFile, m_lFilteredFiles )
 		{
-			FileFilter* pFilter = (FileFilter*)&pFile->m_oFilter;
+			FileFilter* pFilter = (FileFilter*)pFile->m_pFilter;
 			pFilter->updateBoolState( rControlData );
 			pFilter->m_oFileFilterState.m_bEnoughHits =
 					pFile->childCount() >= rControlData.m_nMinSources;
@@ -627,7 +628,7 @@ void FilterControl::filterFiles(const FilterControlData& rControlData)
 	FileList::iterator it = m_lVisibleFiles.begin();
 	while ( it != m_lVisibleFiles.end() )
 	{
-		FileFilter* pFilter = (FileFilter*)&(*it)->m_oFilter;
+		FileFilter* pFilter = (FileFilter*)(*it)->m_pFilter;
 
 		// m_bVisibleHits always changes because of the applied hit filter, so it must be updated.
 		pFilter->m_oFileFilterState.m_bVisibleHits = (*it)->visibleChildCount();
@@ -648,7 +649,7 @@ void FilterControl::filterFiles(const FilterControlData& rControlData)
 	it = m_lFilteredFiles.begin();
 	while ( it != m_lFilteredFiles.end() )
 	{
-		FileFilter* pFilter = (FileFilter*)&(*it)->m_oFilter;
+		FileFilter* pFilter = (FileFilter*)(*it)->m_pFilter;
 
 		// m_bVisibleHits always changes because of the applied hit filter, so it must be updated.
 		pFilter->m_oFileFilterState.m_bVisibleHits = (*it)->visibleChildCount();
@@ -682,7 +683,7 @@ void FileFilterData::initialize(const SearchHit* const pHit)
 	m_nSize = pHit->m_oHitData.pQueryHit->m_nObjectSize;
 	m_bExistsInLibrary = false;
 
-	const HitFilter* const pHitFilter  = (HitFilter*)(pHit->getFilter());
+	const HitFilter* const pHitFilter  = (HitFilter*)pHit->getFilter();
 
 	m_bAdult           = pHitFilter->m_oHitFilterData.m_bAdult;
 	m_bBogus           = pHitFilter->m_oHitFilterData.m_bBogus;
@@ -699,7 +700,7 @@ void FileFilterData::initialize(const SearchHit* const pHit)
  * @brief FileFilterData::update updates the filter data after a new hit has been added to the file.
  * @param hitData
  */
-void FileFilterData::update(const HitFilterData& hitData)
+void FileFilterData::addDataSet(const HitFilterData& hitData)
 {
 	m_bAdult          |= hitData.m_bAdult;
 	m_bBogus          |= hitData.m_bBogus;
@@ -725,7 +726,7 @@ void FileFilterData::refresh(const SearchFile* const pThisFile)
 
 	for ( int i = 1; i < pThisFile->childCount(); ++i )
 	{
-		update( ((HitFilter*)pThisFile->child( i )->getFilter())->m_oHitFilterData );
+		addDataSet( ((HitFilter*)pThisFile->child( i )->getFilter())->m_oHitFilterData );
 	}
 }
 

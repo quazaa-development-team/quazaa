@@ -26,6 +26,9 @@
 #ifndef UNORDEREDPTRARRAYLIST_H
 #define UNORDEREDPTRARRAYLIST_H
 
+// avoid visual studio exception specificaton ignored warnings...
+#pragma warning( disable : 4290 )
+
 #include <list>
 #include <QtGlobal>
 

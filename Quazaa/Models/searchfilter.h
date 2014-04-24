@@ -145,7 +145,7 @@ struct FileFilterData
 
 	FileFilterData(const SearchHit* const pHit);
 	void initialize(const SearchHit* const pHit);
-	void update(const HitFilterData& hitData);
+	void addDataSet(const HitFilterData& hitData);
 	void refresh(const SearchFile* const pThisFile);
 };
 

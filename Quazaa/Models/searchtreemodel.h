@@ -81,7 +81,7 @@ protected:
 	SearchTreeItem* const   m_pParentItem;  // must be set by constructor
 	QVariant*               m_pItemData;    // = new QVariant[_NO_OF_COLUMNS]
 
-	SearchFilter::Filter    m_oFilter;
+	SearchFilter::Filter*   m_pFilter;
 
 public:
 	SearchHitData::sSearchHitData m_oHitData;
