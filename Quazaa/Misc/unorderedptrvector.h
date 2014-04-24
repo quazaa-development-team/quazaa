@@ -134,6 +134,9 @@ private:
 	void setIteratorValidity(T** pInvalidateAfter);
 	void registerIterator(const_iterator* pIterator);
 	void unregisterIterator(const_iterator* pIterator);
+
+	// TODO: remove later
+	bool checkIterator(const const_iterator* const pIterator) const;
 #endif // DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 };
 
@@ -149,6 +152,8 @@ UnorderedPtrVector<T>::const_iterator::const_iterator(const UnorderedPtrVector<T
 	m_pFirstValidPos = pModifiableParent->m_pBuffer;
 	m_pLastValidPos  = pModifiableParent->m_pPastTheEnd;
 	m_pParent->registerIterator( this );
+
+	Q_ASSERT( m_pParent->checkIterator( this ) );
 #else
 	Q_UNUSED( pParent );
 #endif // DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
@@ -158,6 +163,8 @@ UnorderedPtrVector<T>::const_iterator::const_iterator(const UnorderedPtrVector<T
 template <typename T>
 bool UnorderedPtrVector<T>::const_iterator::isValid() const
 {
+	Q_ASSERT( m_pParent->checkIterator( this ) );
+
 	return m_pFirstValidPos == m_pParent->m_pBuffer &&
 			m_pLastValidPos >= m_pParent->m_pBuffer &&
 			m_pLastValidPos <= m_pParent->m_pPastTheEnd &&
@@ -186,6 +193,7 @@ UnorderedPtrVector<T>::const_iterator::const_iterator(
 {
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 	m_pParent->registerIterator( this );
+	Q_ASSERT( m_pParent->checkIterator( this ) );
 #endif // DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 }
 
@@ -262,7 +270,11 @@ typename UnorderedPtrVector<T>::const_iterator& UnorderedPtrVector<T>::const_ite
 		const typename UnorderedPtrVector<T>::const_iterator& other)
 {
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
+	// handle parent changes correctly
+	m_pParent->unregisterIterator( this );
 	m_pParent        = other.m_pParent;
+	m_pParent->registerIterator( this );
+
 	m_pFirstValidPos = other.m_pFirstValidPos;
 	m_pLastValidPos  = other.m_pLastValidPos;
 	m_bValid         = other.m_bValid;
@@ -302,6 +314,8 @@ template <typename T>
 T*& UnorderedPtrVector<T>::const_iterator::operator*()
 {
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
+	Q_ASSERT( m_pParent->checkIterator( this ) );
+
 	// tests for iterator validity
 	Q_ASSERT( m_pFirstValidPos == m_pParent->m_pBuffer     );
 	Q_ASSERT( m_pLastValidPos  <= m_pParent->m_pPastTheEnd );
@@ -318,17 +332,20 @@ template <typename T>
 UnorderedPtrVector<T>::iterator::iterator(UnorderedPtrVector<T>* pParent, T** pPosition) :
 	const_iterator( pParent, pPosition )
 {
+	Q_ASSERT( m_pParent->checkIterator( this ) );
 }
 
 template <typename T>
 UnorderedPtrVector<T>::iterator::~iterator()
 {
+	Q_ASSERT( m_pParent->checkIterator( this ) );
 }
 
 template <typename T>
 UnorderedPtrVector<T>::iterator::iterator(const typename UnorderedPtrVector<T>::iterator& it) :
 	const_iterator( it )
 {
+	Q_ASSERT( m_pParent->checkIterator( this ) );
 }
 
 template <typename T>
@@ -590,6 +607,7 @@ void UnorderedPtrVector<T>::setIteratorValidity(T** pInvalidateAfter)
 template <typename T>
 void UnorderedPtrVector<T>::registerIterator(const_iterator* pIterator)
 {
+	qDebug() << "  Registered Iterator " << pIterator << " for parent " << this;
 	m_lIterators.push_back( pIterator );
 }
 
@@ -602,6 +620,7 @@ void UnorderedPtrVector<T>::unregisterIterator(const_iterator* pIterator)
 		if ( *it == pIterator )
 		{
 			m_lIterators.erase( it );
+			qDebug() << "Unregistered Iterator: " << pIterator << " for parent " << this;
 			return;
 		}
 		else
@@ -613,6 +632,28 @@ void UnorderedPtrVector<T>::unregisterIterator(const_iterator* pIterator)
 	// you may not unregister a non existing iterator...
 	Q_ASSERT( false );
 }
+
+template <typename T>
+bool UnorderedPtrVector<T>::checkIterator(const const_iterator* const pIterator) const
+{
+	qDebug() << "    Checking Iterator: " << pIterator << " for parent " << this;
+
+	std::list<const_iterator*>::const_iterator it = m_lIterators.begin();
+	while ( it != m_lIterators.end() )
+	{
+		if ( *it == pIterator )
+		{
+			return true;
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	return false;
+}
+
 #endif // DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 
 #endif // UNORDEREDPTRARRAYLIST_H
