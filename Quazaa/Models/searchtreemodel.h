@@ -98,7 +98,6 @@ public:
 
 	virtual void appendChild(SearchTreeItem* pItem);
 	virtual void removeChild(int position);
-	void clearChildren();
 
 	SearchTreeItem* child(int row) const;
 	virtual int childCount() const;
@@ -129,6 +128,8 @@ public:
 
 	void appendChild(SearchTreeItem* pItem);
 	void removeChild(int position);
+
+	void clearSearch();
 
 	QueryHit* addQueryHit(QueryHit* pHit);
 	int find(CHash& pHash) const; // find child number with given hash

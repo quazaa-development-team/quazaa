@@ -100,6 +100,8 @@ public:
 	void add(SearchTreeItem* pItem);
 	void remove(SearchTreeItem* pItem);
 
+	void clear();
+
 	void update(const FilterControlData& rControlData);
 
 	FilterControlData* getDataCopy() const;

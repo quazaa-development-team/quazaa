@@ -266,6 +266,26 @@ void FilterControl::remove(SearchTreeItem* pItem)
 	}
 }
 
+/**
+ * @brief FilterControl::clear removes all managed SearchTreeItems from the filter.
+ */
+void FilterControl::clear()
+{
+	m_lVisibleHits.clear();         // contains currently visible hits
+	m_lFilteredHits.clear();        // contains currently hidden hits
+
+	m_lVisibleFiles.clear();       // contains currently visible files
+	m_lFilteredFiles.clear();      // contains currently hidden files
+
+	m_bStringChanged     = false;
+	m_bSizeChanged       = false;
+	m_bMinSourcesChanged = false;
+	m_bHitBoolsChanged   = false;
+	m_bFileBoolsChanged  = false;
+
+	m_bStringFilterInvisibleHitsInvalidated = false;
+}
+
 #define MOVED_FROM_INVISIBLE_TO_VISIBLE 1
 #define MOVED_FROM_VISIBLE_TO_INVISIBLE 2
 

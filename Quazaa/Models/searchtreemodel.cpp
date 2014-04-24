@@ -92,12 +92,6 @@ void SearchTreeItem::removeChild(int position)
 	delete m_lChildItems.takeAt(position);
 }
 
-void SearchTreeItem::clearChildren()
-{
-	qDeleteAll( m_lChildItems );
-	m_lChildItems.clear();
-}
-
 SearchTreeItem* SearchTreeItem::child(int row) const
 {
 	return m_lChildItems.value( row );
@@ -175,7 +169,7 @@ TreeRoot::TreeRoot(SearchTreeModel* pModel) :
 
 TreeRoot::~TreeRoot()
 {
-	// m_pModel is being taken care of somewhere else.
+	// Note: m_pModel is being taken care of somewhere else.
 }
 
 void TreeRoot::appendChild(SearchTreeItem* pItem)
@@ -195,9 +189,11 @@ void TreeRoot::removeChild(int position)
 	SearchTreeItem::removeChild( position );
 }
 
-/*void TreeRoot::filter(SearchFilter::SearchFilter* pFilter)
+void TreeRoot::clearSearch()
 {
-}*/
+	qDeleteAll( m_lChildItems );
+	m_lChildItems.clear();
+}
 
 /**
  * @brief TreeRoot::addQueryHit
@@ -597,11 +593,11 @@ SearchTreeItem* SearchTreeModel::topLevelItemFromIndex(QModelIndex index)
 {
 	Q_ASSERT(index.model() == this);
 
-	if(index.isValid())
+	if ( index.isValid() )
 	{
 		QModelIndex idxThis = index;
 
-		while( parent(idxThis).isValid() )
+		while ( parent(idxThis).isValid() )
 		{
 			idxThis = parent(idxThis);
 		}
@@ -620,13 +616,13 @@ SearchTreeItem* SearchTreeModel::itemFromIndex(QModelIndex index)
 {
 	Q_ASSERT(index.model() == this);
 
-	if(index.isValid())
+	if ( index.isValid() )
 	{
 		QModelIndex idxThis = index;
 
 		SearchTreeItem* pThis = static_cast<SearchTreeItem*>(idxThis.internalPointer());
 
-		Q_ASSERT(pThis != NULL);
+		Q_ASSERT ( pThis );
 
 		return pThis;
 	}
@@ -708,9 +704,12 @@ void SearchTreeModel::updateFilter(const SearchFilter::FilterControlData& rContr
 
 void SearchTreeModel::clear()
 {
+	// remove all managed SearchTreeItems from filter control
+	m_pFilterControl->clear();
+
 	beginRemoveRows( QModelIndex(), 0, m_pRootItem->childCount() );
-	//qDebug() << "clearSearch passing to rootItem";
-	m_pRootItem->clearChildren();
+	qDebug() << "clearSearch passing to rootItem";
+	m_pRootItem->clearSearch();
 	endRemoveRows();
 
 	QModelIndex idx1 = index( 0, 0, QModelIndex() );
