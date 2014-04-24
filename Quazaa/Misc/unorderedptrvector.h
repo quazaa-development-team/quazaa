@@ -113,6 +113,8 @@ public:
 	void push_back(T* item);
 	void erase(quint32 nPos);
 
+	void clear();
+
 	quint32 count() const;
 
 	iterator begin();
@@ -128,7 +130,7 @@ private:
 	void reallocate(quint32 nNewSize) throw(std::bad_alloc);
 
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
-	void setIteratorValidity(T** pRangeStart, T** pRangeEnd);
+	void setIteratorValidity(T** pInvalidateAfter);
 	void registerIterator(const_iterator* pIterator);
 	void unregisterIterator(const_iterator* pIterator);
 #endif // DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
@@ -192,7 +194,6 @@ typename UnorderedPtrVector<T>::const_iterator& UnorderedPtrVector<T>::const_ite
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 	// tests for iterator validity
 	Q_ASSERT( m_pFirstValidPos == m_pParent->m_pBuffer     );
-	Q_ASSERT( m_pLastValidPos  >= m_pParent->m_pBuffer     );
 	Q_ASSERT( m_pLastValidPos  <= m_pParent->m_pPastTheEnd );
 	Q_ASSERT( m_pPosition      >= m_pFirstValidPos         );
 	Q_ASSERT( m_pPosition      <  m_pLastValidPos          );
@@ -210,7 +211,6 @@ typename UnorderedPtrVector<T>::const_iterator
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 	// tests for iterator validity
 	Q_ASSERT( m_pFirstValidPos == m_pParent->m_pBuffer     );
-	Q_ASSERT( m_pLastValidPos  >= m_pParent->m_pBuffer     );
 	Q_ASSERT( m_pLastValidPos  <= m_pParent->m_pPastTheEnd );
 	Q_ASSERT( m_pPosition      >= m_pFirstValidPos         );
 	Q_ASSERT( m_pPosition      <  m_pLastValidPos          );
@@ -228,7 +228,6 @@ typename UnorderedPtrVector<T>::const_iterator& UnorderedPtrVector<T>::const_ite
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 	// tests for iterator validity
 	Q_ASSERT( m_pFirstValidPos == m_pParent->m_pBuffer     );
-	Q_ASSERT( m_pLastValidPos  >= m_pParent->m_pBuffer     );
 	Q_ASSERT( m_pLastValidPos  <= m_pParent->m_pPastTheEnd );
 	Q_ASSERT( m_pPosition      >  m_pFirstValidPos         );
 	Q_ASSERT( m_pPosition      <= m_pLastValidPos          );
@@ -246,7 +245,6 @@ typename UnorderedPtrVector<T>::const_iterator
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 	// tests for iterator validity
 	Q_ASSERT( m_pFirstValidPos == m_pParent->m_pBuffer     );
-	Q_ASSERT( m_pLastValidPos  >= m_pParent->m_pBuffer     );
 	Q_ASSERT( m_pLastValidPos  <= m_pParent->m_pPastTheEnd );
 	Q_ASSERT( m_pPosition      >  m_pFirstValidPos         );
 	Q_ASSERT( m_pPosition      <= m_pLastValidPos          );
@@ -281,7 +279,6 @@ bool UnorderedPtrVector<T>::const_iterator::operator==(
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 	// tests for iterator validity
 	Q_ASSERT( m_pFirstValidPos == m_pParent->m_pBuffer     );
-	Q_ASSERT( m_pLastValidPos  >= m_pParent->m_pBuffer     );
 	Q_ASSERT( m_pLastValidPos  <= m_pParent->m_pPastTheEnd );
 	Q_ASSERT( m_pPosition      >= m_pFirstValidPos         );
 	Q_ASSERT( m_pPosition      <= m_pLastValidPos          );
@@ -306,7 +303,6 @@ T*& UnorderedPtrVector<T>::const_iterator::operator*()
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 	// tests for iterator validity
 	Q_ASSERT( m_pFirstValidPos == m_pParent->m_pBuffer     );
-	Q_ASSERT( m_pLastValidPos  >= m_pParent->m_pBuffer     );
 	Q_ASSERT( m_pLastValidPos  <= m_pParent->m_pPastTheEnd );
 	Q_ASSERT( m_pPosition      >= m_pFirstValidPos         );
 	Q_ASSERT( m_pPosition      <= m_pLastValidPos          );
@@ -338,7 +334,7 @@ template <typename T>
 typename UnorderedPtrVector<T>::iterator& UnorderedPtrVector<T>::iterator::operator=(
 		const typename UnorderedPtrVector<T>::iterator& other)
 {
-	UnorderedPtrVector<T>::const_iterator::operator =( other );
+	UnorderedPtrVector<T>::const_iterator::operator=( other );
 	return *this;
 }
 
@@ -417,6 +413,10 @@ void UnorderedPtrVector<T>::push(T* item)
 	{
 		++m_pPastTheEnd;
 	}
+
+#ifdef _DEBUG
+	setIteratorValidity( m_pPastTheEnd );
+#endif
 }
 
 /**
@@ -431,10 +431,26 @@ void UnorderedPtrVector<T>::erase(quint32 nPos)
 #endif
 
 	m_pBuffer[nPos] = m_pBuffer[--m_nSize];
+	--m_pPastTheEnd;
 
 #ifdef _DEBUG
 	m_pBuffer[m_nSize] = NULL;
+	setIteratorValidity( m_pBuffer + nPos - 1 );
 #endif
+}
+
+/**
+ * @brief UnorderedPtrVector<T>::clear removes all elements from the vector.
+ */
+template <typename T>
+void UnorderedPtrVector<T>::clear()
+{
+	m_nSize = 0;
+	m_pPastTheEnd = m_pBuffer;
+
+#ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
+	setIteratorValidity( m_pBuffer - 1 );
+#endif // DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 }
 
 /**
@@ -503,6 +519,9 @@ typename UnorderedPtrVector<T>::iterator UnorderedPtrVector<T>::erase(iterator i
 
 #ifdef _DEBUG
 	m_pBuffer[m_nSize] = NULL;
+	setIteratorValidity( it.m_pPosition - 1 );
+	it.m_pLastValidPos = m_pPastTheEnd;
+	it.m_bValid = true;
 #endif
 
 	return it;
@@ -545,16 +564,19 @@ void UnorderedPtrVector<T>::reallocate(quint32 nNewSize) throw(std::bad_alloc)
 
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 template <typename T>
-void UnorderedPtrVector<T>::setIteratorValidity(T** pRangeStart, T** pRangeEnd)
+void UnorderedPtrVector<T>::setIteratorValidity(T** pInvalidateAfter)
 {
-	foreach ( const_iterator<T>* it, m_lIterators )
+	// Note: pRangeStart > pInvalidateAfter invalidates all iterators (if first element is removed)
+
+	foreach ( const_iterator* it, m_lIterators )
 	{
-		if ( it->m_pPosition < pRangeStart || it->m_pPosition > pRangeEnd )
+		if ( it->m_pPosition < m_pBuffer || it->m_pPosition > m_pPastTheEnd ||
+			 it->m_pPosition > pInvalidateAfter )
 		{
 			it->m_bValid         = false;
 		}
-		it->m_pFirstValidPos = pRangeStart;
-		it->m_pLastValidPos  = pRangeEnd;
+		it->m_pFirstValidPos = m_pBuffer;
+		it->m_pLastValidPos  = m_pPastTheEnd;
 	}
 }
 

@@ -114,6 +114,7 @@ include( $$Q_DIR/Security/security.pri )
 HEADERS += unittestshostcache.h \
 		   unittestsmisscache.h \
 		   unittestssecurity.h \
+		   unittestsunorderedptrvector.h \
 		   $$Q_DIR/3rdparty/CyoEncode/CyoDecode.h \
 		   $$Q_DIR/3rdparty/CyoEncode/CyoEncode.h \
 		   $$Q_DIR/commonfunctions.h \
@@ -124,6 +125,7 @@ HEADERS += unittestshostcache.h \
 		   $$Q_DIR/HostCache/hostcache.h \
 		   $$Q_DIR/Misc/idprovider.h \
 		   $$Q_DIR/Misc/timedsignalqueue.h \
+		   $$Q_DIR/Misc/unorderedptrvector.h \
 		   $$Q_DIR/NetworkCore/buffer.h \
 		   $$Q_DIR/NetworkCore/endpoint.h \
 		   $$Q_DIR/NetworkCore/g2packet.h \
@@ -137,6 +139,7 @@ SOURCES += unitmain.cpp \
 		   unittestshostcache.cpp \
 		   unittestsmisscache.cpp \
 		   unittestssecurity.cpp \
+		   unittestsunorderedptrvector.cpp \
 		   $$Q_DIR/3rdparty/CyoEncode/CyoDecode.c \
 		   $$Q_DIR/3rdparty/CyoEncode/CyoEncode.c \
 		   $$Q_DIR/commonfunctions.cpp \

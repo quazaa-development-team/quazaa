@@ -25,6 +25,7 @@
 #include "unittestshostcache.h"
 #include "unittestsmisscache.h"
 #include "unittestssecurity.h"
+#include "unittestsunorderedptrvector.h"
 
 int main(int argc, char *argv[])
 {
@@ -33,11 +34,13 @@ int main(int argc, char *argv[])
 	UnitTestsHostCache oHostCacheTests;
 	UnitTestsMissCache oMissCacheTests;
 	UnitTestsSecurity  oSecurityTests;
+	UnitTestsUnorderedPtrVector oUnorderedVectorTest;
 
-	int r0 = 0, r1 = 0, r2 = 0;
+	int r0 = 0, r1 = 0, r2 = 0, r3 = 0;
 	r0 = QTest::qExec( &oHostCacheTests, argc, argv );
 	r1 = QTest::qExec( &oMissCacheTests, argc, argv );
 	r2 = QTest::qExec( &oSecurityTests,  argc, argv );
+	r3 = QTest::qExec( &oUnorderedVectorTest, argc, argv );
 
-	return r0 + r1 + r2;
+	return r0 + r1 + r2 + r3;
 }
