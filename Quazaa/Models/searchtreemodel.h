@@ -29,6 +29,8 @@
 #include <QIcon>
 #include <QAbstractItemModel>
 
+#include <unordered_map>
+
 #include "searchfilter.h"
 
 class CHash;
@@ -73,6 +75,7 @@ public:
 
 private:
 	quint32                 m_nVisibleChildren;
+	int                     m_nRow;
 
 protected:
 	Type                    m_eType;        // item type
@@ -115,12 +118,14 @@ private:
 	friend class SearchFilter::FilterControl; // for access to m_oFilter
 };
 
+class SearchFile;
 class SearchTreeModel;
 class TreeRoot : public SearchTreeItem
 {
 	Q_OBJECT
 private:
 	SearchTreeModel* m_pModel; // The model the root node is part of.
+	std::unordered_map< CHash, SearchFile* > m_mHashes;
 
 public:
 	TreeRoot(SearchTreeModel* pModel);
@@ -133,6 +138,9 @@ public:
 
 	QueryHit* addQueryHit(QueryHit* pHit);
 	int find(const CHash& rHash) const; // find child number with given hash
+
+	void registerHash(const CHash& rHash, SearchFile* pFileItem);
+	void unregisterHash(const CHash& rHash);
 
 private:
 	void addToFilterControl(SearchTreeItem* pItem);

@@ -75,6 +75,19 @@ public:
 	inline bool operator<(const CHash& oHash) const;
 };
 
+// allows using CHash with std::unordered_map
+namespace std
+{
+	template <>
+	struct hash<CHash> : public unary_function<CHash, size_t>
+	{
+		size_t operator()(const CHash& value) const
+		{
+			return qHash( value.rawValue() );
+		}
+	};
+}
+
 typedef std::vector< CHash > HashVector;
 
 CHash::Algorithm CHash::getAlgorithm() const

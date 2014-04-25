@@ -38,6 +38,7 @@ using namespace common;
 
 SearchTreeItem::SearchTreeItem(SearchTreeItem* parent) :
 	m_nVisibleChildren( 0 ),
+	m_nRow( 0 ),
 	m_eType( SearchTreeItemType ),
 	m_lChildItems( QList<SearchTreeItem*>() ),
 	m_pParentItem( parent ),
@@ -70,17 +71,26 @@ bool SearchTreeItem::visible() const
 
 int SearchTreeItem::row() const
 {
+#ifdef _DEBUG
 	if ( m_pParentItem )
 	{
-		return m_pParentItem->m_lChildItems.indexOf( const_cast<SearchTreeItem*>( this ) );
+		Q_ASSERT( m_pParentItem->m_lChildItems.indexOf( const_cast<SearchTreeItem*>( this ) )
+				  == m_nRow );
 	}
+	else
+	{
+		Q_ASSERT( !m_nRow );
+	}
+#endif // _DEBUG
 
-	return 0;
+	return m_nRow;
 }
 
 void SearchTreeItem::appendChild(SearchTreeItem* pItem)
 {
 	Q_ASSERT( pItem->m_pParentItem == this ); // this should have been set by the constructor.
+
+	pItem->m_nRow = m_lChildItems.size();
 	m_lChildItems.append( pItem );
 }
 
@@ -89,7 +99,13 @@ void SearchTreeItem::removeChild(int position)
 	if ( position < 0 || position  > m_lChildItems.size() )
 		return;
 
-	delete m_lChildItems.takeAt(position);
+	delete m_lChildItems.takeAt( position );
+
+	// update rows for all children after the removed item
+	for ( int i = position, nSize = m_lChildItems.size(); i < nSize; ++i )
+	{
+		m_lChildItems[i]->m_nRow = i;
+	}
 }
 
 SearchTreeItem* SearchTreeItem::child(int row) const
@@ -185,6 +201,12 @@ void TreeRoot::removeChild(int position)
 	SearchTreeItem* pItem = m_lChildItems.at( position );
 	Q_ASSERT( pItem->type() == SearchFileType );
 
+	const CHash* pHashes = &((SearchFile*)pItem)->m_lHashes[0];
+	for ( size_t i = 0, nSize = ((SearchFile*)pItem)->m_lHashes.size(); i < nSize; ++i )
+	{
+		unregisterHash( pHashes[i] );
+	}
+
 	removeFromFilterControl( pItem );
 	SearchTreeItem::removeChild( position );
 }
@@ -193,6 +215,7 @@ void TreeRoot::clearSearch()
 {
 	qDeleteAll( m_lChildItems );
 	m_lChildItems.clear();
+	m_mHashes.clear();
 }
 
 /**
@@ -253,19 +276,25 @@ QueryHit* TreeRoot::addQueryHit(QueryHit* pHit)
 	return pNext;
 }
 
-// TODO: maybe add all hashes to a map for faster access?
 int TreeRoot::find(const CHash& rHash) const
 {
-	for ( int i = 0; i < m_lChildItems.size(); ++i )
+	std::unordered_map< CHash, SearchFile* >::const_iterator it = m_mHashes.find( rHash );
+	if ( it != m_mHashes.end() )
 	{
-		Q_ASSERT( child( i )->type() == SearchFileType );
-		if ( ((SearchFile*)child( i ))->manages( rHash ) )
-		{
-			return i;
-		}
+		return (*it).second->row();
 	}
 
 	return -1;
+}
+
+void TreeRoot::registerHash(const CHash& rHash, SearchFile* pFileItem)
+{
+	m_mHashes[rHash] = pFileItem;
+}
+
+void TreeRoot::unregisterHash(const CHash& rHash)
+{
+	m_mHashes.erase( rHash );
 }
 
 void TreeRoot::addToFilterControl(SearchTreeItem* pItem)
@@ -299,6 +328,12 @@ SearchFile::SearchFile(SearchTreeItem* parent,
 	m_pItemData[SPEED]     = "";
 	m_pItemData[CLIENT]    = "";
 	m_pItemData[COUNTRY]   = "";
+
+	const CHash* pHashes = &m_lHashes[0];
+	for ( size_t i = 0, nSize = m_lHashes.size(); i < nSize; ++i )
+	{
+		((TreeRoot*)m_pParentItem)->registerHash( pHashes[i], this );
+	}
 }
 
 SearchFile::~SearchFile()
@@ -324,8 +359,6 @@ void SearchFile::removeChild(int position)
 
 bool SearchFile::manages(const CHash& rHash) const
 {
-	Q_ASSERT( m_lHashes.size() > 0 );
-
 	const CHash* pHashes = &m_lHashes[0];
 
 	for ( char i = 0; i < m_lHashes.size(); ++i )
@@ -365,11 +398,13 @@ void SearchFile::updateHitCount()
 void SearchFile::insertHashes(const HashVector& vHashes)
 {
 	// TODO: hash collision detection
+	const CHash* pHashes = &vHashes[0];
 	for ( size_t i = 0, nSize = vHashes.size(); i < nSize; ++i )
 	{
-		if ( !manages( vHashes[i] ) )
+		if ( !manages( pHashes[i] ) )
 		{
-			m_lHashes.push_back( vHashes[i] );
+			m_lHashes.push_back( pHashes[i] );
+			((TreeRoot*)m_pParentItem)->registerHash( pHashes[i], this );
 		}
 	}
 }
