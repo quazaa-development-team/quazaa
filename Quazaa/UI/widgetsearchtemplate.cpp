@@ -76,8 +76,8 @@ WidgetSearchTemplate::WidgetSearchTemplate(QString searchString, QWidget* parent
 			 this, &WidgetSearchTemplate::sort );
 	connect( m_pSearchModel, &SearchTreeModel::updateStats,
 			 this, &WidgetSearchTemplate::onStatsUpdated );
-	connect( m_pSearchModel, &SearchTreeModel::filter,
-			 this, &WidgetSearchTemplate::refreshFilter );
+	connect( m_pSearchModel, &SearchTreeModel::filterVisibilityUpdated,
+			 m_pSortModel, &SearchSortFilterProxyModel::refreshFilter );
 
 	loadHeaderState();
 	connect( ui->treeViewSearchResults->header(), SIGNAL( sectionMoved( int, int, int ) ),
@@ -92,7 +92,7 @@ WidgetSearchTemplate::WidgetSearchTemplate(QString searchString, QWidget* parent
 
 WidgetSearchTemplate::~WidgetSearchTemplate()
 {
-	if (m_pSearch )
+	if ( m_pSearch )
 	{
 		stopSearch();
 	}
@@ -271,11 +271,6 @@ void WidgetSearchTemplate::onStateChanged()
 void WidgetSearchTemplate::sort()
 {
 	m_pSortModel->sort( m_pSortModel->sortColumn(), m_pSortModel->sortOrder() );
-}
-
-void WidgetSearchTemplate::refreshFilter()
-{
-	m_pSortModel->refreshFilter();
 }
 
 void WidgetSearchTemplate::saveHeaderState()

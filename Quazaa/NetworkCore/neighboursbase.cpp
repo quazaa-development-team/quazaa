@@ -139,7 +139,7 @@ void CNeighboursBase::sanityCheck()
 	else
 	{
 		securityManager.m_oSanity.unlock();
-		qDebug() << "[Neighbours] Didn't get Neighbours lock. Trying again later.";
+//		qDebug() << "[Neighbours] Didn't get Neighbours lock for sanity check. Trying again later.";
 		QMetaObject::invokeMethod( this, "sanityCheck", Qt::QueuedConnection );
 		return;
 	}

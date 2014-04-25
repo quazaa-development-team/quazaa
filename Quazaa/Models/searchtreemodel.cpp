@@ -674,6 +674,9 @@ SearchFilter::FilterControlData*SearchTreeModel::getFilterControlDataCopy() cons
 void SearchTreeModel::updateFilter(const SearchFilter::FilterControlData& rControlData)
 {
 	m_pFilterControl->update( rControlData );
+
+	// tell the SearchSortFilterProxyModel to update its visible rows
+	emit filterVisibilityUpdated();
 }
 
 // TODO: fix when uncommenting.

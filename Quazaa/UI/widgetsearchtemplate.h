@@ -103,7 +103,6 @@ protected slots:
 	void onStatsUpdated();
 	void onStateChanged();
 	void sort();
-	void refreshFilter();
 
 public slots:
 	void saveHeaderState();

@@ -32,7 +32,6 @@ class SearchSortFilterProxyModel : public QSortFilterProxyModel
 	Q_OBJECT
 public:
 	explicit SearchSortFilterProxyModel(QObject *parent = 0);
-	void refreshFilter();
 
 protected:
 	bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const;
@@ -40,7 +39,7 @@ protected:
 signals:
 
 public slots:
-
+	void refreshFilter();
 };
 
 #endif // SEARCHSORTFILTERPROXYMODEL_H

@@ -31,11 +31,6 @@ SearchSortFilterProxyModel::SearchSortFilterProxyModel(QObject *parent) :
 	setDynamicSortFilter( false );
 }
 
-void SearchSortFilterProxyModel::refreshFilter()
-{
-	invalidateFilter();
-}
-
 bool SearchSortFilterProxyModel::filterAcceptsRow(int sourceRow,
 												  const QModelIndex& sourceParent) const
 {
@@ -57,4 +52,9 @@ bool SearchSortFilterProxyModel::filterAcceptsRow(int sourceRow,
 		// top level/root item
 		return true;
 	}
+}
+
+void SearchSortFilterProxyModel::refreshFilter()
+{
+	invalidateFilter();
 }

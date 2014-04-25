@@ -224,7 +224,7 @@ public:
 signals:
 	void updateStats();
 	void sort();
-	void filter();
+	void filterVisibilityUpdated();
 
 private:
 	//void setupModelData(const QStringList& lines, SearchTreeItem* parent);
