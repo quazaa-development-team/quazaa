@@ -461,7 +461,7 @@ void HostCacheTableModel::updateView(QModelIndexList uplist)
 
 		if ( pView )
 		{
-			foreach ( QModelIndex index, uplist )
+			foreach ( const QModelIndex& index, uplist )
 			{
 				pView->update( index );
 			}

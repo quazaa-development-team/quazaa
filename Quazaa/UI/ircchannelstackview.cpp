@@ -199,16 +199,19 @@ void IrcChannelStackView::switchToServerTab()
 
 void IrcChannelStackView::applySettings()
 {
-	d.handler.znc()->setTimeStampFormat(quazaaSettings.Chat.TimestampFormat);
+	d.handler.znc()->setTimeStampFormat( quazaaSettings.Chat.TimestampFormat );
 
-	d.parser.setAliases(quazaaSettings.Chat.Aliases);
+	d.parser.setAliases( quazaaSettings.Chat.Aliases );
 
 	QStringList commands;
-	foreach (const QString& command, d.parser.availableCommands()) {
-		foreach(const QString& trigger, d.parser.triggers())
+	foreach ( const QString& command, d.parser.availableCommands() )
+	{
+		foreach( const QString& trigger, d.parser.triggers() )
+		{
 			commands += trigger + command;
+		}
 	}
-	d.commandModel.setStringList(commands);
+	d.commandModel.setStringList( commands );
 }
 
 void IrcChannelStackView::activateView(int index)

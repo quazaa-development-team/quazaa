@@ -120,20 +120,24 @@ void CWidgetIrcMain::saveWidget()
 	quazaaSettings.Chat.Ignores = IgnoreManager::instance()->ignores();
 
 	QList<IrcConnection*> connections = stackView->connections();
-	if(!connections.isEmpty()) {
+	if ( !connections.isEmpty() )
+	{
 		ConnectionInfos infos;
-		foreach (IrcConnection* c, connections) {
-			if (Connection* connection = qobject_cast<Connection*>(c)) { // TODO
-				ConnectionInfo info = ConnectionInfo::fromConnection(connection);
-				info.views = treeWidget->viewInfos(connection);
+		foreach ( IrcConnection* c, connections )
+		{
+			if ( Connection* connection = qobject_cast<Connection*>( c ) )
+			{ // TODO
+				ConnectionInfo info = ConnectionInfo::fromConnection( connection );
+				info.views = treeWidget->viewInfos( connection );
 				infos += info;
 				connection->quit();
 				connection->disconnect();
 			}
 		}
 
-		if(!infos.isEmpty()) {
-			quazaaSettings.Chat.Connections.setValue(QVariant::fromValue(infos));
+		if ( !infos.isEmpty() )
+		{
+			quazaaSettings.Chat.Connections.setValue( QVariant::fromValue( infos ) );
 			quazaaSettings.saveChatConnections();
 		}
 	}
@@ -195,7 +199,7 @@ void CWidgetIrcMain::connectToImpl(const ConnectionInfo& info)
 	}
 
 	bool expand = false;
-	foreach (const ViewInfo& view, info.views) {
+	foreach ( const ViewInfo& view, info.views ) {
 		if (view.type != -1 && view.expanded) {
 			expand = true;
 			break;
@@ -210,7 +214,7 @@ void CWidgetIrcMain::initialize()
 	quazaaSettings.loadChatConnections();
 	ConnectionInfos connections = quazaaSettings.Chat.Connections.value<ConnectionInfos>();
 
-	foreach(const ConnectionInfo & connection, connections)
+	foreach ( const ConnectionInfo& connection, connections )
 		connectToImpl(connection);
 
 	if (connections.isEmpty()) {

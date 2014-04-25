@@ -831,7 +831,7 @@ void CQueryHashTable::addString(const QString& strString)
 
 	if(CQueryHashTable::makeKeywords(strString, keywords))
 	{
-		foreach(QString kw, keywords)
+		foreach ( const QString& kw, keywords )
 		{
 			QByteArray baWord = kw.toUtf8();
 			add(baWord.data(), baWord.size());
@@ -852,7 +852,7 @@ int CQueryHashTable::makeKeywords(QString sPhrase, QStringList& outList)
 
 	// now filter out too short words and only numeric
 	QRegExp rx("^\\d+$");
-	foreach(QString sWord, lOut)
+	foreach ( const QString& sWord, lOut )
 	{
 		// not specs compliant, Shareaza does this too
 		if(sWord.length() < 4)
@@ -874,7 +874,7 @@ int CQueryHashTable::makeKeywords(QString sPhrase, QStringList& outList)
 		}
 	}
 
-	foreach(QString sDebug, outList)
+	foreach ( const QString& sDebug, outList )
 	{
 		systemLog.postLog(LogSeverity::Debug, QString("Added keyword: %1").arg(sDebug));
 		//qDebug() << "Added keyword:" << sDebug;
@@ -898,7 +898,7 @@ bool CQueryHashTable::checkQuery(CQueryPtr pQuery)
 
 	if( pQuery->m_lHashedKeywords.size() )
 	{
-		foreach(quint32 nHash, pQuery->m_lHashedKeywords)
+		foreach ( const quint32& nHash, pQuery->m_lHashedKeywords )
 		{
 			nWords++;
 			if(checkHash(nHash))

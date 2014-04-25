@@ -453,8 +453,10 @@ QString Manager::getWorkingService(ServiceType::Type type)
 									// taken under consideration as return value.
 	ServicePtr pService;
 
-	foreach ( MapPair pair, m_mServices )
+	for ( DiscoveryServicesMap::const_iterator it = m_mServices.begin();
+		  it != m_mServices.end(); ++it )
 	{
+		const MapPair& pair = *it;
 		pService = pair.second;
 
 		// Only consider services that are currently not in use. This is faster and prevents
@@ -530,8 +532,10 @@ bool Manager::asyncSyncSavingHelper()
 void Manager::asyncRequestServiceListHelper()
 {
 	m_pSection.lock();
-	foreach ( MapPair pair, m_mServices )
+	for ( DiscoveryServicesMap::const_iterator it = m_mServices.begin();
+		  it != m_mServices.end(); ++it )
 	{
+		const MapPair& pair = *it;
 		emit serviceInfo( pair.second );
 	}
 	m_pSection.unlock();
@@ -745,8 +749,10 @@ quint32 Manager::doCount(const CNetworkType& oType)
 		quint16 nCount = 0;
 		ServicePtr pService;
 
-		foreach ( MapPair pair, m_mServices )
+		for ( DiscoveryServicesMap::const_iterator it = m_mServices.begin();
+			  it != m_mServices.end(); ++it )
 		{
+			const MapPair& pair = *it;
 			pService = pair.second;
 			pService->m_oRWLock.lockForRead();
 
@@ -772,8 +778,10 @@ void Manager::doClear(bool bInformGUI)
 {
 	if ( bInformGUI )
 	{
-		foreach ( MapPair pair, m_mServices )
+		for ( DiscoveryServicesMap::const_iterator it = m_mServices.begin();
+			  it != m_mServices.end(); ++it )
 		{
+			const MapPair& pair = *it;
 			emit serviceRemoved( pair.second->m_nID ); // inform GUI
 
 			// free GUI ID
@@ -1182,12 +1190,14 @@ bool Manager::checkBan(const QString& sURL) const
  */
 Manager::ServicePtr Manager::lookupUrl(const QString& sURL) const
 {
-	foreach ( MapPair pair, m_mServices )
+	for ( DiscoveryServicesMap::const_iterator it = m_mServices.begin();
+		  it != m_mServices.end(); ++it )
 	{
+		const MapPair& pair = *it;
 		ServicePtr pService = pair.second;
 
 		// TODO: If this ever causes a problem (someone removing a service that is locked),
-		// restart the foreach loop upon encountering a locked service.
+		// restart the loop upon encountering a locked service.
 		pService->m_oRWLock.lockForRead();
 
 		if ( !sURL.compare( pService->m_oServiceURL.toString() ) ||
@@ -1217,8 +1227,10 @@ Manager::ServicePtr Manager::lookupUrl(const QString& sURL) const
 	const QString sURL      = pService->m_oServiceURL.toString();
 	const QString sRedirect = pService->m_oRedirectUrl.toString();
 
-	foreach ( MapPair pair, m_mServices )
+	for ( DiscoveryServicesMap::const_iterator it = m_mServices.begin;
+		  it != m_mServices.end(); ++it )
 	{
+		const MapPair& pair = *it;
 		// already existing service
 		ServicePtr pExService = pair.second;
 
@@ -1327,8 +1339,10 @@ bool Manager::manageDuplicates(ServicePtr& pService, bool bNeedRemoval)
 	pService->m_oRWLock.lockForWrite();
 	QString sURL = pService->m_oServiceURL.toString();
 
-	foreach ( MapPair pair, m_mServices )
+	for ( DiscoveryServicesMap::const_iterator it = m_mServices.begin();
+		  it != m_mServices.end(); ++it )
 	{
+		const MapPair& pair = *it;
 		// already existing service
 		ServicePtr pExService = pair.second;
 
@@ -1523,8 +1537,10 @@ Manager::ServicePtr Manager::getRandomService(const CNetworkType& oNType)
 	ServicePtr pService;
 	const quint32 tNow = common::getTNowUTC();
 
-	foreach ( MapPair pair, m_mServices )
+	for ( DiscoveryServicesMap::const_iterator it = m_mServices.begin();
+		  it != m_mServices.end(); ++it )
 	{
+		const MapPair& pair = *it;
 		pService = pair.second;
 
 #if ENABLE_DISCOVERY_DEBUGGING
@@ -1706,8 +1722,10 @@ quint32 Manager::writeToFile(const void * const pManager, QFile& oFile)
 		ServicePtr pService;
 
 		// write services to stream
-		foreach (  MapPair pair, pDiscovery->m_mServices )
+		for ( DiscoveryServicesMap::const_iterator it = pDiscovery->m_mServices.begin();
+			  it != pDiscovery->m_mServices.end(); ++it )
 		{
+			const MapPair& pair = *it;
 			pService = pair.second;
 			pService->cancelRequest( true );
 			DiscoveryService::save( pService.data(), fsFile );

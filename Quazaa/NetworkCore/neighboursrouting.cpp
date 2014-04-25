@@ -45,7 +45,7 @@ void CNeighboursRouting::routeQuery(CQueryPtr pQuery, G2Packet *pPacket, CNeighb
 	quint32 tNow = time(0);
 	quint32 nCount = 0, nHubs = 0, nLeaves = 0;
 
-	foreach(CNeighbour* pNode, m_lNodes)
+	foreach ( CNeighbour* pNode, m_lNodes )
 	{
 		if( pNode != pFrom && pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2 && tNow - pNode->m_tConnected > 30 )
 		{

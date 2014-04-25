@@ -15,10 +15,7 @@ CMagnet::MagnetFile::MagnetFile() :
 
 CMagnet::MagnetFile::~MagnetFile()
 {
-	foreach( CHash* pHash, m_lHashes )
-	{
-		delete pHash;
-	}
+	qDeleteAll( m_lHashes );
 }
 
 bool CMagnet::MagnetFile::isValid() const
@@ -207,20 +204,20 @@ bool CMagnet::parseMagnet(QString sMagnet)
 		}
 	}
 
-	foreach ( MagnetFile oFile, mFiles )
+	for ( int i = 0, nSize = mFiles.size(); i < nSize; ++i )
 	{
-		if ( oFile.isValid() )
+		if ( mFiles[i].isValid() )
 		{
-			oFile.m_bNull = false;
-			m_lFiles.push_back( oFile );
+			mFiles[i].m_bNull = false;
+			m_lFiles.push_back( mFiles[i] );
 		}
 	}
 
-	foreach ( QString sSearch, mSearches )
+	foreach ( const QString& sSearch, mSearches )
 	{
 		if ( !sSearch.trimmed().isEmpty() )
 		{
-			m_lSearches.push_back( sSearch );
+			m_lSearches.push_back( sSearch.trimmed() );
 		}
 	}
 

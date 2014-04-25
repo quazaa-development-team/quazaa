@@ -156,7 +156,7 @@ void CWidgetSecurity::on_actionSecurityRemoveRule_triggered()
 	{
 		QModelIndexList lSelection = m_pTableViewSecurityAuto->selectionModel()->selectedRows();
 
-		foreach( QModelIndex i, lSelection )
+		foreach ( const QModelIndex& i, lSelection )
 		{
 			if ( i.isValid() )
 			{
@@ -169,7 +169,7 @@ void CWidgetSecurity::on_actionSecurityRemoveRule_triggered()
 	{
 		QModelIndexList selection = m_pTableViewSecurity->selectionModel()->selectedRows();
 
-		foreach( QModelIndex i, selection )
+		foreach ( const QModelIndex& i, selection )
 		{
 			if ( i.isValid() )
 			{
@@ -200,7 +200,7 @@ void CWidgetSecurity::on_actionSecurityModifyRule_triggered()
 	QModelIndex index = QModelIndex();
 
 	// Get the highest selected row.
-	foreach( QModelIndex i, lSelection )
+	foreach ( const QModelIndex& i, lSelection )
 	{
 		if ( index.isValid() )
 		{

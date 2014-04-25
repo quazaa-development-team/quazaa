@@ -96,13 +96,13 @@ void CHandshakes::incomingConnection(qintptr handle)
 
 void CHandshakes::onTimer()
 {
-	QMutexLocker l(&m_pSection);
+	QMutexLocker l( &m_pSection );
 
-	quint32 tNow = time(0);
+	quint32 tNow = time( NULL );
 
-	foreach(CHandshake * pHs, m_lHandshakes)
+	foreach ( CHandshake* pHs, m_lHandshakes )
 	{
-		pHs->onTimer(tNow);
+		pHs->onTimer( tNow );
 	}
 }
 

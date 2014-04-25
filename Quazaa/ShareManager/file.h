@@ -165,9 +165,9 @@ void CFile::setHash(const CHash& oHash)
 
 void CFile::setHashes(const QList<CHash*>& lHashes)
 {
-	foreach(CHash* pHash, lHashes)
+	for ( int i = 0, nSize = lHashes.size(); i < nSize; ++i )
 	{
-		m_Hashes.append(*pHash);
+		m_Hashes.append( *lHashes[i] );
 	}
 }
 

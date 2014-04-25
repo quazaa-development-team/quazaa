@@ -195,7 +195,7 @@ void CNeighboursConnections::maintain()
 
 	m_nUnknownInitiated = m_nUnknownIncoming = 0;
 
-	foreach(CNeighbour * pNode, m_lNodes)
+	foreach ( CNeighbour* pNode, m_lNodes )
 	{
 		if(pNode->m_nState == nsConnected)
 		{

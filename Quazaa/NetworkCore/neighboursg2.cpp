@@ -147,7 +147,7 @@ void CNeighboursG2::maintain()
 			m_bNeedLNI = false;
 			m_nLNIWait = quazaaSettings.Gnutella2.LNIMinimumUpdate;
 
-			foreach(CNeighbour * pNode, m_lNodes)
+			foreach ( CNeighbour* pNode, m_lNodes )
 			{
 				if(pNode->m_nProtocol == DiscoveryProtocol::G2 && pNode->m_nState == nsConnected)
 				{
@@ -224,7 +224,7 @@ void CNeighboursG2::dispatchKHL()
 
 	pKHL->writePacket( "TS", 4 )->writeIntLE<quint32>( tNow );
 
-	foreach ( CNeighbour * pNode, m_lNodes )
+	foreach ( CNeighbour* pNode, m_lNodes )
 	{
 		if ( pNode->m_nProtocol != DiscoveryProtocol::G2 )
 		{
@@ -275,7 +275,7 @@ void CNeighboursG2::dispatchKHL()
 
 	hostCache.m_pSection.unlock();
 
-	foreach ( CNeighbour * pNode, m_lNodes )
+	foreach ( CNeighbour* pNode, m_lNodes )
 	{
 		if ( pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2 )
 		{
@@ -301,9 +301,9 @@ bool CNeighboursG2::switchG2ClientMode(G2NodeType nRequestedMode)
 	m_nPeriodsLow = m_nPeriodsHigh = 0;
 	m_tLastModeChange = time(0);
 
-	foreach(CNeighbour * pNode, m_lNodes)
+	foreach ( CNeighbour* pNode, m_lNodes )
 	{
-		if(pNode->m_nProtocol == DiscoveryProtocol::G2)
+		if ( pNode->m_nProtocol == DiscoveryProtocol::G2 )
 		{
 			pNode->close();
 		}
@@ -369,7 +369,7 @@ void CNeighboursG2::hubBalancing()
 
 		quint32 nLeaves = 0, nCapacity = 0;
 
-		foreach(CNeighbour * pNode, m_lNodes)
+		foreach ( CNeighbour* pNode, m_lNodes )
 		{
 			if(pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2 && ((CG2Node*)pNode)->m_nType == G2_HUB)
 			{
@@ -408,7 +408,7 @@ void CNeighboursG2::hubBalancing()
 		// We're a hub.
 		quint32 nLeaves = 0, nCapacity = 0;
 
-		foreach(CNeighbour * pNode, m_lNodes)
+		foreach ( CNeighbour* pNode, m_lNodes )
 		{
 			if(pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2 && ((CG2Node*)pNode)->m_nType == G2_HUB)
 			{
@@ -457,7 +457,7 @@ G2Packet* CNeighboursG2::createQueryAck(QUuid oGUID, bool bWithHubs, CNeighbour*
 		{
 			pPacket->writeIntLE<quint16>(m_nLeavesConnectedG2);
 
-			foreach(CNeighbour * pNode, m_lNodes)
+			foreach ( CNeighbour* pNode, m_lNodes )
 			{
 				if(pNode->m_nProtocol == DiscoveryProtocol::G2 && pNode->m_nState == nsConnected && ((CG2Node*)pNode)->m_nType == G2_HUB && pNode != pExcept)
 				{
@@ -473,7 +473,7 @@ G2Packet* CNeighboursG2::createQueryAck(QUuid oGUID, bool bWithHubs, CNeighbour*
 			{
 				HostCache.m_pSection.lock();
 
-				foreach( CHostCacheHost* pHost, HostCache.m_lHosts )
+				foreach ( const CHostCacheHost*& pHost, HostCache.m_lHosts )
 				{
 
 				}

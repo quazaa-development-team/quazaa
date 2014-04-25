@@ -281,7 +281,7 @@ void CWidgetDiscovery::on_actionDiscoveryRemoveService_triggered()
 {
 	QModelIndexList selection = tableViewDiscovery->selectionModel()->selectedRows();
 
-	foreach( QModelIndex i, selection )
+	foreach( const QModelIndex& i, selection )
 	{
 		if ( i.isValid() )
 		{

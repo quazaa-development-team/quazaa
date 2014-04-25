@@ -94,7 +94,7 @@ void CShareManager::setupThread()
 
 		query.exec("PRAGMA legacy_file_format = 0");
 
-		foreach(QString sTable, m_oDatabase.tables())
+		foreach ( const QString& sTable, m_oDatabase.tables() )
 		{
 			query.exec(QString("DROP TABLE `%1`").arg(sTable));
 		}
@@ -308,7 +308,7 @@ void CShareManager::syncShares()
 	QList<qint64> lSharedDirs;
 
 	// for each dir from settings
-	foreach(QString sPath, quazaaSettings.Library.Shares)
+	foreach ( QString sPath, quazaaSettings.Library.Shares )
 	{
 		// find all subdirs and store their IDs in the list
 		query.prepare("SELECT id FROM dirs WHERE path LIKE ?");
@@ -327,7 +327,7 @@ void CShareManager::syncShares()
 
 	// now find and remove orphan dirs
 	QString sIds;
-	foreach(qint64 nId, lSharedDirs)
+	foreach ( const qint64& nId, lSharedDirs )
 	{
 		sIds.append(QVariant(nId).toString()).append(",");
 	}
@@ -356,7 +356,7 @@ void CShareManager::syncShares()
 	}
 
 	// 4. Make sure that shared dirs are in db (quick and dirty, possibly bad :P)
-	foreach(QString sPath, quazaaSettings.Library.Shares)
+	foreach ( const QString& sPath, quazaaSettings.Library.Shares )
 	{
 		query.prepare("SELECT id FROM dirs WHERE path LIKE ?");
 		query.bindValue(0, QVariant(sPath));
@@ -400,7 +400,7 @@ void CShareManager::syncShares()
 
 	// 5. Now we can start scanning shared dirs
 
-	foreach(QString sPath, quazaaSettings.Library.Shares)
+	foreach ( const QString& sPath, quazaaSettings.Library.Shares )
 	{
 		if(!m_bActive)
 		{
@@ -512,13 +512,13 @@ void CShareManager::scanFolder(QString sPath, qint64 nParentID)
 
 	lFilesInFS = d.entryList(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
-	foreach(QString sFile, lFilesInDB)
+	foreach ( const QString& sFile, lFilesInDB )
 	{
 		lFilesInFS.removeOne(sFile);
 	}
 
 	m_oDatabase.transaction();
-	foreach(QString sFile, lFilesInFS)
+	foreach ( const QString& sFile, lFilesInFS )
 	{
 		QSqlQuery insq(m_oDatabase);
 		insq.prepare("INSERT INTO hash_queue (dir_id, filename) VALUES(?,?)");
@@ -544,7 +544,7 @@ void CShareManager::scanFolder(QString sPath, qint64 nParentID)
 	lSubdirs = d.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
 	/*m_oDatabase.transaction();
-	foreach( QString sDir, lSubdirs )
+	foreach ( const QString& sDir, lSubdirs )
 	{
 		QSqlQuery insq(m_oDatabase);
 		insq.prepare("INSERT OR IGNORE INTO dirs (path, parent) VALUES(?,?)");
@@ -564,7 +564,7 @@ void CShareManager::scanFolder(QString sPath, qint64 nParentID)
 
 	l.unlock();
 
-	foreach(QString sDir, lSubdirs)
+	foreach ( const QString& sDir, lSubdirs )
 	{
 		scanFolder(d.absolutePath() + "/" + sDir, nDirID);
 	}

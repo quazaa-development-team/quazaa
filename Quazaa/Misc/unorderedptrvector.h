@@ -630,15 +630,18 @@ void UnorderedPtrVector<T>::setIteratorValidity(T** pInvalidateAfter)
 {
 	// Note: pRangeStart > pInvalidateAfter invalidates all iterators (if first element is removed)
 
-	foreach ( const_iterator* it, m_lIterators )
+	for ( std::list<const_iterator*>::const_iterator it = m_lIterators.begin();
+		  it != m_lIterators.end(); ++it )
 	{
-		if ( it->m_pPosition < m_pBuffer || it->m_pPosition > m_pPastTheEnd ||
-			 it->m_pPosition > pInvalidateAfter )
+		const_iterator* iterator = *it;
+
+		if ( iterator->m_pPosition < m_pBuffer || iterator->m_pPosition > m_pPastTheEnd ||
+			 iterator->m_pPosition > pInvalidateAfter )
 		{
-			it->m_bValid         = false;
+			iterator->m_bValid         = false;
 		}
-		it->m_pFirstValidPos = m_pBuffer;
-		it->m_pLastValidPos  = m_pPastTheEnd;
+		iterator->m_pFirstValidPos = m_pBuffer;
+		iterator->m_pLastValidPos  = m_pPastTheEnd;
 	}
 }
 

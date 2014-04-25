@@ -62,7 +62,7 @@ public:
 	void addData(const char* pData, quint32 nLength);
 	void addData(QByteArray baData);
 
-	QString getFamilyName();
+	QString getFamilyName() const;
 
 	void finalize();
 

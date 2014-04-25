@@ -132,7 +132,7 @@ public:
 	void clearSearch();
 
 	QueryHit* addQueryHit(QueryHit* pHit);
-	int find(CHash& pHash) const; // find child number with given hash
+	int find(const CHash& rHash) const; // find child number with given hash
 
 private:
 	void addToFilterControl(SearchTreeItem* pItem);
@@ -153,11 +153,11 @@ public:
 	void appendChild(SearchTreeItem* pItem);
 	void removeChild(int position);
 
-	bool manages(CHash hash) const;
+	bool manages(const CHash& rHash) const;
 	void updateHitCount(); // change number of hits
 
 private:
-	void insertHashes(const HashVector& hashes);
+	void insertHashes(const HashVector& vHashes);
 	bool duplicateHitCheck(QueryHit* pNewHit) const;
 	void addQueryHit(QueryHit* pHit, const QFileInfo& fileInfo);
 

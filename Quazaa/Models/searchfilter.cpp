@@ -523,7 +523,7 @@ void FilterControl::analyseFilter(const QString& sNewMatchString,
 void FilterControl::separateFilter(const QStringList& lWords, QStringList& lMustHaveWords,
 								   QStringList& lMustNotHaveWords) const
 {
-	foreach ( QString s, lWords )
+	foreach ( const QString& s, lWords )
 	{
 		if ( s.startsWith( "-" ) )
 		{
@@ -563,14 +563,14 @@ void FilterControl::applyStringFilter(HitList& lHits, const QStringList& lMustHa
 bool FilterControl::matchStringFilter(SearchHit* pHit, const QStringList& lMustHaveWords,
 									  const QStringList& lMustNotHaveWords) const
 {
-	foreach ( QString sMust, lMustHaveWords )
+	foreach ( const QString& sMust, lMustHaveWords )
 	{
 		if ( !pHit->m_oHitData.pQueryHit->m_sDescriptiveName.contains( sMust ) )
 		{
 			return false;
 		}
 	}
-	foreach ( QString sMustNot, lMustNotHaveWords )
+	foreach ( const QString& sMustNot, lMustNotHaveWords )
 	{
 		if ( pHit->m_oHitData.pQueryHit->m_sDescriptiveName.contains( sMustNot ) )
 		{

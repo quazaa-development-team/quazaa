@@ -79,11 +79,11 @@ CMetalink4Handler::CMetalink4Handler(QFile& oFile) :
 	m_vFiles.reserve( lFiles.size() );
 
 	fileID = 0;
-	foreach ( MetaFile oFile, lFiles )
+	for ( int i = 0, nSize = lFiles.size(); i < nSize; ++i )
 	{
-		Q_ASSERT ( oFile.m_nID == fileID ); // verify sort order
-		oFile.m_nID = fileID;
-		m_vFiles[fileID++] = oFile;
+		Q_ASSERT ( lFiles[i].m_nID == fileID ); // verify sort order
+		lFiles[i].m_nID = fileID;
+		m_vFiles[fileID++] = lFiles[i];
 	}
 
 	m_bValid = fileID;

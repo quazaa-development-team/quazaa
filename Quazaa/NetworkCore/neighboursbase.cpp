@@ -86,11 +86,11 @@ CNeighbour* CNeighboursBase::find(const QHostAddress& oAddress, DiscoveryProtoco
 {
 	ASSUME_LOCK(m_pSection);
 
-	if(m_lNodesByAddr.contains(oAddress))
+	if ( m_lNodesByAddr.contains( oAddress ) )
 	{
-		foreach(CNeighbour * pRet, m_lNodesByAddr.values(oAddress))
+		foreach ( CNeighbour* pRet, m_lNodesByAddr.values( oAddress ) )
 		{
-			if(pRet->m_nProtocol == nProtocol || nProtocol == DiscoveryProtocol::None)
+			if ( pRet->m_nProtocol == nProtocol || nProtocol == DiscoveryProtocol::None )
 			{
 				return pRet;
 			}
@@ -107,13 +107,13 @@ bool CNeighboursBase::neighbourExists(const CNeighbour* pNode)
 
 void CNeighboursBase::maintain()
 {
-	ASSUME_LOCK(m_pSection);
+	ASSUME_LOCK( m_pSection );
 
-	quint32 tNow = time(0);
+	quint32 tNow = time( NULL );
 
-	foreach(CNeighbour * pNode, m_lNodes)
+	foreach ( CNeighbour* pNode, m_lNodes )
 	{
-		pNode->onTimer(tNow);
+		pNode->onTimer( tNow );
 	}
 }
 

@@ -121,7 +121,7 @@ void CTransfers::onTimer()
 
 	QMutexLocker l(&m_pSection);
 
-	foreach(CTransfer* pTransfer, m_lTransfers)
+	foreach ( CTransfer* pTransfer, m_lTransfers )
 	{
 		pTransfer->onTimer();
 	}

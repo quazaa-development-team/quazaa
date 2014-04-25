@@ -35,17 +35,15 @@ UnitTestsUnorderedPtrVector::UnitTestsUnorderedPtrVector() :
 
 void UnitTestsUnorderedPtrVector::initTestCase()
 {
-
-
 	m_lUnordered = UnorderedPtrVector<QString>( 1 );
 
 	prepareTestData();
 }
 void UnitTestsUnorderedPtrVector::cleanupTestCase()
 {
-	foreach ( DataPair pair, m_vTestData )
+	for ( DataVector::const_iterator it = m_vTestData.begin(); it != m_vTestData.end(); ++it )
 	{
-		delete pair.first;
+		delete (*it).first;
 	}
 
 	m_vTestData.clear();
@@ -103,9 +101,9 @@ void UnitTestsUnorderedPtrVector::test1AddAll()
 	QFETCH( bool, parameter );
 
 	bool bFound = false;
-	foreach( QString* pString, m_lUnordered )
+	for( quint32 i = 0; i < m_lUnordered.count(); ++i )
 	{
-		if ( pString == string )
+		if ( m_lUnordered[i] == string )
 			bFound = true;
 	}
 
@@ -116,9 +114,9 @@ void UnitTestsUnorderedPtrVector::test1AddAll_data()
 {
 	populateRowsWithTestIPs();
 
-	foreach ( DataPair pair, m_vTestData )
+	for ( DataVector::const_iterator it = m_vTestData.begin(); it != m_vTestData.end(); ++it )
 	{
-		m_lUnordered.push( pair.first );
+		m_lUnordered.push( (*it).first );
 	}
 }
 
@@ -131,11 +129,12 @@ void UnitTestsUnorderedPtrVector::test2RemoveTrue()
 	{
 		bool bRemove = false;
 		bool bFound = false;
-		foreach ( DataPair p, m_vTestData )
+		for ( DataVector::const_iterator it2 = m_vTestData.begin(); it2 != m_vTestData.end(); ++it2 )
 		{
-			if ( p.first == *it )
+			const DataPair& pair = *it2;
+			if ( pair.first == *it )
 			{
-				bRemove = p.second;
+				bRemove = pair.second;
 				bFound = true;
 				break;
 			}
@@ -165,8 +164,9 @@ void UnitTestsUnorderedPtrVector::test2RemoveTrue()
 void UnitTestsUnorderedPtrVector::test3AddTrue()
 {
 	m_lVerificationSet.clear();
-	foreach ( DataPair pair, m_vTestData )
+	for ( DataVector::const_iterator it = m_vTestData.begin(); it != m_vTestData.end(); ++it )
 	{
+		const DataPair& pair = *it;
 		m_lVerificationSet.insert( pair.first );
 
 		if ( pair.second )
@@ -186,11 +186,11 @@ void UnitTestsUnorderedPtrVector::test3AddTrue()
 void UnitTestsUnorderedPtrVector::test4RemoveFalseTrueIterator()
 {
 	m_lVerificationSet.clear();
-	foreach ( DataPair pair, m_vTestData )
+	for ( DataVector::const_iterator it = m_vTestData.begin(); it != m_vTestData.end(); ++it )
 	{
-		if ( !pair.second )
+		if ( !(*it).second )
 		{
-			m_lVerificationSet.insert( pair.first );
+			m_lVerificationSet.insert( (*it).first );
 		}
 	}
 
@@ -208,11 +208,12 @@ void UnitTestsUnorderedPtrVector::test4RemoveFalseTrueIterator()
 	}
 
 	m_lVerificationSet.clear();
-	foreach ( DataPair pair, m_vTestData )
+	for ( DataVector::const_iterator itData = m_vTestData.begin();
+		  itData != m_vTestData.end(); ++itData )
 	{
-		if ( pair.second )
+		if ( (*itData).second )
 		{
-			m_lVerificationSet.insert( pair.first );
+			m_lVerificationSet.insert( (*itData).first );
 		}
 	}
 
@@ -235,10 +236,10 @@ void UnitTestsUnorderedPtrVector::test4RemoveFalseTrueIterator()
 void UnitTestsUnorderedPtrVector::test5RemovePosition()
 {
 	m_lVerificationSet.clear();
-	foreach ( DataPair pair, m_vTestData )
+	for ( DataVector::const_iterator it = m_vTestData.begin(); it != m_vTestData.end(); ++it )
 	{
-		m_lUnordered.push( pair.first );
-		m_lVerificationSet.insert( pair.first );
+		m_lUnordered.push( (*it).first );
+		m_lVerificationSet.insert( (*it).first );
 	}
 
 	int count = 0;
@@ -254,9 +255,9 @@ void UnitTestsUnorderedPtrVector::test5RemovePosition()
 	QCOMPARE( m_vTestData.size(), count + m_lUnordered.count() );
 
 	quint32 count2 = 0;
-	foreach ( QString* s, m_lUnordered )
+	for( quint32 i = 0; i < m_lUnordered.count(); ++i )
 	{
-		QVERIFY( m_lVerificationSet.count( s ) == 1 );
+		QVERIFY( m_lVerificationSet.count( m_lUnordered[i] ) == 1 );
 		++count2;
 	}
 
@@ -276,9 +277,9 @@ void UnitTestsUnorderedPtrVector::test6Clear()
 {
 	m_lUnordered.clear();
 
-	foreach ( DataPair pair, m_vTestData )
+	for ( DataVector::const_iterator it = m_vTestData.begin(); it != m_vTestData.end(); ++it )
 	{
-		m_lUnordered.push( pair.first );
+		m_lUnordered.push( (*it).first );
 	}
 
 	m_lUnordered.clear();
@@ -294,11 +295,11 @@ void UnitTestsUnorderedPtrVector::test7Grow()
 	QCOMPARE( m_lUnordered.capacity(), (quint32)10 );
 
 	quint32 nSize = 0;
-	foreach ( DataPair pair, m_vTestData )
+	for ( DataVector::const_iterator it = m_vTestData.begin(); it != m_vTestData.end(); ++it )
 	{
 		QVERIFY( m_lUnordered.capacity() >= nSize );
 
-		m_lUnordered.push( pair.first );
+		m_lUnordered.push( (*it).first );
 		++nSize;
 
 		QVERIFY( m_lUnordered.capacity() >= nSize );

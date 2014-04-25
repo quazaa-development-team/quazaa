@@ -276,9 +276,9 @@ void CHash::addData(QByteArray baData)
 	addData( baData.data(), baData.length() );
 }
 
-QString CHash::getFamilyName()
+QString CHash::getFamilyName() const
 {
-	switch( m_nHashAlgorithm )
+	switch ( m_nHashAlgorithm )
 	{
 	case CHash::SHA1:
 		return QString( "sha1" );
@@ -311,9 +311,9 @@ QDataStream& operator>>(QDataStream& s, CHash& rhs)
 
 QList<CHash>& operator<<(QList<CHash>& list, const HashVector& vector)
 {
-	foreach ( CHash oHash, vector )
+	for ( size_t i = 0, nSize = vector.size(); i < nSize; ++i )
 	{
-		list.append( oHash );
+		list.append( vector[i] );
 	}
 
 	return list;
@@ -322,9 +322,9 @@ QList<CHash>& operator<<(QList<CHash>& list, const HashVector& vector)
 QList<CHash>& operator>>(QList<CHash>& list, HashVector& vector)
 {
 	vector.reserve( list.size() + vector.size() );
-	foreach ( CHash oHash, list )
+	for ( int i = 0, nSize = list.size(); i < nSize; ++i )
 	{
-		vector.push_back( oHash );
+		vector.push_back( list[i] );
 	}
 
 	return list;
@@ -333,9 +333,9 @@ QList<CHash>& operator>>(QList<CHash>& list, HashVector& vector)
 HashVector& operator<<(HashVector& vector, const QList<CHash>& list)
 {
 	vector.reserve( list.size() + vector.size() );
-	foreach ( CHash oHash, list )
+	for ( int i = 0, nSize = list.size(); i < nSize; ++i )
 	{
-		vector.push_back( oHash );
+		vector.push_back( list[i] );
 	}
 
 	return vector;
@@ -343,9 +343,9 @@ HashVector& operator<<(HashVector& vector, const QList<CHash>& list)
 
 HashVector& operator>>(HashVector& vector, QList<CHash>& list)
 {
-	foreach ( CHash oHash, vector )
+	for ( size_t i = 0, nSize = vector.size(); i < nSize; ++i )
 	{
-		list.append( oHash );
+		list.append( vector[i] );
 	}
 
 	return vector;

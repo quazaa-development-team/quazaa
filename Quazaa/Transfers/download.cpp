@@ -51,7 +51,7 @@ QDataStream& operator<<(QDataStream& s, const CDownload& rhs)
 	s << "pr" << rhs.m_nPriority;
 
 	// files
-	foreach(CDownload::FileListItem i, rhs.m_lFiles)
+	foreach ( const CDownload::FileListItem& i, rhs.m_lFiles )
 	{
 		s << "file" << quint32(1); // version
 		s << "name" << i.sFileName;
@@ -59,15 +59,15 @@ QDataStream& operator<<(QDataStream& s, const CDownload& rhs)
 		s << "tempname" << i.sTempName;
 		s << "so" << i.nStartOffset;
 		s << "eo" << i.nEndOffset;
-		foreach(CHash h, i.lHashes)
+		foreach ( const CHash& rHash, i.lHashes )
 		{
-			s << "hash" << h.toURN();
+			s << "hash" << rHash.toURN();
 		}
 		s << "file-end";
 	}
 
 	// sources
-	foreach(CDownloadSource* pSource, rhs.m_lSources)
+	foreach ( CDownloadSource* pSource, rhs.m_lSources )
 	{
 		s << *pSource;
 	}
@@ -261,7 +261,7 @@ bool CDownload::addSource(CDownloadSource *pSource)
 
 	Q_ASSERT(pSource->m_pDownload == this);
 
-	foreach(CDownloadSource* pThis, m_lSources)
+	foreach ( CDownloadSource* pThis, m_lSources )
 	{
 		if( (!pThis->m_oGUID.isNull() && pThis->m_oGUID == pSource->m_oGUID)
 				|| (pThis->m_oAddress == pSource->m_oAddress)
@@ -392,7 +392,7 @@ Fragments::List CDownload::getPossibleFragments(const Fragments::List &oAvailabl
 	oLargest = *oPossible.largest_range();
 
 	QList<CTransfer*> lTransfers = getTransfers();
-	foreach(CTransfer* pTransfer, lTransfers)
+	foreach ( CTransfer* pTransfer, lTransfers )
 	{
 		CDownloadTransfer* pTr = qobject_cast<CDownloadTransfer*>(pTransfer);
 
@@ -447,7 +447,7 @@ void CDownload::emitSources()
 	if( !m_bSignalSources )
 	{
 		m_bSignalSources = true;
-		foreach(CDownloadSource* pSource, m_lSources)
+		foreach ( CDownloadSource* pSource, m_lSources )
 		{
 			emit sourceAdded(pSource);
 		}

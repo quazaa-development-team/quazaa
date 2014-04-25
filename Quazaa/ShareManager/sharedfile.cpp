@@ -123,11 +123,11 @@ void CSharedFile::serialize(QSqlDatabase* pDatabase)
 		QMap<QString, QVariant> mapValues;
 		mapValues.insert( "file_id", QVariant( nFileID ) );
 
-		foreach ( CHash oHash, m_Hashes )
+		foreach ( const CHash& rHash, m_Hashes )
 		{
-			if ( pDatabase->record( "hashes" ).contains( oHash.getFamilyName() ) )
+			if ( pDatabase->record( "hashes" ).contains( rHash.getFamilyName() ) )
 			{
-				mapValues.insert( oHash.getFamilyName(), oHash.rawValue() );
+				mapValues.insert( rHash.getFamilyName(), rHash.rawValue() );
 			}
 		}
 
@@ -169,7 +169,7 @@ void CSharedFile::serialize(QSqlDatabase* pDatabase)
 
 		QSqlQuery qkw( *pDatabase );
 		qkw.prepare( "INSERT OR IGNORE INTO keywords (keyword) VALUES (?)" );
-		foreach ( QString sKey, lKeywords )
+		foreach ( const QString& sKey, lKeywords )
 		{
 			qkw.bindValue( 0, QVariant( sKey ) );
 			qkw.exec();

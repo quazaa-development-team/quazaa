@@ -54,9 +54,9 @@ CDialogPrivateMessages::~CDialogPrivateMessages()
 
 CWidgetPrivateMessage* CDialogPrivateMessages::FindByGUID(QUuid oGUID)
 {
-	foreach( CWidgetPrivateMessage* pWg, m_lChatWindows )
+	foreach ( CWidgetPrivateMessage* pWg, m_lChatWindows )
 	{
-		if( oGUID == pWg->m_oGUID )
+		if ( oGUID == pWg->m_oGUID )
 			return pWg;
 	}
 

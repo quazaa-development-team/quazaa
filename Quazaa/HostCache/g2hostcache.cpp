@@ -367,8 +367,9 @@ QString G2HostCache::getXTry() const
 		Q_ASSERT( m_lHosts.size() > m_nMaxFailures + 1 ); // at least m_nMaxFailures + 2
 
 		char nFailures = -1;
-		foreach ( SharedG2HostPtr pHost, m_lHosts )
+		for ( G2HostCacheConstIterator it = m_lHosts.begin(); it != m_lHosts.end(); ++it )
 		{
+			const SharedG2HostPtr& pHost = *it;
 			if ( pHost )
 			{
 				QDateTime tTimeStamp;
@@ -453,8 +454,9 @@ SharedG2HostPtr G2HostCache::getConnectable(const QSet<SharedG2HostPtr>& oExcept
 	{
 		// First try untested or working hosts, then fall back to failed hosts to increase chances for
 		// successful connection
-		foreach ( SharedG2HostPtr pHost, m_lHosts )
+		for ( G2HostCacheConstIterator it = m_lHosts.begin(); it != m_lHosts.end(); ++it )
 		{
+			const SharedG2HostPtr& pHost = *it;
 			if ( pHost )
 			{
 				if ( bCountry && pHost->address().country() != sCountry )
@@ -640,8 +642,10 @@ quint32 G2HostCache::writeToFile(const void * const pManager, QFile& oFile)
 
 	if ( nCount )
 	{
-		foreach ( SharedG2HostPtr pHost, pHostCache->m_lHosts )
+		for ( G2HostCacheConstIterator it = pHostCache->m_lHosts.begin();
+			  it != pHostCache->m_lHosts.end(); ++it )
 		{
+			const SharedG2HostPtr& pHost = *it;
 			if ( pHost )
 			{
 				pHost->save( fsFile );
@@ -1008,8 +1012,9 @@ void G2HostCache::maintainInternal()
 
 	int nConnectables = 0;
 	bool bConnectable;
-	foreach ( SharedG2HostPtr pHost, m_lHosts )
+	for ( G2HostCacheConstIterator it = m_lHosts.begin(); it != m_lHosts.end(); ++it )
 	{
+		const SharedG2HostPtr& pHost = *it;
 		if ( pHost )
 		{
 			bConnectable = pHost->connectable();

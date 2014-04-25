@@ -53,8 +53,8 @@ void CDownloads::add(QueryHit *pHit)
 	m_lDownloads.append( pDownload );
 	pDownload->saveState();
 	systemLog.postLog( LogSeverity::Notice, Components::Downloads,
-	                   qPrintable( tr( "Queued download job for %s" ) ),
-	                   qPrintable( pDownload->m_sDisplayName ) );
+					   qPrintable( tr( "Queued download job for %s" ) ),
+					   qPrintable( pDownload->m_sDisplayName ) );
 	emit downloadAdded( pDownload );
 }
 
@@ -76,7 +76,7 @@ void CDownloads::start()
 	{
 		QStringList files = d.entryList(QStringList() << "*.!qd");
 
-		foreach(QString f, files)
+		foreach ( const QString& f, files )
 		{
 			QFile file(quazaaSettings.Downloads.IncompletePath + "/" + f);
 
@@ -91,8 +91,8 @@ void CDownloads::start()
 				m_lDownloads.append(pDownload);
 				emit downloadAdded(pDownload);
 				systemLog.postLog( LogSeverity::Notice, Components::Downloads,
-				                   qPrintable( tr( "Loaded download: %s" ) ),
-				                   qPrintable( pDownload->m_sDisplayName ) );
+								   qPrintable( tr( "Loaded download: %s" ) ),
+								   qPrintable( pDownload->m_sDisplayName ) );
 			}
 		}
 	}
@@ -102,7 +102,7 @@ void CDownloads::stop()
 {
 	QMutexLocker l(&m_pSection);
 
-	foreach( CDownload* pDownload, m_lDownloads )
+	foreach ( CDownload* pDownload, m_lDownloads )
 	{
 		if( pDownload->isModified() )
 		{
@@ -119,7 +119,7 @@ void CDownloads::emitDownloads()
 {
 	QMutexLocker l(&m_pSection);
 
-	foreach( CDownload* pDl, m_lDownloads )
+	foreach ( CDownload* pDl, m_lDownloads )
 	{
 		emit downloadAdded(pDl);
 	}
@@ -134,7 +134,7 @@ void CDownloads::onTimer()
 
 	int nActive = 0, nQueued = 0, nTransfers = 0;
 
-	foreach(CDownload* pDownload, m_lDownloads)
+	foreach ( CDownload* pDownload, m_lDownloads )
 	{
 		switch(pDownload->m_nState)
 		{
@@ -160,7 +160,7 @@ void CDownloads::onTimer()
 
 	int nTransfersLeft = quazaaSettings.Downloads.MaxTransfers - nTransfers;
 
-	foreach(CDownload* pDownload, m_lDownloads)
+	foreach ( CDownload* pDownload, m_lDownloads )
 	{
 		if( pDownload->m_nState == CDownload::dsPending )
 		{

@@ -267,13 +267,15 @@ void SharesNavigatorTreeModel::clear()
 
 void SharesNavigatorTreeModel::addFolder()
 {
-		/* CQueryHit* pHit2 = pHit.data();
+	/* CQueryHit* pHit2 = pHit.data();
 
 		while(pHit2 != 0)
 		{
 				int existingSearch = -1;
 
-				foreach(CHash pHash, pHit2->m_lHashes)
+	for ( HashConstIterator it = pHit2->m_lHashes.begin(); it != pHit2->m_lHashes.end(); ++it )
+	{
+		const CHash& pHash = *it;
 				{
 						existingSearch = rootItem->find(rootItem, pHash);
 						if(existingSearch != -1)

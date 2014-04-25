@@ -1136,7 +1136,7 @@ void CQuazaaSettings::loadChat()
 
 	m_qSettings.beginGroup("ChatAliases");
 	QStringList keys = m_qSettings.childKeys();
-	foreach (QString key, keys)
+	foreach ( const QString& key, keys)
 	{
 		quazaaSettings.Chat.Aliases[key] = m_qSettings.value(key).toString();
 	}

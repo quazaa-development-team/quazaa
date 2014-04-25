@@ -709,9 +709,9 @@ void CNeighboursTableModel::updateAll()
 
 			if ( pView )
 			{
-				foreach ( QModelIndex idx, uplist )
+				foreach ( const QModelIndex& index, uplist )
 				{
-					pView->update( idx );
+					pView->update( index );
 				}
 			}
 		}

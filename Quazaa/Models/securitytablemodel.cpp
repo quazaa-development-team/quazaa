@@ -738,7 +738,7 @@ void SecurityTableModel::updateRule(ID nRuleID)
 
 		if ( pView )
 		{
-			foreach ( QModelIndex index, uplist )
+			foreach ( const QModelIndex& index, uplist )
 			{
 				pView->update( index );
 			}
@@ -778,7 +778,7 @@ void SecurityTableModel::updateAll()
 
 			if( pView )
 			{
-				foreach ( QModelIndex index, uplist )
+				foreach ( const QModelIndex& index, uplist )
 				{
 					pView->update( index );
 				}

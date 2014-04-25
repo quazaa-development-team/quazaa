@@ -208,9 +208,10 @@ QueryHit* TreeRoot::addQueryHit(QueryHit* pHit)
 	int existingFileEntry = -1;
 
 	// Check for duplicate file.
-	foreach ( CHash oHash, pHit->m_lHashes )
+
+	for ( size_t i = 0, nSize = pHit->m_lHashes.size(); i < nSize; ++i )
 	{
-		existingFileEntry = find( oHash );
+		existingFileEntry = find( pHit->m_lHashes[i] );
 		if ( existingFileEntry != -1 )
 			break;
 	}
@@ -253,12 +254,12 @@ QueryHit* TreeRoot::addQueryHit(QueryHit* pHit)
 }
 
 // TODO: maybe add all hashes to a map for faster access?
-int TreeRoot::find(CHash& hash) const
+int TreeRoot::find(const CHash& rHash) const
 {
 	for ( int i = 0; i < m_lChildItems.size(); ++i )
 	{
 		Q_ASSERT( child( i )->type() == SearchFileType );
-		if ( ((SearchFile*)child( i ))->manages( hash ) )
+		if ( ((SearchFile*)child( i ))->manages( rHash ) )
 		{
 			return i;
 		}
@@ -321,7 +322,7 @@ void SearchFile::removeChild(int position)
 	SearchTreeItem::removeChild( position );
 }
 
-bool SearchFile::manages(CHash hash) const
+bool SearchFile::manages(const CHash& rHash) const
 {
 	Q_ASSERT( m_lHashes.size() > 0 );
 
@@ -329,7 +330,7 @@ bool SearchFile::manages(CHash hash) const
 
 	for ( char i = 0; i < m_lHashes.size(); ++i )
 	{
-		if ( pHashes[i] == hash )
+		if ( pHashes[i] == rHash )
 		{
 			return true;
 		}
@@ -361,14 +362,14 @@ void SearchFile::updateHitCount()
 	m_pItemData[HOSTCOUNT] = m_lChildItems.size();
 }
 
-void SearchFile::insertHashes(const HashVector& hashes)
+void SearchFile::insertHashes(const HashVector& vHashes)
 {
 	// TODO: hash collision detection
-	foreach ( CHash oHash, hashes )
+	for ( size_t i = 0, nSize = vHashes.size(); i < nSize; ++i )
 	{
-		if ( !manages( oHash ) )
+		if ( !manages( vHashes[i] ) )
 		{
-			m_lHashes.push_back( oHash );
+			m_lHashes.push_back( vHashes[i] );
 		}
 	}
 }

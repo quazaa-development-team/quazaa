@@ -84,10 +84,10 @@ G2Packet* Query::toG2Packet(CEndPoint* pAddr, quint32 nKey)
 		pPacket->writePacket("MD", m_sMetadata.toUtf8().size())->writeString(m_sMetadata, false);
 	}
 
-	foreach(CHash pHash, m_lHashes)
+	foreach ( const CHash& rHash, m_lHashes )
 	{
-		pPacket->writePacket("URN", pHash.getFamilyName().size() + CHash::byteCount(pHash.getAlgorithm()) + 1);
-		pPacket->writeString(pHash.getFamilyName() + "\0" + pHash.rawValue(), false);
+		pPacket->writePacket("URN", rHash.getFamilyName().size() + CHash::byteCount(rHash.getAlgorithm()) + 1);
+		pPacket->writeString(rHash.getFamilyName() + "\0" + rHash.rawValue(), false);
 	}
 
 	/*if( m_nMinimumSize > 0 && m_nMaximumSize < 0xFFFFFFFFFFFFFFFF )
@@ -182,7 +182,7 @@ void Query::buildG2Keywords(QString strPhrase)
 
 	QRegExp rx("\\w+", Qt::CaseSensitive, QRegExp::RegExp2);
 
-	foreach(QString sWord, list)
+	foreach ( const QString& sWord, list )
 	{
 		if( sWord.at(0) == '-' && sWord.at(1) != '"' )
 		{
@@ -227,12 +227,12 @@ void Query::buildG2Keywords(QString strPhrase)
 	m_sG2PositiveWords.chop(1);
 	m_sG2NegativeWords.chop(1);
 
-	foreach( QString sWord, lNegative )
+	foreach( const QString& sWord, lNegative )
 	{
 		lPositive.removeAll(sWord);
 	}
 
-	foreach(QString sWord, lPositive)
+	foreach ( const QString& sWord, lPositive )
 	{
 		quint32 nHash = CQueryHashTable::hashWord(sWord.toUtf8().constData(), sWord.toUtf8().size(), 32);
 		m_lHashedKeywords.append(nHash);
