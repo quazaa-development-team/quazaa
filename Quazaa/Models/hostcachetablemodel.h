@@ -102,6 +102,11 @@ public slots:
 	 */
 	void updateAll();
 
+	/**
+	 * @brief clear removes all hosts from the GUI.
+	 */
+	void clear();
+
 private:
 	void updateView(QModelIndexList uplist = QModelIndexList());
 	void insert(HostData* pData);

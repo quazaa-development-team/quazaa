@@ -75,7 +75,7 @@ G2HostCacheHost::~G2HostCacheHost()
 
 bool G2HostCacheHost::canQuery(const quint32 tNow) const
 {
-	// TODO: remove in beta1
+	// TODO: remove in alpha1
 	Q_ASSERT( m_bIteratorValid );
 	// iterator is supposed to point back to a shared pointer to this instance
 	Q_ASSERT( (*m_iHostCacheIterator).data() == this );
@@ -107,7 +107,7 @@ bool G2HostCacheHost::canQuery(const quint32 tNow) const
 
 void G2HostCacheHost::setKey(quint32 nKey, const quint32 tNow, CEndPoint* pHost)
 {
-	// TODO: remove in beta1
+	// TODO: remove in alpha1
 	Q_ASSERT( m_bIteratorValid );
 	// iterator is supposed to point back to a shared pointer to this instance
 	Q_ASSERT( (*m_iHostCacheIterator).data() == this );
@@ -126,6 +126,7 @@ void G2HostCacheHost::setKey(quint32 nKey, const quint32 tNow, CEndPoint* pHost)
 
 G2HostCacheIterator G2HostCacheHost::iterator() const
 {
+	// TODO: remove in alpha1
 	Q_ASSERT( m_bIteratorValid );
 	// iterator is supposed to point back to a shared pointer to this instance
 	Q_ASSERT( (*m_iHostCacheIterator).data() == this );

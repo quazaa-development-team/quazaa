@@ -50,6 +50,10 @@ HostCacheTableModel::HostCacheTableModel(QObject* parent, QWidget* container) :
 	connect( &hostCache, &HostCache::loadingFinished, this,
 			 &HostCacheTableModel::updateAll, Qt::QueuedConnection );
 
+	// speedup shutdown
+	connect( &hostCache, &HostCache::clearTriggered, this,
+			 &HostCacheTableModel::clear, Qt::DirectConnection );
+
 	// This needs to be called to make sure that all rules added to the host cache before this
 	// part of the GUI is loaded are properly added to the model.
 	//completeRefresh();
@@ -445,6 +449,14 @@ void HostCacheTableModel::updateAll()
 	hostCache.m_pSection.unlock();
 
 	updateView( uplist );
+}
+
+void HostCacheTableModel::clear()
+{
+	beginRemoveRows( QModelIndex(), 0, m_vHosts.size() - 1 );
+	m_vHosts.clear();
+	m_bNeedSorting = false;
+	endRemoveRows();
 }
 
 void HostCacheTableModel::updateView(QModelIndexList uplist)

@@ -237,7 +237,7 @@ SharedG2HostPtr G2HostCache::update(G2HostCacheIterator& itHost, const quint32 t
 	SharedG2HostPtr pHost = *itHost;
 	SharedG2HostPtr pNew; // (shared) NULL ptr
 
-	// TODO: remove in Quazaa beta1
+	// TODO: remove in beta1
 	Q_ASSERT( pHost->failures() <= m_nMaxFailures );
 
 	if ( nFailures <= m_nMaxFailures )
@@ -496,31 +496,37 @@ SharedG2HostPtr G2HostCache::getConnectable(const QSet<SharedG2HostPtr>& oExcept
 void G2HostCache::clear()
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
-	qDebug() << "[HostCache] clear()";
-	// Using the system log here might cause problems if that part of the GUI has already been
+	// Note: Using the system log here might cause problems if that part of the GUI has already been
 	// destroyed at call time.
+	qDebug() << "[HostCache] clear()";
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
+
+	emit clearTriggered();
 
 	m_pSection.lock();
 
-	// Make sure m_pFailures (contains iterators to NULL nodes) stays valid during removal.
+	m_lHosts.clear();
+
+	// Make sure m_pFailures (contains iterators to NULL nodes) stays valid after removal.
+	delete[] m_pFailures;
+	m_nMaxFailures = quazaaSettings.Connection.FailureLimit;
+	m_pFailures    = new G2HostCacheIterator[m_nMaxFailures + 2];
+
+	m_lHosts.push_back( SharedG2HostPtr() );
 	G2HostCacheIterator it = m_lHosts.begin();
-	while ( it != m_lHosts.end() )
+	m_pFailures[0] = it;
+
+	// add m_nMaxFailures + 2 items to the list
+	for ( quint8 i = 1; i < m_nMaxFailures + 2; ++i )
 	{
-		if ( (*it).isNull() )
-		{
-			++it;
-		}
-		else
-		{
-			it = erase( it );
-		}
+		m_lHosts.push_back( SharedG2HostPtr() );
+		m_pFailures[i] = ++it;
 	}
 
 	m_pSection.unlock();
 
-	Q_ASSERT( !m_nConnectablesAtomic.load() );
-	Q_ASSERT( !m_nSizeAtomic.load() );
+	m_nSizeAtomic.store( 0 );
+	m_nConnectablesAtomic.store( 0 );
 }
 
 /**
@@ -568,24 +574,22 @@ void G2HostCache::pruneOldHosts(const quint32 tNow)
 	const quint32 tExpire = tNow - quazaaSettings.Gnutella2.HostExpire;
 
 	SharedG2HostPtr pHost;
-	G2HostCacheIterator it = --m_lHosts.end();
-
-	// TODO: improve this
+	G2HostCacheIterator it = m_lHosts.begin();
 
 	// at least m_nMaxFailures + 1
-	while ( it != m_lHosts.begin() )
+	while ( it != m_lHosts.end() )
 	{
 		pHost = *it;
 
 		// if an access point or not old enough to remove
 		if ( !pHost || pHost->timestamp() > tExpire )
 		{
-			--it;
-			continue;
+			++it;
 		}
-
-		it = erase( it );
-		--it;
+		else
+		{
+			it = erase( it );
+		}
 	}
 }
 
@@ -985,7 +989,7 @@ void G2HostCache::maintainInternal()
 		const quint32 nMax = nMaxSize - nMaxSize / 4;
 		quint8 nFailure    = m_nMaxFailures;
 
-		// TODO: remove after testing
+		// TODO: remove in alpha1
 		Q_ASSERT( nMax > 0 );
 
 		// remove 1/4 of all hosts if the cache gets too full - failed and oldest first
@@ -1040,7 +1044,7 @@ void G2HostCache::maintainInternal()
 			 << QString::number( nConnectables ).toLocal8Bit().data();
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
-	// TODO: remoe both lines in beta1
+	// TODO: remoe both lines in alpha1
 	Q_ASSERT( nConnectables == m_nConnectablesAtomic.load() );
 	Q_ASSERT( m_nConnectablesAtomic.load() >= 0 );
 }
@@ -1206,6 +1210,7 @@ G2HostCacheIterator G2HostCache::erase(G2HostCacheIterator& itHost)
 
 	m_nSizeAtomic.fetchAndAddRelaxed( -1 );
 	m_nConnectablesAtomic.fetchAndAddRelaxed( -1 * pHost->connectable() );
+	Q_ASSERT( m_nConnectablesAtomic.load() >= 0 );
 
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	qDebug() << QString( "Removed Host by Iterator. Host was connectable: " ) +
@@ -1214,8 +1219,6 @@ G2HostCacheIterator G2HostCache::erase(G2HostCacheIterator& itHost)
 				"      No of connectable Hosts: " +
 				QString::number( m_nConnectablesAtomic.load() );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
-
-	Q_ASSERT( m_nConnectablesAtomic.load() >= 0 );
 
 	pHost->invalidateIterator();
 	G2HostCacheIterator itReturn = m_lHosts.erase( itHost );

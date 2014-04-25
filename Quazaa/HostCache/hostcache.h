@@ -31,7 +31,6 @@
 #include <QThread>
 #include <QAtomicInt>
 
-// TODO: add signal for clear() and clear the HC and GUI on shutdown
 // TODO: add mechanism to remove hosts and discovery services by their origin
 
 class HostData;
@@ -129,6 +128,11 @@ signals:
 	 * @brief loadingFinished is emitted after new Hosts have been loaded.
 	 */
 	void            loadingFinished();
+
+	/**
+	 * @brief clearTriggered
+	 */
+	void            clearTriggered();
 
 public slots:
 
