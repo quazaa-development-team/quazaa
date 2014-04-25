@@ -664,7 +664,7 @@ quint32 G2HostCache::writeToFile(const void * const pManager, QFile& oFile)
  */
 quint32 G2HostCache::requestHostInfo()
 {
-	qDebug() << "[G2HostCache] requestHostInfo() - Size: " << m_nSizeAtomic.load();
+	//qDebug() << "[G2HostCache] requestHostInfo() - Size: " << m_nSizeAtomic.load();
 
 	m_pSection.lock();
 

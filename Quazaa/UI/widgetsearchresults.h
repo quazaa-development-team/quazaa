@@ -40,20 +40,24 @@ namespace Ui
 class WidgetSearchResults : public QMainWindow
 {
 	Q_OBJECT
+private:
+	Ui::WidgetSearchResults* ui;
+
+	QLabel* labelFilter;
+	QLineEdit* m_pLineEditFilter;
+
+	SearchFilter::FilterControlData* m_pFilterData;
+
 public:
 	WidgetSearchResults(QWidget* parent = 0);
 	~WidgetSearchResults();
-	QLabel* labelFilter;
-	QLineEdit* lineEditFilter;
 	void saveWidget();
-
-	SearchFilter::FilterControlData* m_pFilterData;
 
 protected:
 	void changeEvent(QEvent* e);
 
 private:
-	Ui::WidgetSearchResults* ui;
+	void updateSearchFilter();
 
 signals:
 	void searchTabChanged(WidgetSearchTemplate* searchPage);
@@ -76,7 +80,8 @@ private slots:
 	void on_actionSearchDownload_triggered();
 	void setSkin();
 
-	void updateSearchFilter();
+	void lineEditSearchChanged();
+	void advancedSearchFilteringChanged();
 
 	friend class WidgetSearch;
 };

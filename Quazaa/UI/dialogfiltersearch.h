@@ -52,7 +52,7 @@ private:
 	SearchFilter::FilterControlData*& m_pData;
 
 signals:
-	void closed();
+	void filterClicked();
 
 private slots:
 	void on_pushButtonFilter_clicked();

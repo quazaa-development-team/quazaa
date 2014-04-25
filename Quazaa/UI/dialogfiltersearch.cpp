@@ -139,13 +139,12 @@ void DialogFilterSearch::on_pushButtonFilter_clicked()
 	m_pData->m_bSuspiciousAllowed      = ui->checkBoxSuspiciousFiles->isChecked();
 	m_pData->m_bUnstableAllowed        = ui->checkBoxUnreachableHosts->isChecked();
 
-	emit closed();
+	emit filterClicked();
 	close();
 }
 
 void DialogFilterSearch::on_pushButtonCancel_clicked()
 {
-	emit closed();
 	close();
 }
 

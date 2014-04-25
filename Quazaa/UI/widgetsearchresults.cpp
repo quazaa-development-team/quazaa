@@ -49,13 +49,16 @@ WidgetSearchResults::WidgetSearchResults(QWidget* parent) :
 	ui->setupUi( this );
 	labelFilter = new QLabel();
 	labelFilter->setText( "Filter: " );
-	lineEditFilter = new QLineEdit();
-	lineEditFilter->setMaximumWidth( 150 );
+	m_pLineEditFilter = new QLineEdit();
+	m_pLineEditFilter->setMaximumWidth( 150 );
 	ui->toolBarFilter->insertWidget( ui->actionFilterMore, labelFilter );
-	ui->toolBarFilter->insertWidget( ui->actionFilterMore, lineEditFilter );
+	ui->toolBarFilter->insertWidget( ui->actionFilterMore, m_pLineEditFilter );
 	restoreState( quazaaSettings.WinMain.SearchToolbar );
 
 	addSearchTab();
+
+	connect( m_pLineEditFilter, &QLineEdit::returnPressed,
+			 this, &WidgetSearchResults::lineEditSearchChanged );
 
 	ui->splitterSearchDetails->restoreState( quazaaSettings.WinMain.SearchDetailsSplitter );
 	setSkin();
@@ -79,6 +82,14 @@ void WidgetSearchResults::changeEvent(QEvent* e)
 		default:
 			break;
 	}
+}
+
+void WidgetSearchResults::updateSearchFilter()
+{
+	WidgetSearchTemplate* tabSearch =
+			qobject_cast<WidgetSearchTemplate*>( ui->tabWidgetSearch->currentWidget() );
+
+	tabSearch->filter( *m_pFilterData );
 }
 
 void WidgetSearchResults::saveWidget()
@@ -229,8 +240,8 @@ void WidgetSearchResults::on_actionFilterMore_triggered()
 	Q_ASSERT( m_pFilterData );
 
 	DialogFilterSearch* dlgFilterSearch = new DialogFilterSearch( m_pFilterData, this );
-	connect( dlgFilterSearch, &DialogFilterSearch::closed,
-			 this, &WidgetSearchResults::updateSearchFilter );
+	connect( dlgFilterSearch, &DialogFilterSearch::filterClicked,
+			 this, &WidgetSearchResults::advancedSearchFilteringChanged );
 
 	dlgFilterSearch->show();
 }
@@ -325,10 +336,14 @@ void WidgetSearchResults::setSkin()
 {
 }
 
-void WidgetSearchResults::updateSearchFilter()
+void WidgetSearchResults::lineEditSearchChanged()
 {
-	WidgetSearchTemplate* tabSearch =
-			qobject_cast<WidgetSearchTemplate*>( ui->tabWidgetSearch->currentWidget() );
+	m_pFilterData->m_sMatchString = m_pLineEditFilter->text();
+	updateSearchFilter();
+}
 
-	tabSearch->filter( *m_pFilterData );
+void WidgetSearchResults::advancedSearchFilteringChanged()
+{
+	m_pLineEditFilter->setText( m_pFilterData->m_sMatchString );
+	updateSearchFilter();
 }
