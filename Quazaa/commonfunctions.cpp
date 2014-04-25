@@ -237,11 +237,14 @@ quint32 common::securedSaveFile(const QString& sPath, const QString& sFileName,
 	if ( !path.exists() )
 		path.mkpath( sAbsolutePath );
 
-	const QString sCompletePathAndName  = sAbsolutePath + oFileInfo.fileName();
-	const QString sBackupPathAndName    = sAbsolutePath + oFileInfo.completeBaseName() + "_backup."
-										  + oFileInfo.suffix();
-	const QString sTemporaryPathAndName = sAbsolutePath + oFileInfo.completeBaseName() + "_tmp."
-										  + oFileInfo.suffix();
+	const QString sCompletePathAndName  =
+			QDir::toNativeSeparators( sAbsolutePath + oFileInfo.fileName() );
+	const QString sBackupPathAndName    =
+			QDir::toNativeSeparators( sAbsolutePath + oFileInfo.completeBaseName() + "_backup."
+									  + oFileInfo.suffix() );
+	const QString sTemporaryPathAndName =
+			QDir::toNativeSeparators( sAbsolutePath + oFileInfo.completeBaseName() + "_tmp."
+									  + oFileInfo.suffix() );
 
 	systemLog.postLog( LogSeverity::Debug, oComponent,
 					   QObject::tr( "Saving to File: %1" ).arg( sCompletePathAndName ) );
