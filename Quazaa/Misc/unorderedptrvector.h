@@ -36,6 +36,22 @@
 #define DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 #endif
 
+/**
+ * @brief The UnorderedPtrVector class allows to manage collections of items where the item order is
+ * not important and most - if not all - operations are performed accress all items of the
+ * collection.
+ *
+ * Iterating over the stored items is supported in two ways:
+ * 1. Accessing individual items via their index (operator[]). This is the preferred and faster way.
+ * 2. Accessing items via an stl-like iterator implementation. Supported are the well-known
+ *    operations container.begin(), container.end() and container.erase( iterator ), the latter of
+ *    which is not available for const_iterators. Note that an erase operation invalidates all
+ *    iterators pointing to a location equal to or after the removed element.
+ *    You can define DEBUG_UNORDERED_PTR_VECTOR_ITERATORS in order to debug invalidated itorators.
+ * Note that the Qt macro foreach (e.g. Q_FOREACH) is not supported by this container, as it
+ * requires a copy of this container and its contents to be created, which would not be efficient
+ * due to the design not being optimized for that kind of operation.
+ */
 template <typename T>
 class UnorderedPtrVector
 {
@@ -106,6 +122,7 @@ private:
 
 public:
 	UnorderedPtrVector(quint32 nReserve = 1023);
+	UnorderedPtrVector(const UnorderedPtrVector& other);
 	~UnorderedPtrVector();
 
 	T*& operator[](quint32 nPos);
@@ -369,6 +386,24 @@ UnorderedPtrVector<T>::UnorderedPtrVector(quint32 nReserve) :
 	reserve( nReserve );
 }
 
+/**
+ * @brief UnorderedPtrVector<T>::UnorderedPtrVector creates a copy of the container and its
+ * contents, but not of the items contained within.
+ * @param other
+ */
+template <typename T>
+UnorderedPtrVector<T>::UnorderedPtrVector(const UnorderedPtrVector& other) :
+	m_pBuffer( NULL ),
+	m_pPastTheEnd( NULL ),
+	m_nSize( other.m_nSize ),
+	m_nAllocatedSize( 0 )
+{
+	reallocate( other.m_nAllocatedSize );
+	memcpy( m_pBuffer, other.m_pBuffer, m_nSize );
+
+	m_nSize = other.m_nSize;
+}
+
 template <typename T>
 UnorderedPtrVector<T>::~UnorderedPtrVector()
 {
@@ -610,7 +645,7 @@ void UnorderedPtrVector<T>::setIteratorValidity(T** pInvalidateAfter)
 template <typename T>
 void UnorderedPtrVector<T>::registerIterator(const_iterator* pIterator)
 {
-	qDebug() << "  Registered Iterator " << pIterator << " for parent " << this;
+	//qDebug() << "  Registered Iterator: " << pIterator << " for parent " << this;
 	m_lIterators.push_back( pIterator );
 }
 
@@ -623,7 +658,7 @@ void UnorderedPtrVector<T>::unregisterIterator(const_iterator* pIterator)
 		if ( *it == pIterator )
 		{
 			m_lIterators.erase( it );
-			qDebug() << "Unregistered Iterator: " << pIterator << " for parent " << this;
+			//qDebug() << "Unregistered Iterator: " << pIterator << " for parent " << this;
 			return;
 		}
 		else
@@ -639,7 +674,7 @@ void UnorderedPtrVector<T>::unregisterIterator(const_iterator* pIterator)
 template <typename T>
 bool UnorderedPtrVector<T>::checkIterator(const const_iterator* const pIterator) const
 {
-	qDebug() << "    Checking Iterator: " << pIterator << " for parent " << this;
+	//qDebug() << "    Checking Iterator: " << pIterator << " for parent " << this;
 
 	std::list<const_iterator*>::const_iterator it = m_lIterators.begin();
 	while ( it != m_lIterators.end() )

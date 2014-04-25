@@ -616,19 +616,19 @@ void FilterControl::filterFiles(const FilterControlData& rControlData)
 	// Update all of these state bools only if there has actually been a change.
 	if ( m_bSizeChanged || m_bMinSourcesChanged || m_bFileBoolsChanged )
 	{
-		foreach ( SearchFile* pFile, m_lVisibleFiles )
+		for ( quint32 i = 0, count = m_lVisibleFiles.count(); i < count; ++i )
 		{
-			FileFilter* pFilter = (FileFilter*)pFile->m_pFilter;
+			FileFilter* pFilter = (FileFilter*)m_lVisibleFiles[i]->m_pFilter;
 			pFilter->updateBoolState( rControlData );
 			pFilter->m_oFileFilterState.m_bEnoughHits =
-					pFile->childCount() >= rControlData.m_nMinSources;
+					m_lVisibleFiles[i]->childCount() >= rControlData.m_nMinSources;
 		}
-		foreach ( SearchFile* pFile, m_lFilteredFiles )
+		for ( quint32 i = 0, count = m_lFilteredFiles.count(); i < count; ++i )
 		{
-			FileFilter* pFilter = (FileFilter*)pFile->m_pFilter;
+			FileFilter* pFilter = (FileFilter*)m_lFilteredFiles[i]->m_pFilter;
 			pFilter->updateBoolState( rControlData );
 			pFilter->m_oFileFilterState.m_bEnoughHits =
-					pFile->childCount() >= rControlData.m_nMinSources;
+					m_lFilteredFiles[i]->childCount() >= rControlData.m_nMinSources;
 		}
 
 		m_oFilterControlData.m_nMinSize    = rControlData.m_nMinSize;
@@ -687,9 +687,9 @@ void FilterControl::filterFiles(const FilterControlData& rControlData)
 		}
 	}
 
-	foreach ( SearchFile* pFile, lNewlyFilteredFiles )
+	for ( quint32 i = 0, count = lNewlyFilteredFiles.count(); i < count; ++i )
 	{
-		m_lFilteredFiles.push_back( pFile );
+		m_lFilteredFiles.push_back( lNewlyFilteredFiles[i] );
 	}
 }
 
