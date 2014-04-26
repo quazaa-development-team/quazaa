@@ -32,7 +32,7 @@ CSystemLog systemLog;
 
 #ifndef QUAZAA_SETUP_UNIT_TESTS
 CSystemLog::CSystemLog() :
-m_pSection(QMutex::Recursive)
+	m_pSection( QMutex::Recursive )
 {
 	m_pComponents = new QString[Components::NoComponents];
 	m_bProcessingMessage = false;
@@ -81,7 +81,7 @@ void CSystemLog::postLog(LogSeverity::Severity nSeverity, const QString& sMessag
 void CSystemLog::postLog(LogSeverity::Severity nSeverity, Components::Component nComponent,
 						 const QString& sMessage)
 {
-	QMutexLocker locker(&m_pSection);
+	QMutexLocker locker( &m_pSection );
 
 	static LogSeverity::Severity lastSeverity  = LogSeverity::Information;
 	static Components::Component lastComponent = Components::None;

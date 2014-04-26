@@ -41,18 +41,18 @@ public:
 	CWidgetSystemLog(QWidget* parent = 0);
 	~CWidgetSystemLog();
 	void saveWidget();
-	QTime timeStamp;
 
 protected:
 	void changeEvent(QEvent* e);
 
 private:
 	Ui::CWidgetSystemLog* ui;
-	QMenu* logMenu;
+	QMenu*  m_pLogMenu;
+	QTime   m_oTimeStamp;
 
 private slots:
 	void on_actionCopy_triggered();
- void on_textEditSystemLog_customContextMenuRequested(QPoint pos);
+	void on_textEditSystemLog_customContextMenuRequested(QPoint pos);
 	void on_actionClearBuffer_triggered();
 
 	void appendLog(QString message, LogSeverity::Severity severity = LogSeverity::Information);

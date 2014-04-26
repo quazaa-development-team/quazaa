@@ -1508,22 +1508,22 @@ void CQuazaaSettings::saveLogSettings()
  */
 void CQuazaaSettings::loadLogSettings()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings( CQuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
-	m_qSettings.beginGroup("Logging");
-	Logging.SaveLog = m_qSettings.value("SaveLog", false).toBool();
-	Logging.LogShowTimestamp = m_qSettings.value("LogShowTimestamp", true).toBool();
-	Logging.ShowInformation = m_qSettings.value("ShowInformation", true).toBool();
-	Logging.ShowSecurity = m_qSettings.value("ShowSecurity", true).toBool();
-	Logging.ShowNotice = m_qSettings.value("ShowNotice", true).toBool();
+	m_qSettings.beginGroup( "Logging" );
+	Logging.SaveLog          = m_qSettings.value( "SaveLog",          false ).toBool();
+	Logging.LogShowTimestamp = m_qSettings.value( "LogShowTimestamp", true  ).toBool();
+	Logging.ShowInformation  = m_qSettings.value( "ShowInformation",  true  ).toBool();
+	Logging.ShowSecurity     = m_qSettings.value( "ShowSecurity",     true  ).toBool();
+	Logging.ShowNotice       = m_qSettings.value( "ShowNotice",       true  ).toBool();
 #ifdef QT_DEBUG
-	Logging.ShowDebug = m_qSettings.value("ShowDebug", true).toBool();
+	Logging.ShowDebug        = m_qSettings.value( "ShowDebug",        true  ).toBool();
 #else
-	Logging.ShowDebug = m_qSettings.value("ShowDebug", false).toBool();
+	Logging.ShowDebug        = m_qSettings.value( "ShowDebug",        false ).toBool();
 #endif
-	Logging.ShowWarnings = m_qSettings.value("ShowWarnings", true).toBool();
-	Logging.ShowError = m_qSettings.value("ShowError", true).toBool();
-	Logging.ShowCritical = m_qSettings.value("ShowCritical", true).toBool();
-	Logging.IsPaused = m_qSettings.value("IsPaused", false).toBool();
+	Logging.ShowWarnings     = m_qSettings.value( "ShowWarnings",     true  ).toBool();
+	Logging.ShowError        = m_qSettings.value( "ShowError",        true  ).toBool();
+	Logging.ShowCritical     = m_qSettings.value( "ShowCritical",     true  ).toBool();
+	Logging.IsPaused         = m_qSettings.value( "IsPaused",         false ).toBool();
 	m_qSettings.endGroup();
 }

@@ -33,35 +33,38 @@
 #include "debug_new.h"
 
 CWidgetSystemLog::CWidgetSystemLog(QWidget* parent) :
-	QMainWindow(parent),
-	ui(new Ui::CWidgetSystemLog)
+	QMainWindow( parent ),
+	ui( new Ui::CWidgetSystemLog )
 {
-	ui->setupUi(this);
-	QFont font("Monospace");
-	font.setStyleHint(QFont::TypeWriter);
-	ui->textEditSystemLog->setFont(font);
-	ui->textEditSystemLog->document()->setMaximumBlockCount(100);
+	ui->setupUi( this );
+	QFont font( "Monospace" );
+	font.setStyleHint( QFont::TypeWriter );
+	ui->textEditSystemLog->setFont( font );
+	ui->textEditSystemLog->document()->setMaximumBlockCount( 100 );
 	quazaaSettings.loadLogSettings();
-	ui->actionPauseLogDisplay->setChecked(quazaaSettings.Logging.IsPaused);
-	logMenu = new QMenu(ui->textEditSystemLog);
-	logMenu->addAction(ui->actionCopy);
-	logMenu->addSeparator();
-	logMenu->addAction(ui->actionShowInformation);
-	ui->actionShowInformation->setChecked(quazaaSettings.Logging.ShowInformation);
-	logMenu->addAction(ui->actionShowSecurity);
-	ui->actionShowSecurity->setChecked(quazaaSettings.Logging.ShowSecurity);
-	logMenu->addAction(ui->actionShowNotice);
-	ui->actionShowNotice->setChecked(quazaaSettings.Logging.ShowNotice);
-	logMenu->addAction(ui->actionShowDebug);
-	ui->actionShowDebug->setChecked(quazaaSettings.Logging.ShowDebug);
-	logMenu->addAction(ui->actionShowWarnings);
-	ui->actionShowWarnings->setChecked(quazaaSettings.Logging.ShowWarnings);
-	logMenu->addAction(ui->actionShowError);
-	ui->actionShowError->setChecked(quazaaSettings.Logging.ShowError);
-	logMenu->addAction(ui->actionShowCritical);
-	ui->actionShowCritical->setChecked(quazaaSettings.Logging.ShowCritical);
-	restoreState(quazaaSettings.WinMain.SystemLogToolbar);
-	ui->actionToggleTimestamp->setChecked(quazaaSettings.Logging.LogShowTimestamp);
+	ui->actionPauseLogDisplay->setChecked( quazaaSettings.Logging.IsPaused );
+
+	m_pLogMenu = new QMenu( ui->textEditSystemLog );
+	m_pLogMenu->addAction( ui->actionCopy            );
+	m_pLogMenu->addSeparator();
+	m_pLogMenu->addAction( ui->actionShowInformation );
+	m_pLogMenu->addAction( ui->actionShowSecurity    );
+	m_pLogMenu->addAction( ui->actionShowNotice      );
+	m_pLogMenu->addAction( ui->actionShowDebug       );
+	m_pLogMenu->addAction( ui->actionShowWarnings    );
+	m_pLogMenu->addAction( ui->actionShowError       );
+	m_pLogMenu->addAction( ui->actionShowCritical    );
+
+	ui->actionShowInformation->setChecked( quazaaSettings.Logging.ShowInformation  );
+	ui->actionShowSecurity   ->setChecked( quazaaSettings.Logging.ShowSecurity     );
+	ui->actionShowNotice     ->setChecked( quazaaSettings.Logging.ShowNotice       );
+	ui->actionShowDebug      ->setChecked( quazaaSettings.Logging.ShowDebug        );
+	ui->actionShowWarnings   ->setChecked( quazaaSettings.Logging.ShowWarnings     );
+	ui->actionShowError      ->setChecked( quazaaSettings.Logging.ShowError        );
+	ui->actionShowCritical   ->setChecked( quazaaSettings.Logging.ShowCritical     );
+	ui->actionToggleTimestamp->setChecked( quazaaSettings.Logging.LogShowTimestamp );
+
+	restoreState( quazaaSettings.WinMain.SystemLogToolbar );
 
 	connect( &systemLog, &CSystemLog::logPosted, this, &CWidgetSystemLog::appendLog );
 
@@ -75,11 +78,11 @@ CWidgetSystemLog::~CWidgetSystemLog()
 
 void CWidgetSystemLog::changeEvent(QEvent* e)
 {
-	QMainWindow::changeEvent(e);
-	switch(e->type())
+	QMainWindow::changeEvent( e );
+	switch ( e->type() )
 	{
 		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
+			ui->retranslateUi( this );
 			break;
 		default:
 			break;
@@ -88,64 +91,64 @@ void CWidgetSystemLog::changeEvent(QEvent* e)
 
 void CWidgetSystemLog::appendLog(QString message, LogSeverity::Severity severity)
 {
-	if(!ui->actionPauseLogDisplay->isChecked())
+	if ( !ui->actionPauseLogDisplay->isChecked() )
 	{
-		QStringList sLines = message.split(QRegExp("\r\n|\n|\r"));
+		QStringList sLines = message.split( QRegularExpression( "\r\n|\n|\r" ) );
 
 		foreach ( const QString& sLine, sLines )
 		{
-			if(ui->actionToggleTimestamp->isChecked())
+			if ( ui->actionToggleTimestamp->isChecked() )
 			{
-				timeStamp = QTime::currentTime();
-				switch(severity)
+				m_oTimeStamp = QTime::currentTime();
+				switch ( severity )
 				{
 					case LogSeverity::Information:
 						if(ui->actionShowInformation->isChecked())
 						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:normal;").arg(QColor(qRgb(0, 0, 0)).name()).arg(timeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
+							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:normal;").arg(QColor(qRgb(0, 0, 0)).name()).arg(m_oTimeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
 						}
 						break;
 					case LogSeverity::Security:
 						if(ui->actionShowSecurity->isChecked())
 						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:600;").arg(QColor(qRgb(170, 170, 0)).name()).arg(timeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
+							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:600;").arg(QColor(qRgb(170, 170, 0)).name()).arg(m_oTimeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
 						}
 						break;
 					case LogSeverity::Notice:
 						if(ui->actionShowNotice->isChecked())
 						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:600;").arg(QColor(qRgb(0, 170, 0)).name()).arg(timeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
+							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:600;").arg(QColor(qRgb(0, 170, 0)).name()).arg(m_oTimeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
 						}
 						break;
 					case LogSeverity::Debug:
 						if(ui->actionShowDebug->isChecked())
 						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:normal;").arg(QColor(qRgb(117, 117, 117)).name()).arg(timeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
+							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:normal;").arg(QColor(qRgb(117, 117, 117)).name()).arg(m_oTimeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
 						}
 						break;
 					case LogSeverity::Warning:
 						if(ui->actionShowWarnings->isChecked())
 						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:normal;").arg(QColor(qRgb(255, 0, 0)).name()).arg(timeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
+							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:normal;").arg(QColor(qRgb(255, 0, 0)).name()).arg(m_oTimeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
 						}
 						break;
 					case LogSeverity::Error:
 						if(ui->actionShowError->isChecked())
 						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:600;").arg(QColor(qRgb(170, 0, 0)).name()).arg(timeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
+							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:600;").arg(QColor(qRgb(170, 0, 0)).name()).arg(m_oTimeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
 						}
 						break;
 					case LogSeverity::Critical:
 						if(ui->actionShowCritical->isChecked())
 						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:600;").arg(QColor(qRgb(255, 0, 0)).name()).arg(timeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
+							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:600;").arg(QColor(qRgb(255, 0, 0)).name()).arg(m_oTimeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
 						}
 						break;
 				}
 			}
 			else
 			{
-				switch(severity)
+				switch ( severity )
 				{
 					case LogSeverity::Information:
 						if(ui->actionShowInformation->isChecked())
@@ -199,14 +202,14 @@ void CWidgetSystemLog::saveWidget()
 {
 	quazaaSettings.WinMain.SystemLogToolbar = saveState();
 	quazaaSettings.Logging.LogShowTimestamp = ui->actionToggleTimestamp->isChecked();
-	quazaaSettings.Logging.ShowWarnings = ui->actionShowWarnings->isChecked();
-	quazaaSettings.Logging.ShowInformation = ui->actionShowInformation->isChecked();
-	quazaaSettings.Logging.ShowSecurity = ui->actionShowSecurity->isChecked();
-	quazaaSettings.Logging.ShowNotice = ui->actionShowNotice->isChecked();
-	quazaaSettings.Logging.ShowDebug = ui->actionShowDebug->isChecked();
-	quazaaSettings.Logging.ShowError = ui->actionShowError->isChecked();
-	quazaaSettings.Logging.ShowCritical = ui->actionShowCritical->isChecked();
-	quazaaSettings.Logging.IsPaused = ui->actionPauseLogDisplay->isChecked();
+	quazaaSettings.Logging.ShowWarnings     = ui->actionShowWarnings   ->isChecked();
+	quazaaSettings.Logging.ShowInformation  = ui->actionShowInformation->isChecked();
+	quazaaSettings.Logging.ShowSecurity     = ui->actionShowSecurity   ->isChecked();
+	quazaaSettings.Logging.ShowNotice       = ui->actionShowNotice     ->isChecked();
+	quazaaSettings.Logging.ShowDebug        = ui->actionShowDebug      ->isChecked();
+	quazaaSettings.Logging.ShowError        = ui->actionShowError      ->isChecked();
+	quazaaSettings.Logging.ShowCritical     = ui->actionShowCritical   ->isChecked();
+	quazaaSettings.Logging.IsPaused         = ui->actionPauseLogDisplay->isChecked();
 	quazaaSettings.saveLogSettings();
 }
 
@@ -217,8 +220,8 @@ void CWidgetSystemLog::on_actionClearBuffer_triggered()
 
 void CWidgetSystemLog::on_textEditSystemLog_customContextMenuRequested(QPoint pos)
 {
-	Q_UNUSED(pos);
-	logMenu->exec(QCursor::pos());
+	Q_UNUSED( pos );
+	m_pLogMenu->exec( QCursor::pos() );
 }
 
 void CWidgetSystemLog::on_actionCopy_triggered()
@@ -228,5 +231,4 @@ void CWidgetSystemLog::on_actionCopy_triggered()
 
 void CWidgetSystemLog::setSkin()
 {
-
 }
