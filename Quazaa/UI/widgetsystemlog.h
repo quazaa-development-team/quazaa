@@ -56,6 +56,10 @@ private slots:
 	void on_actionClearBuffer_triggered();
 
 	void appendLog(QString message, LogSeverity severity = LogSeverity::Information);
+	void writeLine(const QString& sLine, LogSeverity severity);
+	void appendText(const QString& sFontArgs, const QColor& color,
+					const QString& sLine, bool bAddTimeStamp);
+
 	void setSkin();
 };
 

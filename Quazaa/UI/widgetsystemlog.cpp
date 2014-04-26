@@ -76,128 +76,6 @@ WidgetSystemLog::~WidgetSystemLog()
 	delete ui;
 }
 
-void WidgetSystemLog::changeEvent(QEvent* e)
-{
-	QMainWindow::changeEvent( e );
-	switch ( e->type() )
-	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi( this );
-			break;
-		default:
-			break;
-	}
-}
-
-void WidgetSystemLog::appendLog(QString message, LogSeverity severity)
-{
-	if ( !ui->actionPauseLogDisplay->isChecked() )
-	{
-		QStringList sLines = message.split( QRegularExpression( "\r\n|\n|\r" ) );
-
-		foreach ( const QString& sLine, sLines )
-		{
-			if ( ui->actionToggleTimestamp->isChecked() )
-			{
-				m_oTimeStamp = QTime::currentTime();
-				switch ( severity )
-				{
-					case LogSeverity::Information:
-						if(ui->actionShowInformation->isChecked())
-						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:normal;").arg(QColor(qRgb(0, 0, 0)).name()).arg(m_oTimeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
-						}
-						break;
-					case LogSeverity::Security:
-						if(ui->actionShowSecurity->isChecked())
-						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:600;").arg(QColor(qRgb(170, 170, 0)).name()).arg(m_oTimeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
-						}
-						break;
-					case LogSeverity::Notice:
-						if(ui->actionShowNotice->isChecked())
-						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:600;").arg(QColor(qRgb(0, 170, 0)).name()).arg(m_oTimeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
-						}
-						break;
-					case LogSeverity::Debug:
-						if(ui->actionShowDebug->isChecked())
-						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:normal;").arg(QColor(qRgb(117, 117, 117)).name()).arg(m_oTimeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
-						}
-						break;
-					case LogSeverity::Warning:
-						if(ui->actionShowWarnings->isChecked())
-						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:normal;").arg(QColor(qRgb(255, 0, 0)).name()).arg(m_oTimeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
-						}
-						break;
-					case LogSeverity::Error:
-						if(ui->actionShowError->isChecked())
-						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:600;").arg(QColor(qRgb(170, 0, 0)).name()).arg(m_oTimeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
-						}
-						break;
-					case LogSeverity::Critical:
-						if(ui->actionShowCritical->isChecked())
-						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3:%4</span>").arg("font-weight:600;").arg(QColor(qRgb(255, 0, 0)).name()).arg(m_oTimeStamp.toString("hh:mm:ss.zzz")).arg(sLine));
-						}
-						break;
-				}
-			}
-			else
-			{
-				switch ( severity )
-				{
-					case LogSeverity::Information:
-						if(ui->actionShowInformation->isChecked())
-						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3</span>").arg("font-weight:normal;").arg(QColor(qRgb(0, 0, 0)).name()).arg(sLine));
-						}
-						break;
-					case LogSeverity::Security:
-						if(ui->actionShowSecurity->isChecked())
-						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3</span>").arg("font-weight:600;").arg(QColor(qRgb(170, 170, 0)).name()).arg(sLine));
-						}
-						break;
-					case LogSeverity::Notice:
-						if(ui->actionShowNotice->isChecked())
-						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3</span>").arg("font-weight:600;").arg(QColor(qRgb(0, 170, 0)).name()).arg(sLine));
-						}
-						break;
-					case LogSeverity::Debug:
-						if(ui->actionShowDebug->isChecked())
-						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3</span>").arg("font-weight:normal;").arg(QColor(qRgb(117, 117, 117)).name()).arg(sLine));
-						}
-						break;
-					case LogSeverity::Warning:
-						if(ui->actionShowWarnings->isChecked())
-						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3</span>").arg("font-weight:normal;").arg(QColor(qRgb(255, 0, 0)).name()).arg(sLine));
-						}
-						break;
-					case LogSeverity::Error:
-						if(ui->actionShowError->isChecked())
-						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3</span>").arg("font-weight:600;").arg(QColor(qRgb(170, 0, 0)).name()).arg(sLine));
-						}
-						break;
-					case LogSeverity::Critical:
-						if(ui->actionShowCritical->isChecked())
-						{
-							ui->textEditSystemLog->append(QString("<span style=\" font-size:8pt; %1 color:%2;\">%3</span>").arg("font-weight:600;").arg(QColor(qRgb(255, 0, 0)).name()).arg(sLine));
-						}
-						break;
-				}
-			}
-		}
-	}
-}
-
 void WidgetSystemLog::saveWidget()
 {
 	quazaaSettings.WinMain.SystemLogToolbar = saveState();
@@ -213,9 +91,22 @@ void WidgetSystemLog::saveWidget()
 	quazaaSettings.saveLogSettings();
 }
 
-void WidgetSystemLog::on_actionClearBuffer_triggered()
+void WidgetSystemLog::changeEvent(QEvent* e)
 {
-	ui->textEditSystemLog->clear();
+	QMainWindow::changeEvent( e );
+	switch ( e->type() )
+	{
+		case QEvent::LanguageChange:
+			ui->retranslateUi( this );
+			break;
+		default:
+			break;
+	}
+}
+
+void WidgetSystemLog::on_actionCopy_triggered()
+{
+	ui->textEditSystemLog->copy();
 }
 
 void WidgetSystemLog::on_textEditSystemLog_customContextMenuRequested(QPoint pos)
@@ -224,9 +115,89 @@ void WidgetSystemLog::on_textEditSystemLog_customContextMenuRequested(QPoint pos
 	m_pLogMenu->exec( QCursor::pos() );
 }
 
-void WidgetSystemLog::on_actionCopy_triggered()
+void WidgetSystemLog::on_actionClearBuffer_triggered()
 {
-	ui->textEditSystemLog->copy();
+	ui->textEditSystemLog->clear();
+}
+
+void WidgetSystemLog::appendLog(QString message, LogSeverity severity)
+{
+	if ( !ui->actionPauseLogDisplay->isChecked() )
+	{
+		QStringList sLines = message.split( QRegularExpression( "\r\n|\n|\r" ) );
+
+		foreach ( const QString& sLine, sLines )
+		{
+			writeLine( sLine, severity );
+		}
+	}
+}
+
+void WidgetSystemLog::writeLine(const QString& sLine, LogSeverity severity)
+{
+	bool bTimeStamp = ui->actionToggleTimestamp->isChecked();
+	m_oTimeStamp    = QTime::currentTime();
+
+	switch ( severity )
+	{
+	case LogSeverity::Information:
+		if ( ui->actionShowInformation->isChecked() )
+		{
+			appendText( QString( "font-weight:normal;" ),
+						QColor( qRgb(0, 0, 0) ), sLine, bTimeStamp );
+		}
+		break;
+	case LogSeverity::Security:
+		if ( ui->actionShowSecurity->isChecked() )
+		{
+			appendText( QString( "font-weight:600;" ),
+						QColor( qRgb(170, 170, 0) ), sLine, bTimeStamp );
+		}
+		break;
+	case LogSeverity::Notice:
+		if ( ui->actionShowNotice->isChecked() )
+		{
+			appendText( QString( "font-weight:600;" ),
+						QColor( qRgb(0, 170, 0) ), sLine, bTimeStamp );
+		}
+		break;
+	case LogSeverity::Debug:
+		if ( ui->actionShowDebug->isChecked() )
+		{
+			appendText( QString( "font-weight:normal;" ),
+						QColor( qRgb(117, 117, 117) ), sLine, bTimeStamp );
+		}
+		break;
+	case LogSeverity::Warning:
+		if ( ui->actionShowWarnings->isChecked() )
+		{
+			appendText( QString( "font-weight:normal;" ),
+						QColor( qRgb(255, 0, 0) ), sLine, bTimeStamp );
+		}
+		break;
+	case LogSeverity::Error:
+		if ( ui->actionShowError->isChecked() )
+		{
+			appendText( QString( "font-weight:600;" ),
+						QColor( qRgb(170, 0, 0) ), sLine, bTimeStamp );
+		}
+		break;
+	case LogSeverity::Critical:
+		if ( ui->actionShowCritical->isChecked() )
+		{
+			appendText( QString( "font-weight:600;" ),
+						QColor( qRgb(255, 0, 0) ), sLine, bTimeStamp );
+		}
+		break;
+	}
+}
+
+void WidgetSystemLog::appendText(const QString& sFontArgs, const QColor& color,
+								 const QString& sLine, bool bAddTimeStamp)
+{
+	QString sTimestamp = bAddTimeStamp ? m_oTimeStamp.toString( "hh:mm:ss.zzz" ) + ": " : QString();
+	QString sMessage   = QString( "<span style=\" font-size:8pt; %1 color:%2;\">%3</span>" );
+	ui->textEditSystemLog->append( sMessage.arg( sFontArgs, color.name(), sTimestamp + sLine ) );
 }
 
 void WidgetSystemLog::setSkin()
