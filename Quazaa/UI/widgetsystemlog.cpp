@@ -62,7 +62,9 @@ CWidgetSystemLog::CWidgetSystemLog(QWidget* parent) :
 	ui->actionShowCritical->setChecked(quazaaSettings.Logging.ShowCritical);
 	restoreState(quazaaSettings.WinMain.SystemLogToolbar);
 	ui->actionToggleTimestamp->setChecked(quazaaSettings.Logging.LogShowTimestamp);
-	connect(&systemLog, SIGNAL(logPosted(QString, LogSeverity::Severity)), this, SLOT(appendLog(QString, LogSeverity::Severity)));
+
+	connect( &systemLog, &CSystemLog::logPosted, this, &CWidgetSystemLog::appendLog );
+
 	setSkin();
 }
 

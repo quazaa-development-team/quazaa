@@ -114,17 +114,19 @@ void CSystemLog::postLog(LogSeverity::Severity nSeverity, Components::Component 
 
 	const QString sComponentMessage = msgFromComponent( nComponent ) + sMessage;
 
-	switch ( nSeverity )
+	/*switch ( nSeverity )
 	{
 		case LogSeverity::Debug:
 		case LogSeverity::Warning:
 		case LogSeverity::Critical:
 		case LogSeverity::Error:
-			qDebug() << qPrintable(sComponentMessage);
+			qDebug() << qPrintable( sComponentMessage );
 			break;
 		default:
 			break;
-	}
+	}*/
+
+	qDebug() << qPrintable( sComponentMessage );
 
 	emit logPosted( sComponentMessage, nSeverity );
 }
