@@ -521,7 +521,7 @@ bool Manager::asyncSyncSavingHelper()
 #endif
 
 	const quint32 nCount = common::securedSaveFile( CQuazaaGlobals::DATA_PATH(), "discovery.dat",
-													Components::Discovery, this,
+													Component::Discovery, this,
 													&Manager::writeToFile );
 
 	postLog( LogSeverity::Debug, tr( "%1 services saved." ).arg( nCount ) );
@@ -1651,8 +1651,8 @@ Manager::ServicePtr Manager::getRandomService(const CNetworkType& oNType)
  * @param bDebug Defaults to false. If set to true, the message is send  to qDebug() instead of
  * to the system log.
  */
-void Manager::postLog(LogSeverity::Severity severity, QString message,
-						 bool bDebug, ServiceID nID)
+void Manager::postLog(LogSeverity severity, QString message,
+					  bool bDebug, ServiceID nID)
 {
 	QString sMessage;
 
@@ -1683,12 +1683,12 @@ void Manager::postLog(LogSeverity::Severity severity, QString message,
 
 	if ( bDebug )
 	{
-		sMessage = systemLog.msgFromComponent( Components::Discovery ) + sMessage;
+		sMessage = systemLog.msgFromComponent( Component::Discovery ) + sMessage;
 		qDebug() << sMessage.toLocal8Bit().constData();
 	}
 	else
 	{
-		systemLog.postLog( severity, Components::Discovery, sMessage );
+		systemLog.postLog( severity, Component::Discovery, sMessage );
 	}
 }
 

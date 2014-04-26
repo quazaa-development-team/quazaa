@@ -226,7 +226,7 @@ quint64 common::readSizeInBytes(QString sInput, bool& bOK)
 }
 
 quint32 common::securedSaveFile(const QString& sPath, const QString& sFileName,
-								Components::Component oComponent, const void* const pManager,
+								Component oComponent, const void* const pManager,
 								quint32 (*writeData)(const void* const, QFile&))
 {
 	QFileInfo oFileInfo( sPath + sFileName );

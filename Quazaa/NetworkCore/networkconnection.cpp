@@ -151,7 +151,7 @@ void CNetworkConnection::acceptFrom(qintptr nHandle)
 
 void CNetworkConnection::close(bool bDelayed)
 {
-	systemLog.postLog( LogSeverity::Information, Components::Network,
+	systemLog.postLog( LogSeverity::Information, Component::Network,
 					   "Closing connection to %s.", qPrintable( m_oAddress.toStringWithPort() ) );
 
 	QMetaObject::invokeMethod(this, "closeImplementation", Q_ARG(bool, bDelayed));

@@ -65,11 +65,11 @@ void CNeighbour::onTimer(quint32 tNow)
 			}
 
 			if ( m_nState == nsConnecting )
-				systemLog.postLog( LogSeverity::Information,  Components::Network,
+				systemLog.postLog( LogSeverity::Information,  Component::Network,
 								   qPrintable( tr( "Timed out connecting to %s." ) ),
 								   qPrintable( m_oAddress.toStringWithPort() ) );
 			else
-				systemLog.postLog( LogSeverity::Information,  Components::Network,
+				systemLog.postLog( LogSeverity::Information,  Component::Network,
 								   qPrintable( tr( "Timed out handshaking with %s." ) ),
 								   qPrintable( m_oAddress.toStringWithPort() ) );
 
@@ -114,12 +114,12 @@ void CNeighbour::onError(QAbstractSocket::SocketError e)
 	if ( e == QAbstractSocket::RemoteHostClosedError )
 	{
 		if ( m_nState != nsHandshaking )
-			systemLog.postLog( LogSeverity::Information, Components::Network,
+			systemLog.postLog( LogSeverity::Information, Component::Network,
 							   QString("Neighbour %1 dropped connection unexpectedly.")
 							   .arg( m_oAddress.toString().toLocal8Bit().constData() ) );
 		else
 		{
-			systemLog.postLog( LogSeverity::Information, Components::Network,
+			systemLog.postLog( LogSeverity::Information, Component::Network,
 							   QString("Neighbour %1 dropped connection during handshake.")
 							   .arg( m_oAddress.toString().toLocal8Bit().constData() ) );
 
@@ -138,7 +138,7 @@ void CNeighbour::onError(QAbstractSocket::SocketError e)
 	}
 	else
 	{
-		systemLog.postLog( LogSeverity::Error, Components::Network,
+		systemLog.postLog( LogSeverity::Error, Component::Network,
 						   "Neighbour %s dropped connection unexpectedly (socket error: %s).",
 						   qPrintable( m_oAddress.toStringWithPort() ),
 						   qPrintable( m_pSocket->errorString() ) );

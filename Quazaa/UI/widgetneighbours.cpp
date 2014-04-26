@@ -201,7 +201,7 @@ void CWidgetNeighbours::on_actionNeighbourDisconnect_triggered()
 	Neighbours.m_pSection.lock();
 	if ( Neighbours.neighbourExists(pNode) )
 	{
-		systemLog.postLog( LogSeverity::Information, Components::Network,
+		systemLog.postLog( LogSeverity::Information, Component::Network,
 						   qPrintable( tr( "Closing connection to neighbour %s" ) ),
 						   qPrintable( pNode->m_oAddress.toStringWithPort() ) );
 		pNode->close();

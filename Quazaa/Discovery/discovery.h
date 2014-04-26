@@ -328,8 +328,8 @@ public:
 	 * @param bDebug Defaults to false. If set to true, the message is send  to qDebug() instead of
 	 * to the system log.
 	 */
-	static void postLog(LogSeverity::Severity severity, QString message,
-						bool bDebug = false, ServiceID nID = 0);
+	static void postLog( LogSeverity severity, QString message,
+						 bool bDebug = false, ServiceID nID = 0);
 
 	/**
 	 * @brief writeToFile is a helper method for save()

@@ -237,7 +237,7 @@ CDownload::CDownload(QueryHit* pHit, QObject *parent) :
 
 	setState( dsQueued );
 
-	systemLog.postLog( LogSeverity::Notice, Components::Downloads,
+	systemLog.postLog( LogSeverity::Notice, Component::Downloads,
 					   qPrintable( tr( "Created download for %s with %d sources." ) ),
 					   qPrintable( m_sDisplayName ), nSources );
 }

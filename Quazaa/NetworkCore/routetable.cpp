@@ -211,26 +211,28 @@ void CRouteTable::clear()
 
 void CRouteTable::dump()
 {
+	quint32 tNow = time( NULL );
 
-	quint32 tNow = time(0);
+	systemLog.postLog( LogSeverity::Debug, "----------------------------------" );
+	systemLog.postLog( LogSeverity::Debug, "Dumping routing table:" );
+	systemLog.postLog( LogSeverity::Debug, QString( "Table size: " ).arg( m_lRoutes.size() ) );
 
-	systemLog.postLog(LogSeverity::Debug, "----------------------------------");
-	systemLog.postLog(LogSeverity::Debug, "Dumping routing table:");
-	systemLog.postLog(LogSeverity::Debug, QString("Table size: ").arg(m_lRoutes.size()));
-
-	for(QHash<QUuid, G2RouteItem*>::iterator itRoute = m_lRoutes.begin(); itRoute != m_lRoutes.end(); itRoute++)
+	for ( QHash<QUuid, G2RouteItem*>::iterator itRoute = m_lRoutes.begin();
+		  itRoute != m_lRoutes.end(); ++itRoute )
 	{
 		qint64 nExpire = itRoute.value()->nExpireTime - tNow;
-		if(itRoute.value()->nExpireTime == 0)
+
+		if ( !itRoute.value()->nExpireTime )
 		{
 			nExpire = 0;
 		}
-		systemLog.postLog( LogSeverity::Debug, Components::G2, "%s %i %s TTL %i",
+
+		systemLog.postLog( LogSeverity::Debug, Component::G2, "%s %i %s TTL %i",
 						   qPrintable( itRoute.key().toString() ), itRoute.value()->pNeighbour,
 						   qPrintable( itRoute.value()->pEndpoint.toString() ), nExpire );
 	}
 
-	systemLog.postLog(LogSeverity::Debug, "End of data");
-	systemLog.postLog(LogSeverity::Debug, "----------------------------------");
+	systemLog.postLog( LogSeverity::Debug, "End of data" );
+	systemLog.postLog( LogSeverity::Debug, "----------------------------------" );
 }
 

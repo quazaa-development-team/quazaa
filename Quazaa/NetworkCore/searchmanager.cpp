@@ -314,7 +314,7 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSend
 			else
 			{
 				// this handles extensions and future developments unknown to us
-				systemLog.postLog( LogSeverity::Debug, Components::G2,
+				systemLog.postLog( LogSeverity::Debug, Component::G2,
 								   tr( "Caught unknown child of QA packet: " ) + szType );
 			}
 
@@ -324,7 +324,7 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSend
 		// we already know QA GUID
 
 		bLikelyFoxy = (nSearchedHubs > 20 && nSuggestedHubs < 6 && tRetryAfter == 300);
-		systemLog.postLog( LogSeverity::Debug, Components::G2,
+		systemLog.postLog( LogSeverity::Debug, Component::G2,
 						   "Processing query acknowledge from %s (time adjust %+d seconds): %d hubs, %d leaves, %d suggested hubs, retry after %d seconds, %s, likely foxy: %s).",
 						   oQAOrigin.toString().toLocal8Bit().constData(), int( tAdjust ), nSearchedHubs,
 						   nSearchedLeaves, nSuggestedHubs, tRetryAfter,

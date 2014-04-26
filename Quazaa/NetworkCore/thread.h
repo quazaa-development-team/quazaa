@@ -43,18 +43,19 @@ class CThread: public QThread
 public:
 	CThread(QObject* parent = 0);
 
-	void start(QString strName, QMutex* pMutex, QObject* pTargetObj = 0, Priority p = InheritPriority)
+	void start(QString strName, QMutex* pMutex, QObject* pTargetObj = 0,
+			   Priority p = InheritPriority)
 	{
 		m_sThreadName = strName;
 
-		systemLog.postLog(LogSeverity::Debug, QString("%1 Thread::start").arg(strName));
+		systemLog.postLog( LogSeverity::Debug, QString( "%1 Thread::start" ).arg( strName ) );
 		//qDebug() << strName << "Thread::start";
 		//QMutexLocker l(pMutex);
 		m_pMutex = pMutex;
 		m_pTargetObject = pTargetObj;
-		if(pTargetObj)
+		if ( pTargetObj )
 		{
-			pTargetObj->moveToThread(this);
+			pTargetObj->moveToThread( this );
 		}
 		systemLog.postLog(LogSeverity::Debug, QString("%1 Starting...").arg(strName));
 		//qDebug() << strName << "Starting...";

@@ -93,7 +93,7 @@ TimerObject::TimerObject(QObject* obj, const char* member, quint32 tDelaySec,
 #ifdef _DEBUG
 #if ENABLE_SIGNAL_QUEUE_DEBUGGING
 	qint64 tTest = (m_tTime + signalQueue.m_tTimerStartUTCInMSec) / 1000 - common::getTNowUTC();
-	systemLog.postLog( LogSeverity::Debug, Components::SignalQueue,
+	systemLog.postLog( LogSeverity::Debug, Component::SignalQueue,
 					   QString( "Added event with %1s delay to signal queue."
 								).arg( QString::number( tTest ) ) );
 #endif // ENABLE_SIGNAL_QUEUE_DEBUGGING
@@ -178,7 +178,7 @@ void TimerObject::resetTime()
 bool TimerObject::emitSignal() const
 {
 #if ENABLE_SIGNAL_QUEUE_DEBUGGING
-	systemLog.postLog( LogSeverity::Debug, Components::SignalQueue,
+	systemLog.postLog( LogSeverity::Debug, Component::SignalQueue,
 					   QString( "Invoking method:" ) + m_sSignal.sName );
 #endif
 
@@ -294,7 +294,7 @@ void TimedSignalQueue::checkSchedule()
 			bool bSuccess = pObj->emitSignal();
 
 #if ENABLE_SIGNAL_QUEUE_DEBUGGING
-			systemLog.postLog( LogSeverity::Debug, Components::SignalQueue,
+			systemLog.postLog( LogSeverity::Debug, Component::SignalQueue,
 							   QString( "Success: " ) + QString( bSuccess ? "true" : "false" ) );
 #endif //ENABLE_SIGNAL_QUEUE_DEBUGGING
 

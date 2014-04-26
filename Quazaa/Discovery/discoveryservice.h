@@ -389,7 +389,7 @@ protected:
 	 * @param bDebug Defaults to false. If set to true, the message is send  to qDebug() instead of
 	 * to the system log.
 	 */
-	void postLog(LogSeverity::Severity severity, QString message, bool bDebug = false);
+	void postLog(LogSeverity severity, QString message, bool bDebug = false);
 
 	/**
 	 * @brief handleRedirect detects redirects on network requests and follows them.

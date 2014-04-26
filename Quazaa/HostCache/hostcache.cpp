@@ -47,7 +47,7 @@ HostCache::~HostCache()
 void HostCache::start()
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
-	systemLog.postLog( LogSeverity::Debug, Components::HostCache, QString( "start()" ) );
+	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "start()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	QThread* pThread = new QThread();

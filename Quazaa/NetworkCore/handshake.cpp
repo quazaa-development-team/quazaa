@@ -51,7 +51,7 @@ void CHandshake::onTimer(quint32 tNow)
 {
 	if ( tNow - m_tConnected > 15 )
 	{
-		systemLog.postLog( LogSeverity::Debug, Components::Network,
+		systemLog.postLog( LogSeverity::Debug, Component::Network,
 						   QString( "Timed out handshaking with  %1"
 									).arg( m_pSocket->peerAddress().toString() ) );
 		close();
@@ -71,7 +71,7 @@ void CHandshake::onRead()
 	if ( peek(8).startsWith( "GNUTELLA" ) )
 	{
 #if LOG_CONNECTIONS
-		systemLog.postLog( LogSeverity::Debug, Components::Network,
+		systemLog.postLog( LogSeverity::Debug, Component::Network,
 						   QString( "Incoming connection from %1 is Gnutella Neighbour connection"
 									).arg( m_pSocket->peerAddress().toString() ) );
 #endif
@@ -83,7 +83,7 @@ void CHandshake::onRead()
 		if ( peek( bytesAvailable() ).indexOf( "\r\n\r\n" ) != -1 )
 		{
 #if LOG_CONNECTIONS
-			systemLog.postLog( LogSeverity::Debug, Components::Network,
+			systemLog.postLog( LogSeverity::Debug, Component::Network,
 							   QString( "Incoming connection from %1 is a Web request"
 										).arg(m_pSocket->peerAddress().toString() ) );
 #endif
@@ -92,7 +92,7 @@ void CHandshake::onRead()
 	}
 	else
 	{
-		systemLog.postLog( LogSeverity::Debug, Components::Network,
+		systemLog.postLog( LogSeverity::Debug, Component::Network,
 						   QString( "Closing connection with %1 - unknown protocol"
 									).arg(m_pSocket->peerAddress().toString() ) );
 

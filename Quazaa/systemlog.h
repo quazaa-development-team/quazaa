@@ -34,37 +34,33 @@
 #include <QObject>
 #include <QString>
 
-namespace LogSeverity
-{
-enum Severity { Information = 1, // Inform the user about something
-				Security    = 2, // security related
-				Notice      = 3, // Inform the user about something less important
-				Debug       = 4, // Debugging output
-				Warning     = 5,
-				Error       = 6,
-				Critical    = 7 };
-}
+enum class LogSeverity : quint8
+					   { Information = 1, // Inform the user about something
+						 Security    = 2, // security related
+						 Notice      = 3, // Inform the user about something less important
+						 Debug       = 4, // Debugging output
+						 Warning     = 5,
+						 Error       = 6,
+						 Critical    = 7 };
 
-namespace Components
-{
-enum Component { None         =  0,
-				 Chat         =  1, // P2P chat
-				 IRC          =  2,
-				 Discovery    =  3,
-				 Network      =  4, // global network stuff
-				 Ares         =  5,
-				 BitTorrent   =  6,
-				 eD2k         =  7,
-				 G2           =  8,
-				 Security     =  9,
-				 Library      = 10, // Share manager
-				 Downloads    = 11,
-				 Uploads      = 12,
-				 GUI          = 13,
-				 SignalQueue  = 14,
-				 HostCache    = 15,
-				 NoComponents = 16 };
-}
+enum class Component : quint8
+					 { None         =  0,
+					   Chat         =  1, // P2P chat
+					   IRC          =  2,
+					   Discovery    =  3,
+					   Network      =  4, // global network stuff
+					   Ares         =  5,
+					   BitTorrent   =  6,
+					   eD2k         =  7,
+					   G2           =  8,
+					   Security     =  9,
+					   Library      = 10, // Share manager
+					   Downloads    = 11,
+					   Uploads      = 12,
+					   GUI          = 13,
+					   SignalQueue  = 14,
+					   HostCache    = 15,
+					   NoComponents = 16 };
 
 class SystemLog : public QObject
 {
@@ -84,21 +80,21 @@ public:
 
 	void start();
 
-	QString msgFromComponent(Components::Component nComponent);
+	QString msgFromComponent(Component nComponent);
 
 #ifndef QUAZAA_SETUP_UNIT_TESTS
 signals:
-	void logPosted(QString sMessage, LogSeverity::Severity nSeverity);
+	void logPosted(QString sMessage, LogSeverity nSeverity);
 
 public slots:
-	void postLog(LogSeverity::Severity nSeverity, const QString& sMessage);
+	void postLog(LogSeverity nSeverity, const QString& sMessage);
 
 public:
 #else
-	void postLog(LogSeverity::Severity nSeverity, const QString& sMessage);
+	void postLog(LogSeverity nSeverity, const QString& sMessage);
 #endif
-	void postLog(LogSeverity::Severity nSeverity, Components::Component nComponent, const QString& sMessage);
-	void postLog(LogSeverity::Severity nSeverity, Components::Component nComponent, const char* format, ...);
+	void postLog(LogSeverity nSeverity, Component nComponent, const QString& sMessage);
+	void postLog(LogSeverity nSeverity, Component nComponent, const char* format, ...);
 };
 
 extern SystemLog systemLog;

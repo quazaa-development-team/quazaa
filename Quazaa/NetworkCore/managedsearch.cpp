@@ -124,7 +124,8 @@ void ManagedSearch::execute(const QDateTime& tNowDT, quint32* pnMaxPackets)
 
 	if ( m_nQueryCount > quazaaSettings.Gnutella2.QueryLimit )
 	{
-		systemLog.postLog( LogSeverity::Debug, Components::G2, "Pausing search: query limit reached" );
+		systemLog.postLog( LogSeverity::Debug, Component::G2,
+						   "Pausing search: query limit reached" );
 		pause();
 		return;
 	}
@@ -171,7 +172,7 @@ void ManagedSearch::execute(const QDateTime& tNowDT, quint32* pnMaxPackets)
 		m_tCleanHostsNext = tNowDT.addSecs( quazaaSettings.Gnutella2.QueryHostThrottle );
 
 #ifdef _DEBUG
-		systemLog.postLog( LogSeverity::Debug, Components::G2,
+		systemLog.postLog( LogSeverity::Debug, Component::G2,
 						   QString( "Clearing don't-try list for search %1, old size: %2, new size: %3, items removed: %4"
 									).arg( m_oGUID.toString(), QString::number( nOldSize ),
 										   QString::number( m_lSearchedNodes.size() ),
@@ -584,7 +585,8 @@ void ManagedSearch::onQueryHit(QueryHit* pHits)
 
 	if ( m_nHits > m_nQueryHitLimit && !m_bPaused )
 	{
-		systemLog.postLog(LogSeverity::Debug, Components::G2, tr("Pausing search: query hit limit reached"));
+		systemLog.postLog( LogSeverity::Debug, Component::G2,
+						   tr( "Pausing search: query hit limit reached" ) );
 		pause();
 	}
 }
@@ -596,8 +598,8 @@ void ManagedSearch::sendHits()
 		return;
 	}
 
-	systemLog.postLog( LogSeverity::Debug, Components::G2, QString( "Sending hits... %1"
-																	).arg( m_nCachedHits ) );
+	systemLog.postLog( LogSeverity::Debug, Component::G2, QString( "Sending hits... %1"
+																   ).arg( m_nCachedHits ) );
 	//qDebug() << "Sending hits..." << m_nCachedHits;
 
 	emit onHit( m_pCachedHit );

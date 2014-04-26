@@ -67,7 +67,7 @@ namespace common
 	 * @return true if successful, false otherwise.
 	 */
 	quint32 securedSaveFile(const QString& sPath, const QString& sFileName,
-							Components::Component oComponent, const void* const pManager,
+							Component oComponent, const void* const pManager,
 							quint32 (*writeData)(const void* const, QFile&));
 
 	/**

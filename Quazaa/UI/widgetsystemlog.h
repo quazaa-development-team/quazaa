@@ -55,7 +55,7 @@ private slots:
 	void on_textEditSystemLog_customContextMenuRequested(QPoint pos);
 	void on_actionClearBuffer_triggered();
 
-	void appendLog(QString message, LogSeverity::Severity severity = LogSeverity::Information);
+	void appendLog(QString message, LogSeverity severity = LogSeverity::Information);
 	void setSkin();
 };
 

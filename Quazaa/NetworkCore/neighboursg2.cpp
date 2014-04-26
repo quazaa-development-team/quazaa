@@ -312,7 +312,7 @@ bool CNeighboursG2::switchG2ClientMode(G2NodeType nRequestedMode)
 	m_nClientMode = nRequestedMode;
 	m_nUpdateWait = 0;
 
-	systemLog.postLog( LogSeverity::Notice, Components::G2,
+	systemLog.postLog( LogSeverity::Notice, Component::G2,
 					   "Hub Balancing: Switched to %s mode.", ( isG2Hub() ? "HUB" : "LEAF" ) );
 
 	return true;

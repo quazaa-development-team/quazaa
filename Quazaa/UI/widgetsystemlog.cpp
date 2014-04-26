@@ -89,7 +89,7 @@ void WidgetSystemLog::changeEvent(QEvent* e)
 	}
 }
 
-void WidgetSystemLog::appendLog(QString message, LogSeverity::Severity severity)
+void WidgetSystemLog::appendLog(QString message, LogSeverity severity)
 {
 	if ( !ui->actionPauseLogDisplay->isChecked() )
 	{

@@ -261,8 +261,8 @@ DiscoveryService* DiscoveryService::createService(const QString& sURL, ServiceTy
 #if ENABLE_DISCOVERY_DEBUGGING
 		qDebug() << "[Discovery] Service Type: Unknown";
 #endif
-		systemLog.postLog( LogSeverity::Error, Components::Discovery,
-						   tr( "Internal error: Creation of service with unknown type requested: Type " )
+		systemLog.postLog( LogSeverity::Error, Component::Discovery,
+				tr( "Internal error: Creation of service with unknown type requested: Type " )
 						   + QString( eSType ) );
 
 		Q_ASSERT( false ); // unsupported service type
@@ -495,7 +495,7 @@ void DiscoveryService::setRating(quint8 nRating)
  * @param bDebug Defaults to false. If set to true, the message is send  to qDebug() instead of
  * to the system log.
  */
-void DiscoveryService::postLog(LogSeverity::Severity severity, QString message, bool bDebug)
+void DiscoveryService::postLog(LogSeverity severity, QString message, bool bDebug)
 {
 	Manager::postLog( severity, message, bDebug, m_nID );
 }

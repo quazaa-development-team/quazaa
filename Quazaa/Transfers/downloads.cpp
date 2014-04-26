@@ -52,7 +52,7 @@ void CDownloads::add(QueryHit *pHit)
 	pDownload->moveToThread( &TransfersThread );
 	m_lDownloads.append( pDownload );
 	pDownload->saveState();
-	systemLog.postLog( LogSeverity::Notice, Components::Downloads,
+	systemLog.postLog( LogSeverity::Notice, Component::Downloads,
 					   qPrintable( tr( "Queued download job for %s" ) ),
 					   qPrintable( pDownload->m_sDisplayName ) );
 	emit downloadAdded( pDownload );
@@ -90,7 +90,7 @@ void CDownloads::start()
 				pDownload->moveToThread(&TransfersThread);
 				m_lDownloads.append(pDownload);
 				emit downloadAdded(pDownload);
-				systemLog.postLog( LogSeverity::Notice, Components::Downloads,
+				systemLog.postLog( LogSeverity::Notice, Component::Downloads,
 								   qPrintable( tr( "Loaded download: %s" ) ),
 								   qPrintable( pDownload->m_sDisplayName ) );
 			}
