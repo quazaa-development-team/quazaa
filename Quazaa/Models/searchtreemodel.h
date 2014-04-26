@@ -57,7 +57,7 @@ class SearchTreeItem : public QObject
 {
 	Q_OBJECT
 public:
-	enum Type { SearchTreeItemType, TreeRootType, SearchFileType, SearchHitType };
+	enum Type { SearchTreeItemType = 0, TreeRootType = 1, SearchFileType = 2, SearchHitType = 3 };
 
 	enum Column
 	{
@@ -214,6 +214,8 @@ public:
 	int rowCount(const QModelIndex& parent = QModelIndex()) const;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const;
 	int fileCount() const;
+
+	bool fileVisible(int row) const;
 
 	SearchTreeItem* topLevelItemFromIndex(QModelIndex index);
 	SearchTreeItem* itemFromIndex(QModelIndex index);

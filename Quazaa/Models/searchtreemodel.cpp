@@ -625,6 +625,20 @@ int SearchTreeModel::fileCount() const
 	return m_nFileCount;
 }
 
+/**
+ * @brief SearchTreeModel::fileVisible allows to find out whether the file in the specified row is
+ * currently visible. Note that the specified row is required to be a valid one.
+ * @param row
+ * @return true if the file item is visible; false otherwise.
+ */
+bool SearchTreeModel::fileVisible(int row) const
+{
+	SearchTreeItem* pChild = m_pRootItem->child( row );
+
+	Q_ASSERT( pChild );
+	return pChild ? pChild->visible() : false;
+}
+
 SearchTreeItem* SearchTreeModel::topLevelItemFromIndex(QModelIndex index)
 {
 	Q_ASSERT(index.model() == this);

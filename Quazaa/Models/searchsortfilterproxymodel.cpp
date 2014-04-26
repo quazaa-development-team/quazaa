@@ -37,20 +37,13 @@ bool SearchSortFilterProxyModel::filterAcceptsRow(int sourceRow,
 	if ( sourceParent.isValid() )
 	{
 		SearchTreeItem* parentItem = static_cast<SearchTreeItem*>( sourceParent.internalPointer() );
-		if ( parentItem )
-		{
-			return parentItem->child( sourceRow )->visible();
-		}
-		else
-		{
-			Q_ASSERT( false );
-			return false;
-		}
+
+		Q_ASSERT( parentItem );
+		return parentItem->child( sourceRow )->visible();
 	}
-	else
+	else // parent is top level/root item
 	{
-		// top level/root item
-		return true;
+		return ((SearchTreeModel*)sourceModel())->fileVisible( sourceRow );
 	}
 }
 
