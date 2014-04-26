@@ -188,6 +188,7 @@ public:
 	void updateFilterData();
 };
 
+// TODO: update file name to select a non-filtered hit as file name source
 class SearchTreeModel : public QAbstractItemModel
 {
 	Q_OBJECT

@@ -761,7 +761,6 @@ void SearchTreeModel::clear()
 	m_pFilterControl->clear();
 
 	beginRemoveRows( QModelIndex(), 0, m_pRootItem->childCount() );
-	qDebug() << "clearSearch passing to rootItem";
 	m_pRootItem->clearSearch();
 	endRemoveRows();
 
