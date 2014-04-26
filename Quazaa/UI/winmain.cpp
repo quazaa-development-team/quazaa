@@ -128,7 +128,7 @@ CWinMain::CWinMain(QWidget* parent) :
 	ui->stackedWidgetMain->addWidget(pageTransfers);
 	pageSecurity = new CWidgetSecurity();
 	ui->stackedWidgetMain->addWidget(pageSecurity);
-	pageActivity = new CWidgetActivity();
+	pageActivity = new WidgetActivity();
 	ui->stackedWidgetMain->addWidget(pageActivity);
 	pageIrcMain = new CWidgetIrcMain();
 	ui->stackedWidgetMain->addWidget(pageIrcMain);

@@ -86,7 +86,7 @@ public:
 	WidgetSearch* pageSearch;
 	CWidgetTransfers* pageTransfers;
 	CWidgetSecurity* pageSecurity;
-	CWidgetActivity* pageActivity;
+	WidgetActivity* pageActivity;
 	CWidgetIrcMain* pageIrcMain;
 	WidgetHostCache* pageHostCache;
 	CWidgetDiscovery* pageDiscovery;

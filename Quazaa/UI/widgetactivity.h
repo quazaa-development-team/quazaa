@@ -31,24 +31,24 @@
 
 namespace Ui
 {
-	class CWidgetActivity;
+	class WidgetActivity;
 }
 
-class CWidgetActivity : public QWidget
+class WidgetActivity : public QWidget
 {
 	Q_OBJECT
 public:
-	CWidgetActivity(QWidget* parent = 0);
-	~CWidgetActivity();
+	WidgetActivity(QWidget* parent = 0);
+	~WidgetActivity();
 	CWidgetNeighbours* panelNeighbours;
-	CWidgetSystemLog* panelSystemLog;
+	WidgetSystemLog* panelSystemLog;
 	void saveWidget();
 
 protected:
 	void changeEvent(QEvent* e);
 
 private:
-	Ui::CWidgetActivity* ui;
+	Ui::WidgetActivity* ui;
 
 private slots:
 	void on_toolButtonNeighboursHeader_clicked();

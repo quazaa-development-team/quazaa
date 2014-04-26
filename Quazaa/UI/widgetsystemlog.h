@@ -31,22 +31,22 @@
 
 namespace Ui
 {
-	class CWidgetSystemLog;
+	class WidgetSystemLog;
 }
 
-class CWidgetSystemLog : public QMainWindow
+class WidgetSystemLog : public QMainWindow
 {
 	Q_OBJECT
 public:
-	CWidgetSystemLog(QWidget* parent = 0);
-	~CWidgetSystemLog();
+	WidgetSystemLog(QWidget* parent = 0);
+	~WidgetSystemLog();
 	void saveWidget();
 
 protected:
 	void changeEvent(QEvent* e);
 
 private:
-	Ui::CWidgetSystemLog* ui;
+	Ui::WidgetSystemLog* ui;
 	QMenu*  m_pLogMenu;
 	QTime   m_oTimeStamp;
 

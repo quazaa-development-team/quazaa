@@ -32,9 +32,9 @@
 
 #include "debug_new.h"
 
-CWidgetSystemLog::CWidgetSystemLog(QWidget* parent) :
+WidgetSystemLog::WidgetSystemLog(QWidget* parent) :
 	QMainWindow( parent ),
-	ui( new Ui::CWidgetSystemLog )
+	ui( new Ui::WidgetSystemLog )
 {
 	ui->setupUi( this );
 	QFont font( "Monospace" );
@@ -66,17 +66,17 @@ CWidgetSystemLog::CWidgetSystemLog(QWidget* parent) :
 
 	restoreState( quazaaSettings.WinMain.SystemLogToolbar );
 
-	connect( &systemLog, &CSystemLog::logPosted, this, &CWidgetSystemLog::appendLog );
+	connect( &systemLog, &SystemLog::logPosted, this, &WidgetSystemLog::appendLog );
 
 	setSkin();
 }
 
-CWidgetSystemLog::~CWidgetSystemLog()
+WidgetSystemLog::~WidgetSystemLog()
 {
 	delete ui;
 }
 
-void CWidgetSystemLog::changeEvent(QEvent* e)
+void WidgetSystemLog::changeEvent(QEvent* e)
 {
 	QMainWindow::changeEvent( e );
 	switch ( e->type() )
@@ -89,7 +89,7 @@ void CWidgetSystemLog::changeEvent(QEvent* e)
 	}
 }
 
-void CWidgetSystemLog::appendLog(QString message, LogSeverity::Severity severity)
+void WidgetSystemLog::appendLog(QString message, LogSeverity::Severity severity)
 {
 	if ( !ui->actionPauseLogDisplay->isChecked() )
 	{
@@ -198,7 +198,7 @@ void CWidgetSystemLog::appendLog(QString message, LogSeverity::Severity severity
 	}
 }
 
-void CWidgetSystemLog::saveWidget()
+void WidgetSystemLog::saveWidget()
 {
 	quazaaSettings.WinMain.SystemLogToolbar = saveState();
 	quazaaSettings.Logging.LogShowTimestamp = ui->actionToggleTimestamp->isChecked();
@@ -213,22 +213,22 @@ void CWidgetSystemLog::saveWidget()
 	quazaaSettings.saveLogSettings();
 }
 
-void CWidgetSystemLog::on_actionClearBuffer_triggered()
+void WidgetSystemLog::on_actionClearBuffer_triggered()
 {
 	ui->textEditSystemLog->clear();
 }
 
-void CWidgetSystemLog::on_textEditSystemLog_customContextMenuRequested(QPoint pos)
+void WidgetSystemLog::on_textEditSystemLog_customContextMenuRequested(QPoint pos)
 {
 	Q_UNUSED( pos );
 	m_pLogMenu->exec( QCursor::pos() );
 }
 
-void CWidgetSystemLog::on_actionCopy_triggered()
+void WidgetSystemLog::on_actionCopy_triggered()
 {
 	ui->textEditSystemLog->copy();
 }
 
-void CWidgetSystemLog::setSkin()
+void WidgetSystemLog::setSkin()
 {
 }

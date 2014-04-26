@@ -28,10 +28,10 @@
 
 #include "debug_new.h"
 
-CSystemLog systemLog;
+SystemLog systemLog;
 
 #ifndef QUAZAA_SETUP_UNIT_TESTS
-CSystemLog::CSystemLog() :
+SystemLog::SystemLog() :
 	m_pSection( QMutex::Recursive )
 {
 	m_pComponents = new QString[Components::NoComponents];
@@ -41,13 +41,13 @@ CSystemLog::CSystemLog() :
 	qRegisterMetaType<Components::Component>( "Components::Component" );
 }
 
-CSystemLog::~CSystemLog()
+SystemLog::~SystemLog()
 {
 	delete[] m_pComponents;
 }
 #endif
 
-void CSystemLog::start()
+void SystemLog::start()
 {
 	m_pComponents[Components::None]       = QString();
 	m_pComponents[Components::Chat]       = tr( "[Chat] "       );
@@ -67,18 +67,18 @@ void CSystemLog::start()
 	m_pComponents[Components::HostCache]  = tr( "[HostCache] "  );
 }
 
-QString CSystemLog::msgFromComponent(Components::Component nComponent)
+QString SystemLog::msgFromComponent(Components::Component nComponent)
 {
 	return m_pComponents[nComponent];
 }
 
-void CSystemLog::postLog(LogSeverity::Severity nSeverity, const QString& sMessage)
+void SystemLog::postLog(LogSeverity::Severity nSeverity, const QString& sMessage)
 {
 	postLog( nSeverity, Components::None, sMessage );
 }
 
 #ifndef QUAZAA_SETUP_UNIT_TESTS
-void CSystemLog::postLog(LogSeverity::Severity nSeverity, Components::Component nComponent,
+void SystemLog::postLog(LogSeverity::Severity nSeverity, Components::Component nComponent,
 						 const QString& sMessage)
 {
 	QMutexLocker locker( &m_pSection );
@@ -131,7 +131,7 @@ void CSystemLog::postLog(LogSeverity::Severity nSeverity, Components::Component 
 	emit logPosted( sComponentMessage, nSeverity );
 }
 
-void CSystemLog::postLog(LogSeverity::Severity nSeverity, Components::Component nComponent,
+void SystemLog::postLog(LogSeverity::Severity nSeverity, Components::Component nComponent,
 						 const char* format, ...)
 {
 	va_list argList;
@@ -142,23 +142,23 @@ void CSystemLog::postLog(LogSeverity::Severity nSeverity, Components::Component 
 }
 
 #else
-CSystemLog::CSystemLog()
+SystemLog::SystemLog()
 {
 	m_pComponents = new QString[Components::NoComponents];
 }
 
-CSystemLog::~CSystemLog()
+SystemLog::~SystemLog()
 {
 	delete[] m_pComponents;
 }
 
-void CSystemLog::postLog(LogSeverity::Severity, Components::Component nComponent,
+void SystemLog::postLog(LogSeverity::Severity, Components::Component nComponent,
 						 const QString& sMessage)
 {
 	qDebug() << ( msgFromComponent( nComponent ) + sMessage ).toLocal8Bit().data();
 }
 
-void CSystemLog::postLog(LogSeverity::Severity, Components::Component, const char*, ...)
+void SystemLog::postLog(LogSeverity::Severity, Components::Component, const char*, ...)
 {
 }
 #endif

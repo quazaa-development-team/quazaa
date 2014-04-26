@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -30,25 +30,25 @@
 
 #include "debug_new.h"
 
-CWidgetActivity::CWidgetActivity(QWidget* parent) :
+WidgetActivity::WidgetActivity(QWidget* parent) :
 	QWidget(parent),
-	ui(new Ui::CWidgetActivity)
+	ui(new Ui::WidgetActivity)
 {
 	ui->setupUi(this);
 	ui->splitterActivity->restoreState(quazaaSettings.WinMain.ActivitySplitter);
 	panelNeighbours = new CWidgetNeighbours();
 	ui->verticalLayoutNeighbours->addWidget(panelNeighbours);
-	panelSystemLog = new CWidgetSystemLog();
+	panelSystemLog = new WidgetSystemLog();
 	ui->verticalLayoutSystemLog->addWidget(panelSystemLog);
 	setSkin();
 }
 
-CWidgetActivity::~CWidgetActivity()
+WidgetActivity::~WidgetActivity()
 {
 	delete ui;
 }
 
-void CWidgetActivity::changeEvent(QEvent* e)
+void WidgetActivity::changeEvent(QEvent* e)
 {
 	QWidget::changeEvent(e);
 	switch(e->type())
@@ -61,14 +61,14 @@ void CWidgetActivity::changeEvent(QEvent* e)
 	}
 }
 
-void CWidgetActivity::saveWidget()
+void WidgetActivity::saveWidget()
 {
 	quazaaSettings.WinMain.ActivitySplitter = ui->splitterActivity->saveState();
 	panelNeighbours->saveWidget();
 	panelSystemLog->saveWidget();
 }
 
-void CWidgetActivity::on_splitterActivity_customContextMenuRequested(QPoint pos)
+void WidgetActivity::on_splitterActivity_customContextMenuRequested(QPoint pos)
 {
 	Q_UNUSED(pos);
 
@@ -93,7 +93,7 @@ void CWidgetActivity::on_splitterActivity_customContextMenuRequested(QPoint pos)
 	}
 }
 
-void CWidgetActivity::on_toolButtonSystemLogHeader_clicked()
+void WidgetActivity::on_toolButtonSystemLogHeader_clicked()
 {
 	if(ui->splitterActivity->sizes()[0] > 0)
 	{
@@ -113,7 +113,7 @@ void CWidgetActivity::on_toolButtonSystemLogHeader_clicked()
 	}
 }
 
-void CWidgetActivity::on_toolButtonNeighboursHeader_clicked()
+void WidgetActivity::on_toolButtonNeighboursHeader_clicked()
 {
 	if(ui->splitterActivity->sizes()[1] > 0)
 	{
@@ -133,7 +133,7 @@ void CWidgetActivity::on_toolButtonNeighboursHeader_clicked()
 	}
 }
 
-void CWidgetActivity::setSkin()
+void WidgetActivity::setSkin()
 {
 	ui->toolButtonNeighboursHeader->setStyleSheet(skinSettings.taskHeader);
 	ui->toolButtonSystemLogHeader->setStyleSheet(skinSettings.taskHeader);

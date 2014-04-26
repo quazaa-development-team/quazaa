@@ -1,0 +1,785 @@
+/*
+** searchtreemodel.cpp
+**
+** Copyright © Quazaa Development Team, 2009-2014.
+** This file is part of QUAZAA (quazaa.sourceforge.net)
+**
+** Quazaa is free software; this file may be used under the terms of the GNU
+** General Public License version 3.0 or later as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Quazaa is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+**
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
+** http://www.gnu.org/copyleft/gpl.html.
+**
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
+** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
+#include "searchtreemodel.h"
+#include <QFileInfo>
+#include "systemlog.h"
+#include "commonfunctions.h"
+#include "Hashes/hash.h"
+#include "fileiconprovider.h"
+#include "networkiconprovider.h"
+
+#include "securitymanager.h"
+
+#include "debug_new.h"
+
+using namespace common;
+
+SearchTreeItem::SearchTreeItem(SearchTreeItem* parent) :
+	m_nVisibleChildren( 0 ),
+	m_eType( SearchTreeItemType ),
+	m_lChildItems( QList<SearchTreeItem*>() ),
+	m_pParentItem( parent ),
+	m_pItemData( new QVariant[_NO_OF_COLUMNS] ),
+	m_pFilter( new SearchFilter::Filter )
+{
+}
+
+SearchTreeItem::~SearchTreeItem()
+{
+	delete m_pFilter;
+	delete[] m_pItemData;
+	qDeleteAll( m_lChildItems );
+}
+
+SearchTreeItem* SearchTreeItem::parent() const
+{
+	return m_pParentItem;
+}
+
+SearchTreeItem::Type SearchTreeItem::type() const
+{
+	return m_eType;
+}
+
+bool SearchTreeItem::visible() const
+{
+	return m_oFilter.visible();
+}
+
+int SearchTreeItem::row() const
+{
+	if ( m_pParentItem )
+	{
+		return m_pParentItem->m_lChildItems.indexOf( const_cast<SearchTreeItem*>( this ) );
+	}
+
+	return 0;
+}
+
+void SearchTreeItem::appendChild(SearchTreeItem* pItem)
+{
+	Q_ASSERT( pItem->m_pParentItem == this ); // this should have been set by the constructor.
+	m_lChildItems.append( pItem );
+}
+
+void SearchTreeItem::removeChild(int position)
+{
+	if ( position < 0 || position  > m_lChildItems.size() )
+		return;
+
+	delete m_lChildItems.takeAt(position);
+}
+
+void SearchTreeItem::clearChildren()
+{
+	qDeleteAll( m_lChildItems );
+	m_lChildItems.clear();
+}
+
+SearchTreeItem* SearchTreeItem::child(int row) const
+{
+	return m_lChildItems.value( row );
+}
+
+int SearchTreeItem::childCount() const
+{
+	return m_lChildItems.count();
+}
+
+int SearchTreeItem::columnCount() const
+{
+	return _NO_OF_COLUMNS;
+}
+
+QVariant SearchTreeItem::data(int column) const
+{
+	Q_ASSERT( column > -1 && column < _NO_OF_COLUMNS );
+	//return column > -1 && column < _NO_OF_COLUMNS ? m_pItemData[column] : QVariant();
+	return m_pItemData[column];
+}
+
+const SearchFilter::Filter* const SearchTreeItem::getFilter() const
+{
+	return &m_oFilter;
+}
+
+void SearchTreeItem::addVisibleChild()
+{
+	// TODO: remove after testing
+	Q_ASSERT( m_nVisibleChildren < (quint32)m_lChildItems.count() );
+	++m_nVisibleChildren;
+}
+
+void SearchTreeItem::removeVisibleChild()
+{
+	// TODO: remove after testing
+	Q_ASSERT( m_nVisibleChildren );
+	--m_nVisibleChildren;
+}
+
+quint32 SearchTreeItem::visibleChildCount()
+{
+	return m_nVisibleChildren;
+}
+
+TreeRoot::TreeRoot(SearchTreeModel* pModel) :
+	SearchTreeItem( NULL ),
+	m_pModel( pModel )
+{
+	m_eType = TreeRootType;
+
+	/*FILE           = 0,
+	EXTENSION      = 1,
+	SIZE           = 2,
+	RATING         = 3,
+	STATUS         = 4,
+	HOSTCOUNT      = 5,
+	SPEED          = 6,
+	CLIENT         = 7,
+	COUNTRY        = 8*/
+
+	m_pItemData[FILE]      = "File";
+	m_pItemData[EXTENSION] = "Extension";
+	m_pItemData[SIZE]      = "Size";
+	m_pItemData[RATING]    = "Rating";
+	m_pItemData[STATUS]    = "Status";
+	m_pItemData[HOSTCOUNT] = "Host/Count";
+	m_pItemData[SPEED]     = "Speed";
+	m_pItemData[CLIENT]    = "Client";
+	m_pItemData[COUNTRY]   = "Country";
+
+	Q_ASSERT( pModel );
+}
+
+TreeRoot::~TreeRoot()
+{
+	// m_pModel is being taken care of somewhere else.
+}
+
+void TreeRoot::appendChild(SearchTreeItem* pItem)
+{
+	Q_ASSERT( pItem->type() == SearchFileType );
+
+	addToFilterControl( pItem );
+	SearchTreeItem::appendChild( pItem );
+}
+
+void TreeRoot::removeChild(int position)
+{
+	SearchTreeItem* pItem = m_lChildItems.at( position );
+	Q_ASSERT( pItem->type() == SearchFileType );
+
+	removeFromFilterControl( pItem );
+	SearchTreeItem::removeChild( position );
+}
+
+/*void TreeRoot::filter(SearchFilter::SearchFilter* pFilter)
+{
+}*/
+
+/**
+ * @brief TreeRoot::addQueryHit
+ * @param pHit
+ * @return The next queued QueryHit.
+ */
+QueryHit* TreeRoot::addQueryHit(QueryHit* pHit)
+{
+	QueryHit* pNext = pHit->m_pNext;
+	pHit->m_pNext   = NULL;
+
+	int existingFileEntry = -1;
+
+	// Check for duplicate file.
+	foreach ( CHash oHash, pHit->m_lHashes )
+	{
+		existingFileEntry = find( oHash );
+		if ( existingFileEntry != -1 )
+			break;
+	}
+
+	QFileInfo fileInfo( pHit->m_sDescriptiveName );
+
+	// This hit is a new non duplicate file.
+	if ( existingFileEntry == -1 )
+	{
+		// TODO: valid parent?
+		SearchFile* pFileItem = new SearchFile( this, pHit, fileInfo );
+		m_pModel->beginInsertRows( QModelIndex(), childCount(), childCount() );
+		pFileItem->addQueryHit( pHit, fileInfo );
+
+		SearchFilter::FileFilter* pFilter = (SearchFilter::FileFilter*)&pFileItem->m_oFilter;
+
+		// appendChild() initializes filter data structures. Requires hit to be added already.
+		appendChild( pFileItem );
+		m_pModel->endInsertRows();
+	}
+	else
+	{
+		Q_ASSERT( child( existingFileEntry )->type() == SearchFileType );
+
+		SearchFile* pFileItem = (SearchFile*)child( existingFileEntry );
+		if ( !pFileItem->duplicateHitCheck( pHit ) )
+		{
+			QModelIndex idxParent = m_pModel->index( existingFileEntry, 0, QModelIndex() );
+
+			m_pModel->beginInsertRows( idxParent, pFileItem->childCount(), pFileItem->childCount() );
+			pFileItem->addQueryHit( pHit, fileInfo );
+			m_pModel->endInsertRows();
+		}
+		else
+		{
+			// we don't need the duplicate hit anymore
+			delete pHit;
+		}
+	}
+
+	return pNext;
+}
+
+// TODO: maybe add all hashes to a map for faster access?
+int TreeRoot::find(CHash& hash) const
+{
+	for ( int i = 0; i < m_lChildItems.size(); ++i )
+	{
+		Q_ASSERT( child( i )->type() == SearchFileType );
+		if ( ((SearchFile*)child( i ))->manages( hash ) )
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+void TreeRoot::addToFilterControl(SearchTreeItem* pItem)
+{
+	m_pModel->m_pFilterControl->add( pItem );
+}
+
+/**
+ * @brief removeFromFilterControl() allows to remove an Item from the filter list. This must be
+ * done for all Items that have been added to the list before removing them from the tree.
+ * @param pItem The item to be removed.
+ */
+void TreeRoot::removeFromFilterControl(SearchTreeItem* pItem)
+{
+	m_pModel->m_pFilterControl->remove( pItem );
+}
+
+SearchFile::SearchFile(SearchTreeItem* parent,
+					   const QueryHit* const pHit, const QFileInfo& fileInfo) :
+	SearchTreeItem( parent ),
+	m_lHashes( HashVector( pHit->m_lHashes ) )
+{
+	m_eType = SearchFileType;
+
+	m_pItemData[FILE]      = fileInfo.completeBaseName();
+	m_pItemData[EXTENSION] = fileInfo.suffix();
+	m_pItemData[SIZE]      = formatBytes( pHit->m_nObjectSize );
+	m_pItemData[RATING]    = "";
+	m_pItemData[STATUS]    = "";
+	m_pItemData[HOSTCOUNT] = 1;
+	m_pItemData[SPEED]     = "";
+	m_pItemData[CLIENT]    = "";
+	m_pItemData[COUNTRY]   = "";
+}
+
+SearchFile::~SearchFile()
+{
+}
+
+void SearchFile::appendChild(SearchTreeItem* pItem)
+{
+	Q_ASSERT( pItem->type() == SearchHitType );
+
+	SearchTreeItem::appendChild( pItem );
+	((TreeRoot*)m_pParentItem)->addToFilterControl( pItem );
+}
+
+void SearchFile::removeChild(int position)
+{
+	SearchTreeItem* pItem = m_lChildItems.at( position );
+	Q_ASSERT( pItem->type() == SearchHitType );
+
+	((TreeRoot*)m_pParentItem)->removeFromFilterControl( pItem );
+	SearchTreeItem::removeChild( position );
+}
+
+bool SearchFile::manages(CHash hash) const
+{
+	Q_ASSERT( m_lHashes.size() > 0 );
+
+	const CHash* pHashes = &m_lHashes[0];
+
+	for ( char i = 0; i < m_lHashes.size(); ++i )
+	{
+		if ( pHashes[i] == hash )
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * @brief SearchFile::duplicateHitCheck checks for hits with the same node address within a file.
+ * @param pNewHit The new hit to check.
+ * @return true if a hit from the same IP is already part of this file; false otherwise.
+ */
+bool SearchFile::duplicateHitCheck(QueryHit* pNewHit) const
+{
+	for ( int index = 0; index < m_lChildItems.size(); ++index)
+	{
+		if ( child( index )->m_oHitData.pQueryHit->m_pHitInfo->m_oNodeAddress
+			 == pNewHit->m_pHitInfo->m_oNodeAddress )
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void SearchFile::updateHitCount()
+{
+	m_pItemData[HOSTCOUNT] = m_lChildItems.size();
+}
+
+void SearchFile::insertHashes(const HashVector& hashes)
+{
+	// TODO: hash collision detection
+	foreach ( CHash oHash, hashes )
+	{
+		if ( !manages( oHash ) )
+		{
+			m_lHashes.push_back( oHash );
+		}
+	}
+}
+
+void SearchFile::addQueryHit(QueryHit* pHit, const QFileInfo& fileInfo)
+{
+	// Note: SearchHit takes ownership of QueryHit on creation
+	// (e.g. is responsible for deleting it uppon its own destruction)
+	SearchHit* pSearchHit = new SearchHit( this, pHit, fileInfo);
+	appendChild( pSearchHit );
+	insertHashes( pHit->m_lHashes );
+	updateHitCount();
+
+	if ( childCount() == 1 )
+	{
+		// initialize filter
+		m_oFilter = SearchFilter::FileFilter( pSearchHit );
+		char a = 0;
+		SearchFilter::FileFilter* pFilter = (SearchFilter::FileFilter*)&m_oFilter;
+		char i = 0;
+	}
+}
+
+SearchHit::SearchHit(SearchTreeItem* parent,
+					 QueryHit* pHit, const QFileInfo& fileInfo) :
+	SearchTreeItem( parent )
+{
+	m_eType = SearchHitType;
+
+	m_pItemData[FILE]      = fileInfo.completeBaseName();
+	m_pItemData[EXTENSION] = fileInfo.suffix();
+	m_pItemData[SIZE]      = formatBytes( pHit->m_nObjectSize );
+	m_pItemData[RATING]    = "";
+	m_pItemData[STATUS]    = "";
+	m_pItemData[HOSTCOUNT] = pHit->m_pHitInfo.data()->m_oNodeAddress.toString();
+	m_pItemData[SPEED]     = "";
+	m_pItemData[CLIENT]    = vendorCodeToName( pHit->m_pHitInfo.data()->m_sVendor );
+	m_pItemData[COUNTRY]   = pHit->m_pHitInfo.data()->m_oNodeAddress.countryName();
+
+	QString sCountry       = pHit->m_pHitInfo.data()->m_oNodeAddress.country();
+
+	m_oHitData.iNetwork  = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
+	m_oHitData.iCountry  = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
+	m_oHitData.pQueryHit = QueryHitSharedPtr( pHit );
+
+	// properly initialize filter data
+	m_oFilter = SearchFilter::HitFilter( pHit );
+}
+
+SearchHit::~SearchHit()
+{
+}
+
+void SearchHit::appendChild(SearchTreeItem*)
+{
+	Q_ASSERT( false );
+}
+
+void SearchHit::removeChild(int)
+{
+	Q_ASSERT( false );
+}
+
+int SearchHit::childCount() const
+{
+	return 0;
+}
+
+SearchTreeModel::SearchTreeModel() :
+	m_pIconProvider( new FileIconProvider ),
+	m_pRootItem( new TreeRoot( this ) ),
+	m_nFileCount( 0 ),
+	m_pFilterControl( new SearchFilter::FilterControl )
+{
+}
+
+SearchTreeModel::~SearchTreeModel()
+{
+	clear();
+	delete m_pRootItem;
+	delete m_pIconProvider;
+	delete m_pFilterControl;
+}
+
+QModelIndex SearchTreeModel::parent(const QModelIndex& index) const
+{
+	if ( !index.isValid() )
+	{
+		return QModelIndex();
+	}
+
+	SearchTreeItem* childItem = static_cast<SearchTreeItem*>( index.internalPointer() );
+	SearchTreeItem* parentItem = childItem->parent();
+
+	if ( parentItem == m_pRootItem )
+	{
+		return QModelIndex();
+	}
+
+	return createIndex( parentItem->row(), 0, parentItem );
+}
+
+QVariant SearchTreeModel::data(const QModelIndex& index, int role) const
+{
+	if ( !index.isValid() )
+	{
+		return QVariant();
+	}
+
+	SearchTreeItem* item = static_cast<SearchTreeItem*>( index.internalPointer() );
+
+	if ( role == Qt::DecorationRole )
+	{
+		if ( index.column() == 0 ) // Index CAN be a negative value.
+		{
+			if ( item->parent() == m_pRootItem )
+				return m_pIconProvider->icon( item->data( 1 ).toString().prepend( "." ) );
+			else
+				return item->m_oHitData.iNetwork;
+		}
+
+		if ( index.column() == 8 )
+		{
+			return item->m_oHitData.iCountry;
+		}
+	}
+
+	if ( role == Qt::DisplayRole )
+	{
+		return item->data( index.column() );
+	}
+
+	return QVariant();
+}
+
+Qt::ItemFlags SearchTreeModel::flags(const QModelIndex& index) const
+{
+	if ( !index.isValid() )
+	{
+		return 0;
+	}
+
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
+QVariant SearchTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+	if ( orientation == Qt::Horizontal && role == Qt::DisplayRole )
+	{
+		return m_pRootItem->data( section );
+	}
+
+	return QVariant();
+}
+
+QModelIndex SearchTreeModel::index(int row, int column, const QModelIndex& parent) const
+{
+	if ( !hasIndex( row, column, parent ) )
+	{
+		return QModelIndex();
+	}
+
+	SearchTreeItem* parentItem;
+
+	if ( !parent.isValid() )
+	{
+		parentItem = m_pRootItem;
+	}
+	else
+	{
+		parentItem = static_cast<SearchTreeItem*>( parent.internalPointer() );
+	}
+
+	SearchTreeItem* childItem = parentItem->child( row );
+	if ( childItem )
+	{
+		return createIndex( row, column, childItem );
+	}
+	else
+	{
+		return QModelIndex();
+	}
+}
+
+int SearchTreeModel::rowCount(const QModelIndex& parent) const
+{
+	SearchTreeItem* parentItem;
+	if ( parent.column() > 0 )
+	{
+		return 0;
+	}
+
+	if ( !parent.isValid() )
+	{
+		parentItem = m_pRootItem;
+	}
+	else
+	{
+		parentItem = static_cast<SearchTreeItem*>( parent.internalPointer() );
+	}
+
+	return parentItem->childCount();
+}
+
+int SearchTreeModel::columnCount(const QModelIndex& parent) const
+{
+	if ( parent.isValid() )
+	{
+		return static_cast<SearchTreeItem*>( parent.internalPointer() )->columnCount();
+	}
+	else
+	{
+		return m_pRootItem->columnCount();
+	}
+}
+
+int SearchTreeModel::fileCount() const
+{
+	return m_nFileCount;
+}
+
+SearchTreeItem* SearchTreeModel::topLevelItemFromIndex(QModelIndex index)
+{
+	Q_ASSERT(index.model() == this);
+
+	if(index.isValid())
+	{
+		QModelIndex idxThis = index;
+
+		while( parent(idxThis).isValid() )
+		{
+			idxThis = parent(idxThis);
+		}
+
+		SearchTreeItem* pThis = static_cast<SearchTreeItem*>(idxThis.internalPointer());
+
+		Q_ASSERT(pThis != NULL);
+
+		return pThis;
+	}
+
+	return NULL;
+}
+
+SearchTreeItem* SearchTreeModel::itemFromIndex(QModelIndex index)
+{
+	Q_ASSERT(index.model() == this);
+
+	if(index.isValid())
+	{
+		QModelIndex idxThis = index;
+
+		SearchTreeItem* pThis = static_cast<SearchTreeItem*>(idxThis.internalPointer());
+
+		Q_ASSERT(pThis != NULL);
+
+		return pThis;
+	}
+
+	return NULL;
+}
+
+SearchFilter::FilterControlData*SearchTreeModel::getFilterControlDataCopy() const
+{
+	return m_pFilterControl->getDataCopy();
+}
+
+void SearchTreeModel::updateFilter(const SearchFilter::FilterControlData& rControlData)
+{
+	m_pFilterControl->update( rControlData );
+}
+
+// TODO: fix when uncommenting.
+/*void SearchTreeModel::setupModelData(const QStringList& lines, SearchTreeItem* parent)
+{
+	QList<SearchTreeItem*> parents;
+	QList<int> indentations;
+	parents << parent;
+	indentations << 0;
+
+	int number = 0;
+
+	while ( number < lines.count() )
+	{
+		int position = 0;
+		while ( position < lines[number].length() )
+		{
+			if ( lines[number].mid( position, 1 ) != " " )
+			{
+				break;
+			}
+			++position;
+		}
+
+		QString lineData = lines[number].mid( position ).trimmed();
+
+		if ( !lineData.isEmpty() )
+		{
+			// Read the column data from the rest of the line.
+			QStringList columnStrings = lineData.split( "\t", QString::SkipEmptyParts );
+			QList<QVariant> columnData;
+			for ( int column = 0; column < columnStrings.count(); ++column )
+			{
+				columnData << columnStrings[column];
+			}
+
+			if ( position > indentations.last() )
+			{
+				// The last child of the current parent is now the new parent
+				// unless the current parent has no children.
+
+				if ( parents.last()->childCount() > 0 )
+				{
+					parents << parents.last()->child( parents.last()->childCount() - 1 );
+					indentations << position;
+				}
+			}
+			else
+			{
+				while ( position < indentations.last() && parents.count() > 0 )
+				{
+					parents.pop_back();
+					indentations.pop_back();
+				}
+			}
+
+			// Append a new item to the current parent's list of children.
+			parents.last()->appendChild( new SearchTreeItem( columnData, parents.last() ) );
+		}
+
+		++number;
+	}
+}*/
+
+void SearchTreeModel::clear()
+{
+	beginRemoveRows( QModelIndex(), 0, m_pRootItem->childCount() );
+	//qDebug() << "clearSearch passing to rootItem";
+	m_pRootItem->clearChildren();
+	endRemoveRows();
+
+	QModelIndex idx1 = index( 0, 0, QModelIndex() );
+	QModelIndex idx2 = index( m_pRootItem->childCount(), 10, QModelIndex() );
+	emit dataChanged( idx1, idx2 );
+}
+
+/*bool SearchTreeModel::isRoot(QModelIndex index)
+{
+	SearchTreeItem* item;
+
+	if ( !index.isValid() )
+	{
+		item = rootItem;
+	}
+	else
+	{
+		item = static_cast<SearchTreeItem*>( index.internalPointer() );
+	}
+
+	if ( item == rootItem )
+	{
+		return true;
+	}
+
+	return false;
+}*/
+
+void SearchTreeModel::addQueryHit(QueryHit* pHit)
+{
+	while ( pHit )
+	{
+		// this returns the next cashed query hit or NULL if there are none
+		pHit = m_pRootItem->addQueryHit( pHit );
+	}
+
+	m_nFileCount = m_pRootItem->childCount();
+
+	emit updateStats();
+
+	// TODO: choose better boundaries.
+	QModelIndex idx1 = index( 0, 0, QModelIndex() );
+	QModelIndex idx2 = index( m_pRootItem->childCount(), 10, QModelIndex() );
+	emit dataChanged( idx1, idx2 );
+	emit sort();
+}
+
+
+void SearchTreeModel::removeQueryHit(int position, const QModelIndex &parent)
+{
+	SearchTreeItem* parentItem;
+	if ( parent.isValid() )
+	{
+		parentItem = static_cast<SearchTreeItem*>(parent.internalPointer());
+	}
+	else
+	{
+		parentItem = m_pRootItem;
+	}
+
+	Q_ASSERT( parentItem );
+
+	//if ( parentItem )
+	//{
+		beginRemoveRows( parent, position, position );
+		parentItem->removeChild( position );
+		endRemoveRows();
+	//}
+}
