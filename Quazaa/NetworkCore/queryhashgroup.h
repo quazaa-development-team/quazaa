@@ -28,26 +28,26 @@
 #include <QtGlobal>
 #include <QList>
 
-class CQueryHashTable;
+class QueryHashTable;
 
-class CQueryHashGroup
+class QueryHashGroup
 {
 public:
-	CQueryHashGroup(quint32 nHash = 0);
-	virtual ~CQueryHashGroup();
+	QueryHashGroup(quint32 nHash = 0);
+	virtual ~QueryHashGroup();
 
 public:
 	uchar*		m_pHash;
 	quint32		m_nHash;
 	quint32		m_nCount;
 protected:
-	QList< CQueryHashTable* > m_pTables;
+	QList< QueryHashTable* > m_pTables;
 
 public:
-	void	add(CQueryHashTable* pTable);
-	void	remove(CQueryHashTable* pTable);
+	void	add(QueryHashTable* pTable);
+	void	remove(QueryHashTable* pTable);
 protected:
-	void	operate(CQueryHashTable* pTable, bool nAdd);
+	void	operate(QueryHashTable* pTable, bool nAdd);
 
 public:
 	int		getCount()

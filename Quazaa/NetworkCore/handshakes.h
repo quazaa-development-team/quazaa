@@ -31,8 +31,8 @@
 #include "thread.h"
 
 class CHandshake;
-class CNetworkConnection;
-class CRateController;
+class NetworkConnection;
+class RateController;
 class QTimer;
 
 class CHandshakes : public QTcpServer
@@ -42,7 +42,7 @@ class CHandshakes : public QTcpServer
 protected:
 	QSet<CHandshake*>   m_lHandshakes;
 	quint32             m_nAccepted;
-	CRateController* 	m_pController;
+	RateController* 	m_pController;
 	QTimer*				m_pTimer;
 	bool				m_bActive;
 

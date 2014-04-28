@@ -3,7 +3,7 @@
 
 #include "networkconnection.h"
 
-class CTransfer : public CNetworkConnection
+class CTransfer : public NetworkConnection
 {
 	Q_OBJECT
 

@@ -53,7 +53,7 @@ public:
 
 };
 
-class CNetworkConnection : public QObject
+class NetworkConnection : public QObject
 {
 	Q_OBJECT
 public:
@@ -71,13 +71,13 @@ public:
 	qint32  m_tConnected;
 
 public:
-	CNetworkConnection(QObject* parent = 0);
-	virtual ~CNetworkConnection();
+	NetworkConnection(QObject* parent = 0);
+	virtual ~NetworkConnection();
 	void moveToThread(QThread* thread);
 
 public:
 	virtual void connectTo(CEndPoint oAddress);
-	virtual void attachTo(CNetworkConnection* pOther);
+	virtual void attachTo(NetworkConnection* pOther);
 	virtual void acceptFrom(qintptr nHandle);
 	virtual void close(bool bDelayed = false);
 
@@ -139,20 +139,20 @@ public:
 
 	inline virtual bool hasData()
 	{
-		if(!m_pSocket)
+		if ( !m_pSocket )
 		{
 			return false;
 		}
 
-		if(m_pInput && !m_pInput->isEmpty())
+		if ( m_pInput && !m_pInput->isEmpty() )
 		{
 			return true;
 		}
-		if(m_pOutput && !m_pOutput->isEmpty())
+		if ( m_pOutput && !m_pOutput->isEmpty() )
 		{
 			return true;
 		}
-		if(networkBytesAvailable())
+		if ( networkBytesAvailable() )
 		{
 			return true;
 		}
@@ -162,13 +162,13 @@ public:
 
 	inline virtual Buffer* getInputBuffer()
 	{
-		Q_ASSERT(m_pInput != 0);
+		Q_ASSERT( m_pInput );
 
 		return m_pInput;
 	}
 	inline virtual Buffer* getOutputBuffer()
 	{
-		Q_ASSERT(m_pOutput != 0);
+		Q_ASSERT( m_pOutput );
 
 		return m_pOutput;
 	}
@@ -202,7 +202,7 @@ public:
 	TCPBandwidthMeter m_mInput;
 	TCPBandwidthMeter m_mOutput;
 
-	friend class CRateController;
+	friend class RateController;
 };
 
 

@@ -42,10 +42,10 @@
 
 #include "debug_new.h"
 
-CThread ShareManagerThread;
-CShareManager ShareManager;
+CThread shareManagerThread;
+ShareManager shareManager;
 
-CShareManager::CShareManager(QObject* parent) :
+ShareManager::ShareManager(QObject* parent) :
 	QObject(parent)
 {
 	m_bActive = false;
@@ -55,15 +55,15 @@ CShareManager::CShareManager(QObject* parent) :
 	m_nRemainingFiles = 0;
 }
 
-void CShareManager::start()
+void ShareManager::start()
 {
 	QMutexLocker l(&m_oSection);
 	systemLog.postLog(LogSeverity::Debug, QString("Starting share manager..."));
 	connect(this, SIGNAL(sharesReady()), &QueryHashMaster, SLOT(build()));
-	ShareManagerThread.start("ShareManager", &m_oSection, this);
+	shareManagerThread.start("ShareManager", &m_oSection, this);
 }
 
-void CShareManager::setupThread()
+void ShareManager::setupThread()
 {
 	systemLog.postLog(LogSeverity::Debug, QString("Setting up ShareManager thread"));
 	m_oDatabase = QSqlDatabase::addDatabase("QSQLITE", "Shares");
@@ -76,7 +76,7 @@ void CShareManager::setupThread()
 	if(!m_oDatabase.open())
 	{
 		qWarning() << "Failed to open SQLITE database. Giving up. " << m_oDatabase.lastError().text();
-		QTimer::singleShot(1000, &ShareManagerThread, SLOT(quit()));
+		QTimer::singleShot(1000, &shareManagerThread, SLOT(quit()));
 		return;
 	}
 
@@ -131,7 +131,7 @@ void CShareManager::setupThread()
 	connect(this, SIGNAL(executeQuery(const QString&)), this, SLOT(execQuery(const QString&)), Qt::QueuedConnection);
 }
 
-void CShareManager::stop()
+void ShareManager::stop()
 {
 	QMutexLocker l(&m_oSection);
 	m_bActive = false;
@@ -143,10 +143,10 @@ void CShareManager::stop()
 		m_pTable = 0;
 	}
 	disconnect(SIGNAL(executeQuery(const QString&)), this, SLOT(execQuery(const QString&)));
-	ShareManagerThread.exit(0);
+	shareManagerThread.exit(0);
 }
 
-void CShareManager::cleanupThread()
+void ShareManager::cleanupThread()
 {
 	systemLog.postLog(LogSeverity::Debug, QString("ShareManager: cleaning up."));
 
@@ -158,13 +158,13 @@ void CShareManager::cleanupThread()
 	}
 }
 
-void CShareManager::addDir(QString sPath)
+void ShareManager::addDir(QString sPath)
 {
 	Q_UNUSED(sPath);
 
 }
 
-void CShareManager::removeDir(QString sPath)
+void ShareManager::removeDir(QString sPath)
 {
 	Q_UNUSED(sPath);
 
@@ -180,7 +180,7 @@ void CShareManager::removeDir(QString sPath)
 	}
 }
 
-void CShareManager::removeDir(quint64 nId)
+void ShareManager::removeDir(quint64 nId)
 {
 	QSqlQuery delq(m_oDatabase);
 
@@ -195,20 +195,20 @@ void CShareManager::removeDir(quint64 nId)
 	delq.exec(QString("DELETE FROM dirs WHERE id = %1").arg(nId));
 }
 
-void CShareManager::removeFile(QString sPath)
+void ShareManager::removeFile(QString sPath)
 {
 	Q_UNUSED(sPath);
 
 }
 
-void CShareManager::removeFile(quint64 nFileId)
+void ShareManager::removeFile(quint64 nFileId)
 {
 	QSqlQuery delq(m_oDatabase);
 	delq.exec(QString("DELETE FROM hashes WHERE file_id = %1").arg(nFileId));
 	delq.exec(QString("DELETE FROM files WHERE file_id = %1").arg(nFileId));
 }
 
-void CShareManager::syncShares()
+void ShareManager::syncShares()
 {
 	QMutexLocker l(&m_oSection);
 
@@ -423,7 +423,7 @@ void CShareManager::syncShares()
 }
 
 // Recursively scan sPath for new files (modified files are already handled)
-void CShareManager::scanFolder(QString sPath, qint64 nParentID)
+void ShareManager::scanFolder(QString sPath, qint64 nParentID)
 {
 	QMutexLocker l(&m_oSection);
 
@@ -572,7 +572,7 @@ void CShareManager::scanFolder(QString sPath, qint64 nParentID)
 
 // meant to be called from other threads
 // Don't call it from ShareManager thread or it will deadlock
-QList<QSqlRecord> CShareManager::query(const QString sQuery)
+QList<QSqlRecord> ShareManager::query(const QString sQuery)
 {
 	QMutexLocker l(&m_oSection);
 
@@ -586,7 +586,7 @@ QList<QSqlRecord> CShareManager::query(const QString sQuery)
 	return lRecs;
 }
 
-void CShareManager::execQuery(const QString& sQuery)
+void ShareManager::execQuery(const QString& sQuery)
 {
 	m_oSection.lock();
 
@@ -607,7 +607,7 @@ void CShareManager::execQuery(const QString& sQuery)
 	m_oSection.unlock();
 }
 
-void CShareManager::runHashing()
+void ShareManager::runHashing()
 {
 	QMutexLocker l(&m_oSection);
 
@@ -650,7 +650,7 @@ void CShareManager::runHashing()
 	}
 }
 
-void CShareManager::onFileHashed(CSharedFilePtr pFile)
+void ShareManager::onFileHashed(CSharedFilePtr pFile)
 {
 	QMutexLocker l( &m_oSection );
 
@@ -664,7 +664,7 @@ void CShareManager::onFileHashed(CSharedFilePtr pFile)
 	emit remainingFilesChanged( m_nRemainingFiles );
 }
 
-CQueryHashTable* CShareManager::getHashTable()
+QueryHashTable* ShareManager::getHashTable()
 {
 	ASSUME_LOCK(m_oSection);
 	if(!m_bReady || !m_bTableReady)
@@ -675,12 +675,12 @@ CQueryHashTable* CShareManager::getHashTable()
 	return m_pTable;
 }
 
-void CShareManager::buildHashTable()
+void ShareManager::buildHashTable()
 {
 	ASSUME_LOCK(m_oSection);
 	if(m_pTable == 0)
 	{
-		m_pTable = new CQueryHashTable();
+		m_pTable = new QueryHashTable();
 		if(!m_pTable)
 		{
 			return;

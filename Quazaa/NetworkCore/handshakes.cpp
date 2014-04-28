@@ -120,12 +120,12 @@ void CHandshakes::removeHandshake(CHandshake* pHs)
 void CHandshakes::processNeighbour(CHandshake* pHs)
 {
 	removeHandshake( pHs );
-	Neighbours.onAccept( pHs );
+	neighbours.onAccept( pHs );
 }
 
 void CHandshakes::setupThread()
 {
-	m_pController = new CRateController(&m_pSection);
+	m_pController = new RateController(&m_pSection);
 
 	m_pController->moveToThread(&HandshakesThread); // should not be necesarry
 

@@ -28,7 +28,7 @@
 #include "debug_new.h"
 
 CTransfer::CTransfer(void* pOwner, QObject *parent) :
-	CNetworkConnection(parent),
+	NetworkConnection(parent),
 	m_pOwner(pOwner)
 {
 	ASSUME_LOCK(Transfers.m_pSection);

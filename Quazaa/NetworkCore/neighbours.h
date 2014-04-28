@@ -27,15 +27,15 @@
 
 #include "neighboursg2.h"
 
-class CNeighbours : public CNeighboursG2
+class Neighbours : public NeighboursG2
 {
 	Q_OBJECT
 public:
-	CNeighbours(QObject* parent = 0);
-	virtual ~CNeighbours();
+	Neighbours(QObject* parent = 0);
+	virtual ~Neighbours();
 
 	void maintain();
 };
 
-extern CNeighbours Neighbours;
+extern Neighbours neighbours;
 #endif // NEIGHBOURS_H

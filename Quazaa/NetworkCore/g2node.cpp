@@ -47,8 +47,8 @@
 
 //#define _DISABLE_COMPRESSION
 
-CG2Node::CG2Node(QObject* parent) :
-	CNeighbour( parent ),
+G2Node::G2Node(QObject* parent) :
+	Neighbour( parent ),
 	m_bG2Core( false ),
 	m_bCachedKeys( false ),
 	m_nType( G2_UNKNOWN ),
@@ -59,13 +59,13 @@ CG2Node::CG2Node(QObject* parent) :
 	m_nHAWWait( 0 ),
 	m_pRemoteTable( NULL ),
 	m_pLocalTable( NULL ),
-	m_pHubGroup( new CHubHorizonGroup ),
+	m_pHubGroup( new HubHorizonGroup ),
 	m_bHandshaking( false )
 {
 	m_nProtocol = DiscoveryProtocol::G2;
 }
 
-CG2Node::~CG2Node()
+G2Node::~G2Node()
 {
 	networkG2.m_oRoutingTable.remove(this);
 
@@ -87,9 +87,9 @@ CG2Node::~CG2Node()
 	delete m_pHubGroup;
 }
 
-void CG2Node::sendPacket(G2Packet* pPacket, bool bBuffered, bool bRelease)
+void G2Node::sendPacket(G2Packet* pPacket, bool bBuffered, bool bRelease)
 {
-	ASSUME_LOCK(Neighbours.m_pSection);
+	ASSUME_LOCK(neighbours.m_pSection);
 
 	m_nPacketsOut++;
 
@@ -116,7 +116,7 @@ void CG2Node::sendPacket(G2Packet* pPacket, bool bBuffered, bool bRelease)
 	emit readyToTransfer();
 }
 
-void CG2Node::sendLNI()
+void G2Node::sendLNI()
 {
 	G2Packet* pLNI = G2Packet::newPacket("LNI", true);
 	if(networkG2.m_oAddress.protocol() == 0)
@@ -130,10 +130,10 @@ void CG2Node::sendLNI()
 	pLNI->writePacket("GU", 16)->writeGUID(quazaaSettings.Profile.GUID);
 	pLNI->writePacket("V", 4)->writeString(CQuazaaGlobals::VENDOR_CODE(), false);
 
-	if(Neighbours.isG2Hub())
+	if(neighbours.isG2Hub())
 	{
 		quint16 nLeavesMax = quazaaSettings.Gnutella2.NumLeafs;
-		quint16 nLeaves = Neighbours.m_nLeavesConnectedG2;
+		quint16 nLeaves = neighbours.m_nLeavesConnectedG2;
 		pLNI->writePacket("HS", 4);
 		pLNI->writeIntLE<quint16>(nLeaves);
 		pLNI->writeIntLE<quint16>(nLeavesMax);
@@ -145,7 +145,7 @@ void CG2Node::sendLNI()
 	sendPacket(pLNI, false, true);
 }
 
-void CG2Node::sendHAW()
+void G2Node::sendHAW()
 {
 	G2Packet* pPacket = G2Packet::newPacket("HAW");
 
@@ -156,7 +156,7 @@ void CG2Node::sendHAW()
 	pPacket->writeString(CQuazaaGlobals::VENDOR_CODE());
 
 	pPacket->writePacket("HS", 2);
-	pPacket->writeIntLE<quint16>(Neighbours.m_nLeavesConnectedG2);
+	pPacket->writeIntLE<quint16>(neighbours.m_nLeavesConnectedG2);
 
 	pPacket->writeByte(0); // end of child packets
 	pPacket->writeByte(100);
@@ -167,10 +167,10 @@ void CG2Node::sendHAW()
 	sendPacket(pPacket, false, true);
 }
 
-void CG2Node::onTimer(quint32 tNow)
+void G2Node::onTimer(quint32 tNow)
 {
 
-	CNeighbour::onTimer(tNow);
+	Neighbour::onTimer(tNow);
 
 	if(m_nState == nsConnected)
 	{
@@ -215,7 +215,7 @@ void CG2Node::onTimer(quint32 tNow)
 			}
 		}
 
-		if(m_nType == G2_HUB && Neighbours.isG2Hub())
+		if(m_nType == G2_HUB && neighbours.isG2Hub())
 		{
 			if(m_nHAWWait == 0)
 			{
@@ -268,7 +268,7 @@ void CG2Node::onTimer(quint32 tNow)
 	}
 }
 
-void CG2Node::initiateHandshake()
+void G2Node::initiateHandshake()
 {
 	m_nState = nsHandshaking;
 	emit nodeStateChanged();
@@ -282,7 +282,7 @@ void CG2Node::initiateHandshake()
 	sHandshake += "Accept: application/x-gnutella2\r\n";
 
 	// TODO: Remove X-Ultrapeer at a later time.
-	if ( Neighbours.isG2Hub() )
+	if ( neighbours.isG2Hub() )
 	{
 		sHandshake += "X-Hub: True\r\n";
 		sHandshake += "X-Ultrapeer: True\r\n";
@@ -306,7 +306,7 @@ void CG2Node::initiateHandshake()
 	write( sHandshake );
 }
 
-void CG2Node::parseIncomingHandshake()
+void G2Node::parseIncomingHandshake()
 {
 	//QMutexLocker l(&Neighbours.m_pSection);
 
@@ -352,7 +352,7 @@ void CG2Node::parseIncomingHandshake()
 #ifndef _DISABLE_COMPRESSION
 	{   // determine whether the other party accepts deflated data
 		const QString sAcceptEnc = Parser::getHeaderValue(sHs, "Accept-Encoding");
-		m_bAcceptDeflate = !sAcceptEnc.compare( "deflate" ) && Neighbours.isG2Hub();
+		m_bAcceptDeflate = !sAcceptEnc.compare( "deflate" ) && neighbours.isG2Hub();
 	}
 #endif
 
@@ -384,7 +384,7 @@ void CG2Node::parseIncomingHandshake()
 
 		if ( bHub )
 		{
-			if ( !Neighbours.needMoreG2( G2_HUB ) )
+			if ( !neighbours.needMoreG2( G2_HUB ) )
 			{
 				send_ConnectError( "503 Maximum hub connections reached", true );
 				return;
@@ -393,7 +393,7 @@ void CG2Node::parseIncomingHandshake()
 		}
 		else
 		{
-			if ( !Neighbours.needMoreG2( G2_LEAF ) )
+			if ( !neighbours.needMoreG2( G2_LEAF ) )
 			{
 				send_ConnectError( "503 Maximum leaf connections reached", true );
 				return;
@@ -410,7 +410,7 @@ void CG2Node::parseIncomingHandshake()
 }
 
 // this is handshake message #2
-void CG2Node::parseHandshakeResponse()
+void G2Node::parseHandshakeResponse()
 {
 	//QMutexLocker l(&Neighbours.m_pSection);
 	QString sHandshake = read( peek( bytesAvailable() ).indexOf( "\r\n\r\n" ) + 4 );
@@ -486,7 +486,7 @@ void CG2Node::parseHandshakeResponse()
 
 		if ( sHub == "true" )
 		{
-			if ( !Neighbours.needMoreG2( G2_HUB ) )
+			if ( !neighbours.needMoreG2( G2_HUB ) )
 			{
 				send_ConnectError( "503 Maximum hub connections reached", true );
 				return;
@@ -495,7 +495,7 @@ void CG2Node::parseHandshakeResponse()
 		}
 		else
 		{
-			if ( !Neighbours.needMoreG2( G2_LEAF ) )
+			if ( !neighbours.needMoreG2( G2_LEAF ) )
 			{
 				send_ConnectError( "503 Maximum leaf connections reached", true );
 				return;
@@ -518,7 +518,7 @@ void CG2Node::parseHandshakeResponse()
 	}
 
 	const QString sAcceptEnc = Parser::getHeaderValue( sHandshake, "Accept-Encoding" );
-	bAcceptDeflate = sAcceptEnc.contains( "deflate" ) && Neighbours.isG2Hub();
+	bAcceptDeflate = sAcceptEnc.contains( "deflate" ) && neighbours.isG2Hub();
 
 	if ( bAcceptDeflate )
 	{
@@ -546,7 +546,7 @@ void CG2Node::parseHandshakeResponse()
 	if ( m_nType == G2_HUB )
 	{
 		Q_ASSERT( !m_pLocalTable );
-		m_pLocalTable = new CQueryHashTable();
+		m_pLocalTable = new QueryHashTable();
 	}
 
 	systemLog.postLog( LogSeverity::Information, Component::G2,
@@ -555,7 +555,7 @@ void CG2Node::parseHandshakeResponse()
 }
 
 // parses handshake message #3 recieved from remote node
-void CG2Node::parseHandShakeAccept()
+void G2Node::parseHandShakeAccept()
 {
 	m_bHandshaking = false;
 
@@ -605,12 +605,12 @@ void CG2Node::parseHandShakeAccept()
 	if ( m_nType == G2_HUB )
 	{
 		Q_ASSERT( !m_pLocalTable );
-		m_pLocalTable = new CQueryHashTable();
+		m_pLocalTable = new QueryHashTable();
 	}
 
 }
 
-bool CG2Node::readUserAgentSecurity(const QString& sHandShake)
+bool G2Node::readUserAgentSecurity(const QString& sHandShake)
 {
 	if ( m_sUserAgent.isEmpty() )
 	{
@@ -647,7 +647,7 @@ bool CG2Node::readUserAgentSecurity(const QString& sHandShake)
 	}
 }
 
-void CG2Node::send_ConnectError(QString sReason, bool bXTry)
+void G2Node::send_ConnectError(QString sReason, bool bXTry)
 {
 	systemLog.postLog( LogSeverity::Information, Component::G2,
 					   tr( "Rejecting connection with %1: %2 (%3)"
@@ -676,7 +676,7 @@ void CG2Node::send_ConnectError(QString sReason, bool bXTry)
 	close( true );
 }
 
-void CG2Node::send_ConnectOK(bool bHandshakeStep2, bool bDeflate)
+void G2Node::send_ConnectOK(bool bHandshakeStep2, bool bDeflate)
 {
 	QByteArray sHandshake;
 
@@ -685,7 +685,7 @@ void CG2Node::send_ConnectOK(bool bHandshakeStep2, bool bDeflate)
 	sHandshake += "Content-Type: application/x-gnutella2\r\n";
 
 	// TODO: Remove X-Ultrapeer at a later time.
-	if ( Neighbours.isG2Hub() )
+	if ( neighbours.isG2Hub() )
 	{
 		sHandshake += "X-Hub: True\r\n";
 		sHandshake += "X-Ultrapeer: True\r\n";
@@ -710,7 +710,7 @@ void CG2Node::send_ConnectOK(bool bHandshakeStep2, bool bDeflate)
 		sHandshake += hostCache.getXTry();
 
 #ifndef _DISABLE_COMPRESSION
-		if ( Neighbours.isG2Hub() && m_nType == G2_HUB )
+		if ( neighbours.isG2Hub() && m_nType == G2_HUB )
 		{
 			sHandshake += "Accept-Encoding: deflate\r\n";
 		}
@@ -733,7 +733,7 @@ void CG2Node::send_ConnectOK(bool bHandshakeStep2, bool bDeflate)
 	write( sHandshake );
 }
 
-void CG2Node::sendStartups()
+void G2Node::sendStartups()
 {
 	if ( networkG2.isListening() )
 	{
@@ -748,7 +748,7 @@ void CG2Node::sendStartups()
 	sendLNI();
 }
 
-void CG2Node::onPacket(G2Packet* pPacket)
+void G2Node::onPacket(G2Packet* pPacket)
 {
 	//qDebug() << "Got packet " << pPacket->GetType() << pPacket->ToHex() << pPacket->ToASCII();
 
@@ -815,9 +815,9 @@ void CG2Node::onPacket(G2Packet* pPacket)
 	}*/
 }
 
-void CG2Node::onPing(G2Packet* pPacket)
+void G2Node::onPing(G2Packet* pPacket)
 {
-	ASSUME_LOCK(Neighbours.m_pSection);
+	ASSUME_LOCK(neighbours.m_pSection);
 
 	bool bUdp = false;
 	bool bRelay = false;
@@ -867,12 +867,12 @@ void CG2Node::onPing(G2Packet* pPacket)
 	{
 		// /PI/UDP
 
-		if(Neighbours.isG2Hub()) // If we are a hub.
+		if(neighbours.isG2Hub()) // If we are a hub.
 		{
 			G2Packet* pRelay = G2Packet::newPacket("RELAY");
 			pPacket->prependPacket(pRelay);
 
-			int nRelayed = 0, nCount = Neighbours.getCount();
+			int nRelayed = 0, nCount = neighbours.getCount();
 			QList<int> lToRelayIndex;
 
 			for(int i = 0; i < nCount && nRelayed < quazaaSettings.Gnutella2.PingRelayLimit; ++i)
@@ -880,14 +880,14 @@ void CG2Node::onPing(G2Packet* pPacket)
 				int nIndex = qrand() % nCount;
 				if(!lToRelayIndex.contains(nIndex))
 				{
-					CNeighbour* pNode = Neighbours.getAt(nIndex);
+					Neighbour* pNode = neighbours.getAt(nIndex);
 					if(pNode != this
 							&& pNode->m_nProtocol == DiscoveryProtocol::G2
 							&& pNode->m_nState == nsConnected
-							&& static_cast<CG2Node*>(pNode)->m_nType == G2_LEAF )
+							&& static_cast<G2Node*>(pNode)->m_nType == G2_LEAF )
 					{
 						pPacket->addRef();
-						((CG2Node*)pNode)->sendPacket(pPacket, true, true);
+						((G2Node*)pNode)->sendPacket(pPacket, true, true);
 						nRelayed++;
 					}
 				}
@@ -900,12 +900,12 @@ void CG2Node::onPing(G2Packet* pPacket)
 	{
 		G2Packet* pPong = G2Packet::newPacket("PO", true);
 		pPong->writePacket("RELAY", 0);
-		Datagrams.sendPacket(addr, pPong, true);
+		datagrams.sendPacket(addr, pPong, true);
 		pPong->release();
 	}
 }
 
-void CG2Node::onPong(G2Packet* pPacket)
+void G2Node::onPong(G2Packet* pPacket)
 {
 	Q_UNUSED(pPacket);
 
@@ -920,7 +920,7 @@ void CG2Node::onPong(G2Packet* pPacket)
 	}
 }
 
-void CG2Node::onLNI(G2Packet* pPacket)
+void G2Node::onLNI(G2Packet* pPacket)
 {
 	if(!pPacket->m_bCompound)
 	{
@@ -998,7 +998,7 @@ void CG2Node::onLNI(G2Packet* pPacket)
 
 }
 
-void CG2Node::onKHL(G2Packet* pPacket)
+void G2Node::onKHL(G2Packet* pPacket)
 {
 	if(!pPacket->m_bCompound)
 	{
@@ -1153,18 +1153,18 @@ void CG2Node::onKHL(G2Packet* pPacket)
 	}
 }
 
-void CG2Node::onQHT(G2Packet* pPacket)
+void G2Node::onQHT(G2Packet* pPacket)
 {
 	if(m_pRemoteTable == 0)
 	{
-		if(!Neighbours.isG2Hub())
+		if(!neighbours.isG2Hub())
 		{
 			systemLog.postLog(LogSeverity::Debug, Component::G2, QString("Recieved unexpected Query Routing Table, ignoring"));
 			//qDebug() << "Received unexpected Query Routing Table, ignoring";
 			return;
 		}
 
-		m_pRemoteTable = new CQueryHashTable();
+		m_pRemoteTable = new QueryHashTable();
 	}
 
 	bool bLive = m_pRemoteTable->m_bLive;
@@ -1194,7 +1194,7 @@ void CG2Node::onQHT(G2Packet* pPacket)
 	}
 }
 
-void CG2Node::onQKR(G2Packet* pPacket)
+void G2Node::onQKR(G2Packet* pPacket)
 {
 	if(!pPacket->m_bCompound || m_nType != G2_LEAF)
 	{
@@ -1292,7 +1292,7 @@ void CG2Node::onQKR(G2Packet* pPacket)
 			pQKR->writePacket( "RNA", 18 )->writeHostAddress( networkG2.m_oAddress );
 		}
 
-		Datagrams.sendPacket( addr, pQKR, false );
+		datagrams.sendPacket( addr, pQKR, false );
 		pQKR->release();
 	}
 
@@ -1303,7 +1303,7 @@ void CG2Node::onQKR(G2Packet* pPacket)
 //#endif
 }
 
-void CG2Node::onQKA(G2Packet* pPacket)
+void G2Node::onQKA(G2Packet* pPacket)
 {
 	if ( !pPacket->m_bCompound )
 	{
@@ -1370,7 +1370,7 @@ void CG2Node::onQKA(G2Packet* pPacket)
 		//qDebug("Got a query key from %s via %s = 0x%x", addr.toString().toLocal8Bit().constData(), m_oAddress.toString().toLocal8Bit().constData(), nKey);
 #endif // LOG_QUERY_HANDLING
 }
-void CG2Node::onQA(G2Packet* pPacket)
+void G2Node::onQA(G2Packet* pPacket)
 {
 	QUuid oGUID;
 	searchManager.onQueryAcknowledge(pPacket, m_oAddress, oGUID);
@@ -1378,7 +1378,7 @@ void CG2Node::onQA(G2Packet* pPacket)
 	// TCP /QA - no need for routing, it's either for us or to be dropped
 }
 
-void CG2Node::onQH2(G2Packet* pPacket)
+void G2Node::onQH2(G2Packet* pPacket)
 {
 	if ( !pPacket->m_bCompound )
 	{
@@ -1403,7 +1403,7 @@ void CG2Node::onQH2(G2Packet* pPacket)
 		{
 			networkG2.m_pSection.lock();
 
-			if ( Neighbours.isG2Hub() && pInfo->m_nHops < 7 )
+			if ( neighbours.isG2Hub() && pInfo->m_nHops < 7 )
 			{
 				networkG2.m_oRoutingTable.add( pInfo->m_oNodeGUID, this, false );
 				pPacket->m_pBuffer[pPacket->m_nLength - 17]++;
@@ -1417,7 +1417,7 @@ void CG2Node::onQH2(G2Packet* pPacket)
 	}
 }
 
-void CG2Node::onHaw(G2Packet *pPacket)
+void G2Node::onHaw(G2Packet *pPacket)
 {
 	if ( ! pPacket->m_bCompound ) 	return;
 
@@ -1485,7 +1485,7 @@ void CG2Node::onHaw(G2Packet *pPacket)
 		pPtr[0] = nTTL  - 1;
 		pPtr[1] = nHops + 1;
 
-		if ( CG2Node* pNeighbour = (CG2Node*)Neighbours.randomNode( DiscoveryProtocol::G2,
+		if ( G2Node* pNeighbour = (G2Node*)neighbours.randomNode( DiscoveryProtocol::G2,
 																	G2_HUB,  this ) )
 		{
 			pNeighbour->sendPacket( pPacket, false, false );
@@ -1493,14 +1493,14 @@ void CG2Node::onHaw(G2Packet *pPacket)
 	}
 }
 
-void CG2Node::onQuery(G2Packet* pPacket)
+void G2Node::onQuery(G2Packet* pPacket)
 {
 	if(!pPacket->m_bCompound)
 	{
 		return;
 	}
 
-	CQueryPtr pQuery = Query::fromPacket(pPacket);
+	QuerySharedPtr pQuery = Query::fromPacket(pPacket);
 
 	if ( pQuery.isNull() )
 	{
@@ -1538,17 +1538,17 @@ void CG2Node::onQuery(G2Packet* pPacket)
 	{
 		if( m_nType == G2_LEAF )
 		{
-			sendPacket(Neighbours.createQueryAck(pQuery->m_oGUID, true, this, true), false, true);
+			sendPacket(neighbours.createQueryAck(pQuery->m_oGUID, true, this, true), false, true);
 		}
 
-		if( Neighbours.isG2Hub() )
+		if( neighbours.isG2Hub() )
 		{
-			Neighbours.routeQuery(pQuery, pPacket, this, (m_nType != G2_HUB));
+			neighbours.routeQuery(pQuery, pPacket, this, (m_nType != G2_HUB));
 		}
 	}
 }
 
-qint64 CG2Node::writeToNetwork(qint64 nBytes)
+qint64 G2Node::writeToNetwork(qint64 nBytes)
 {
 	qint64 nTotalSent = 0;
 
@@ -1561,7 +1561,7 @@ qint64 CG2Node::writeToNetwork(qint64 nBytes)
 			pPacket->release();
 		}
 
-		qint64 nSent = CNeighbour::writeToNetwork(nBytes - nTotalSent);
+		qint64 nSent = Neighbour::writeToNetwork(nBytes - nTotalSent);
 
 		if(nSent <= 0)
 		{
@@ -1575,7 +1575,7 @@ qint64 CG2Node::writeToNetwork(qint64 nBytes)
 	return nTotalSent;
 }
 
-void CG2Node::onConnectNode()
+void G2Node::onConnectNode()
 {
 	//QMutexLocker l(&Neighbours.m_pSection);
 
@@ -1587,9 +1587,9 @@ void CG2Node::onConnectNode()
 	initiateHandshake();
 }
 
-void CG2Node::onRead()
+void G2Node::onRead()
 {
-	Neighbours.m_pSection.lock();
+	neighbours.m_pSection.lock();
 
 	if ( m_nState == nsHandshaking )
 	{
@@ -1644,6 +1644,6 @@ void CG2Node::onRead()
 		}
 	}
 
-	Neighbours.m_pSection.unlock();
+	neighbours.m_pSection.unlock();
 }
 

@@ -30,12 +30,12 @@
 
 class G2Packet;
 
-class CNeighboursG2 : public CNeighboursConnections
+class NeighboursG2 : public NeighboursConnections
 {
 	Q_OBJECT
 public:
-	CNeighboursG2(QObject* parent = 0);
-	virtual ~CNeighboursG2();
+	NeighboursG2(QObject* parent = 0);
+	virtual ~NeighboursG2();
 
 	void dispatchKHL();
 	bool switchG2ClientMode(G2NodeType nRequestedMode);
@@ -43,7 +43,7 @@ public:
 
 	virtual void connectNode();
 
-	G2Packet* createQueryAck(QUuid oGUID, bool bWithHubs = true, CNeighbour* pExcept = 0, bool bDone = true);
+	G2Packet* createQueryAck(QUuid oGUID, bool bWithHubs = true, Neighbour* pExcept = 0, bool bDone = true);
 
 	void hubBalancing();
 

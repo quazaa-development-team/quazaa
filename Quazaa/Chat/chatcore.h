@@ -30,8 +30,8 @@
 #include "thread.h"
 
 class CChatSession;
-class CRateController;
-class CNetworkConnection;
+class RateController;
+class NetworkConnection;
 
 class CChatCore : public QObject
 {
@@ -40,13 +40,13 @@ public:
 	QMutex	m_pSection;
 protected:
 	QList<CChatSession*> m_lSessions;
-	CRateController* m_pController;
+	RateController* m_pController;
 	bool m_bActive;
 public:
 	CChatCore(QObject *parent = 0);
 	virtual ~CChatCore();
 
-	void OnAccept(CNetworkConnection* pConn, DiscoveryProtocol::Protocol nProto);
+	void OnAccept(NetworkConnection* pConn, DiscoveryProtocol::Protocol nProto);
 
 protected:
 	void Add(CChatSession* pSession);

@@ -39,7 +39,7 @@ class G2Packet;
 
 class ManagedSearch;
 
-class CNetwork : public QObject
+class NetworkG2 : public QObject
 {
 	Q_OBJECT
 
@@ -51,14 +51,14 @@ public:
 	QTimer*          m_pSecondTimer;
 	CEndPoint	     m_oAddress;
 
-	CRouteTable      m_oRoutingTable;
+	RouteTable       m_oRoutingTable;
 	quint32          m_tCleanRoutesNext;
 
 	bool             m_bSharesReady;
 
 public:
-	CNetwork(QObject* parent = 0);
-	~CNetwork();
+	NetworkG2(QObject* parent = 0);
+	~NetworkG2();
 
 	void start();
 	void stop();
@@ -73,8 +73,9 @@ public:
 	bool isListening();
 	bool isFirewalled();
 
-	bool routePacket(QUuid& pTargetGUID, G2Packet* pPacket, bool bLockNeighbours = false, bool bBuffered = true);
-	bool routePacket(G2Packet* pPacket, CG2Node* pNbr = 0);
+	bool routePacket(QUuid& pTargetGUID, G2Packet* pPacket, bool bLockNeighbours = false,
+					 bool bBuffered = true);
+	bool routePacket(G2Packet* pPacket, G2Node* pNbr = 0);
 
 	inline CEndPoint getLocalAddress()
 	{
@@ -98,6 +99,6 @@ signals:
 	void localAddressChanged();
 };
 
-extern CNetwork networkG2;
+extern NetworkG2 networkG2;
 extern CThread networkThread;
 #endif // NETWORK_H

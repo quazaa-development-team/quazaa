@@ -29,32 +29,32 @@
 #include <QObject>
 class QString;
 class QByteArray;
-class CG2Node;
+class G2Node;
 class G2Packet;
 class QByteArray;
 class Buffer;
-class CQueryHashGroup;
+class QueryHashGroup;
 class Query;
 
-typedef QSharedPointer<Query> CQueryPtr;
+typedef QSharedPointer<Query> QuerySharedPtr;
 
-class CQueryHashTable : public QObject
+class QueryHashTable : public QObject
 {
 	Q_OBJECT
 public:
-	CQueryHashTable();
-	virtual ~CQueryHashTable();
+	QueryHashTable();
+	virtual ~QueryHashTable();
 
 public:
-	bool				m_bLive;
-	quint32				m_nCookie;
-	uchar*				m_pHash;
-	quint32				m_nHash;
-	quint32				m_nBits;
-	quint32				m_nInfinity;
-	quint32				m_nCount;
-	Buffer*			m_pBuffer;
-	CQueryHashGroup* 	m_pGroup;
+	bool            m_bLive;
+	quint32         m_nCookie;
+	uchar*          m_pHash;
+	quint32         m_nHash;
+	quint32         m_nBits;
+	quint32         m_nInfinity;
+	quint32         m_nCount;
+	Buffer*         m_pBuffer;
+	QueryHashGroup* m_pGroup;
 
 public:
 	static quint32 hashWord(const char* pSz, const quint32 nLength, qint32 nBits);
@@ -66,16 +66,16 @@ public:
 public:
 	void	create();
 	void	clear();
-	bool	merge(const CQueryHashTable* pSource);
-	bool	merge(const CQueryHashGroup* pSource);
-	bool	patchTo(const CQueryHashTable* pTarget, CG2Node* pNeighbour);
+	bool	merge(const QueryHashTable* pSource);
+	bool	merge(const QueryHashGroup* pSource);
+	bool	patchTo(const QueryHashTable* pTarget, G2Node* pNeighbour);
 	bool	onPacket(G2Packet* pPacket);
 	void	addString(const QString& strString);
 	void	addExactString(const QString& strString);
 	void	addWord(const QByteArray& sWord);
 	bool	checkString(const QString& strString) const;
 	bool	checkHash(const quint32 nHash) const;
-	bool	checkQuery(CQueryPtr pQuery);
+	bool	checkQuery(QuerySharedPtr pQuery);
 	int		getPercent() const;
 protected:
 	bool	onReset(G2Packet* pPacket);

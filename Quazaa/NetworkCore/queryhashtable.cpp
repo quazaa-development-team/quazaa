@@ -42,7 +42,7 @@
 
 // Parts of this code are borrowed from Shareaza
 
-CQueryHashTable::CQueryHashTable() : QObject(0),
+QueryHashTable::QueryHashTable() : QObject(0),
 	m_bLive(false)
 	,	m_nCookie(0ul)
 	,	m_pHash(0)
@@ -55,7 +55,7 @@ CQueryHashTable::CQueryHashTable() : QObject(0),
 {
 }
 
-CQueryHashTable::~CQueryHashTable()
+QueryHashTable::~QueryHashTable()
 {
 	if(m_pGroup)
 	{
@@ -66,7 +66,7 @@ CQueryHashTable::~CQueryHashTable()
 	delete m_pBuffer;
 }
 
-void CQueryHashTable::create()
+void QueryHashTable::create()
 {
 	const bool bGrouped = (m_pGroup != 0);
 	if(bGrouped)
@@ -91,7 +91,7 @@ void CQueryHashTable::create()
 	}
 }
 
-void CQueryHashTable::clear()
+void QueryHashTable::clear()
 {
 	if(!m_pHash)
 	{
@@ -115,7 +115,7 @@ void CQueryHashTable::clear()
 	}
 }
 
-bool CQueryHashTable::merge(const CQueryHashTable* pSource)
+bool QueryHashTable::merge(const QueryHashTable* pSource)
 {
 	if(!m_pHash || !pSource->m_pHash)
 	{
@@ -238,7 +238,7 @@ bool CQueryHashTable::merge(const CQueryHashTable* pSource)
 	return true;
 }
 
-bool CQueryHashTable::merge(const CQueryHashGroup* pSource)
+bool QueryHashTable::merge(const QueryHashGroup* pSource)
 {
 	if(!m_pHash || !pSource->m_pHash)
 	{
@@ -348,8 +348,8 @@ bool CQueryHashTable::merge(const CQueryHashGroup* pSource)
 	return true;
 }
 
-bool CQueryHashTable::patchTo(const CQueryHashTable* pTarget,
-							  CG2Node* pNeighbour)
+bool QueryHashTable::patchTo(const QueryHashTable* pTarget,
+							  G2Node* pNeighbour)
 {
 	if(!pTarget->m_pHash)
 	{
@@ -459,7 +459,7 @@ bool CQueryHashTable::patchTo(const CQueryHashTable* pTarget,
 	return true;
 }
 
-bool CQueryHashTable::onPacket(G2Packet* pPacket)
+bool QueryHashTable::onPacket(G2Packet* pPacket)
 {
 	if(pPacket->m_nLength < 1)
 	{
@@ -486,7 +486,7 @@ bool CQueryHashTable::onPacket(G2Packet* pPacket)
 	return false;
 }
 
-bool CQueryHashTable::onReset(G2Packet* pPacket)
+bool QueryHashTable::onReset(G2Packet* pPacket)
 {
 	if(pPacket->m_nLength != 6)
 	{
@@ -548,7 +548,7 @@ bool CQueryHashTable::onReset(G2Packet* pPacket)
 	return true;
 }
 
-bool CQueryHashTable::onPatch(G2Packet* pPacket)
+bool QueryHashTable::onPatch(G2Packet* pPacket)
 {
 	if(pPacket->m_nLength < 5)
 	{
@@ -684,7 +684,7 @@ bool CQueryHashTable::onPatch(G2Packet* pPacket)
 	return true;
 }
 
-void CQueryHashTable::addExactString(const QString& strString)
+void QueryHashTable::addExactString(const QString& strString)
 {
 	if(! m_pHash)
 	{
@@ -697,7 +697,7 @@ void CQueryHashTable::addExactString(const QString& strString)
 	addExact(baUTF8.data(), baUTF8.size());
 }
 
-void CQueryHashTable::add(const char* pszString, quint32 nLength)
+void QueryHashTable::add(const char* pszString, quint32 nLength)
 {
 	if(nLength < 4)
 	{
@@ -740,7 +740,7 @@ void CQueryHashTable::add(const char* pszString, quint32 nLength)
 	}
 }
 
-void CQueryHashTable::addExact(const char* pszString, quint32 nLength)
+void QueryHashTable::addExact(const char* pszString, quint32 nLength)
 {
 	if(! nLength)
 	{
@@ -758,7 +758,7 @@ void CQueryHashTable::addExact(const char* pszString, quint32 nLength)
 	}
 }
 
-bool CQueryHashTable::checkString(const QString& strString) const
+bool QueryHashTable::checkString(const QString& strString) const
 {
 	if(!m_bLive || !m_pHash || strString.isEmpty())
 	{
@@ -775,7 +775,7 @@ bool CQueryHashTable::checkString(const QString& strString) const
 	return !(*pHash & nMask);
 }
 
-bool CQueryHashTable::checkHash(const quint32 nHash) const
+bool QueryHashTable::checkHash(const quint32 nHash) const
 {
 	if(!m_bLive || !m_pHash)
 	{
@@ -789,7 +789,7 @@ bool CQueryHashTable::checkHash(const quint32 nHash) const
 	return !(*pHash & nMask);
 }
 
-int CQueryHashTable::getPercent() const
+int QueryHashTable::getPercent() const
 {
 	if(!m_pHash || !m_nHash)
 	{
@@ -799,7 +799,7 @@ int CQueryHashTable::getPercent() const
 	return m_nCount * 100 / m_nHash;
 }
 
-quint32 CQueryHashTable::hashWord(const char* pSz, quint32 nLength, qint32 nBits)
+quint32 QueryHashTable::hashWord(const char* pSz, quint32 nLength, qint32 nBits)
 {
 	quint32 nNumber = 0;
 	int nByte = 0;
@@ -813,14 +813,14 @@ quint32 CQueryHashTable::hashWord(const char* pSz, quint32 nLength, qint32 nBits
 	return hashNumber(nNumber, nBits);
 }
 
-quint32 CQueryHashTable::hashNumber(quint32 nNumber, qint32 nBits)
+quint32 QueryHashTable::hashNumber(quint32 nNumber, qint32 nBits)
 {
 	quint64 nProduct = (quint64)nNumber * (quint64)0x4F1BBCDC;
 	quint64 nHash = (nProduct << 32) >> (32 + (32 - nBits));
 	return (quint32)nHash;
 }
 
-void CQueryHashTable::addString(const QString& strString)
+void QueryHashTable::addString(const QString& strString)
 {
 	if(!m_pHash)
 	{
@@ -829,7 +829,7 @@ void CQueryHashTable::addString(const QString& strString)
 
 	QStringList keywords;
 
-	if(CQueryHashTable::makeKeywords(strString, keywords))
+	if(QueryHashTable::makeKeywords(strString, keywords))
 	{
 		foreach ( const QString& kw, keywords )
 		{
@@ -839,7 +839,7 @@ void CQueryHashTable::addString(const QString& strString)
 	}
 }
 
-int CQueryHashTable::makeKeywords(QString sPhrase, QStringList& outList)
+int QueryHashTable::makeKeywords(QString sPhrase, QStringList& outList)
 {
 	systemLog.postLog(LogSeverity::Debug, QString("Making keywords from: %1").arg(sPhrase));
 	//qDebug() << "Making keywords from:" << sPhrase;
@@ -883,7 +883,7 @@ int CQueryHashTable::makeKeywords(QString sPhrase, QStringList& outList)
 	return outList.size();
 }
 
-bool CQueryHashTable::checkQuery(CQueryPtr pQuery)
+bool QueryHashTable::checkQuery(QuerySharedPtr pQuery)
 {
 	if( !m_bLive || !m_pHash )
 		return true;

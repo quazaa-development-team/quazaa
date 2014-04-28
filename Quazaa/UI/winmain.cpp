@@ -237,7 +237,7 @@ CWinMain::CWinMain(QWidget* parent) :
 
 	connect(&ChatCore, SIGNAL(openChatWindow(CChatSession*)), this, SLOT(OpenChat(CChatSession*)));
 	connect(&networkG2, SIGNAL(localAddressChanged()), this, SLOT(localAddressChanged()));
-	connect(&ShareManager, SIGNAL(hasherStarted(int)), this, SLOT(onHasherStarted(int)));
+	connect(&shareManager, SIGNAL(hasherStarted(int)), this, SLOT(onHasherStarted(int)));
 	setSkin();
 }
 
@@ -437,7 +437,7 @@ void CWinMain::quazaaShutdown()
 	delete neighboursRefresher;
 	neighboursRefresher = 0;
 	networkG2.stop();
-	ShareManager.stop();
+	shareManager.stop();
 
 	dlgSplash->updateProgress(65, tr("Saving Security Manager..."));
 	qApp->processEvents();
@@ -813,16 +813,16 @@ void CWinMain::updateStatusBar()
 		Handshakes.m_pSection.unlock();
 	}
 
-	if(Neighbours.m_pSection.tryLock(50))
+	if(neighbours.m_pSection.tryLock(50))
 	{
-		nTCPInSpeed = Neighbours.downloadSpeed();
-		nTCPOutSpeed = Neighbours.uploadSpeed();
-		Neighbours.m_pSection.unlock();
+		nTCPInSpeed = neighbours.downloadSpeed();
+		nTCPOutSpeed = neighbours.uploadSpeed();
+		neighbours.m_pSection.unlock();
 	}
 
-	if(Datagrams.m_pSection.tryLock(50))
+	if(datagrams.m_pSection.tryLock(50))
 	{
-		if(!Datagrams.isFirewalled())
+		if(!datagrams.isFirewalled())
 		{
 			udpFirewalled = ":/Resource/Network/CheckedShieldGreen.png";
 		}
@@ -831,10 +831,10 @@ void CWinMain::updateStatusBar()
 			udpFirewalled = ":/Resource/Network/ShieldRed.png";
 		}
 
-		nUDPInSpeed = Datagrams.downloadSpeed();
-		nUDPOutSpeed = Datagrams.uploadSpeed();
+		nUDPInSpeed = datagrams.downloadSpeed();
+		nUDPOutSpeed = datagrams.uploadSpeed();
 
-		Datagrams.m_pSection.unlock();
+		datagrams.m_pSection.unlock();
 	}
 
 	labelFirewallStatus->setText(tr("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\"> <html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">p, li { white-space: pre-wrap; }</style></head><body style=\" font-family:'Segoe UI'; font-size:10pt; font-weight:400; font-style:normal;\"><p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">TCP: <img src=\"%1\" /> UDP: <img src=\"%2\" /></p></body></html>").arg(tcpFirewalled).arg(udpFirewalled));
@@ -853,9 +853,9 @@ void CWinMain::on_actionConnectTo_triggered()
 		switch(dlgConnectTo->getConnectNetwork())
 		{
 		case CDialogConnectTo::G2:
-			Neighbours.m_pSection.lock();
-			Neighbours.connectTo(ip, DiscoveryProtocol::G2, false);
-			Neighbours.m_pSection.unlock();
+			neighbours.m_pSection.lock();
+			neighbours.connectTo(ip, DiscoveryProtocol::G2, false);
+			neighbours.m_pSection.unlock();
 			break;
 		case CDialogConnectTo::eDonkey:
 			break;
@@ -927,10 +927,10 @@ void CWinMain::onHasherStarted(int nId)
 	if( !pDialog )
 	{
 		pDialog = new CDialogHashProgress(this);
-		connect(&ShareManager, SIGNAL(hasherStarted(int)), pDialog, SLOT(onHasherStarted(int)));
-		connect(&ShareManager, SIGNAL(hasherFinished(int)), pDialog, SLOT(onHasherFinished(int)));
-		connect(&ShareManager, SIGNAL(hashingProgress(int,QString,double,int)), pDialog, SLOT(onHashingProgress(int,QString,double,int)));
-		connect(&ShareManager, SIGNAL(remainingFilesChanged(qint32)), pDialog, SLOT(onRemainingFilesChanged(qint32)));
+		connect(&shareManager, SIGNAL(hasherStarted(int)), pDialog, SLOT(onHasherStarted(int)));
+		connect(&shareManager, SIGNAL(hasherFinished(int)), pDialog, SLOT(onHasherFinished(int)));
+		connect(&shareManager, SIGNAL(hashingProgress(int,QString,double,int)), pDialog, SLOT(onHashingProgress(int,QString,double,int)));
+		connect(&shareManager, SIGNAL(remainingFilesChanged(qint32)), pDialog, SLOT(onRemainingFilesChanged(qint32)));
 	}
 	pDialog->onHasherStarted(nId);
 	pDialog->show();

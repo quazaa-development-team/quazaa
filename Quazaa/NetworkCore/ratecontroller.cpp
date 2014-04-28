@@ -34,7 +34,7 @@
 
 #include "debug_new.h"
 
-CRateController::CRateController(QMutex* pMutex, QObject* parent): QObject(parent)
+RateController::RateController(QMutex* pMutex, QObject* parent): QObject(parent)
 {
 	m_bTransferSheduled = false;
 	m_nUploadLimit = std::numeric_limits<qint32>::max() / 2;
@@ -44,7 +44,7 @@ CRateController::CRateController(QMutex* pMutex, QObject* parent): QObject(paren
 	m_pMutex = pMutex;
 }
 
-void CRateController::addSocket(CNetworkConnection* pSock)
+void RateController::addSocket(NetworkConnection* pSock)
 {
 	ASSUME_LOCK(*m_pMutex);
 
@@ -54,7 +54,7 @@ void CRateController::addSocket(CNetworkConnection* pSock)
 
 	QMetaObject::invokeMethod(this, "sheduleTransfer", Qt::QueuedConnection);
 }
-void CRateController::removeSocket(CNetworkConnection* pSock)
+void RateController::removeSocket(NetworkConnection* pSock)
 {
 	ASSUME_LOCK(*m_pMutex);
 
@@ -64,7 +64,7 @@ void CRateController::removeSocket(CNetworkConnection* pSock)
 		pSock->setReadBufferSize(0);
 	}
 }
-void CRateController::sheduleTransfer()
+void RateController::sheduleTransfer()
 {
 	if(m_bTransferSheduled)
 	{
@@ -74,7 +74,7 @@ void CRateController::sheduleTransfer()
 	m_bTransferSheduled = true;
 	QTimer::singleShot(50, this, SLOT(transfer()));
 }
-void CRateController::transfer()
+void RateController::transfer()
 {
 	m_bTransferSheduled = false;
 
@@ -95,10 +95,10 @@ void CRateController::transfer()
 		return;
 	}
 
-	QSet<CNetworkConnection*> lSockets;
-	for(QSet<CNetworkConnection*>::const_iterator itSocket = m_lSockets.constBegin(); itSocket != m_lSockets.constEnd(); ++itSocket)
+	QSet<NetworkConnection*> lSockets;
+	for(QSet<NetworkConnection*>::const_iterator itSocket = m_lSockets.constBegin(); itSocket != m_lSockets.constEnd(); ++itSocket)
 	{
-		CNetworkConnection* pSock = *itSocket;
+		NetworkConnection* pSock = *itSocket;
 		if(pSock->hasData())
 		{
 			lSockets.insert(pSock);
@@ -124,9 +124,9 @@ void CRateController::transfer()
 
 		quint32 nDownloaded = 0, nUploaded = 0;
 
-		for(QSet<CNetworkConnection*>::iterator itSocket = lSockets.begin(); itSocket != lSockets.end() && (nToRead > 0 || nToWrite > 0);)
+		for(QSet<NetworkConnection*>::iterator itSocket = lSockets.begin(); itSocket != lSockets.end() && (nToRead > 0 || nToWrite > 0);)
 		{
-			CNetworkConnection* pConn = *itSocket;
+			NetworkConnection* pConn = *itSocket;
 
 			bool bDataTransferred = false;
 

@@ -73,7 +73,7 @@ void CChatCore::Start()
 	ChatThread.start("ChatCore", &m_pSection);
 	m_bActive = true;
 
-	m_pController = new CRateController(&m_pSection);
+	m_pController = new RateController(&m_pSection);
 	m_pController->setDownloadLimit(8192);
 	m_pController->setUploadLimit(8192);
 	m_pController->moveToThread(&ChatThread);

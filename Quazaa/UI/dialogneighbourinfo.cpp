@@ -5,7 +5,7 @@
 #include "neighbours.h"
 #include "networktype.h"
 
-CDialogNeighbourInfo::CDialogNeighbourInfo(CNeighboursTableModel::Neighbour *pNeighbour, QWidget *parent) :
+DialogNeighbourInfo::DialogNeighbourInfo(NeighboursTableModel::NeighbourData* pNeighbour, QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::CDialogNeighbourInfo)
 {
@@ -27,18 +27,18 @@ CDialogNeighbourInfo::CDialogNeighbourInfo(CNeighboursTableModel::Neighbour *pNe
 	ui->labelRatioOutbound->setText(QString().sprintf("%1.2f%%", 100.0f * pNeighbour->nCompressionOut));
 }
 
-CDialogNeighbourInfo::~CDialogNeighbourInfo()
+DialogNeighbourInfo::~DialogNeighbourInfo()
 {
 	delete ui;
 }
 
-QString CDialogNeighbourInfo::neighbourConnectionDescription(CNeighboursTableModel::Neighbour *pNeighbour)
+QString DialogNeighbourInfo::neighbourConnectionDescription(NeighboursTableModel::NeighbourData* pNeighbour)
 {
 	if(pNeighbour->nDiscoveryProtocol == DiscoveryProtocol::G2) {
 		QString selfMode;
 		QString otherMode;
 
-		if(Neighbours.isG2Hub())
+		if(neighbours.isG2Hub())
 		{
 			selfMode = "Hub";
 		} else {

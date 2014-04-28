@@ -38,7 +38,7 @@ CTransfers::CTransfers(QObject* parent)
 	: QObject(parent),
 	  m_bActive(false)
 {
-	m_pController = new CRateController(&m_pSection);
+	m_pController = new RateController(&m_pSection);
 }
 
 CTransfers::~CTransfers()

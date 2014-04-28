@@ -34,9 +34,9 @@
 #include "thread.h"
 #include "sharedfile.h"
 
-class CQueryHashTable;
+class QueryHashTable;
 
-class CShareManager : public QObject
+class ShareManager : public QObject
 {
 	Q_OBJECT
 
@@ -50,12 +50,12 @@ protected:
 
 	QList<QSqlRecord> m_lQueryResults;
 
-	CQueryHashTable* 	m_pTable;
+	QueryHashTable* 	m_pTable;
 	bool				m_bTableReady;
 
 	qint32				m_nRemainingFiles;
 public:
-	explicit CShareManager(QObject* parent = 0);
+	explicit ShareManager(QObject* parent = 0);
 
 	void start();
 	void stop();
@@ -69,7 +69,7 @@ public:
 
 	void scanFolder(QString sPath, qint64 nParentID = 0);
 
-	CQueryHashTable* getHashTable();
+	QueryHashTable* getHashTable();
 
 	bool sharesAreReady()
 	{
@@ -103,6 +103,6 @@ protected slots:
 };
 
 
-extern CThread ShareManagerThread;
-extern CShareManager ShareManager;
+extern CThread shareManagerThread;
+extern ShareManager shareManager;
 #endif // SHAREMANAGER_H

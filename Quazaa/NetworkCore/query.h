@@ -31,7 +31,7 @@ class G2Packet;
 class Query;
 class CHash;
 
-typedef QSharedPointer<Query> CQueryPtr;
+typedef QSharedPointer<Query> QuerySharedPtr;
 
 class Query
 {
@@ -67,7 +67,7 @@ public:
 
 	G2Packet* toG2Packet(CEndPoint* pAddr = 0, quint32 nKey = 0);
 
-	static CQueryPtr fromPacket(G2Packet* pPacket, CEndPoint* pEndpoint = 0);
+	static QuerySharedPtr fromPacket(G2Packet* pPacket, CEndPoint* pEndpoint = 0);
 
 private:
 	void buildG2Keywords(QString strPhrase);

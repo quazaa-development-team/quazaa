@@ -28,7 +28,7 @@
 #include "compressedconnection.h"
 #include "types.h"
 
-class CNeighbour : public CCompressedConnection
+class Neighbour : public CCompressedConnection
 {
 	Q_OBJECT
 
@@ -55,8 +55,8 @@ public:
 
 
 public:
-	CNeighbour(QObject* parent = NULL);
-	virtual ~CNeighbour();
+	Neighbour(QObject* parent = NULL);
+	virtual ~Neighbour();
 
 	virtual void connectTo(CEndPoint oAddress)
 	{
@@ -64,9 +64,9 @@ public:
 						   "Initiating neighbour connection to %s...",
 						   qPrintable( oAddress.toString() ) );
 		m_nState = nsConnecting;
-		CNetworkConnection::connectTo( oAddress );
+		NetworkConnection::connectTo( oAddress );
 	}
-	void attachTo(CNetworkConnection* pOther)
+	void attachTo(NetworkConnection* pOther)
 	{
 		m_nState = nsHandshaking;
 		CCompressedConnection::attachTo( pOther );

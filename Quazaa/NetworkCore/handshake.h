@@ -28,7 +28,7 @@
 #include <QObject>
 #include "networkconnection.h"
 
-class CHandshake: public CNetworkConnection
+class CHandshake: public NetworkConnection
 {
 	Q_OBJECT
 

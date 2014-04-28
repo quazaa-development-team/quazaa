@@ -29,7 +29,7 @@
 #include "debug_new.h"
 
 CCompressedConnection::CCompressedConnection(QObject* parent) :
-	CNetworkConnection(parent)
+	NetworkConnection(parent)
 {
 	m_bCompressedInput = false;
 	m_bCompressedOutput = false;
@@ -157,7 +157,7 @@ void CCompressedConnection::cleanupOutputStream()
 
 qint64 CCompressedConnection::readFromNetwork(qint64 nBytes)
 {
-	qint64 nRet = CNetworkConnection::readFromNetwork(nBytes);
+	qint64 nRet = NetworkConnection::readFromNetwork(nBytes);
 
 	if(m_bCompressedInput)
 	{
@@ -181,7 +181,7 @@ qint64 CCompressedConnection::writeToNetwork(qint64 nBytes)
 		}
 	}
 
-	return CNetworkConnection::writeToNetwork(nBytes);
+	return NetworkConnection::writeToNetwork(nBytes);
 }
 
 void CCompressedConnection::inflateInput()

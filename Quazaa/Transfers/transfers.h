@@ -10,7 +10,7 @@
 #include "thread.h"
 
 class CTransfer;
-class CRateController;
+class RateController;
 
 class CTransfers : public QObject
 {
@@ -18,7 +18,7 @@ class CTransfers : public QObject
 public:
 	QMutex m_pSection;
 	bool   m_bActive;
-	CRateController* m_pController;
+	RateController* m_pController;
 	QTimer m_oTimer;
 
 protected:

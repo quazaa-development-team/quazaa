@@ -40,8 +40,8 @@
 
 #include "debug_new.h"
 
-CNeighboursG2::CNeighboursG2(QObject* parent) :
-	CNeighboursConnections(parent),
+NeighboursG2::NeighboursG2(QObject* parent) :
+	NeighboursConnections(parent),
 	m_nNextKHL(30),
 	m_nLNIWait(0),
 	m_bNeedLNI(false),
@@ -53,11 +53,11 @@ CNeighboursG2::CNeighboursG2(QObject* parent) :
 	m_nPeriodsHigh(0)
 {
 }
-CNeighboursG2::~CNeighboursG2()
+NeighboursG2::~NeighboursG2()
 {
 }
 
-void CNeighboursG2::connectNode()
+void NeighboursG2::connectNode()
 {
 	if ( quazaaSettings.Gnutella2.ClientMode < 2 )
 	{
@@ -73,7 +73,7 @@ void CNeighboursG2::connectNode()
 	m_nLNIWait = quazaaSettings.Gnutella2.LNIMinimumUpdate;
 	m_tLastModeChange = common::getTNowUTC();
 
-	CNeighboursConnections::connectNode();
+	NeighboursConnections::connectNode();
 
 	// Only query service if we're not already querying and we actually need fresh hosts.
 	if ( !discoveryManager.isActive( Discovery::ServiceType::GWC ) && !hostCache.hasConnectable() )
@@ -81,16 +81,16 @@ void CNeighboursG2::connectNode()
 		discoveryManager.queryService( CNetworkType( DiscoveryProtocol::G2 ) );
 	}
 
-	HubHorizonPool.setup();
+	hubHorizonPool.setup();
 }
 
-void CNeighboursG2::maintain()
+void NeighboursG2::maintain()
 {
 	ASSUME_LOCK(m_pSection);
 
 	quint32 nNodes = m_nHubsConnectedG2 + m_nLeavesConnectedG2;
 
-	CNeighboursConnections::maintain();
+	NeighboursConnections::maintain();
 
 	if(m_nHubsConnectedG2 + m_nLeavesConnectedG2 != nNodes)
 	{
@@ -147,11 +147,11 @@ void CNeighboursG2::maintain()
 			m_bNeedLNI = false;
 			m_nLNIWait = quazaaSettings.Gnutella2.LNIMinimumUpdate;
 
-			foreach ( CNeighbour* pNode, m_lNodes )
+			foreach ( Neighbour* pNode, m_lNodes )
 			{
 				if(pNode->m_nProtocol == DiscoveryProtocol::G2 && pNode->m_nState == nsConnected)
 				{
-					((CG2Node*)pNode)->sendLNI();
+					((G2Node*)pNode)->sendLNI();
 				}
 			}
 		}
@@ -209,7 +209,7 @@ void CNeighboursG2::maintain()
 	}
 }
 
-void CNeighboursG2::dispatchKHL()
+void NeighboursG2::dispatchKHL()
 {
 	ASSUME_LOCK( m_pSection );
 
@@ -224,14 +224,14 @@ void CNeighboursG2::dispatchKHL()
 
 	pKHL->writePacket( "TS", 4 )->writeIntLE<quint32>( tNow );
 
-	foreach ( CNeighbour* pNode, m_lNodes )
+	foreach ( Neighbour* pNode, m_lNodes )
 	{
 		if ( pNode->m_nProtocol != DiscoveryProtocol::G2 )
 		{
 			continue;
 		}
 
-		if ( pNode->m_nState == nsConnected && ((CG2Node*)pNode)->m_nType == G2_HUB )
+		if ( pNode->m_nState == nsConnected && ((G2Node*)pNode)->m_nType == G2_HUB )
 		{
 			if ( pNode->m_oAddress.protocol() == QAbstractSocket::IPv4Protocol )
 			{
@@ -275,18 +275,18 @@ void CNeighboursG2::dispatchKHL()
 
 	hostCache.m_pSection.unlock();
 
-	foreach ( CNeighbour* pNode, m_lNodes )
+	foreach ( Neighbour* pNode, m_lNodes )
 	{
 		if ( pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2 )
 		{
-			((CG2Node*)pNode)->sendPacket( pKHL, false, false );
+			((G2Node*)pNode)->sendPacket( pKHL, false, false );
 		}
 	}
 
 	pKHL->release();
 }
 
-bool CNeighboursG2::switchG2ClientMode(G2NodeType nRequestedMode)
+bool NeighboursG2::switchG2ClientMode(G2NodeType nRequestedMode)
 {
 	if(!m_bActive)
 	{
@@ -301,7 +301,7 @@ bool CNeighboursG2::switchG2ClientMode(G2NodeType nRequestedMode)
 	m_nPeriodsLow = m_nPeriodsHigh = 0;
 	m_tLastModeChange = time(0);
 
-	foreach ( CNeighbour* pNode, m_lNodes )
+	foreach ( Neighbour* pNode, m_lNodes )
 	{
 		if ( pNode->m_nProtocol == DiscoveryProtocol::G2 )
 		{
@@ -318,7 +318,7 @@ bool CNeighboursG2::switchG2ClientMode(G2NodeType nRequestedMode)
 	return true;
 }
 
-bool CNeighboursG2::needMoreG2(G2NodeType nType)
+bool NeighboursG2::needMoreG2(G2NodeType nType)
 {
 	if(nType == G2_HUB)   // Need hubs?
 	{
@@ -342,7 +342,7 @@ bool CNeighboursG2::needMoreG2(G2NodeType nType)
 	return false;
 }
 
-void CNeighboursG2::hubBalancing()
+void NeighboursG2::hubBalancing()
 {
 	// NOT TESTED
 	ASSUME_LOCK(m_pSection);
@@ -369,13 +369,13 @@ void CNeighboursG2::hubBalancing()
 
 		quint32 nLeaves = 0, nCapacity = 0;
 
-		foreach ( CNeighbour* pNode, m_lNodes )
+		foreach ( Neighbour* pNode, m_lNodes )
 		{
-			if(pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2 && ((CG2Node*)pNode)->m_nType == G2_HUB)
+			if(pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2 && ((G2Node*)pNode)->m_nType == G2_HUB)
 			{
-				nLeaves += ((CG2Node*)pNode)->m_nLeafCount;
-				nCapacity += ((CG2Node*)pNode)->m_nLeafMax;
-				bHasQHubs |= ((CG2Node*)pNode)->m_bG2Core;
+				nLeaves += ((G2Node*)pNode)->m_nLeafCount;
+				nCapacity += ((G2Node*)pNode)->m_nLeafMax;
+				bHasQHubs |= ((G2Node*)pNode)->m_bG2Core;
 			}
 		}
 
@@ -408,13 +408,13 @@ void CNeighboursG2::hubBalancing()
 		// We're a hub.
 		quint32 nLeaves = 0, nCapacity = 0;
 
-		foreach ( CNeighbour* pNode, m_lNodes )
+		foreach ( Neighbour* pNode, m_lNodes )
 		{
-			if(pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2 && ((CG2Node*)pNode)->m_nType == G2_HUB)
+			if(pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2 && ((G2Node*)pNode)->m_nType == G2_HUB)
 			{
-				nLeaves += ((CG2Node*)pNode)->m_nLeafCount;
-				nCapacity += ((CG2Node*)pNode)->m_nLeafMax;
-				bHasQHubs |= ((CG2Node*)pNode)->m_bG2Core;
+				nLeaves += ((G2Node*)pNode)->m_nLeafCount;
+				nCapacity += ((G2Node*)pNode)->m_nLeafMax;
+				bHasQHubs |= ((G2Node*)pNode)->m_bG2Core;
 			}
 		}
 
@@ -440,7 +440,7 @@ void CNeighboursG2::hubBalancing()
 	}
 }
 
-G2Packet* CNeighboursG2::createQueryAck(QUuid oGUID, bool bWithHubs, CNeighbour* pExcept, bool bDone)
+G2Packet* NeighboursG2::createQueryAck(QUuid oGUID, bool bWithHubs, Neighbour* pExcept, bool bDone)
 {
 	G2Packet* pPacket = G2Packet::newPacket("QA", true);
 
@@ -457,16 +457,16 @@ G2Packet* CNeighboursG2::createQueryAck(QUuid oGUID, bool bWithHubs, CNeighbour*
 		{
 			pPacket->writeIntLE<quint16>(m_nLeavesConnectedG2);
 
-			foreach ( CNeighbour* pNode, m_lNodes )
+			foreach ( Neighbour* pNode, m_lNodes )
 			{
-				if(pNode->m_nProtocol == DiscoveryProtocol::G2 && pNode->m_nState == nsConnected && ((CG2Node*)pNode)->m_nType == G2_HUB && pNode != pExcept)
+				if(pNode->m_nProtocol == DiscoveryProtocol::G2 && pNode->m_nState == nsConnected && ((G2Node*)pNode)->m_nType == G2_HUB && pNode != pExcept)
 				{
 					pPacket->writePacket("D", (pNode->m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 8 : 20))->writeHostAddress(pNode->m_oAddress);
-					pPacket->writeIntLE<quint16>(((CG2Node*)pNode)->m_nLeafCount);
+					pPacket->writeIntLE<quint16>(((G2Node*)pNode)->m_nLeafCount);
 				}
 			}
 
-			/*int nCount = */HubHorizonPool.addHorizonHubs(pPacket);
+			/*int nCount = */hubHorizonPool.addHorizonHubs(pPacket);
 
 			// TODO Add hubs from HostCache
 			/*if( nCount < 10 )

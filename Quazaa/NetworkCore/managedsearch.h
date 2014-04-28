@@ -77,7 +77,7 @@ public:
 	void sendG2Query(CEndPoint pReceiver, SharedG2HostPtr pHost,
 					 quint32* pnMaxPackets, const QDateTime& tNowDT);
 	void requestG2QueryKey(SharedG2HostPtr pHost);
-	CG2Node* findBestHubForRoutingG2(const CG2Node* const pLastNeighbour);
+	G2Node* findBestHubForRoutingG2(const G2Node* const pLastNeighbour);
 
 	void onHostAcknowledge(QHostAddress nHost, const QDateTime& tNow);
 	void onQueryHit(QueryHit* pHits);

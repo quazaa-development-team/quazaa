@@ -28,7 +28,7 @@
 
 #include "debug_new.h"
 
-CQueryHashGroup::CQueryHashGroup(quint32 nHash)
+QueryHashGroup::QueryHashGroup(quint32 nHash)
 {
 	m_nHash = nHash ? nHash : 1u << quazaaSettings.Library.QueryRouteSize;
 	m_pHash = new uchar[ m_nHash ];
@@ -36,7 +36,7 @@ CQueryHashGroup::CQueryHashGroup(quint32 nHash)
 	m_nCount = 0;
 }
 
-CQueryHashGroup::~CQueryHashGroup()
+QueryHashGroup::~QueryHashGroup()
 {
 #ifdef _DEBUG
 	uchar* pTest = m_pHash;
@@ -50,7 +50,7 @@ CQueryHashGroup::~CQueryHashGroup()
 	delete [] m_pHash;
 }
 
-void CQueryHashGroup::add(CQueryHashTable* pTable)
+void QueryHashGroup::add(QueryHashTable* pTable)
 {
 	Q_ASSERT(pTable != 0);
 	Q_ASSERT(pTable->m_pGroup == 0);
@@ -63,7 +63,7 @@ void CQueryHashGroup::add(CQueryHashTable* pTable)
 	QueryHashMaster.invalidate();
 }
 
-void CQueryHashGroup::remove(CQueryHashTable* pTable)
+void QueryHashGroup::remove(QueryHashTable* pTable)
 {
 	Q_ASSERT(pTable != 0);
 	Q_ASSERT(pTable->m_pGroup == this);
@@ -78,7 +78,7 @@ void CQueryHashGroup::remove(CQueryHashTable* pTable)
 	QueryHashMaster.invalidate();
 }
 
-void CQueryHashGroup::operate(CQueryHashTable* pTable, bool bAdd)
+void QueryHashGroup::operate(QueryHashTable* pTable, bool bAdd)
 {
 	Q_ASSERT(m_pHash != 0);
 	Q_ASSERT(pTable->m_nHash == m_nHash);

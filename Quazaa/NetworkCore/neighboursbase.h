@@ -33,9 +33,9 @@
 #include <QSet>
 #include "types.h"
 
-class CNeighbour;
+class Neighbour;
 
-class CNeighboursBase : public QObject
+class NeighboursBase : public QObject
 {
 	Q_OBJECT
 
@@ -43,22 +43,22 @@ public:
 	QMutex	m_pSection;
 	bool	m_bActive;
 protected:
-	QList<CNeighbour*>				 m_lNodes;
-	QHash<QHostAddress, CNeighbour*> m_lNodesByAddr;  // lookups by ip address
-	QSet<CNeighbour*>				 m_lNodesByPtr;	// lookups by pointer
+	QList<Neighbour*>				 m_lNodes;
+	QHash<QHostAddress, Neighbour*> m_lNodesByAddr;  // lookups by ip address
+	QSet<Neighbour*>				 m_lNodesByPtr;	// lookups by pointer
 public:
-	CNeighboursBase(QObject* parent = 0);
-	virtual ~CNeighboursBase();
+	NeighboursBase(QObject* parent = 0);
+	virtual ~NeighboursBase();
 
 	virtual void connectNode();
 	virtual void disconnectNode();
 
-	virtual void addNode(CNeighbour* pNode);
-	virtual void removeNode(CNeighbour* pNode);
+	virtual void addNode(Neighbour* pNode);
+	virtual void removeNode(Neighbour* pNode);
 
-	CNeighbour* find(const QHostAddress& oAddress,
+	Neighbour* find(const QHostAddress& oAddress,
 					 DiscoveryProtocol::Protocol nProtocol = DiscoveryProtocol::None);
-	bool neighbourExists(const CNeighbour* pNode);
+	bool neighbourExists(const Neighbour* pNode);
 
 	virtual quint32 downloadSpeed()
 	{
@@ -71,11 +71,11 @@ public:
 	}
 
 public:
-	inline QList<CNeighbour*>::iterator begin()
+	inline QList<Neighbour*>::iterator begin()
 	{
 		return m_lNodes.begin();
 	}
-	inline QList<CNeighbour*>::iterator end()
+	inline QList<Neighbour*>::iterator end()
 	{
 		return m_lNodes.end();
 	}
@@ -84,7 +84,7 @@ public:
 	{
 		return m_lNodes.size();
 	}
-	inline CNeighbour* getAt(int nIndex)
+	inline Neighbour* getAt(int nIndex)
 	{
 		Q_ASSERT(nIndex >= 0 && nIndex < m_lNodes.size());
 
@@ -92,8 +92,8 @@ public:
 	}
 signals:
 	void sanityCheckPerformed();
-	void neighbourAdded(CNeighbour*);
-	void neighbourRemoved(CNeighbour*);
+	void neighbourAdded(Neighbour*);
+	void neighbourRemoved(Neighbour*);
 
 public slots:
 	virtual void maintain();

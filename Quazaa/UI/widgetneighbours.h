@@ -29,7 +29,7 @@
 #include <QAbstractItemModel>
 #include <QLabel>
 
-class CNeighboursTableModel;
+class NeighboursTableModel;
 
 namespace Ui
 {
@@ -42,7 +42,7 @@ class CWidgetNeighbours : public QMainWindow
 public:
 	QLabel* labelG2StatsIcon;
 	QLabel* labelG2Stats;
-	CNeighboursTableModel* neighboursList;
+	NeighboursTableModel* neighboursList;
 
 public:
 	CWidgetNeighbours(QWidget* parent = 0);

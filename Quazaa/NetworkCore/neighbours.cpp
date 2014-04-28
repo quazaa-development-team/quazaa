@@ -25,21 +25,21 @@
 #include "neighbours.h"
 #include "debug_new.h"
 
-CNeighbours Neighbours;
+Neighbours neighbours;
 
-CNeighbours::CNeighbours(QObject* parent) :
-	CNeighboursG2(parent)
+Neighbours::Neighbours(QObject* parent) :
+	NeighboursG2(parent)
 {
 
 }
-CNeighbours::~CNeighbours()
+Neighbours::~Neighbours()
 {
 }
 
-void CNeighbours::maintain()
+void Neighbours::maintain()
 {
 	QMutexLocker l(&m_pSection);
 
-	CNeighboursG2::maintain();
+	NeighboursG2::maintain();
 }
 

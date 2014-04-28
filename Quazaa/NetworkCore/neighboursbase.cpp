@@ -29,12 +29,12 @@
 
 #include "debug_new.h"
 
-CNeighboursBase::CNeighboursBase(QObject* parent) :
+NeighboursBase::NeighboursBase(QObject* parent) :
 	QObject(parent),
 	m_bActive(false)
 {
 }
-CNeighboursBase::~CNeighboursBase()
+NeighboursBase::~NeighboursBase()
 {
 	if(m_bActive)
 	{
@@ -42,7 +42,7 @@ CNeighboursBase::~CNeighboursBase()
 	}
 }
 
-void CNeighboursBase::connectNode()
+void NeighboursBase::connectNode()
 {
 	ASSUME_LOCK(m_pSection);
 
@@ -54,14 +54,14 @@ void CNeighboursBase::connectNode()
 
 	m_bActive = true;
 }
-void CNeighboursBase::disconnectNode()
+void NeighboursBase::disconnectNode()
 {
 	ASSUME_LOCK(m_pSection);
 
 	m_bActive = false;
 }
 
-void CNeighboursBase::addNode(CNeighbour* pNode)
+void NeighboursBase::addNode(Neighbour* pNode)
 {
 	ASSUME_LOCK(m_pSection);
 
@@ -71,7 +71,7 @@ void CNeighboursBase::addNode(CNeighbour* pNode)
 
 	emit neighbourAdded(pNode);
 }
-void CNeighboursBase::removeNode(CNeighbour* pNode)
+void NeighboursBase::removeNode(Neighbour* pNode)
 {
 	ASSUME_LOCK(m_pSection);
 
@@ -82,13 +82,13 @@ void CNeighboursBase::removeNode(CNeighbour* pNode)
 	emit neighbourRemoved(pNode);
 }
 
-CNeighbour* CNeighboursBase::find(const QHostAddress& oAddress, DiscoveryProtocol::Protocol nProtocol)
+Neighbour* NeighboursBase::find(const QHostAddress& oAddress, DiscoveryProtocol::Protocol nProtocol)
 {
 	ASSUME_LOCK(m_pSection);
 
 	if ( m_lNodesByAddr.contains( oAddress ) )
 	{
-		foreach ( CNeighbour* pRet, m_lNodesByAddr.values( oAddress ) )
+		foreach ( Neighbour* pRet, m_lNodesByAddr.values( oAddress ) )
 		{
 			if ( pRet->m_nProtocol == nProtocol || nProtocol == DiscoveryProtocol::None )
 			{
@@ -98,26 +98,26 @@ CNeighbour* CNeighboursBase::find(const QHostAddress& oAddress, DiscoveryProtoco
 	}
 	return 0;
 }
-bool CNeighboursBase::neighbourExists(const CNeighbour* pNode)
+bool NeighboursBase::neighbourExists(const Neighbour* pNode)
 {
 	ASSUME_LOCK(m_pSection);
 
-	return m_lNodesByPtr.contains(const_cast<CNeighbour * const&>(pNode));
+	return m_lNodesByPtr.contains(const_cast<Neighbour * const&>(pNode));
 }
 
-void CNeighboursBase::maintain()
+void NeighboursBase::maintain()
 {
 	ASSUME_LOCK( m_pSection );
 
 	quint32 tNow = time( NULL );
 
-	foreach ( CNeighbour* pNode, m_lNodes )
+	foreach ( Neighbour* pNode, m_lNodes )
 	{
 		pNode->onTimer( tNow );
 	}
 }
 
-void CNeighboursBase::sanityCheck()
+void NeighboursBase::sanityCheck()
 {
 	securityManager.m_oSanity.lockForRead();
 

@@ -234,14 +234,14 @@ void Query::buildG2Keywords(QString strPhrase)
 
 	foreach ( const QString& sWord, lPositive )
 	{
-		quint32 nHash = CQueryHashTable::hashWord(sWord.toUtf8().constData(), sWord.toUtf8().size(), 32);
+		quint32 nHash = QueryHashTable::hashWord(sWord.toUtf8().constData(), sWord.toUtf8().size(), 32);
 		m_lHashedKeywords.append(nHash);
 	}
 }
 
-CQueryPtr Query::fromPacket(G2Packet *pPacket, CEndPoint *pEndpoint)
+QuerySharedPtr Query::fromPacket(G2Packet *pPacket, CEndPoint *pEndpoint)
 {
-	CQueryPtr pQuery(new Query());
+	QuerySharedPtr pQuery(new Query());
 
 	try
 	{
@@ -253,7 +253,7 @@ CQueryPtr Query::fromPacket(G2Packet *pPacket, CEndPoint *pEndpoint)
 
 	}
 
-	return CQueryPtr();
+	return QuerySharedPtr();
 }
 
 bool Query::fromG2Packet(G2Packet *pPacket, CEndPoint *pEndpoint)

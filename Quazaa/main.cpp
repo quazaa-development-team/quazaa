@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
 	dlgSplash->updateProgress( 40, QObject::tr( "Loading Library..." ) );
 	qApp->processEvents();
 	QueryHashMaster.create();
-	ShareManager.start();
+	shareManager.start();
 
 	// Load Download Manager
 	dlgSplash->updateProgress( 60, QObject::tr( "Loading Transfer Manager..." ) );

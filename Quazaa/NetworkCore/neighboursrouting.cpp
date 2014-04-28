@@ -32,24 +32,24 @@
 
 #include "debug_new.h"
 
-CNeighboursRouting::CNeighboursRouting(QObject* parent) :
-	CNeighboursBase(parent)
+NeighboursRouting::NeighboursRouting(QObject* parent) :
+	NeighboursBase(parent)
 {
 }
-CNeighboursRouting::~CNeighboursRouting()
+NeighboursRouting::~NeighboursRouting()
 {
 }
 
-void CNeighboursRouting::routeQuery(CQueryPtr pQuery, G2Packet *pPacket, CNeighbour* pFrom, bool bToHubs)
+void NeighboursRouting::routeQuery(QuerySharedPtr pQuery, G2Packet *pPacket, Neighbour* pFrom, bool bToHubs)
 {
 	quint32 tNow = time(0);
 	quint32 nCount = 0, nHubs = 0, nLeaves = 0;
 
-	foreach ( CNeighbour* pNode, m_lNodes )
+	foreach ( Neighbour* pNode, m_lNodes )
 	{
 		if( pNode != pFrom && pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2 && tNow - pNode->m_tConnected > 30 )
 		{
-			CG2Node* pG2 = static_cast<CG2Node*>(pNode);
+			G2Node* pG2 = static_cast<G2Node*>(pNode);
 
 			if( !bToHubs && pG2->m_nType == G2_HUB )
 			{

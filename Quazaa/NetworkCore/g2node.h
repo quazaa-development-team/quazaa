@@ -31,13 +31,13 @@
 #include <QHash>
 
 class G2Packet;
-class CQueryHashTable;
-class CHubHorizonGroup;
+class QueryHashTable;
+class HubHorizonGroup;
 
 /**
  * @brief The CG2Node class represents a G2 node connected to us.
  */
-class CG2Node : public CNeighbour
+class G2Node : public Neighbour
 {
 	Q_OBJECT
 
@@ -62,9 +62,9 @@ public:
 
 	QQueue<G2Packet*>   m_lSendQueue;
 
-	CQueryHashTable*    m_pRemoteTable;
-	CQueryHashTable*    m_pLocalTable;
-	CHubHorizonGroup*   m_pHubGroup;
+	QueryHashTable*    m_pRemoteTable;
+	QueryHashTable*    m_pLocalTable;
+	HubHorizonGroup*   m_pHubGroup;
 
 	QHash<quint32, quint32> m_lRABan;       // list of banned return addresses
 
@@ -72,8 +72,8 @@ private:
 	bool m_bHandshaking;
 
 public:
-	CG2Node(QObject* parent = NULL);
-	virtual ~CG2Node();
+	G2Node(QObject* parent = NULL);
+	virtual ~G2Node();
 
 	void sendPacket(G2Packet* pPacket, bool bBuffered = false, bool bRelease = false);
 
@@ -82,7 +82,7 @@ public:
 
 	void onTimer(quint32 tNow);
 
-	inline void attachTo(CNetworkConnection* pOther);
+	inline void attachTo(NetworkConnection* pOther);
 
 protected:
 	/**
@@ -155,19 +155,19 @@ public slots:
 	friend class CNetwork;
 };
 
-void CG2Node::attachTo(CNetworkConnection* pOther)
+void G2Node::attachTo(NetworkConnection* pOther)
 {
-	CNeighbour::attachTo(pOther);
+	Neighbour::attachTo(pOther);
 }
 
-bool CG2Node::hasData()
+bool G2Node::hasData()
 {
 	if ( !m_lSendQueue.isEmpty() )
 	{
 		return true;
 	}
 
-	return CNeighbour::hasData();
+	return Neighbour::hasData();
 }
 
 #endif // G2NODE_H

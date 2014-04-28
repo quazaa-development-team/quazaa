@@ -31,7 +31,7 @@
 
 #include "debug_new.h"
 
-CNeighbour::CNeighbour(QObject* parent) :
+Neighbour::Neighbour(QObject* parent) :
 	CCompressedConnection( parent ),
 	m_nProtocol( DiscoveryProtocol::None ),
 	m_tLastPacketIn( 0 ),
@@ -47,13 +47,13 @@ CNeighbour::CNeighbour(QObject* parent) :
 {
 }
 
-CNeighbour::~CNeighbour()
+Neighbour::~Neighbour()
 {
-	ASSUME_LOCK(Neighbours.m_pSection);
-	Neighbours.removeNode(this);
+	ASSUME_LOCK(neighbours.m_pSection);
+	neighbours.removeNode(this);
 }
 
-void CNeighbour::onTimer(quint32 tNow)
+void Neighbour::onTimer(quint32 tNow)
 {
 	if ( m_nState < nsConnected )
 	{
@@ -96,20 +96,20 @@ void CNeighbour::onTimer(quint32 tNow)
 	}
 }
 
-void CNeighbour::close(bool bDelayed)
+void Neighbour::close(bool bDelayed)
 {
 	m_nState = nsClosing;
 	CCompressedConnection::close(bDelayed);
 }
 
-void CNeighbour::onDisconnectNode()
+void Neighbour::onDisconnectNode()
 {
-	Neighbours.m_pSection.lock();
+	neighbours.m_pSection.lock();
 	delete this;
-	Neighbours.m_pSection.unlock();
+	neighbours.m_pSection.unlock();
 }
 
-void CNeighbour::onError(QAbstractSocket::SocketError e)
+void Neighbour::onError(QAbstractSocket::SocketError e)
 {
 	if ( e == QAbstractSocket::RemoteHostClosedError )
 	{
@@ -149,8 +149,8 @@ void CNeighbour::onError(QAbstractSocket::SocketError e)
 		}
 	}
 
-	Neighbours.m_pSection.lock();
+	neighbours.m_pSection.lock();
 	delete this;
-	Neighbours.m_pSection.unlock();
+	neighbours.m_pSection.unlock();
 }
 

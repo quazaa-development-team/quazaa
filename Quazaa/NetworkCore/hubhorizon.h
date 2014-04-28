@@ -30,26 +30,24 @@
 
 class G2Packet;
 
-
-class CHubHorizonHub
+class HubHorizonHub
 {
 public:
-	CEndPoint		m_oAddress;
-	quint32			m_nReference;
-	CHubHorizonHub*	m_pNext;
+	CEndPoint       m_oAddress;
+	quint32         m_nReference;
+	HubHorizonHub*  m_pNext;
 };
 
-
-class CHubHorizonGroup
+class HubHorizonGroup
 {
 public:
-	CHubHorizonGroup();
-	virtual ~CHubHorizonGroup();
+	HubHorizonGroup();
+	virtual ~HubHorizonGroup();
 
 protected:
-	CHubHorizonHub**	m_pList;
-	quint32				m_nCount;
-	quint32				m_nBuffer;
+	HubHorizonHub** m_pList;
+	quint32         m_nCount;
+	quint32         m_nBuffer;
 
 public:
 	void		add(CEndPoint oAddress);
@@ -57,31 +55,29 @@ public:
 
 };
 
-
-class CHubHorizonPool
+class HubHorizonPool
 {
 public:
-	CHubHorizonPool();
-	virtual ~CHubHorizonPool();
+	HubHorizonPool();
+	virtual ~HubHorizonPool();
 
 protected:
-	CHubHorizonHub*		m_pBuffer;
+	HubHorizonHub*		m_pBuffer;
 	quint32				m_nBuffer;
-	CHubHorizonHub*		m_pFree;
-	CHubHorizonHub*		m_pActive;
+	HubHorizonHub*		m_pFree;
+	HubHorizonHub*		m_pActive;
 	quint32				m_nActive;
 
 public:
 	void				setup();
 	void				clear();
-	CHubHorizonHub*		add(CEndPoint oAddress);
-	void				remove(CHubHorizonHub* pHub);
-	CHubHorizonHub*		find(CEndPoint oAddress);
+	HubHorizonHub*		add(CEndPoint oAddress);
+	void				remove(HubHorizonHub* pHub);
+	HubHorizonHub*		find(CEndPoint oAddress);
 	int					addHorizonHubs(G2Packet* pPacket);
 
 };
 
-extern CHubHorizonPool	HubHorizonPool;
-
+extern HubHorizonPool hubHorizonPool;
 
 #endif // HUBHORIZON_H

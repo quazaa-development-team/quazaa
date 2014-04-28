@@ -32,9 +32,9 @@
 #include <QMutex>
 #include <QIcon>
 
-class CNeighbour;
+class Neighbour;
 
-class CNeighboursTableModel : public QAbstractTableModel
+class NeighboursTableModel : public QAbstractTableModel
 {
 	Q_OBJECT
 
@@ -54,9 +54,9 @@ public:
 		_NO_OF_COLUMNS
 	};
 
-	struct Neighbour
+	struct NeighbourData
 	{
-		CNeighbour*   pNode;
+		Neighbour*   pNode;
 
 
 		CEndPoint     oAddress;
@@ -82,21 +82,21 @@ public:
 		QIcon		  iNetwork;
 		QIcon		  iCountry;
 
-		Neighbour(CNeighbour* pNeighbour);
-		bool update(int row, int col, QModelIndexList& to_update, CNeighboursTableModel* model);
+		NeighbourData(Neighbour* pNeighbour);
+		bool update(int row, int col, QModelIndexList& to_update, NeighboursTableModel* model);
 		QVariant data(int col) const;
-		bool lessThan(int col, CNeighboursTableModel::Neighbour* pOther) const;
+		bool lessThan(int col, NeighboursTableModel::NeighbourData* pOther) const;
 
 		QString stateToString(int s) const;
 		QString typeToString(G2NodeType t) const;
-
 	};
 
 protected:
-	QVector<Neighbour*>   m_lNodes;
+	QVector<NeighbourData*>   m_lNodes;
+
 public:
-	explicit CNeighboursTableModel(QObject* parent = 0, QWidget* container = 0);
-	~CNeighboursTableModel();
+	explicit NeighboursTableModel(QObject* parent = 0, QWidget* container = 0);
+	~NeighboursTableModel();
 
 	int rowCount(const QModelIndex& parent) const;
 	int columnCount(const QModelIndex& parent) const;
@@ -106,7 +106,8 @@ public:
 
 	void sort(int column, Qt::SortOrder order);
 
-	CNeighbour* nodeFromIndex(const QModelIndex& index);
+	Neighbour* nodeFromIndex(const QModelIndex& index);
+
 protected:
 
 private:
@@ -116,8 +117,8 @@ private:
 	bool			m_bNeedSorting;
 
 public slots:
-	void addNode(CNeighbour* pNode);
-	void removeNode(CNeighbour* pNode);
+	void addNode(Neighbour* pNode);
+	void removeNode(Neighbour* pNode);
 	void updateAll();
 };
 

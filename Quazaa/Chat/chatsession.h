@@ -43,7 +43,7 @@ enum ChatState
 	csClosed
 };
 
-class CChatSession : public CNetworkConnection
+class CChatSession : public NetworkConnection
 {
 	Q_OBJECT
 protected:

@@ -31,7 +31,7 @@
 
 #include "debug_new.h"
 
-CNetworkConnection::CNetworkConnection(QObject* parent)
+NetworkConnection::NetworkConnection(QObject* parent)
 	: QObject(parent)
 {
 	static int dummy = qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
@@ -50,7 +50,7 @@ CNetworkConnection::CNetworkConnection(QObject* parent)
 	m_bConnected = false;
 	m_tConnected = 0;
 }
-CNetworkConnection::~CNetworkConnection()
+NetworkConnection::~NetworkConnection()
 {
 	if(m_pInput)
 	{
@@ -67,7 +67,7 @@ CNetworkConnection::~CNetworkConnection()
 	}
 }
 
-void CNetworkConnection::connectTo(CEndPoint oAddress)
+void NetworkConnection::connectTo(CEndPoint oAddress)
 {
 	m_oAddress = oAddress;
 
@@ -87,7 +87,7 @@ void CNetworkConnection::connectTo(CEndPoint oAddress)
 
 }
 
-void CNetworkConnection::attachTo(CNetworkConnection* pOther)
+void NetworkConnection::attachTo(NetworkConnection* pOther)
 {
 	Q_ASSERT(m_pSocket == 0);
 	m_pSocket = pOther->m_pSocket;
@@ -118,7 +118,7 @@ void CNetworkConnection::attachTo(CNetworkConnection* pOther)
 	emit readyRead();
 }
 
-void CNetworkConnection::acceptFrom(qintptr nHandle)
+void NetworkConnection::acceptFrom(qintptr nHandle)
 {
 	Q_ASSERT(m_pSocket == 0);
 	m_pSocket = new QTcpSocket();
@@ -149,7 +149,7 @@ void CNetworkConnection::acceptFrom(qintptr nHandle)
 
 }
 
-void CNetworkConnection::close(bool bDelayed)
+void NetworkConnection::close(bool bDelayed)
 {
 	systemLog.postLog( LogSeverity::Information, Component::Network,
 					   "Closing connection to %s.", qPrintable( m_oAddress.toStringWithPort() ) );
@@ -157,7 +157,7 @@ void CNetworkConnection::close(bool bDelayed)
 	QMetaObject::invokeMethod(this, "closeImplementation", Q_ARG(bool, bDelayed));
 }
 
-void CNetworkConnection::closeImplementation(bool bDelayed)
+void NetworkConnection::closeImplementation(bool bDelayed)
 {
 	if ( bDelayed )
 	{
@@ -172,7 +172,7 @@ void CNetworkConnection::closeImplementation(bool bDelayed)
 	m_pSocket->abort();
 	emit disconnected();
 }
-void CNetworkConnection::moveToThread(QThread* thread)
+void NetworkConnection::moveToThread(QThread* thread)
 {
 	if(m_pSocket)
 	{
@@ -181,7 +181,7 @@ void CNetworkConnection::moveToThread(QThread* thread)
 	QObject::moveToThread(thread);
 }
 
-void CNetworkConnection::initializeSocket()
+void NetworkConnection::initializeSocket()
 {
 	m_pSocket->disconnect();
 
@@ -215,7 +215,7 @@ void CNetworkConnection::initializeSocket()
 
 }
 
-qint64 CNetworkConnection::readFromNetwork(qint64 nBytes)
+qint64 NetworkConnection::readFromNetwork(qint64 nBytes)
 {
 	Q_ASSERT(m_pInput != 0);
 	Q_ASSERT(nBytes >= 0);
@@ -243,7 +243,7 @@ qint64 CNetworkConnection::readFromNetwork(qint64 nBytes)
 
 	return nBytesRead;
 }
-qint64 CNetworkConnection::writeToNetwork(qint64 nBytes)
+qint64 NetworkConnection::writeToNetwork(qint64 nBytes)
 {
 	Q_ASSERT(m_pOutput != 0);
 	Q_ASSERT(nBytes >= 0);
@@ -260,7 +260,7 @@ qint64 CNetworkConnection::writeToNetwork(qint64 nBytes)
 
 	return nBytesWritten;
 }
-qint64 CNetworkConnection::readData(char* data, qint64 maxlen)
+qint64 NetworkConnection::readData(char* data, qint64 maxlen)
 {
 	Q_ASSERT(m_pInput != 0);
 
@@ -276,7 +276,7 @@ qint64 CNetworkConnection::readData(char* data, qint64 maxlen)
 	return (qint64)nBytesRead;
 }
 
-qint64 CNetworkConnection::writeData(const char* data, qint64 len)
+qint64 NetworkConnection::writeData(const char* data, qint64 len)
 {
 	Q_ASSERT(m_pOutput != 0);
 
@@ -287,7 +287,7 @@ qint64 CNetworkConnection::writeData(const char* data, qint64 len)
 	return len;
 }
 
-qint64 CNetworkConnection::bytesAvailable()
+qint64 NetworkConnection::bytesAvailable()
 {
 	Q_ASSERT(m_pInput != 0);
 
@@ -299,7 +299,7 @@ qint64 CNetworkConnection::bytesAvailable()
 	return m_pInput->size();
 }
 
-qint64 CNetworkConnection::bytesToWrite() const
+qint64 NetworkConnection::bytesToWrite() const
 {
 	if(!m_pSocket)
 	{
@@ -308,7 +308,7 @@ qint64 CNetworkConnection::bytesToWrite() const
 
 	return m_pSocket->bytesToWrite();
 }
-qint64 CNetworkConnection::networkBytesAvailable() const
+qint64 NetworkConnection::networkBytesAvailable() const
 {
 	if(!isValid())
 	{
@@ -322,7 +322,7 @@ qint64 CNetworkConnection::networkBytesAvailable() const
 
 	return m_pSocket->bytesAvailable();
 }
-bool CNetworkConnection::isValid() const
+bool NetworkConnection::isValid() const
 {
 	if(m_pSocket == 0 || m_pInput == 0 || m_pOutput == 0)
 	{
@@ -331,14 +331,14 @@ bool CNetworkConnection::isValid() const
 
 	return m_pSocket->isValid();
 }
-void CNetworkConnection::setReadBufferSize(qint64 nSize)
+void NetworkConnection::setReadBufferSize(qint64 nSize)
 {
 	Q_ASSERT(m_pSocket != 0);
 
 	m_pSocket->setReadBufferSize(nSize);
 }
 
-QByteArray CNetworkConnection::read(qint64 nMaxSize)
+QByteArray NetworkConnection::read(qint64 nMaxSize)
 {
 	QByteArray baRet;
 
@@ -347,7 +347,7 @@ QByteArray CNetworkConnection::read(qint64 nMaxSize)
 	return baRet;
 }
 
-QByteArray CNetworkConnection::peek(qint64 nMaxLength)
+QByteArray NetworkConnection::peek(qint64 nMaxLength)
 {
 	Buffer* pBuffer = getInputBuffer();
 
@@ -428,7 +428,7 @@ quint32 TCPBandwidthMeter::Usage()
 	return nUsage;
 }
 
-void CNetworkConnection::onDisconnectInt()
+void NetworkConnection::onDisconnectInt()
 {
 	readFromNetwork(m_pSocket->bytesAvailable());
 
@@ -436,13 +436,13 @@ void CNetworkConnection::onDisconnectInt()
 	emit disconnected();
 }
 
-void CNetworkConnection::onErrorInt(QAbstractSocket::SocketError e)
+void NetworkConnection::onErrorInt(QAbstractSocket::SocketError e)
 {
 	//qDebug() << m_pSocket << e;
 	emit error(e);
 }
 
-void CNetworkConnection::onStateChange(QAbstractSocket::SocketState s)
+void NetworkConnection::onStateChange(QAbstractSocket::SocketState s)
 {
 	Q_UNUSED(s)
 }

@@ -33,7 +33,7 @@
 
 class ManagedSearch;
 class G2Packet;
-class CG2Node;
+class G2Node;
 
 class SearchManager : public QObject
 {

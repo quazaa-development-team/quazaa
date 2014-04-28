@@ -166,6 +166,6 @@ bool CDatagrams::isListening()
 	return (m_bActive && m_pSocket && m_pSocket->isValid());
 }
 
-extern CDatagrams Datagrams;
+extern CDatagrams datagrams;
 
 #endif // DATAGRAMS_H

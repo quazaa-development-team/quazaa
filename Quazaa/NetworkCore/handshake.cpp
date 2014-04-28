@@ -37,7 +37,7 @@
 #include "debug_new.h"
 
 CHandshake::CHandshake(QObject* parent)
-	: CNetworkConnection(parent)
+	: NetworkConnection(parent)
 {
 }
 CHandshake::~CHandshake()
@@ -167,11 +167,11 @@ void CHandshake::onWebRequest()
 		baHtml += "This node is currently connected to the following nodes:<table width=\"100%\" cellspacing=\"0\">";
 		baHtml += "<b><tr><th>Address</th><th>Time</th><th>Mode</th><th>Leaves</th><th>Client</th></tr></b>";
 
-		Neighbours.m_pSection.lock();
+		neighbours.m_pSection.lock();
 
 		quint32 tNow = time(0);
 
-		for( QList<CNeighbour*>::iterator it = Neighbours.begin(); it != Neighbours.end(); it++ )
+		for( QList<Neighbour*>::iterator it = neighbours.begin(); it != neighbours.end(); it++ )
 		{
 			if( (*it)->m_nState != nsConnected )
 				continue;
@@ -184,7 +184,7 @@ void CHandshake::onWebRequest()
 
 			if( (*it)->m_nProtocol == DiscoveryProtocol::G2 )
 			{
-				CG2Node* pG2 = static_cast<CG2Node*>(*it);
+				G2Node* pG2 = static_cast<G2Node*>(*it);
 
 				baHtml += "<td style=\"text-align:center;\">" + QString((pG2->m_nType == G2_HUB ? "G2 Hub" : "G2 Leaf")) + "</td>";
 
@@ -207,7 +207,7 @@ void CHandshake::onWebRequest()
 			baHtml += "</tr>";
 		}
 
-		Neighbours.m_pSection.unlock();
+		neighbours.m_pSection.unlock();
 
 		baHtml += "</table></div></body></html>";
 

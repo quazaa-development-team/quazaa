@@ -33,7 +33,7 @@
 #endif
 
 CChatSession::CChatSession(QObject *parent) :
-	CNetworkConnection(parent)
+	NetworkConnection(parent)
 {
 	m_nState = csNull;
 	m_nProtocol = DiscoveryProtocol::None;
@@ -64,7 +64,7 @@ void CChatSession::onTimer(quint32 tNow)
 		if( tNow - m_tConnected > quazaaSettings.Connection.TimeoutConnect )
 		{
 			m_nState = csClosed;
-			CNetworkConnection::close();
+			NetworkConnection::close();
 			emit systemMessage("Timed out connecting to remote host");
 		}
 	}

@@ -46,7 +46,7 @@
 
 #include "debug_new.h"
 
-CDatagrams Datagrams;
+CDatagrams datagrams;
 
 CDatagrams::CDatagrams()
 {
@@ -497,7 +497,7 @@ void CDatagrams::__FlushSendCache()
 	}
 
 	//QMutexLocker l(&m_pSection);
-	ASSUME_LOCK(Datagrams.m_pSection);
+	ASSUME_LOCK(datagrams.m_pSection);
 
 	quint32 tNow = time(0);
 
@@ -730,7 +730,7 @@ void CDatagrams::onPong(CEndPoint& addr, G2Packet* pPacket)
 
 void CDatagrams::onCRAWLR(CEndPoint& addr, G2Packet* pPacket)
 {
-	QMutexLocker l2(&Neighbours.m_pSection);
+	QMutexLocker l2(&neighbours.m_pSection);
 
 //	bool bRLeaf = false;
 //	bool bRNick = false;
@@ -772,7 +772,7 @@ void CDatagrams::onCRAWLR(CEndPoint& addr, G2Packet* pPacket)
 	G2Packet* pCA = G2Packet::newPacket("CRAWLA", true);
 
 	G2Packet* pTmp = G2Packet::newPacket("SELF", true);
-	if(Neighbours.isG2Hub())
+	if(neighbours.isG2Hub())
 	{
 		pTmp->writePacket("HUB", 0);
 	}
@@ -783,7 +783,7 @@ void CDatagrams::onCRAWLR(CEndPoint& addr, G2Packet* pPacket)
 	pTmp->writePacket("NA", ((networkG2.m_oAddress.protocol() == 0) ? 6 : 18))->writeHostAddress(networkG2.m_oAddress);
 	pTmp->writePacket("CV", CQuazaaGlobals::USER_AGENT_STRING().toUtf8().size())->writeString(CQuazaaGlobals::USER_AGENT_STRING(), false);
 	pTmp->writePacket("V", 4)->writeString(CQuazaaGlobals::VENDOR_CODE(), false);;
-	quint16 nLeaves = Neighbours.m_nLeavesConnectedG2;
+	quint16 nLeaves = neighbours.m_nLeavesConnectedG2;
 	pTmp->writePacket("HS", 2)->writeIntLE(nLeaves);
 	if(!quazaaSettings.Profile.GnutellaScreenName.isEmpty())
 	{
@@ -793,14 +793,14 @@ void CDatagrams::onCRAWLR(CEndPoint& addr, G2Packet* pPacket)
 	pCA->writePacket(pTmp);
 	pTmp->release();
 
-	for(QList<CNeighbour*>::iterator itNode = Neighbours.begin(); itNode != Neighbours.end(); ++itNode)
+	for(QList<Neighbour*>::iterator itNode = neighbours.begin(); itNode != neighbours.end(); ++itNode)
 	{
 		if((*itNode)->m_nProtocol != DiscoveryProtocol::G2)
 		{
 			continue;
 		}
 
-		CG2Node* pNode = (CG2Node*) * itNode;
+		G2Node* pNode = (G2Node*) * itNode;
 		if(pNode->m_nState == nsConnected)
 		{
 			if(pNode->m_nType == G2_HUB)
@@ -828,7 +828,7 @@ void CDatagrams::onCRAWLR(CEndPoint& addr, G2Packet* pPacket)
 
 void CDatagrams::onQKR(CEndPoint& addr, G2Packet* pPacket)
 {
-	if(!Neighbours.isG2Hub())
+	if(!neighbours.isG2Hub())
 	{
 		return;
 	}
@@ -944,19 +944,19 @@ void CDatagrams::onQKA(CEndPoint& addr, G2Packet* pPacket)
 	//qDebug("Got a query key for %s = 0x%x", addr.toString().toLocal8Bit().constData(), nKey);
 #endif // LOG_QUERY_HANDLING
 
-	if(Neighbours.isG2Hub() && !nKeyHost.isNull() && nKeyHost != ((QHostAddress)networkG2.m_oAddress))
+	if(neighbours.isG2Hub() && !nKeyHost.isNull() && nKeyHost != ((QHostAddress)networkG2.m_oAddress))
 	{
 		G2Packet* pQNA = G2Packet::newPacket("QNA");
 		pQNA->writeHostAddress(addr);
 		pPacket->prependPacket(pQNA);
 
-		Neighbours.m_pSection.lock();
-		CNeighbour* pNode = Neighbours.find(nKeyHost, DiscoveryProtocol::G2);
+		neighbours.m_pSection.lock();
+		Neighbour* pNode = neighbours.find(nKeyHost, DiscoveryProtocol::G2);
 		if( pNode )
 		{
-			((CG2Node*)pNode)->sendPacket(pPacket, true, false);
+			((G2Node*)pNode)->sendPacket(pPacket, true, false);
 		}
-		Neighbours.m_pSection.unlock();
+		neighbours.m_pSection.unlock();
 	}
 }
 
@@ -969,7 +969,7 @@ void CDatagrams::onQA(CEndPoint& addr, G2Packet* pPacket)
 	QUuid oGuid;
 
 	// Hubs are only supposed to route UDP /QA - we'll drop it if we're in leaf mode
-	if ( searchManager.onQueryAcknowledge( pPacket, addr, oGuid ) && Neighbours.isG2Hub() )
+	if ( searchManager.onQueryAcknowledge( pPacket, addr, oGuid ) && neighbours.isG2Hub() )
 	{
 		// Add from address
 		G2Packet* pFR = G2Packet::newPacket( "FR" );
@@ -1006,7 +1006,7 @@ void CDatagrams::onQH2(CEndPoint& addr, G2Packet* pPacket)
 		else
 		{
 			if ( searchManager.onQueryHit( pPacket, pInfo ) &&
-				 Neighbours.isG2Hub() && pInfo->m_nHops < 7 )
+				 neighbours.isG2Hub() && pInfo->m_nHops < 7 )
 			{
 				pPacket->m_pBuffer[pPacket->m_nLength - 17]++;
 
@@ -1034,7 +1034,7 @@ void CDatagrams::onQH2(CEndPoint& addr, G2Packet* pPacket)
 
 void CDatagrams::onQuery(CEndPoint &addr, G2Packet *pPacket)
 {
-	CQueryPtr pQuery = Query::fromPacket(pPacket, &addr);
+	QuerySharedPtr pQuery = Query::fromPacket(pPacket, &addr);
 
 	if(pQuery.isNull())
 	{
@@ -1044,7 +1044,7 @@ void CDatagrams::onQuery(CEndPoint &addr, G2Packet *pPacket)
 		return;
 	}
 
-	if( !Neighbours.isG2Hub() )
+	if( !neighbours.isG2Hub() )
 	{
 		// Stop receiving queries from others
 		// We are here because we just downgraded to leaf mode
@@ -1092,7 +1092,7 @@ void CDatagrams::onQuery(CEndPoint &addr, G2Packet *pPacket)
 #if LOG_QUERY_HANDLING
 		qDebug() << "Query already processed, ignoring";
 #endif // LOG_QUERY_HANDLING
-		G2Packet* pQA = Neighbours.createQueryAck(pQuery->m_oGUID, false, 0, false);
+		G2Packet* pQA = neighbours.createQueryAck(pQuery->m_oGUID, false, 0, false);
 		sendPacket(pQuery->m_oEndpoint, pQA, true);
 		pQA->release();
 		return;
@@ -1114,13 +1114,13 @@ void CDatagrams::onQuery(CEndPoint &addr, G2Packet *pPacket)
 		pPacket->addOrReplaceChild("UDP", pUDP);
 	}
 
-	Neighbours.m_pSection.lock();
-	G2Packet* pQA = Neighbours.createQueryAck(pQuery->m_oGUID);
+	neighbours.m_pSection.lock();
+	G2Packet* pQA = neighbours.createQueryAck(pQuery->m_oGUID);
 	sendPacket(pQuery->m_oEndpoint, pQA, true);
 	pQA->release();
 
-	Neighbours.routeQuery(pQuery, pPacket);
-	Neighbours.m_pSection.unlock();
+	neighbours.routeQuery(pQuery, pPacket);
+	neighbours.m_pSection.unlock();
 
 	// local search
 }

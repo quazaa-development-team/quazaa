@@ -32,7 +32,7 @@
 
 class Buffer;
 
-class CCompressedConnection : public CNetworkConnection
+class CCompressedConnection : public NetworkConnection
 {
 	Q_OBJECT
 
@@ -94,7 +94,7 @@ public:
 			return true;
 		}
 
-		return CNetworkConnection::hasData();
+		return NetworkConnection::hasData();
 	}
 
 	float getTotalInDecompressed()

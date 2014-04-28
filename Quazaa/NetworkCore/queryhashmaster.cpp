@@ -43,7 +43,7 @@ CQueryHashMaster::~CQueryHashMaster()
 
 void CQueryHashMaster::create()
 {
-	CQueryHashTable::create();
+	QueryHashTable::create();
 
 	m_nPerGroup			= 100;
 	m_bValid			= false;
@@ -51,16 +51,16 @@ void CQueryHashMaster::create()
 	m_nCookie			= 0;
 }
 
-void CQueryHashMaster::add(CQueryHashTable* pTable)
+void CQueryHashMaster::add(QueryHashTable* pTable)
 {
 	Q_ASSERT(m_nPerGroup > 0);
 	Q_ASSERT(pTable != 0);
 	Q_ASSERT(pTable->m_nHash > 0);
 	Q_ASSERT(pTable->m_pGroup == 0);
 
-	for(QList<CQueryHashGroup*>::iterator itGroup = m_pGroups.begin(); itGroup != m_pGroups.end(); itGroup++)
+	for(QList<QueryHashGroup*>::iterator itGroup = m_pGroups.begin(); itGroup != m_pGroups.end(); itGroup++)
 	{
-		CQueryHashGroup* pGroup = *itGroup;
+		QueryHashGroup* pGroup = *itGroup;
 
 		if(pGroup->m_nHash == pTable->m_nHash &&
 				pGroup->getCount() < m_nPerGroup)
@@ -71,13 +71,13 @@ void CQueryHashMaster::add(CQueryHashTable* pTable)
 		}
 	}
 
-	CQueryHashGroup* pGroup = new CQueryHashGroup(pTable->m_nHash);
+	QueryHashGroup* pGroup = new QueryHashGroup(pTable->m_nHash);
 	m_pGroups.append(pGroup);
 	pGroup->add(pTable);
 	m_bValid = false;
 }
 
-void CQueryHashMaster::remove(CQueryHashTable* pTable)
+void CQueryHashMaster::remove(QueryHashTable* pTable)
 {
 	Q_ASSERT(pTable != 0);
 	if(pTable->m_pGroup == 0)
@@ -85,7 +85,7 @@ void CQueryHashMaster::remove(CQueryHashTable* pTable)
 		return;
 	}
 
-	CQueryHashGroup* pGroup = pTable->m_pGroup;
+	QueryHashGroup* pGroup = pTable->m_pGroup;
 	pGroup->remove(pTable);
 
 	if(pGroup->getCount() == 0)
@@ -118,24 +118,24 @@ void CQueryHashMaster::build()
 		}
 	}
 
-	ShareManager.m_oSection.lock();
+	shareManager.m_oSection.lock();
 
-	const CQueryHashTable* pLocalTable = ShareManager.getHashTable();
+	const QueryHashTable* pLocalTable = shareManager.getHashTable();
 
 	if(!pLocalTable)
 	{
-		ShareManager.m_oSection.unlock();
+		shareManager.m_oSection.unlock();
 		return;
 	}
 
 	clear();
 	merge(pLocalTable);
 
-	ShareManager.m_oSection.unlock();
+	shareManager.m_oSection.unlock();
 
-	for(QList<CQueryHashGroup*>::iterator itGroup = m_pGroups.begin(); itGroup != m_pGroups.end(); itGroup++)
+	for(QList<QueryHashGroup*>::iterator itGroup = m_pGroups.begin(); itGroup != m_pGroups.end(); itGroup++)
 	{
-		CQueryHashGroup* pGroup = *itGroup;
+		QueryHashGroup* pGroup = *itGroup;
 		merge(pGroup);
 	}
 

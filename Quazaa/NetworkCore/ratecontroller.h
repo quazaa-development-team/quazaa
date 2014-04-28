@@ -33,7 +33,7 @@
 
 #include "networkconnection.h"
 
-class CRateController : public QObject
+class RateController : public QObject
 {
 	Q_OBJECT
 protected:
@@ -44,16 +44,16 @@ protected:
 
 	QElapsedTimer   m_tStopWatch;
 
-	QSet<CNetworkConnection*>   m_lSockets;
+	QSet<NetworkConnection*>   m_lSockets;
 
 public:
 	TCPBandwidthMeter	m_mDownload;
 	TCPBandwidthMeter	m_mUpload;
 
 public:
-	CRateController(QMutex* pMutex, QObject* parent = 0);
-	void addSocket(CNetworkConnection* pSock);
-	void removeSocket(CNetworkConnection* pSock);
+	RateController(QMutex* pMutex, QObject* parent = 0);
+	void addSocket(NetworkConnection* pSock);
+	void removeSocket(NetworkConnection* pSock);
 
 	void setDownloadLimit(qint32 nLimit)
 	{

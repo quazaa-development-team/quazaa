@@ -83,11 +83,11 @@ CFileHasher* CFileHasher::hashFile(CSharedFilePtr pFile)
 				m_pHashers[i] = new CFileHasher();
 				pHasher = m_pHashers[i];
 				pHasher->m_nId = i;
-				connect(pHasher, SIGNAL(queueEmpty()), &ShareManager, SLOT(RunHashing()), Qt::UniqueConnection);
-				connect(pHasher, SIGNAL(fileHashed(CSharedFilePtr)), &ShareManager, SLOT(OnFileHashed(CSharedFilePtr)), Qt::UniqueConnection);
-				connect(pHasher, SIGNAL(hasherStarted(int)), &ShareManager, SIGNAL(hasherStarted(int)));
-				connect(pHasher, SIGNAL(hasherFinished(int)), &ShareManager, SIGNAL(hasherFinished(int)));
-				connect(pHasher, SIGNAL(hashingProgress(int,QString,double,int)), &ShareManager, SIGNAL(hashingProgress(int,QString,double,int)));
+				connect(pHasher, SIGNAL(queueEmpty()), &shareManager, SLOT(RunHashing()), Qt::UniqueConnection);
+				connect(pHasher, SIGNAL(fileHashed(CSharedFilePtr)), &shareManager, SLOT(OnFileHashed(CSharedFilePtr)), Qt::UniqueConnection);
+				connect(pHasher, SIGNAL(hasherStarted(int)), &shareManager, SIGNAL(hasherStarted(int)));
+				connect(pHasher, SIGNAL(hasherFinished(int)), &shareManager, SIGNAL(hasherFinished(int)));
+				connect(pHasher, SIGNAL(hashingProgress(int,QString,double,int)), &shareManager, SIGNAL(hashingProgress(int,QString,double,int)));
 				m_pHashers[i]->start((quazaaSettings.Library.HighPriorityHashing ? QThread::NormalPriority : QThread::LowestPriority));
 				m_nRunningHashers++;
 				break;

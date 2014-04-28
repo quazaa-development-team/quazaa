@@ -27,9 +27,9 @@
 
 #include "queryhashtable.h"
 
-class CQueryHashGroup;
+class QueryHashGroup;
 
-class CQueryHashMaster : public CQueryHashTable
+class CQueryHashMaster : public QueryHashTable
 {
 	Q_OBJECT
 public:
@@ -37,14 +37,14 @@ public:
 	virtual ~CQueryHashMaster();
 
 protected:
-	QList< CQueryHashGroup* > m_pGroups;
+	QList< QueryHashGroup* > m_pGroups;
 	int			m_nPerGroup;
 	bool		m_bValid;
 
 public:
 	void		create();
-	void		add(CQueryHashTable* pTable);
-	void		remove(CQueryHashTable* pTable);
+	void		add(QueryHashTable* pTable);
+	void		remove(QueryHashTable* pTable);
 public slots:
 	void		build();
 

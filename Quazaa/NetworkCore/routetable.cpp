@@ -26,21 +26,21 @@
 
 #include "debug_new.h"
 
-CRouteTable::CRouteTable()
+RouteTable::RouteTable()
 {
 }
-CRouteTable::~CRouteTable()
+RouteTable::~RouteTable()
 {
 	qDeleteAll(m_lRoutes);
 	m_lRoutes.clear();
 }
 
-bool CRouteTable::add(QUuid& pGUID, CG2Node* pNeighbour, CEndPoint* pEndpoint, bool bNoExpire)
+bool RouteTable::add(QUuid& pGUID, G2Node* pNeighbour, CEndPoint* pEndPoint, bool bNoExpire)
 {
 
 	//qDebug() << "CRouteTable::Add " << pGUID << pNeighbour << pEndpoint << bNoExpire;
 
-	if(!pNeighbour && !pEndpoint)
+	if(!pNeighbour && !pEndPoint)
 	{
 		return false;
 	}
@@ -77,9 +77,9 @@ bool CRouteTable::add(QUuid& pGUID, CG2Node* pNeighbour, CEndPoint* pEndpoint, b
 	{
 		pRoute->pNeighbour = pNeighbour;
 	}
-	if(pEndpoint)
+	if(pEndPoint)
 	{
-		pRoute->pEndpoint = *pEndpoint;
+		pRoute->pEndpoint = *pEndPoint;
 	}
 
 	Q_ASSERT_X(m_lRoutes[pGUID]->pNeighbour != 0 || !m_lRoutes[pGUID]->pEndpoint.isNull(), Q_FUNC_INFO, "Whooops! No neighbour and no endpoint!");
@@ -87,16 +87,16 @@ bool CRouteTable::add(QUuid& pGUID, CG2Node* pNeighbour, CEndPoint* pEndpoint, b
 	return true;
 
 }
-bool CRouteTable::add(QUuid& pGUID, CG2Node* pNeighbour, bool bNoExpire)
+bool RouteTable::add(QUuid& pGUID, G2Node* pNeighbour, bool bNoExpire)
 {
 	return add(pGUID, pNeighbour, 0, bNoExpire);
 }
-bool CRouteTable::add(QUuid& pGUID, CEndPoint& pEndpoint, bool bNoExpire)
+bool RouteTable::add(QUuid& pGUID, CEndPoint& pEndpoint, bool bNoExpire)
 {
 	return add(pGUID, 0, &pEndpoint, bNoExpire);
 }
 
-void CRouteTable::remove(QUuid& pGUID)
+void RouteTable::remove(QUuid& pGUID)
 {
 	G2RouteItem* pRoute = m_lRoutes.value(pGUID, 0);
 	if( pRoute )
@@ -105,7 +105,7 @@ void CRouteTable::remove(QUuid& pGUID)
 		delete pRoute;
 	}
 }
-void CRouteTable::remove(CG2Node* pNeighbour)
+void RouteTable::remove(G2Node* pNeighbour)
 {
 	for(QHash<QUuid, G2RouteItem*>::iterator itRoute = m_lRoutes.begin(); itRoute != m_lRoutes.end();)
 	{
@@ -121,7 +121,7 @@ void CRouteTable::remove(CG2Node* pNeighbour)
 	}
 }
 
-bool CRouteTable::find(QUuid& pGUID, CG2Node** ppNeighbour, CEndPoint* pEndpoint)
+bool RouteTable::find(QUuid& pGUID, G2Node** ppNeighbour, CEndPoint* pEndpoint)
 {
 	Q_ASSERT_X(ppNeighbour || pEndpoint, Q_FUNC_INFO, "Invalid arguments");
 
@@ -146,7 +146,7 @@ bool CRouteTable::find(QUuid& pGUID, CG2Node** ppNeighbour, CEndPoint* pEndpoint
 	return false;
 }
 
-void CRouteTable::expireOldRoutes(bool bForce)
+void RouteTable::expireOldRoutes(bool bForce)
 {
 	quint32 tNow = time(0);
 
@@ -203,13 +203,13 @@ void CRouteTable::expireOldRoutes(bool bForce)
 	}
 }
 
-void CRouteTable::clear()
+void RouteTable::clear()
 {
 	qDeleteAll(m_lRoutes);
 	m_lRoutes.clear();
 }
 
-void CRouteTable::dump()
+void RouteTable::dump()
 {
 	quint32 tNow = time( NULL );
 

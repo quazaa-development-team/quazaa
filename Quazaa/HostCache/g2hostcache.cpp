@@ -331,18 +331,18 @@ QString G2HostCache::getXTry() const
 	quint32 nCount = 0;
 
 #ifndef QUAZAA_SETUP_UNIT_TESTS
-	ASSUME_LOCK( Neighbours.m_pSection );
+	ASSUME_LOCK( neighbours.m_pSection );
 
 	const QString sTNow = common::getDateTimeUTC().toString( "yyyy-MM-ddThh:mmZ" );
 
 	// First add neighbours with free slots, to promote faster connections.
-	for ( QList<CNeighbour*>::iterator it = Neighbours.begin(); it != Neighbours.end(); ++it )
+	for ( QList<Neighbour*>::iterator it = neighbours.begin(); it != neighbours.end(); ++it )
 	{
-		CNeighbour* pNeighbour = *it;
+		Neighbour* pNeighbour = *it;
 		if ( pNeighbour->m_nState    == nsConnected &&
 			 pNeighbour->m_nProtocol == DiscoveryProtocol::G2 )
 		{
-			CG2Node* pNode = (CG2Node*)pNeighbour;
+			G2Node* pNode = (G2Node*)pNeighbour;
 			if ( pNode->m_nType == G2_HUB &&
 				 pNode->m_nLeafMax > 0 &&
 				 100 * pNode->m_nLeafCount / pNode->m_nLeafMax < 90 )

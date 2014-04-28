@@ -183,19 +183,19 @@ void ManagedSearch::execute(const QDateTime& tNowDT, quint32* pnMaxPackets)
 
 void ManagedSearch::searchNeighbours(const QDateTime& tNowDT)
 {
-	QMutexLocker l( &Neighbours.m_pSection );
+	QMutexLocker l( &neighbours.m_pSection );
 
 	const quint32 tNow = tNowDT.toTime_t();
 
-	for ( QList<CNeighbour*>::iterator itNode = Neighbours.begin();
-		  itNode != Neighbours.end(); ++itNode )
+	for ( QList<Neighbour*>::iterator itNode = neighbours.begin();
+		  itNode != neighbours.end(); ++itNode )
 	{
 		if ( (*itNode)->m_nProtocol != DiscoveryProtocol::G2 )
 		{
 			continue;
 		}
 
-		CG2Node* pNode = (CG2Node*)(*itNode);
+		G2Node* pNode = (G2Node*)(*itNode);
 
 		if ( pNode->m_nState == nsConnected &&
 			 tNow - pNode->m_tConnected > 15 &&
@@ -218,7 +218,7 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 {
 	Q_ASSERT( tNowDT.timeSpec() == Qt::UTC );
 	const quint32 tNow      = tNowDT.toTime_t();
-	CG2Node* pLastNeighbour = NULL;
+	G2Node* pLastNeighbour = NULL;
 	SharedG2HostPtr pHost;
 
 #if ENABLE_G2_HOST_CACHE_BENCHMARKING
@@ -274,15 +274,15 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 			}
 		}
 
-		Neighbours.m_pSection.lock();
-		if ( Neighbours.find( (QHostAddress)(pHost->address()) ) )
+		neighbours.m_pSection.lock();
+		if ( neighbours.find( (QHostAddress)(pHost->address()) ) )
 		{
 			// don't udp to neighbours
 			qDebug() << "**** [Search] is neighbour";
-			Neighbours.m_pSection.unlock();
+			neighbours.m_pSection.unlock();
 			continue;
 		}
-		Neighbours.m_pSection.unlock();
+		neighbours.m_pSection.unlock();
 
 #if ENABLE_G2_HOST_CACHE_BENCHMARKING
 		// at this point we've got a valid host
@@ -318,12 +318,12 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 			else
 			{
 				// we are firewalled, so key must be for one of our connected neighbours
-				Neighbours.m_pSection.lock();
+				neighbours.m_pSection.lock();
 
-				CNeighbour* pNode = Neighbours.find( (QHostAddress)(pHost->keyHost()),
+				Neighbour* pNode = neighbours.find( (QHostAddress)(pHost->keyHost()),
 													 DiscoveryProtocol::G2 );
 
-				if ( pNode && static_cast<CG2Node*>(pNode)->m_nState == nsConnected )
+				if ( pNode && static_cast<G2Node*>(pNode)->m_nState == nsConnected )
 				{
 					pReceiver = pNode->m_oAddress;
 				}
@@ -332,7 +332,7 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 					pHost->setQueryKey( 0 );
 				}
 
-				Neighbours.m_pSection.unlock();
+				neighbours.m_pSection.unlock();
 			}
 		}
 
@@ -359,10 +359,10 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 			}
 			else
 			{
-				Neighbours.m_pSection.lock();
+				neighbours.m_pSection.lock();
 
 				// Find best hub for routing
-				CG2Node* pHub = findBestHubForRoutingG2( pLastNeighbour );
+				G2Node* pHub = findBestHubForRoutingG2( pLastNeighbour );
 
 				if ( pHub )
 				{
@@ -393,7 +393,7 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 						G2Packet* pQKR = G2Packet::newPacket( "QKR", true );
 						pQKR->writePacket( "RNA", (pHub->m_oAddress.protocol() ? 18 : 6)
 										   )->writeHostAddress( pHub->m_oAddress );
-						Datagrams.sendPacket( pHost->address(), pQKR, false );
+						datagrams.sendPacket( pHost->address(), pQKR, false );
 						pQKR->release();
 
 #if LOG_QUERY_HANDLING
@@ -407,7 +407,7 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 					bKeyRequested = true;
 				}
 
-				Neighbours.m_pSection.unlock();
+				neighbours.m_pSection.unlock();
 			}
 
 			if ( bKeyRequested )
@@ -479,7 +479,7 @@ void ManagedSearch::sendG2Query(CEndPoint pReceiver, SharedG2HostPtr pHost,
 #endif // LOG_QUERY_HANDLING
 
 		*pnMaxPackets -= 1;
-		Datagrams.sendPacket( pHost->address(), pQuery, true );
+		datagrams.sendPacket( pHost->address(), pQuery, true );
 		pQuery->release();
 		++m_nQueryCount;
 	}
@@ -491,7 +491,7 @@ void ManagedSearch::requestG2QueryKey(SharedG2HostPtr pHost)
 	G2Packet* pQKR = G2Packet::newPacket( "QKR", false );
 	pQKR->writePacket( "RNA", (networkG2.m_oAddress.protocol() ? 18 : 6)
 					   )->writeHostAddress( networkG2.m_oAddress );
-	Datagrams.sendPacket( pHost->address(), pQKR, false );
+	datagrams.sendPacket( pHost->address(), pQKR, false );
 	pQKR->release();
 
 #if LOG_QUERY_HANDLING
@@ -506,14 +506,14 @@ void ManagedSearch::requestG2QueryKey(SharedG2HostPtr pHost)
 	 * Locking: Requires lock on Neighbours.m_pSection.
 	 * @return
 	 */
-CG2Node* ManagedSearch::findBestHubForRoutingG2(const CG2Node* const pLastNeighbour)
+G2Node* ManagedSearch::findBestHubForRoutingG2(const G2Node* const pLastNeighbour)
 {
-	CG2Node* pHub = NULL;
+	G2Node* pHub = NULL;
 
 	// Find best hub for routing
-	bool bCheckLast = Neighbours.m_nHubsConnectedG2 > 2;
-	for ( QList<CNeighbour*>::iterator itNode = Neighbours.begin();
-		  itNode != Neighbours.end(); ++itNode )
+	bool bCheckLast = neighbours.m_nHubsConnectedG2 > 2;
+	for ( QList<Neighbour*>::iterator itNode = neighbours.begin();
+		  itNode != neighbours.end(); ++itNode )
 	{
 		if ( (*itNode)->m_nProtocol != DiscoveryProtocol::G2 ||
 			 (*itNode)->m_nState != nsConnected )
@@ -521,7 +521,7 @@ CG2Node* ManagedSearch::findBestHubForRoutingG2(const CG2Node* const pLastNeighb
 			continue;
 		}
 
-		CG2Node* pNode = (CG2Node*)(*itNode);
+		G2Node* pNode = (G2Node*)(*itNode);
 
 		// Must be a hub that already acked our query
 		if ( pNode->m_nType == G2_HUB &&

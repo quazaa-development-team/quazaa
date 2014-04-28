@@ -28,31 +28,31 @@
 
 #include "neighboursrouting.h"
 
-class CNetworkConnection;
-class CRateController;
+class NetworkConnection;
+class RateController;
 
-class CNeighboursConnections : public CNeighboursRouting
+class NeighboursConnections : public NeighboursRouting
 {
 	Q_OBJECT
 protected:
-	CRateController* m_pController;
+	RateController* m_pController;
 public:
 	quint32 m_nHubsConnectedG2;
 	quint32 m_nLeavesConnectedG2;
 	quint32 m_nUnknownInitiated;
 	quint32 m_nUnknownIncoming;
 public:
-	CNeighboursConnections(QObject* parent = 0);
-	virtual ~CNeighboursConnections();
+	NeighboursConnections(QObject* parent = 0);
+	virtual ~NeighboursConnections();
 
 	virtual void connectNode();
 	virtual void disconnectNode();
 
-	void addNode(CNeighbour* pNode);
-	void removeNode(CNeighbour* pNode);
+	void addNode(Neighbour* pNode);
+	void removeNode(Neighbour* pNode);
 
-	CNeighbour* randomNode(DiscoveryProtocol::Protocol nProtocol,
-						   int nType, CNeighbour* pNodeExcept);
+	Neighbour* randomNode(DiscoveryProtocol::Protocol nProtocol,
+						   int nType, Neighbour* pNodeExcept);
 
 	void disconnectYoungest(DiscoveryProtocol::Protocol nProtocol,
 							int nType = 0, bool bCore = false);
@@ -63,9 +63,9 @@ public:
 signals:
 
 public slots:
-	CNeighbour* connectTo(CEndPoint oAddress, DiscoveryProtocol::Protocol nProtocol,
+	Neighbour* connectTo(CEndPoint oAddress, DiscoveryProtocol::Protocol nProtocol,
 						  bool bAutomatic = true);
-	CNeighbour* onAccept(CNetworkConnection* pConn);
+	Neighbour* onAccept(NetworkConnection* pConn);
 
 	virtual void maintain();
 };

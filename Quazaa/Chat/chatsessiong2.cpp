@@ -70,7 +70,7 @@ CChatSessionG2::CChatSessionG2(CEndPoint oRemoteHost, QObject *parent) :
 
 void CChatSessionG2::connectNode()
 {
-	CNetworkConnection::connectTo(m_oRemoteHost);
+	NetworkConnection::connectTo(m_oRemoteHost);
 	CChatSession::connectNode();
 }
 
@@ -136,7 +136,7 @@ void CChatSessionG2::onRead()
 
 			emit systemMessage("Received corrupted G2 packet, connection lost.");
 
-			CNetworkConnection::close();
+			NetworkConnection::close();
 		}
 	}
 }
@@ -153,7 +153,7 @@ void CChatSessionG2::parseOutgoingHandshake()
 		if( !sAccept.contains("application/x-gnutella2") )
 		{
 			send_ChatError("503 Required protocol not accepted");
-			CNetworkConnection::close(true);
+			NetworkConnection::close(true);
 			emit systemMessage("Remote host does not support Gnutella2");
 			return;
 		}
@@ -162,7 +162,7 @@ void CChatSessionG2::parseOutgoingHandshake()
 		if( !sContentType.contains("application/x-gnutella2") )
 		{
 			send_ChatError("503 Required protocol not provided");
-			CNetworkConnection::close(true);
+			NetworkConnection::close(true);
 			emit systemMessage("Remote host does not support Gnutella2");
 			return;
 		}
@@ -407,7 +407,7 @@ void CChatSessionG2::onCHATANS(G2Packet *pPacket)
 		{
 			emit systemMessage("Private conversation denied by remote host, sorry.");
 			qDebug() << "chat denied";
-			CNetworkConnection::close();
+			NetworkConnection::close();
 			return;
 		}
 		else if( strcmp("AWAY", szType) == 0 )

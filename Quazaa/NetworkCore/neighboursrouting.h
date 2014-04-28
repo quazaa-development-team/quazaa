@@ -31,16 +31,16 @@
 class G2Packet;
 class Query;
 
-typedef QSharedPointer<Query> CQueryPtr;
+typedef QSharedPointer<Query> QuerySharedPtr;
 
-class CNeighboursRouting : public CNeighboursBase
+class NeighboursRouting : public NeighboursBase
 {
 	Q_OBJECT
 public:
-	CNeighboursRouting(QObject* parent = 0);
-	virtual ~CNeighboursRouting();
+	NeighboursRouting(QObject* parent = 0);
+	virtual ~NeighboursRouting();
 
-	void routeQuery(CQueryPtr pQuery, G2Packet* pPacket, CNeighbour* pFrom = 0, bool bToHubs = true);
+	void routeQuery(QuerySharedPtr pQuery, G2Packet* pPacket, Neighbour* pFrom = 0, bool bToHubs = true);
 
 signals:
 
