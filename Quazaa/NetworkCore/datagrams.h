@@ -51,7 +51,7 @@ class DatagramIn;
 class Buffer;
 class QHostAddress;
 
-class CDatagrams : public QObject
+class Datagrams : public QObject
 {
 	Q_OBJECT
 
@@ -97,8 +97,8 @@ protected:
 	quint32			m_nOutFrags;
 
 public:
-	CDatagrams();
-	~CDatagrams();
+	Datagrams();
+	~Datagrams();
 
 	void listen();
 	void disconnectNode();
@@ -149,23 +149,23 @@ typedef struct
 
 #pragma pack(pop)
 
-quint32 CDatagrams::downloadSpeed()
+quint32 Datagrams::downloadSpeed()
 {
 	return m_mInput.AvgUsage();
 }
-quint32 CDatagrams::uploadSpeed()
+quint32 Datagrams::uploadSpeed()
 {
 	return m_mOutput.AvgUsage();
 }
-bool CDatagrams::isFirewalled()
+bool Datagrams::isFirewalled()
 {
 	return m_bFirewalled;
 }
-bool CDatagrams::isListening()
+bool Datagrams::isListening()
 {
 	return (m_bActive && m_pSocket && m_pSocket->isValid());
 }
 
-extern CDatagrams datagrams;
+extern Datagrams datagrams;
 
 #endif // DATAGRAMS_H

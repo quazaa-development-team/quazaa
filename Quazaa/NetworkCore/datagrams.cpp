@@ -46,9 +46,9 @@
 
 #include "debug_new.h"
 
-CDatagrams datagrams;
+Datagrams datagrams;
 
-CDatagrams::CDatagrams()
+Datagrams::Datagrams()
 {
 	m_nUploadLimit = 32768; // TODO: Upload limiting.
 
@@ -66,72 +66,75 @@ CDatagrams::CDatagrams()
 	m_nOutFrags = 0;
 }
 
-CDatagrams::~CDatagrams()
+Datagrams::~Datagrams()
 {
-	if(m_bActive)
+	if ( m_bActive )
 	{
 		disconnectNode();
 	}
 
-	if(m_pSocket)
+	if ( m_pSocket )
 	{
 		delete m_pSocket;
 	}
 
-	if(m_tSender)
+	if ( m_tSender )
 	{
 		delete m_tSender;
 	}
 
-	if(m_pRecvBuffer)
+	if ( m_pRecvBuffer )
 	{
 		delete m_pRecvBuffer;
 	}
-	if(m_pHostAddress)
+
+	if ( m_pHostAddress )
 	{
 		delete m_pHostAddress;
 	}
 }
 
-void CDatagrams::listen()
+void Datagrams::listen()
 {
-	QMutexLocker l(&m_pSection);
+	QMutexLocker l( &m_pSection );
 
-	if(m_bActive)
+	if ( m_bActive )
 	{
 		systemLog.postLog( LogSeverity::Debug, Component::Network,
-						   QString( "CDatagrams::Listen - already listening" ) );
+						   QString( "Datagrams::Listen - already listening" ) );
 		return;
 	}
 
-	Q_ASSERT(m_pSocket == 0);
+	Q_ASSERT( !m_pSocket );
 
-	m_pSocket = new QUdpSocket(this);
+	m_pSocket = new QUdpSocket( this );
 
 	CEndPoint addr = networkG2.getLocalAddress();
-	if(m_pSocket->bind(addr.port()))
+	if ( m_pSocket->bind( addr.port() ) )
 	{
 		systemLog.postLog( LogSeverity::Debug, Component::Network,
 						   QString( "Datagrams listening on %1" ).arg( m_pSocket->localPort() ) );
 		m_nDiscarded = 0;
 
-		for(int i = 0; i < quazaaSettings.Gnutella2.UdpBuffers; i++)
+		for ( int i = 0; i < quazaaSettings.Gnutella2.UdpBuffers; ++i )
 		{
-			m_FreeBuffer.append(new Buffer(1024));
+			m_FreeBuffer.append( new Buffer( 1024 ) );
 		}
 
-		for(int i = 0; i < quazaaSettings.Gnutella2.UdpInFrames; i++)
+		for ( int i = 0; i < quazaaSettings.Gnutella2.UdpInFrames; ++i )
 		{
-			m_FreeDatagramIn.append(new DatagramIn);
+			m_FreeDatagramIn.append( new DatagramIn );
 		}
 
-		for(int i = 0; i < quazaaSettings.Gnutella2.UdpOutFrames; i++)
+		for ( int i = 0; i < quazaaSettings.Gnutella2.UdpOutFrames; ++i )
 		{
-			m_FreeDatagramOut.append(new DatagramOut);
+			m_FreeDatagramOut.append( new DatagramOut );
 		}
 
-		connect(this, SIGNAL(sendQueueUpdated()), this, SLOT(flushSendCache()), Qt::QueuedConnection);
-		connect(m_pSocket, SIGNAL(readyRead()), this, SLOT(onDatagram()), Qt::QueuedConnection);
+		connect( this, &Datagrams::sendQueueUpdated,
+				 this, &Datagrams::flushSendCache, Qt::QueuedConnection );
+		connect( m_pSocket, &QUdpSocket::readyRead,
+				 this, &Datagrams::onDatagram,     Qt::QueuedConnection );
 
 		m_bActive = true;
 	}
@@ -145,54 +148,54 @@ void CDatagrams::listen()
 	m_bFirewalled = true;
 }
 
-void CDatagrams::disconnectNode()
+void Datagrams::disconnectNode()
 {
-	QMutexLocker l(&m_pSection);
+	QMutexLocker l( &m_pSection );
 
 	m_bActive = false;
 
-	if(m_pSocket)
+	if ( m_pSocket )
 	{
 		m_pSocket->close();
 		delete m_pSocket;
-		m_pSocket = 0;
+		m_pSocket = NULL;
 	}
 
-	disconnect(SIGNAL(sendQueueUpdated()));
+	disconnect( this, &Datagrams::sendQueueUpdated, 0, 0 );
 
-	while(!m_AckCache.isEmpty())
+	while ( !m_AckCache.isEmpty() )
 	{
 		QPair<CEndPoint, char*> oAck = m_AckCache.takeFirst();
-		delete [] oAck.second;
+		delete[] oAck.second;
 	}
 
-	while(!m_SendCache.isEmpty())
+	while ( !m_SendCache.isEmpty() )
 	{
-		remove(m_SendCache.first());
+		remove( m_SendCache.first() );
 	}
 
-	while(!m_RecvCacheTime.isEmpty())
+	while ( !m_RecvCacheTime.isEmpty() )
 	{
-		remove(m_RecvCacheTime.first());
+		remove( m_RecvCacheTime.first() );
 	}
 
-	while(!m_FreeDatagramIn.isEmpty())
+	while ( !m_FreeDatagramIn.isEmpty() )
 	{
 		delete m_FreeDatagramIn.takeFirst();
 	}
 
-	while(!m_FreeDatagramOut.isEmpty())
+	while ( !m_FreeDatagramOut.isEmpty() )
 	{
 		delete m_FreeDatagramOut.takeFirst();
 	}
 
-	while(!m_FreeBuffer.isEmpty())
+	while ( !m_FreeBuffer.isEmpty() )
 	{
 		delete m_FreeBuffer.takeFirst();
 	}
 }
 
-void CDatagrams::onDatagram()
+void Datagrams::onDatagram()
 {
 	if ( !m_bActive )
 	{
@@ -245,7 +248,7 @@ void CDatagrams::onDatagram()
 	}
 }
 
-void CDatagrams::onReceiveGND()
+void Datagrams::onReceiveGND()
 {
 	GND_HEADER* pHeader = (GND_HEADER*)m_pRecvBuffer->data();
 	QHostAddress nIp = *m_pHostAddress;
@@ -257,14 +260,14 @@ void CDatagrams::onReceiveGND()
 
 	DatagramIn* pDatagramIn = 0;
 
-	if(m_RecvCache.contains(nIp) && m_RecvCache[nIp].contains(nSeq))
+	if ( m_RecvCache.contains( nIp ) && m_RecvCache[nIp].contains( nSeq ) )
 	{
 		pDatagramIn = m_RecvCache[nIp][nSeq];
 
 		// To give a chance for bigger packages ;)
-		if(pDatagramIn->m_nLeft)
+		if ( pDatagramIn->m_nLeft )
 		{
-			pDatagramIn->m_tStarted = time(0);
+			pDatagramIn->m_tStarted = time( NULL );
 		}
 	}
 	else
@@ -362,7 +365,7 @@ void CDatagrams::onReceiveGND()
 	}
 }
 
-void CDatagrams::onAcknowledgeGND()
+void Datagrams::onAcknowledgeGND()
 {
 	GND_HEADER* pHeader = (GND_HEADER*)m_pRecvBuffer->data();
 
@@ -385,7 +388,7 @@ void CDatagrams::onAcknowledgeGND()
 	}
 }
 
-void CDatagrams::remove(DatagramIn* pDatagramIn, bool bReclaim)
+void Datagrams::remove(DatagramIn* pDatagramIn, bool bReclaim)
 {
 	ASSUME_LOCK(m_pSection);
 	for(int i = 0; i < pDatagramIn->m_nCount; i++)
@@ -430,7 +433,7 @@ void CDatagrams::remove(DatagramIn* pDatagramIn, bool bReclaim)
 }
 
 // Removes a package from the cache collection.
-void CDatagrams::removeOldIn(bool bForce)
+void Datagrams::removeOldIn(bool bForce)
 {
 	quint32 tNow = time(0);
 	bool bRemoved = false;
@@ -454,7 +457,7 @@ void CDatagrams::removeOldIn(bool bForce)
 	}
 }
 
-void CDatagrams::remove(DatagramOut* pDatagramOut)
+void Datagrams::remove(DatagramOut* pDatagramOut)
 {
 	ASSUME_LOCK(m_pSection);
 
@@ -482,14 +485,14 @@ void CDatagrams::remove(DatagramOut* pDatagramOut)
 	}
 }
 
-void CDatagrams::flushSendCache()
+void Datagrams::flushSendCache()
 {
 	QMutexLocker l(&m_pSection);
 
 	__FlushSendCache();
 }
 
-void CDatagrams::__FlushSendCache()
+void Datagrams::__FlushSendCache()
 {
 	if(!m_bActive)
 	{
@@ -595,7 +598,7 @@ void CDatagrams::__FlushSendCache()
 	}
 }
 
-void CDatagrams::sendPacket(CEndPoint oAddr, G2Packet* pPacket, bool bAck, DatagramWatcher* pWatcher, void* pParam)
+void Datagrams::sendPacket(CEndPoint oAddr, G2Packet* pPacket, bool bAck, DatagramWatcher* pWatcher, void* pParam)
 {
 	if(!m_bActive)
 	{
@@ -646,7 +649,7 @@ void CDatagrams::sendPacket(CEndPoint oAddr, G2Packet* pPacket, bool bAck, Datag
 	__FlushSendCache();
 }
 
-void CDatagrams::onPacket(CEndPoint addr, G2Packet* pPacket)
+void Datagrams::onPacket(CEndPoint addr, G2Packet* pPacket)
 {
 	try
 	{
@@ -695,7 +698,7 @@ void CDatagrams::onPacket(CEndPoint addr, G2Packet* pPacket)
 	}
 }
 
-void CDatagrams::onPing(CEndPoint& addr, G2Packet* pPacket)
+void Datagrams::onPing(CEndPoint& addr, G2Packet* pPacket)
 {
 	Q_UNUSED(pPacket);
 
@@ -704,7 +707,7 @@ void CDatagrams::onPing(CEndPoint& addr, G2Packet* pPacket)
 	pNew->release();
 }
 
-void CDatagrams::onPong(CEndPoint& addr, G2Packet* pPacket)
+void Datagrams::onPong(CEndPoint& addr, G2Packet* pPacket)
 {
 	if(pPacket->m_bCompound)
 	{
@@ -728,7 +731,7 @@ void CDatagrams::onPong(CEndPoint& addr, G2Packet* pPacket)
 	}
 }
 
-void CDatagrams::onCRAWLR(CEndPoint& addr, G2Packet* pPacket)
+void Datagrams::onCRAWLR(CEndPoint& addr, G2Packet* pPacket)
 {
 	QMutexLocker l2(&neighbours.m_pSection);
 
@@ -826,7 +829,7 @@ void CDatagrams::onCRAWLR(CEndPoint& addr, G2Packet* pPacket)
 	pCA->release();
 }
 
-void CDatagrams::onQKR(CEndPoint& addr, G2Packet* pPacket)
+void Datagrams::onQKR(CEndPoint& addr, G2Packet* pPacket)
 {
 	if(!neighbours.isG2Hub())
 	{
@@ -896,7 +899,7 @@ void CDatagrams::onQKR(CEndPoint& addr, G2Packet* pPacket)
 #endif // LOG_QUERY_HANDLING
 }
 
-void CDatagrams::onQKA(CEndPoint& addr, G2Packet* pPacket)
+void Datagrams::onQKA(CEndPoint& addr, G2Packet* pPacket)
 {
 	if ( !pPacket->m_bCompound )
 	{
@@ -960,7 +963,7 @@ void CDatagrams::onQKA(CEndPoint& addr, G2Packet* pPacket)
 	}
 }
 
-void CDatagrams::onQA(CEndPoint& addr, G2Packet* pPacket)
+void Datagrams::onQA(CEndPoint& addr, G2Packet* pPacket)
 {
 	const quint32 tAck = 0;
 	const quint32 tNow = common::getTNowUTC();
@@ -982,7 +985,7 @@ void CDatagrams::onQA(CEndPoint& addr, G2Packet* pPacket)
 	}
 }
 
-void CDatagrams::onQH2(CEndPoint& addr, G2Packet* pPacket)
+void Datagrams::onQH2(CEndPoint& addr, G2Packet* pPacket)
 {
 	if ( !pPacket->m_bCompound )
 	{
@@ -1032,7 +1035,7 @@ void CDatagrams::onQH2(CEndPoint& addr, G2Packet* pPacket)
 	}
 }
 
-void CDatagrams::onQuery(CEndPoint &addr, G2Packet *pPacket)
+void Datagrams::onQuery(CEndPoint &addr, G2Packet *pPacket)
 {
 	QuerySharedPtr pQuery = Query::fromPacket(pPacket, &addr);
 

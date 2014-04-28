@@ -44,6 +44,7 @@ protected:
 	bool*   m_bLocked;
 
 	Buffer** m_pBuffer;
+
 public:
 	DatagramIn();
 	~DatagramIn();
@@ -52,8 +53,7 @@ public:
 	bool add(quint8 nPart, const void* pData, qint32 nLength);
 	G2Packet* toG2Packet();
 
-
-	friend class CDatagrams;
+	friend class Datagrams;
 };
 
 class DatagramWatcher;
@@ -75,7 +75,7 @@ protected:
 
 	DatagramWatcher*    m_pWatcher;
 	void*               m_pParam;
-	Buffer* m_pBuffer;
+	Buffer*             m_pBuffer;
 
 public:
 	DatagramOut();
@@ -85,8 +85,7 @@ public:
 	bool getPacket(quint32 tNow, char** ppPacket, quint32* pnPacket, bool bResend = false);
 	bool acknowledge(quint8 nPart);
 
-	friend class CDatagrams;
-
+	friend class Datagrams;
 };
 
 #endif // DATAGRAMFRAGS_H
