@@ -67,13 +67,14 @@ void CHandshakes::listen()
 }
 void CHandshakes::stop()
 {
-	QMutexLocker l(&m_pSection);
-
+	m_pSection.lock();
 	m_bActive = false;
 
-	HandshakesThread.exit(0);
+	HandshakesThread.exit( 0 );
 
-	Q_ASSERT(m_lHandshakes.isEmpty());
+	Q_ASSERT( m_lHandshakes.isEmpty() );
+
+	m_pSection.unlock();
 }
 
 void CHandshakes::incomingConnection(qintptr handle)
@@ -125,19 +126,20 @@ void CHandshakes::processNeighbour(CHandshake* pHs)
 
 void CHandshakes::setupThread()
 {
-	m_pController = new RateController(&m_pSection);
+	m_pController = new RateController( &m_pSection );
 
-	m_pController->moveToThread(&HandshakesThread); // should not be necesarry
+	m_pController->moveToThread( &HandshakesThread ); // should not be necesarry
 
-	m_pController->setDownloadLimit(4096);
-	m_pController->setUploadLimit(4096);
+	m_pController->setDownloadLimit( 4096 );
+	m_pController->setUploadLimit( 4096 );
 
 	bool bOK = QTcpServer::listen( QHostAddress::Any, networkG2.getLocalAddress().port() );
 
 	if ( bOK )
 	{
 		systemLog.postLog( LogSeverity::Notice, Component::G2,
-						   "Handshakes: listening on port %d.", networkG2.getLocalAddress().port() );
+						   tr( "Handshakes: listening on port %1."
+							   ).arg( networkG2.getLocalAddress().port() ) );
 	}
 	else
 	{
@@ -146,17 +148,17 @@ void CHandshakes::setupThread()
 						   networkG2.getLocalAddress().port() );
 	}
 
-	m_pTimer = new QTimer(this);
-	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(onTimer()));
-	m_pTimer->start(1000);
+	m_pTimer = new QTimer( this );
+	connect( m_pTimer, &QTimer::timeout, this, &CHandshakes::onTimer );
+	m_pTimer->start( 1000 );
 }
 void CHandshakes::cleanupThread()
 {
-	if(isListening())
+	if ( isListening() )
 	{
 		close();
 
-		for( QSet<CHandshake*>::iterator itHs = m_lHandshakes.begin(); itHs != m_lHandshakes.end(); )
+		for ( QSet<CHandshake*>::iterator itHs = m_lHandshakes.begin(); itHs != m_lHandshakes.end(); )
 		{
 			CHandshake* pHs = *itHs;
 

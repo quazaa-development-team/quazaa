@@ -133,17 +133,21 @@ void ShareManager::setupThread()
 
 void ShareManager::stop()
 {
-	QMutexLocker l(&m_oSection);
-	m_bActive = false;
-	m_bReady = false;
+	m_oSection.lock();
+
+	m_bActive     = false;
+	m_bReady      = false;
 	m_bTableReady = false;
-	if(m_pTable)
+
+	if ( m_pTable )
 	{
 		delete m_pTable;
-		m_pTable = 0;
+		m_pTable = NULL;
 	}
 	disconnect(SIGNAL(executeQuery(const QString&)), this, SLOT(execQuery(const QString&)));
-	shareManagerThread.exit(0);
+
+	shareManagerThread.exit( 0 );
+	m_oSection.unlock();
 }
 
 void ShareManager::cleanupThread()

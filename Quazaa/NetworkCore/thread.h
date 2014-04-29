@@ -32,26 +32,34 @@
 #include <QMutexLocker>
 #include <QWaitCondition>
 
+// TODO: remove most of the try lock asserts for alpha1
 class CThread: public QThread
 {
 	Q_OBJECT
 
 	QMutex*         m_pMutex;
-	QWaitCondition  m_oStartCond;
+	QWaitCondition  m_oWaitCond;
 	QObject*        m_pTargetObject;
 	QString			m_sThreadName;
 public:
 	CThread(QObject* parent = 0);
 
+	/**
+	 * @brief start      Starts this thread.
+	 * @param sName      The name to be used for this thread.
+	 * @param pMutex     The thread mutex. Note that this is expected to be locked.
+	 * @param pTargetObj A QQbject* that has a setupThread() and cleanupThread() slot.
+	 * @param p          The thread execution priority.
+	 */
 	void start(QString sName, QMutex* pMutex, QObject* pTargetObj = NULL,
 			   Priority p = InheritPriority)
 	{
+		Q_ASSERT( !pMutex->tryLock() );
+
 		m_sThreadName = sName;
 		QThread::setObjectName( sName );
 
 		systemLog.postLog( LogSeverity::Debug, QString( "%1 Thread::start" ).arg( sName ) );
-		//qDebug() << strName << "Thread::start";
-		//QMutexLocker l(pMutex);
 
 		m_pMutex = pMutex;
 		m_pTargetObject = pTargetObj;
@@ -61,49 +69,68 @@ public:
 		}
 
 		systemLog.postLog( LogSeverity::Debug, QString( "%1 Starting..." ).arg( sName ) );
-		//qDebug() << strName << "Starting...";
 
 		QThread::start( p );
 		systemLog.postLog( LogSeverity::Debug, QString( "%1 Waiting for thread to start..."
 														).arg( sName ) );
-		//qDebug() << strName << "Waiting for thread to start...";
 
 		if ( !isRunning() )
 		{
-			m_oStartCond.wait( m_pMutex );
+			// m_pMutex MUST be locked when calling m_oWaitCond.wait( m_pMutex );
+			Q_ASSERT( !m_pMutex->tryLock() );
+			m_oWaitCond.wait( m_pMutex );
 		}
 		systemLog.postLog( LogSeverity::Debug, QString( "%1 Thread started" ).arg( sName ) );
-		//qDebug() << strName << "Thread started";
 	}
 
-	void exit(int retcode)
+	/**
+	 * @brief exit      Exits the thread.
+	 * @param retcode   The return value for exec().
+	 * @param bNeedLock If this is true, the thread mutex is locked (and released) within this
+	 *                  method; else the mutex is expected to be locked on entering this method.
+	 */
+	void exit(int retcode, bool bNeedLock = false)
 	{
-		//QMutexLocker l(m_pMutex);
-		//systemLog.postLog( LogSeverity::Debug, QString( "%1 Exiting thread"
-		//												).arg( m_sThreadName ) );
-		qDebug() << m_sThreadName << "Exiting thread";
+		// Note: we cannot use the system log here as the thread in question might finish after the
+		// systemLog object has already been destroyed.
+
+		qDebug() << m_sThreadName << "exit(): Exiting thread";
 
 		QThread::exit( retcode );
-		//systemLog.postLog( LogSeverity::Debug, QString( "%1 Waiting for thread to finish..."
-		//												).arg( m_sThreadName ) );
-		qDebug() << m_sThreadName << "Waiting for thread to finish...";
+
+		qDebug() << m_sThreadName << "exit(): Waiting for thread to finish...";
+
+		if ( bNeedLock )
+		{
+			m_pMutex->lock();
+		}
+		ASSUME_LOCK( *m_pMutex );
 
 		if ( isRunning() )
 		{
-			m_oStartCond.wait( m_pMutex );
+			qDebug() << m_sThreadName << "exit(): Thread is running";
+
+			// m_pMutex MUST be locked when calling m_oWaitCond.wait( m_pMutex );
+			Q_ASSERT( !m_pMutex->tryLock() );
+			m_oWaitCond.wait( m_pMutex );
 		}
-		//wait();
-		//systemLog.postLog( LogSeverity::Debug, QString( "%1 Thread Finished"
-		//												).arg( m_sThreadName ) );
-		qDebug() << m_sThreadName << "Thread finished.";
+		else
+		{
+			qDebug() << m_sThreadName << "exit(): Thread is not running";
+		}
+
+		if ( bNeedLock )
+		{
+			m_pMutex->unlock();
+		}
+
+		qDebug() << m_sThreadName << "exit(): Thread finished.";
 	}
 
 protected:
 	void run()
 	{
-		QMutexLocker l( m_pMutex );
-		msleep( 50 );
-
+		m_pMutex->lock();
 		if ( m_pTargetObject )
 		{
 			if ( !QMetaObject::invokeMethod( m_pTargetObject, "setupThread",
@@ -115,30 +142,40 @@ protected:
 			}
 		}
 
-		m_oStartCond.wakeAll();
+		Q_ASSERT( !m_pMutex->tryLock() );
+		m_oWaitCond.wakeAll();
+		Q_ASSERT( !m_pMutex->tryLock() );
 
-		l.unlock();
+		m_pMutex->unlock();
 
 		qDebug() << m_sThreadName << ": thread started: " << this << currentThreadId();
 
 		exec();
 
-		qDebug() << m_sThreadName << "Starting cleanup.";
-		l.relock();
+		// Note: we cannot use the system log after this point as the thread in question might
+		// finish after the systemLog object has already been destroyed.
 
+		qDebug() << m_sThreadName << "run(): Starting cleanup.";
+
+		m_pMutex->lock();
 		if ( m_pTargetObject )
 		{
+			qDebug() << m_sThreadName << "run(): Calling cleanupThread().";
 			if ( !QMetaObject::invokeMethod( m_pTargetObject, "cleanupThread",
 											 Qt::DirectConnection ) )
 			{
-				systemLog.postLog( LogSeverity::Warning,
-								   "Failed to call target's cleanupThread method" );
-				//qWarning() << "Failed to call target's cleanupThread method";
+				qWarning() << "Failed to call target's cleanupThread method";
 			}
 		}
 
-		//msleep( 50 );
-		m_oStartCond.wakeAll();
+		qDebug() << m_sThreadName << "run(): waking all";
+
+		Q_ASSERT( !m_pMutex->tryLock() );
+		m_oWaitCond.wakeAll();
+		Q_ASSERT( !m_pMutex->tryLock() );
+
+		qDebug() << m_sThreadName << "run(): finished";
+		m_pMutex->unlock();
 	}
 };
 

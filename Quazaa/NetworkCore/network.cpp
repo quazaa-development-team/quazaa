@@ -97,14 +97,13 @@ void NetworkG2::start()
  */
 void NetworkG2::stop()
 {
-	QMutexLocker l( &m_pSection );
-
+	m_pSection.lock();
 	if ( m_bActive )
 	{
 		m_bActive = false;
 		networkThread.exit( 0 );
 	}
-
+	m_pSection.unlock();
 }
 void NetworkG2::setupThread()
 {

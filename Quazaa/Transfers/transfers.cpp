@@ -48,32 +48,40 @@ Transfers::~Transfers()
 
 void Transfers::start()
 {
-	if( m_bActive )
+	m_pSection.lock();
+	if ( m_bActive )
+	{
+		m_pSection.unlock();
 		return;
+	}
 
-	systemLog.postLog(LogSeverity::Notice, qPrintable(tr("Starting transfers...")));
+	systemLog.postLog( LogSeverity::Notice, qPrintable( tr( "Starting transfers..." ) ) );
 
 	m_bActive = true;
-	transfersThread.start("Transfers", &m_pSection);
-	m_pController->moveToThread(&transfersThread);
+	transfersThread.start( "Transfers", &m_pSection );
+	m_pController->moveToThread( &transfersThread );
 	Downloads.start();
-	Downloads.moveToThread(&transfersThread);
+	Downloads.moveToThread( &transfersThread );
 
-	connect(&m_oTimer, SIGNAL(timeout()), this, SLOT(onTimer()));
-	connect(&m_oTimer, SIGNAL(timeout()), &Downloads, SLOT(onTimer()));
+	connect( &m_oTimer, SIGNAL(timeout()), this, SLOT(onTimer() ) );
+	connect( &m_oTimer, SIGNAL(timeout()), &Downloads, SLOT(onTimer() ) );
 	m_oTimer.start(1000);
+
+	m_pSection.unlock();
 }
 
 void Transfers::stop()
 {
-	if( !m_bActive )
+	if ( !m_bActive )
+	{
 		return;
+	}
 
-	systemLog.postLog(LogSeverity::Notice, qPrintable(tr("Stopping transfers...")));
+	systemLog.postLog( LogSeverity::Notice, qPrintable( tr( "Stopping transfers..." ) ) );
 
 	m_bActive = false;
 
-	transfersThread.exit(0);
+	transfersThread.exit( 0, true );
 	Downloads.stop();
 }
 

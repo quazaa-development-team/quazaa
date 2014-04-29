@@ -70,7 +70,7 @@ void CChatCore::Start()
 	if( m_bActive )
 		return;
 
-	ChatThread.start("ChatCore", &m_pSection);
+	ChatThread.start( "ChatCore", &m_pSection );
 	m_bActive = true;
 
 	m_pController = new RateController(&m_pSection);
@@ -80,7 +80,7 @@ void CChatCore::Start()
 }
 void CChatCore::Stop()
 {
-	ChatThread.exit(0);
+	ChatThread.exit( 0, true );
 	m_bActive = false;
 
 	qDeleteAll(m_lSessions);
