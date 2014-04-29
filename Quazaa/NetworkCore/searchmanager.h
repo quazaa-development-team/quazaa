@@ -56,7 +56,7 @@ public:
 	ManagedSearch* find(QUuid& oGUID);
 
 	// Returns true if the packet is to be routed
-	bool onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSender, QUuid& oGUID);
+	bool onQueryAcknowledge(G2Packet* pPacket, const EndPoint& oSender, QUuid& oGUID);
 	bool onQueryHit(G2Packet* pPacket, QueryHitInfo* pHitInfo);
 
 signals:

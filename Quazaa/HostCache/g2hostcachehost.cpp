@@ -35,11 +35,11 @@ public:
 	}
 };*/
 
-G2HostCacheHost::G2HostCacheHost(const CEndPoint& oAddress, const quint32 tTimestamp,
+G2HostCacheHost::G2HostCacheHost(const EndPoint& oAddress, const quint32 tTimestamp,
 								 const quint8 nFailures) :
 	HostCacheHost( oAddress, nFailures, tTimestamp, 0 ),
 	m_nQueryKey(    0           ),
-	m_oKeyHost(     CEndPoint() ),
+	m_oKeyHost(     EndPoint() ),
 	m_nKeyTime(     0           ),
 	m_tAck(         0           ),
 	m_tLastQuery(   0           ),
@@ -64,7 +64,7 @@ G2HostCacheHost::G2HostCacheHost(const G2HostCacheHost& oHost, const quint32 tTi
 }
 
 G2HostCacheHost::G2HostCacheHost(const G2HostCacheHost&) :
-	HostCacheHost( CEndPoint(), 0, 0, 0 )
+	HostCacheHost( EndPoint(), 0, 0, 0 )
 {
 	Q_ASSERT( false );
 }
@@ -105,7 +105,7 @@ bool G2HostCacheHost::canQuery(const quint32 tNow) const
 	return tNow - m_tLastQuery > quazaaSettings.Gnutella2.QueryHostThrottle;
 }
 
-void G2HostCacheHost::setKey(quint32 nKey, const quint32 tNow, CEndPoint* pHost)
+void G2HostCacheHost::setKey(quint32 nKey, const quint32 tNow, EndPoint* pHost)
 {
 	// TODO: remove in alpha1
 	Q_ASSERT( m_bIteratorValid );
@@ -120,7 +120,7 @@ void G2HostCacheHost::setKey(quint32 nKey, const quint32 tNow, CEndPoint* pHost)
 #ifndef QUAZAA_SETUP_UNIT_TESTS
 						  networkG2.getLocalAddress();
 #else
-						  CEndPoint();
+						  EndPoint();
 #endif // QUAZAA_SETUP_UNIT_TESTS
 }
 

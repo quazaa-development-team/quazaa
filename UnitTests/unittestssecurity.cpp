@@ -46,7 +46,7 @@ void UnitTestsSecurity::initTestCase()
 	for ( ushort i = 0; i < m_vSingleIPTestData.size(); ++i )
 	{
 		QString sContent = m_vSingleIPTestData[i].first;
-		CEndPoint oIP = CEndPoint( sContent );
+		EndPoint oIP = EndPoint( sContent );
 
 		//qDebug() << ( QString::number( i ) + " : " + oIP.toString() ).toLocal8Bit().data();
 		if ( m_vSingleIPTestData[i].second )
@@ -198,7 +198,7 @@ void UnitTestsSecurity::testDeniedIPs()
 	QFETCH( QString, IP );
 	QFETCH( bool, isDenied );
 
-	CEndPoint oIP = CEndPoint( IP );
+	EndPoint oIP = EndPoint( IP );
 
 	QCOMPARE( m_pManager->isDenied( oIP ), isDenied );
 }
@@ -220,7 +220,7 @@ void UnitTestsSecurity::benchmarkDeniedIPs()
 {
 	QFETCH( QString, IP );
 
-	CEndPoint oIP = CEndPoint( IP );
+	EndPoint oIP = EndPoint( IP );
 
 	QBENCHMARK
 	{
@@ -246,7 +246,7 @@ void UnitTestsSecurity::testIPRanges()
 	QFETCH( QString, IP );
 	QFETCH( bool, isDenied );
 
-	CEndPoint oIP = CEndPoint( IP );
+	EndPoint oIP = EndPoint( IP );
 
 	QCOMPARE( m_pManager->isDenied( oIP ), isDenied );
 }
@@ -268,7 +268,7 @@ void UnitTestsSecurity::benchmarkIPRanges()
 {
 	QFETCH( QString, IP );
 
-	CEndPoint oIP = CEndPoint( IP );
+	EndPoint oIP = EndPoint( IP );
 
 	QBENCHMARK
 	{
@@ -293,7 +293,7 @@ void UnitTestsSecurity::testCountries()
 {
 	QFETCH( QString, IP );
 
-	CEndPoint oIP = CEndPoint( IP );
+	EndPoint oIP = EndPoint( IP );
 
 	QVERIFY( m_pManager->isDenied( oIP ) );
 }
@@ -422,7 +422,7 @@ void UnitTestsSecurity::testPrivateIPs()
 	QFETCH( QString, IP );
 	QFETCH( bool, isDenied );
 
-	CEndPoint oIP = CEndPoint( IP );
+	EndPoint oIP = EndPoint( IP );
 
 	QCOMPARE( m_pManager->isPrivate( oIP ), isDenied );
 }
@@ -438,7 +438,7 @@ void UnitTestsSecurity::testPrivateIPsOld()
 	QFETCH( QString, IP );
 	QFETCH( bool, isDenied );
 
-	CEndPoint oIP = CEndPoint( IP );
+	EndPoint oIP = EndPoint( IP );
 
 	QCOMPARE( m_pManager->isPrivateOld( oIP ), isDenied );
 }
@@ -453,7 +453,7 @@ void UnitTestsSecurity::testPrivateIPsNew()
 	QFETCH( QString, IP );
 	QFETCH( bool, isDenied );
 
-	CEndPoint oIP = CEndPoint( IP );
+	EndPoint oIP = EndPoint( IP );
 
 	QCOMPARE( m_pManager->isPrivateNew( oIP ), isDenied );
 }
@@ -468,7 +468,7 @@ void UnitTestsSecurity::benchmarkPrivateIPsOld()
 {
 	QFETCH( QString, IP );
 
-	CEndPoint oIP = CEndPoint( IP );
+	EndPoint oIP = EndPoint( IP );
 
 	QBENCHMARK
 	{
@@ -485,7 +485,7 @@ void UnitTestsSecurity::benchmarkPrivateIPsNew()
 {
 	QFETCH( QString, IP );
 
-	CEndPoint oIP = CEndPoint( IP );
+	EndPoint oIP = EndPoint( IP );
 
 	QBENCHMARK
 	{
@@ -638,7 +638,7 @@ void UnitTestsSecurity::prepareTestData()
 	{
 		m_vSingleIPTestData.push_back( std::make_pair( QString( pIPs[i] ), pIPBools[i] ) );
 
-		CEndPoint oTest( m_vSingleIPTestData[i].first );
+		EndPoint oTest( m_vSingleIPTestData[i].first );
 		QVERIFY( !oTest.isNull() );
 		QVERIFY( oTest.toString() == m_vSingleIPTestData[i].first );
 	}
@@ -999,7 +999,7 @@ void UnitTestsSecurity::prepareTestData()
 		m_vIPRangeTestData.push_back( std::make_pair( QString( pIPsForRangeTests[i] ),
 													  pResultsForIPRangeTests[i] ) );
 
-		CEndPoint oTest( m_vIPRangeTestData[i].first );
+		EndPoint oTest( m_vIPRangeTestData[i].first );
 		QVERIFY( !oTest.isNull() );
 		QVERIFY( oTest.toString() == m_vIPRangeTestData[i].first );
 	}
@@ -1018,7 +1018,7 @@ void UnitTestsSecurity::prepareTestData()
 	while ( nCount < NO_OF_COUNTRY_TEST_IPs )
 	{
 		quint32 nIP = common::getRandomNum( nMin, nMax );
-		CEndPoint oIP( nIP );
+		EndPoint oIP( nIP );
 		QVERIFY( !oIP.isNull() );
 
 		QString sCountry = geoIP.findCountryCode( oIP );

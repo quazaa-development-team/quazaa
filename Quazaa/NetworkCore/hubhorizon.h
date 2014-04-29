@@ -33,7 +33,7 @@ class G2Packet;
 class HubHorizonHub
 {
 public:
-	CEndPoint       m_oAddress;
+	EndPoint       m_oAddress;
 	quint32         m_nReference;
 	HubHorizonHub*  m_pNext;
 };
@@ -50,7 +50,7 @@ protected:
 	quint32         m_nBuffer;
 
 public:
-	void		add(CEndPoint oAddress);
+	void		add(EndPoint oAddress);
 	void		clear();
 
 };
@@ -71,9 +71,9 @@ protected:
 public:
 	void				setup();
 	void				clear();
-	HubHorizonHub*		add(CEndPoint oAddress);
+	HubHorizonHub*		add(EndPoint oAddress);
 	void				remove(HubHorizonHub* pHub);
-	HubHorizonHub*		find(CEndPoint oAddress);
+	HubHorizonHub*		find(EndPoint oAddress);
 	int					addHorizonHubs(G2Packet* pPacket);
 
 };

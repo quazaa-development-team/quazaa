@@ -80,7 +80,7 @@ protected:
 	QLinkedList<DatagramIn*>    m_RecvCacheTime;        // A list ordered by recieve time, last is oldest.
 
 	QLinkedList <
-		QPair<CEndPoint, char*>
+		QPair<EndPoint, char*>
 				>               m_AckCache;
 
 	QLinkedList<DatagramIn*> m_FreeDatagramIn;		// A list of free incoming packets.
@@ -106,7 +106,7 @@ public:
 	void listen();
 	void disconnectNode();
 
-	void sendPacket(G2Packet* pPacket, const CEndPoint& oAddr, bool bAck = false,
+	void sendPacket(G2Packet* pPacket, const EndPoint& oAddr, bool bAck = false,
 					DatagramWatcher* pWatcher = NULL, void* pParam = NULL);
 
 	void removeOldIn(bool bForce = false);
@@ -115,15 +115,15 @@ public:
 	void onReceiveGND();
 	void onAcknowledgeGND();
 
-	void onPacket(G2Packet* pPacket, const CEndPoint& addr);
-	void onPing  (G2Packet* pPacket, const CEndPoint& addr);
-	void onPong  (G2Packet* pPacket, const CEndPoint& addr);
-	void onCRAWLR(G2Packet* pPacket, const CEndPoint& addr);
-	void onQKR   (G2Packet* pPacket, const CEndPoint& addr);
-	void onQKA   (G2Packet* pPacket, const CEndPoint& addr);
-	void onQA    (G2Packet* pPacket, const CEndPoint& addr);
-	void onQH2   (G2Packet* pPacket, const CEndPoint& addr);
-	void onQuery (G2Packet* pPacket, const CEndPoint& addr);
+	void onPacket(G2Packet* pPacket, const EndPoint& addr);
+	void onPing  (G2Packet* pPacket, const EndPoint& addr);
+	void onPong  (G2Packet* pPacket, const EndPoint& addr);
+	void onCRAWLR(G2Packet* pPacket, const EndPoint& addr);
+	void onQKR   (G2Packet* pPacket, const EndPoint& addr);
+	void onQKA   (G2Packet* pPacket, const EndPoint& addr);
+	void onQA    (G2Packet* pPacket, const EndPoint& addr);
+	void onQH2   (G2Packet* pPacket, const EndPoint& addr);
+	void onQuery (G2Packet* pPacket, const EndPoint& addr);
 
 	inline quint32 downloadSpeed();
 	inline quint32 uploadSpeed();

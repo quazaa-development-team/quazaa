@@ -219,7 +219,7 @@ QVariant NeighboursTableModel::NeighbourData::data(int col) const
 	switch( col )
 	{
 		case ADDRESS:
-			return const_cast<CEndPoint*>(&oAddress)->toStringWithPort();
+			return const_cast<EndPoint*>(&oAddress)->toStringWithPort();
 		case TIME:
 			if( nState == nsConnected )
 				return QString().sprintf( "%.2u:%.2u:%.2u", tConnected / 3600,

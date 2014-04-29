@@ -207,7 +207,7 @@ void GWC::requestCompleted(QNetworkReply* pReply)
 
 	bool bUpdateOK = false;     // in case we did update, was it successful?
 	QList<QString>   lURLList;  // alternate services returned by the GWC
-	QList<CEndPoint> lHostList; // hosts returned by the GWC
+	QList<EndPoint> lHostList; // hosts returned by the GWC
 
 	if ( pReply->error() == QNetworkReply::NoError )
 	{
@@ -292,7 +292,7 @@ void GWC::requestCompleted(QNetworkReply* pReply)
 				else if ( lp[0] == "H" || lp[0] == "h" )
 				{
 					// found host
-					lHostList.push_back( CEndPoint( lp[1] ) );
+					lHostList.push_back( EndPoint( lp[1] ) );
 					++nHosts;
 				}
 				else if ( lp[0] == "U" || lp[0] == "u" )

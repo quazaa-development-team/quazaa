@@ -63,7 +63,7 @@ public:
 signals:
 
 public slots:
-	Neighbour* connectTo(CEndPoint oAddress, DiscoveryProtocol::Protocol nProtocol,
+	Neighbour* connectTo(EndPoint oAddress, DiscoveryProtocol::Protocol nProtocol,
 						  bool bAutomatic = true);
 	Neighbour* onAccept(NetworkConnection* pConn);
 

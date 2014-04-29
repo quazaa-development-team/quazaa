@@ -437,7 +437,7 @@ Neighbour* NeighboursConnections::onAccept(NetworkConnection* pConn)
 	return pNew;
 }
 
-Neighbour* NeighboursConnections::connectTo(CEndPoint oAddress, DiscoveryProtocol::Protocol nProtocol, bool bAutomatic)
+Neighbour* NeighboursConnections::connectTo(EndPoint oAddress, DiscoveryProtocol::Protocol nProtocol, bool bAutomatic)
 {
 	ASSUME_LOCK(m_pSection);
 

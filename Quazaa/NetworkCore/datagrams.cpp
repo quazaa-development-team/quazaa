@@ -109,7 +109,7 @@ void Datagrams::listen()
 
 	m_pSocket = new QUdpSocket( this );
 
-	CEndPoint addr = networkG2.getLocalAddress();
+	EndPoint addr = networkG2.getLocalAddress();
 	if ( m_pSocket->bind( addr.port() ) )
 	{
 		systemLog.postLog( LogSeverity::Debug, Component::Network,
@@ -165,7 +165,7 @@ void Datagrams::disconnectNode()
 
 	while ( !m_AckCache.isEmpty() )
 	{
-		QPair<CEndPoint, char*> oAck = m_AckCache.takeFirst();
+		QPair<EndPoint, char*> oAck = m_AckCache.takeFirst();
 		delete[] oAck.second;
 	}
 
@@ -217,7 +217,7 @@ void Datagrams::onDatagram()
 		}
 
 		// TODO: Ask brov about this. Should we reply with something like: "You are banned!"?
-		CEndPoint addr(*m_pHostAddress, m_nPort);
+		EndPoint addr(*m_pHostAddress, m_nPort);
 		// Don't continue processing packets from hosts that are banned.
 		if ( securityManager.isDenied(addr) )
 		{
@@ -319,7 +319,7 @@ void Datagrams::onReceiveGND()
 			return;
 		}
 
-		pDatagramIn->create(CEndPoint(*m_pHostAddress, m_nPort), pHeader->nFlags, pHeader->nSequence, pHeader->nCount);
+		pDatagramIn->create(EndPoint(*m_pHostAddress, m_nPort), pHeader->nFlags, pHeader->nSequence, pHeader->nCount);
 
 		for(int i = 0; i < pHeader->nCount; i++)
 		{
@@ -347,7 +347,7 @@ void Datagrams::onReceiveGND()
 
 		//m_pSocket->writeDatagram((char*)&oAck, sizeof(GND_HEADER), *m_pHostAddress, m_nPort);
 		//m_mOutput.Add(sizeof(GND_HEADER));
-		m_AckCache.append(qMakePair(CEndPoint(*m_pHostAddress, m_nPort), reinterpret_cast<char*>(pAck)));
+		m_AckCache.append(qMakePair(EndPoint(*m_pHostAddress, m_nPort), reinterpret_cast<char*>(pAck)));
 		if( m_AckCache.count() == 1 )
 			QMetaObject::invokeMethod(this, "flushSendCache", Qt::QueuedConnection);
 	}
@@ -358,7 +358,7 @@ void Datagrams::onReceiveGND()
 		G2Packet* pPacket = 0;
 		try
 		{
-			CEndPoint addr(*m_pHostAddress, m_nPort);
+			EndPoint addr(*m_pHostAddress, m_nPort);
 			pPacket = pDatagramIn->toG2Packet();
 			if(pPacket)
 			{
@@ -536,7 +536,7 @@ void Datagrams::__FlushSendCache()
 
 	while( nToWrite > 0 && !m_AckCache.isEmpty() && nMaxPPS > 0)
 	{
-		QPair< CEndPoint, char* > oAck = m_AckCache.takeFirst();
+		QPair< EndPoint, char* > oAck = m_AckCache.takeFirst();
 		m_pSocket->writeDatagram(oAck.second, sizeof(GND_HEADER), oAck.first, oAck.first.port());
 		m_mOutput.add(sizeof(GND_HEADER));
 		nToWrite -= sizeof(GND_HEADER);
@@ -613,7 +613,7 @@ void Datagrams::__FlushSendCache()
 	}
 }
 
-void Datagrams::sendPacket(G2Packet* pPacket, const CEndPoint& oAddr, bool bAck,
+void Datagrams::sendPacket(G2Packet* pPacket, const EndPoint& oAddr, bool bAck,
 						   DatagramWatcher* pWatcher, void* pParam)
 {
 	if ( !m_bActive )
@@ -665,7 +665,7 @@ void Datagrams::sendPacket(G2Packet* pPacket, const CEndPoint& oAddr, bool bAck,
 	__FlushSendCache();
 }
 
-void Datagrams::onPacket(G2Packet* pPacket, const CEndPoint& addr)
+void Datagrams::onPacket(G2Packet* pPacket, const EndPoint& addr)
 {
 	try
 	{
@@ -714,7 +714,7 @@ void Datagrams::onPacket(G2Packet* pPacket, const CEndPoint& addr)
 	}
 }
 
-void Datagrams::onPing(G2Packet* pPacket, const CEndPoint& addr)
+void Datagrams::onPing(G2Packet* pPacket, const EndPoint& addr)
 {
 	Q_UNUSED(pPacket);
 
@@ -723,7 +723,7 @@ void Datagrams::onPing(G2Packet* pPacket, const CEndPoint& addr)
 	pNew->release();
 }
 
-void Datagrams::onPong(G2Packet* pPacket, const CEndPoint& addr)
+void Datagrams::onPong(G2Packet* pPacket, const EndPoint& addr)
 {
 	if(pPacket->m_bCompound)
 	{
@@ -747,7 +747,7 @@ void Datagrams::onPong(G2Packet* pPacket, const CEndPoint& addr)
 	}
 }
 
-void Datagrams::onCRAWLR(G2Packet* pPacket, const CEndPoint& addr)
+void Datagrams::onCRAWLR(G2Packet* pPacket, const EndPoint& addr)
 {
 	QMutexLocker l2(&neighbours.m_pSection);
 
@@ -845,15 +845,15 @@ void Datagrams::onCRAWLR(G2Packet* pPacket, const CEndPoint& addr)
 	pCA->release();
 }
 
-void Datagrams::onQKR(G2Packet* pPacket, const CEndPoint& addr)
+void Datagrams::onQKR(G2Packet* pPacket, const EndPoint& addr)
 {
 	if(!neighbours.isG2Hub())
 	{
 		return;
 	}
 
-	CEndPoint oRequestedAddress = addr;
-	CEndPoint oSendingAddress = addr;
+	EndPoint oRequestedAddress = addr;
+	EndPoint oSendingAddress = addr;
 
 	if(pPacket->m_bCompound)
 	{
@@ -915,7 +915,7 @@ void Datagrams::onQKR(G2Packet* pPacket, const CEndPoint& addr)
 #endif // LOG_QUERY_HANDLING
 }
 
-void Datagrams::onQKA(G2Packet* pPacket, const CEndPoint& addr)
+void Datagrams::onQKA(G2Packet* pPacket, const EndPoint& addr)
 {
 	if ( !pPacket->m_bCompound )
 	{
@@ -979,7 +979,7 @@ void Datagrams::onQKA(G2Packet* pPacket, const CEndPoint& addr)
 	}
 }
 
-void Datagrams::onQA(G2Packet* pPacket, const CEndPoint& addr)
+void Datagrams::onQA(G2Packet* pPacket, const EndPoint& addr)
 {
 	const quint32 tAck = 0;
 	const quint32 tNow = common::getTNowUTC();
@@ -1001,7 +1001,7 @@ void Datagrams::onQA(G2Packet* pPacket, const CEndPoint& addr)
 	}
 }
 
-void Datagrams::onQH2(G2Packet* pPacket, const CEndPoint& addr)
+void Datagrams::onQH2(G2Packet* pPacket, const EndPoint& addr)
 {
 	if ( !pPacket->m_bCompound )
 	{
@@ -1051,7 +1051,7 @@ void Datagrams::onQH2(G2Packet* pPacket, const CEndPoint& addr)
 	}
 }
 
-void Datagrams::onQuery(G2Packet *pPacket, const CEndPoint& addr)
+void Datagrams::onQuery(G2Packet *pPacket, const EndPoint& addr)
 {
 	QuerySharedPtr pQuery = Query::fromPacket( pPacket, &addr );
 

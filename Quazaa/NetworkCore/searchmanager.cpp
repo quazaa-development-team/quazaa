@@ -143,7 +143,7 @@ void SearchManager::onTimer()
  * @param oGUID will be overwritten with the search GUID contained in the packet.
  * @return true: the caller must route the packet; false otherwise
  */
-bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSender, QUuid& oGUID)
+bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const EndPoint& oSender, QUuid& oGUID)
 {
 	// Note: The query acknowledgement packet is used to inform a search client that a target hub
 	// has received its query and is processing it. It also provides information for the search
@@ -169,9 +169,9 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSend
 	{
 		// YES, this is ours, let's parse the packet and process it
 
-		CEndPoint oQAOrigin = oSender;
-		QList<CEndPoint>           lDoneHubs;      // already searched Hubs
-		QHash<CEndPoint, quint32>  lSuggestedHubs; // possible suggestions for searching
+		EndPoint oQAOrigin = oSender;
+		QList<EndPoint>           lDoneHubs;      // already searched Hubs
+		QHash<EndPoint, quint32>  lSuggestedHubs; // possible suggestions for searching
 
 		quint32 tRetryAfter = 0; // number of seconds to wait before retrying the Hub
 		qint64  tAdjust     = 0; // offset between the other's UTC and ours
@@ -207,7 +207,7 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSend
 			{
 				// hub that has now been searched
 
-				CEndPoint oSearchedHub;
+				EndPoint oSearchedHub;
 				if ( nLength >= 16 )
 				{
 					// IPv6
@@ -252,7 +252,7 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSend
 			{
 				// hub suggestion
 
-				CEndPoint suggestion;
+				EndPoint suggestion;
 				pPacket->readHostAddress( &suggestion, !( nLength >= 18 ) );
 				const quint32 tTimeStamp = ( nLength >= (suggestion.protocol() == 0 ? 10u : 22u) ) ?
 											 pPacket->readIntLE<quint32>() + tAdjust : tNow - 60;
@@ -333,13 +333,13 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSend
 		// Add Hubs to the cache
 		if ( Q_LIKELY(!bLikelyFoxy) )
 		{
-			for ( QList<CEndPoint>::iterator itHub = lDoneHubs.begin(); itHub != lDoneHubs.end(); ++itHub )
+			for ( QList<EndPoint>::iterator itHub = lDoneHubs.begin(); itHub != lDoneHubs.end(); ++itHub )
 			{
 				if ( (*itHub).port() )
 					hostCache.add(*itHub, tNow);
 			}
 
-			for ( QHash<CEndPoint, quint32>::iterator itHub = lSuggestedHubs.begin(); itHub != lSuggestedHubs.end(); ++itHub )
+			for ( QHash<EndPoint, quint32>::iterator itHub = lSuggestedHubs.begin(); itHub != lSuggestedHubs.end(); ++itHub )
 			{
 				if ( itHub.key().port() )
 					hostCache.add(itHub.key(), itHub.value());
@@ -347,7 +347,7 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSend
 		}
 		else
 		{
-			CEndPoint oBan = oSender;
+			EndPoint oBan = oSender;
 
 			if ( networkG2.isFirewalled() && !lDoneHubs.isEmpty() )
 			{
@@ -362,7 +362,7 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const CEndPoint& oSend
 								 );
 
 			// remove suggested Hubs from host cache
-			for ( QList<CEndPoint>::iterator itHub = lDoneHubs.begin(); itHub != lDoneHubs.end(); ++itHub )
+			for ( QList<EndPoint>::iterator itHub = lDoneHubs.begin(); itHub != lDoneHubs.end(); ++itHub )
 			{
 				hostCache.remove( *itHub );
 			}

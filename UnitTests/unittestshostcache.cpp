@@ -20,7 +20,7 @@ void UnitTestsHostCache::initTestCase()
 	{
 		if ( m_vTestData[i].second )
 		{
-			CEndPoint oIP = CEndPoint( m_vTestData[i].first, UNIT_TEST_PORT );
+			EndPoint oIP = EndPoint( m_vTestData[i].first, UNIT_TEST_PORT );
 
 			// Use i as a timestamp to be able to test timestamps easily.
 			m_pCache->add( oIP, i );
@@ -40,7 +40,7 @@ void UnitTestsHostCache::testCache()
 	QFETCH( bool, isCached );
 	QFETCH( quint32, timestamp );
 
-	CEndPoint oIP = CEndPoint( IP, UNIT_TEST_PORT );
+	EndPoint oIP = EndPoint( IP, UNIT_TEST_PORT );
 
 	m_pCache->m_pSection.lock();
 	// a NULL pointer is returned if the IP cannot be found in the cache
@@ -308,7 +308,7 @@ void UnitTestsHostCache::prepareTestData()
 	{
 		m_vTestData.push_back( std::make_pair( QString( pIPs[i] ), pResults[i] ) );
 
-		CEndPoint oTest( m_vTestData[i].first );
+		EndPoint oTest( m_vTestData[i].first );
 		QVERIFY( !oTest.isNull() );
 		QVERIFY( oTest.toString() == m_vTestData[i].first );
 	}

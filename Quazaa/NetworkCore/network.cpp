@@ -189,7 +189,7 @@ bool NetworkG2::isFirewalled()
 
 bool NetworkG2::acquireLocalAddress(const QString& sHeader)
 {
-	CEndPoint hostAddr( sHeader, m_oAddress.port() );
+	EndPoint hostAddr( sHeader, m_oAddress.port() );
 
 	if ( hostAddr.isValid() )
 	{
@@ -207,7 +207,7 @@ bool NetworkG2::acquireLocalAddress(const QString& sHeader)
 	}
 }
 
-bool NetworkG2::isConnectedTo(CEndPoint /*addr*/)
+bool NetworkG2::isConnectedTo(EndPoint /*addr*/)
 {
 	return false;
 }
@@ -215,7 +215,7 @@ bool NetworkG2::isConnectedTo(CEndPoint /*addr*/)
 bool NetworkG2::routePacket(QUuid& pTargetGUID, G2Packet* pPacket, bool bLockNeighbours, bool bBuffered)
 {
 	G2Node* pNode = 0;
-	CEndPoint pAddr;
+	EndPoint pAddr;
 
 	if(m_oRoutingTable.find(pTargetGUID, &pNode, &pAddr))
 	{
@@ -267,7 +267,7 @@ bool NetworkG2::routePacket(G2Packet* pPacket, G2Node* pNbr)
 	if(pPacket->getTo(pGUID) && pGUID != quazaaSettings.Profile.GUID)   // No and address != my address
 	{
 		G2Node* pNode = 0;
-		CEndPoint pAddr;
+		EndPoint pAddr;
 
 		if(m_oRoutingTable.find(pGUID, &pNode, &pAddr))
 		{
@@ -310,7 +310,7 @@ bool NetworkG2::routePacket(G2Packet* pPacket, G2Node* pNbr)
 	return false;
 }
 
-void NetworkG2::connectToNode(CEndPoint& /*addr*/)
+void NetworkG2::connectToNode(EndPoint& /*addr*/)
 {
 	// TODO: Verify network is connected before attempting connection and create connection if it is not
 	/*CG2Node* pNew = Neighbours.ConnectTo(addr);

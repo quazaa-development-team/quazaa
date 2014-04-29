@@ -28,36 +28,36 @@
 #include <QHostAddress>
 #include "geoiplist.h"
 
-class CEndPoint : public QHostAddress
+class EndPoint : public QHostAddress
 {
 protected:
 	quint16	m_nPort;
 	mutable QString m_sCountryCode;
 
 public:
-	CEndPoint();
-	explicit CEndPoint(quint32 ip4Addr, quint16 nPort = 0);
-	explicit CEndPoint(quint8* ip6Addr, quint16 nPort = 0);
-	explicit CEndPoint(const Q_IPV6ADDR& ip6Addr, quint16 nPort = 0);
-	explicit CEndPoint(const sockaddr* sockaddr, quint16 nPort = 0);
-	explicit CEndPoint(const QString& address, quint16 nPort);
-	explicit CEndPoint(const QString& address);
-	explicit CEndPoint(const QHostAddress& address, quint16 nPort);
-	CEndPoint(const CEndPoint& copy);
-	CEndPoint(SpecialAddress address, quint16 nPort = 0);
+	EndPoint();
+	explicit EndPoint(quint32 ip4Addr, quint16 nPort = 0);
+	explicit EndPoint(quint8* ip6Addr, quint16 nPort = 0);
+	explicit EndPoint(const Q_IPV6ADDR& ip6Addr, quint16 nPort = 0);
+	explicit EndPoint(const sockaddr* sockaddr, quint16 nPort = 0);
+	explicit EndPoint(const QString& address, quint16 nPort);
+	explicit EndPoint(const QString& address);
+	explicit EndPoint(const QHostAddress& address, quint16 nPort);
+	EndPoint(const EndPoint& copy);
+	EndPoint(SpecialAddress address, quint16 nPort = 0);
 
-	CEndPoint& operator=(const CEndPoint& rhs);
-	CEndPoint& operator++();
-	CEndPoint& operator--();
-	CEndPoint operator++(int);
-	CEndPoint operator--(int);
+	EndPoint& operator=(const EndPoint& rhs);
+	EndPoint& operator++();
+	EndPoint& operator--();
+	EndPoint operator++(int);
+	EndPoint operator--(int);
 
-	bool operator==(const CEndPoint& rhs) const;
-	bool operator!=(const CEndPoint& rhs) const;
-	bool operator<(const CEndPoint& rhs) const;
-	bool operator>(const CEndPoint& rhs) const;
-	bool operator<=(const CEndPoint& rhs) const;
-	bool operator>=(const CEndPoint& rhs) const;
+	bool operator==(const EndPoint& rhs) const;
+	bool operator!=(const EndPoint& rhs) const;
+	bool operator<(const EndPoint& rhs) const;
+	bool operator>(const EndPoint& rhs) const;
+	bool operator<=(const EndPoint& rhs) const;
+	bool operator>=(const EndPoint& rhs) const;
 
 	bool operator==(const QHostAddress& rhs) const;
 	bool operator!=(const QHostAddress& rhs) const;
@@ -76,11 +76,11 @@ public:
 
 	void clear();
 
-	friend QDataStream &operator<<(QDataStream &, const CEndPoint &);
-	friend QDataStream &operator>>(QDataStream &, CEndPoint &);
+	friend QDataStream &operator<<(QDataStream &, const EndPoint &);
+	friend QDataStream &operator>>(QDataStream &, EndPoint &);
 };
 
-QDataStream &operator<<(QDataStream &s, const CEndPoint &rhs);
-QDataStream &operator>>(QDataStream &s, CEndPoint &rhs);
+QDataStream &operator<<(QDataStream &s, const EndPoint &rhs);
+QDataStream &operator>>(QDataStream &s, EndPoint &rhs);
 
 #endif // ENDPOINT_H

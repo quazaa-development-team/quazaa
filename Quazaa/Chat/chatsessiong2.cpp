@@ -62,7 +62,7 @@
  *
  */
 
-CChatSessionG2::CChatSessionG2(CEndPoint oRemoteHost, QObject *parent) :
+CChatSessionG2::CChatSessionG2(EndPoint oRemoteHost, QObject *parent) :
 	ChatSession(parent)
 {
 	m_oRemoteHost = m_oAddress = oRemoteHost;

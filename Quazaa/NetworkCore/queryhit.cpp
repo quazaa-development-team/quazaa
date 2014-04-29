@@ -77,7 +77,7 @@ QueryHit::~QueryHit()
  * @param pSender Where we got the packet from.
  * @return A new QueryHitInfo struct if the packet could be parsed without errors; NULL otherwise.
  */
-QueryHitInfo* QueryHit::readInfo(G2Packet* pPacket, const CEndPoint* const pSender)
+QueryHitInfo* QueryHit::readInfo(G2Packet* pPacket, const EndPoint* const pSender)
 {
 	// do a shallow parsing...
 
@@ -119,7 +119,7 @@ QueryHitInfo* QueryHit::readInfo(G2Packet* pPacket, const CEndPoint* const pSend
 			// node address
 			if ( strcmp( "NA", szType ) == 0 && nLength >= 6 )
 			{
-				CEndPoint oNodeAddr;
+				EndPoint oNodeAddr;
 				pPacket->readHostAddress( &oNodeAddr, !(nLength >= 18) );
 				if ( oNodeAddr.isValid() )
 				{
@@ -140,7 +140,7 @@ QueryHitInfo* QueryHit::readInfo(G2Packet* pPacket, const CEndPoint* const pSend
 			// neighbouring Hub
 			else if(strcmp("NH", szType) == 0 && nLength >= 6)
 			{
-				CEndPoint oNH;
+				EndPoint oNH;
 				pPacket->readHostAddress(&oNH, !(nLength >= 18));
 				if(oNH.isValid())
 				{

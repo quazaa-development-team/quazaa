@@ -30,7 +30,7 @@
 IDProvider<quint32> HostCacheHost::m_oIDProvider;
 bool                HostCacheHost::m_bShutDownFlag = false;
 
-HostCacheHost::HostCacheHost(const CEndPoint& oAddress, const quint8 nFailures,
+HostCacheHost::HostCacheHost(const EndPoint& oAddress, const quint8 nFailures,
 							 const quint32 tTimestamp, const quint32 tLastConnect) :
 	m_nType( DiscoveryProtocol::None ),
 	m_oAddress(     oAddress     ),
@@ -51,7 +51,7 @@ HostCacheHost::~HostCacheHost()
 HostCacheHost* HostCacheHost::load(QDataStream& fsFile, quint32 tNow)
 {
 	quint8    nType;
-	CEndPoint oAddress;
+	EndPoint oAddress;
 	quint8    nFailures;
 	quint32   tTimeStamp;
 	quint32   tLastConnect;

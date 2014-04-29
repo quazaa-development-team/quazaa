@@ -53,7 +53,7 @@ DatagramIn::~DatagramIn()
 	}
 }
 
-void DatagramIn::create(CEndPoint pHost, quint8 nFlags, quint16 nSequence, quint8 nCount)
+void DatagramIn::create(EndPoint pHost, quint8 nFlags, quint16 nSequence, quint8 nCount)
 {
 	m_oAddress = pHost;
 
@@ -141,7 +141,7 @@ DatagramOut::~DatagramOut()
 	}
 }
 
-void DatagramOut::create(CEndPoint oAddr, G2Packet* pPacket, quint16 nSequence, Buffer* pBuffer, bool bAck)
+void DatagramOut::create(EndPoint oAddr, G2Packet* pPacket, quint16 nSequence, Buffer* pBuffer, bool bAck)
 {
 	Q_ASSERT(m_pBuffer == 0);
 

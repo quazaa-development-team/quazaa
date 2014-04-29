@@ -69,7 +69,7 @@ void CDialogConnectTo::on_pushButtonCancel_clicked()
 
 void CDialogConnectTo::on_pushButtonConnect_clicked()
 {
-	CEndPoint tempAddress;
+	EndPoint tempAddress;
 	if(ui->comboBoxAddress->currentText().count(":") > 1) // ipv6 address, check if includes port
 	{
 		if(ui->comboBoxAddress->currentText().contains("[") && ui->comboBoxAddress->currentText().contains("]")
@@ -119,7 +119,7 @@ CDialogConnectTo::ConnectNetwork CDialogConnectTo::getConnectNetwork()
 void CDialogConnectTo::setAddressAndPort(QString newAddressAndPort)
 {
 	addressAndPort = newAddressAndPort;
-	CEndPoint address(newAddressAndPort);
+	EndPoint address(newAddressAndPort);
 	ui->comboBoxAddress->setEditText(address.toString());
 	ui->spinBoxPort->setValue(address.port());
 }

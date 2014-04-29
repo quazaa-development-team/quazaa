@@ -60,7 +60,7 @@ public:
 	QTcpSocket* m_pSocket;  // Socket ;)
 
 	// Host Address
-	CEndPoint   m_oAddress;
+	EndPoint   m_oAddress;
 
 	// Buffer I/O
 	Buffer* m_pInput;
@@ -76,7 +76,7 @@ public:
 	void moveToThread(QThread* thread);
 
 public:
-	virtual void connectTo(CEndPoint oAddress);
+	virtual void connectTo(EndPoint oAddress);
 	virtual void attachTo(NetworkConnection* pOther);
 	virtual void acceptFrom(qintptr nHandle);
 	virtual void close(bool bDelayed = false);
@@ -132,7 +132,7 @@ public:
 	bool isValid() const;
 	void setReadBufferSize(qint64 nSize);
 
-	inline CEndPoint address() const
+	inline EndPoint address() const
 	{
 		return m_oAddress;
 	}

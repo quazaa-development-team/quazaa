@@ -59,7 +59,7 @@ void Query::addURN(const CHash& pHash)
 	m_lHashes.append(pHash);
 }
 
-G2Packet* Query::toG2Packet(CEndPoint* pAddr, quint32 nKey)
+G2Packet* Query::toG2Packet(EndPoint* pAddr, quint32 nKey)
 {
 	G2Packet* pPacket = G2Packet::newPacket("Q2", true);
 
@@ -239,7 +239,7 @@ void Query::buildG2Keywords(QString strPhrase)
 	}
 }
 
-QuerySharedPtr Query::fromPacket(G2Packet *pPacket, const CEndPoint* const pEndpoint)
+QuerySharedPtr Query::fromPacket(G2Packet *pPacket, const EndPoint* const pEndpoint)
 {
 	QuerySharedPtr pQuery( new Query() );
 
@@ -257,7 +257,7 @@ QuerySharedPtr Query::fromPacket(G2Packet *pPacket, const CEndPoint* const pEndp
 	return QuerySharedPtr();
 }
 
-bool Query::fromG2Packet(G2Packet* pPacket, const CEndPoint* const pEndpoint)
+bool Query::fromG2Packet(G2Packet* pPacket, const EndPoint* const pEndpoint)
 {
 	if( !pPacket->m_bCompound )
 		return false;

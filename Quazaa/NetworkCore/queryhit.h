@@ -33,11 +33,11 @@ class Query;
 
 struct QueryHitInfo
 {
-	CEndPoint           m_oNodeAddress;
-	CEndPoint           m_oSenderAddress;
+	EndPoint           m_oNodeAddress;
+	EndPoint           m_oSenderAddress;
 	QUuid               m_oGUID;
 	QUuid               m_oNodeGUID;
-	QList<CEndPoint>    m_lNeighbouringHubs;
+	QList<EndPoint>    m_lNeighbouringHubs;
 	quint8              m_nHops;
 	QString             m_sVendor;
 
@@ -68,7 +68,7 @@ public:
 	QueryHit(QueryHit* pHit); // deep copies hit without m_pNext
 	~QueryHit();
 
-	static QueryHitInfo* readInfo(G2Packet* pPacket, const CEndPoint* const pSender = NULL);
+	static QueryHitInfo* readInfo(G2Packet* pPacket, const EndPoint* const pSender = NULL);
 	static QueryHit*     readPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo);
 
 	void resolveURLs();

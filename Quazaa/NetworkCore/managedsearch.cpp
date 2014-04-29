@@ -292,7 +292,7 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 				 << QString::number( tHCWork ).toLocal8Bit().data();
 #endif
 
-		CEndPoint pReceiver;
+		EndPoint pReceiver;
 
 		bool bRefreshKey = false;
 
@@ -456,7 +456,7 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 #endif
 }
 
-void ManagedSearch::sendG2Query(CEndPoint pReceiver, SharedG2HostPtr pHost,
+void ManagedSearch::sendG2Query(EndPoint pReceiver, SharedG2HostPtr pHost,
 								 quint32* pnMaxPackets, const QDateTime& tNowDT)
 {
 	Q_ASSERT( !pReceiver.isNull() );

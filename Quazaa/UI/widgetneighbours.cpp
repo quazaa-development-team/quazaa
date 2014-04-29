@@ -171,7 +171,7 @@ void CWidgetNeighbours::on_actionNeighbourConnectTo_triggered()
 
 	if (accepted)
 	{
-		CEndPoint ip(dlgConnectTo->getAddressAndPort());
+		EndPoint ip(dlgConnectTo->getAddressAndPort());
 
 		switch (dlgConnectTo->getConnectNetwork())
 		{

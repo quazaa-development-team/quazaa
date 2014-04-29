@@ -82,7 +82,7 @@ void HubHorizonPool::clear()
 	}
 }
 
-HubHorizonHub* HubHorizonPool::add(CEndPoint oAddress)
+HubHorizonHub* HubHorizonPool::add(EndPoint oAddress)
 {
 	HubHorizonHub* pHub = m_pActive;
 	for(; pHub ; pHub = pHub->m_pNext)
@@ -131,7 +131,7 @@ void HubHorizonPool::remove(HubHorizonHub* pHub)
 	}
 }
 
-HubHorizonHub* HubHorizonPool::find(CEndPoint oAddress)
+HubHorizonHub* HubHorizonPool::find(EndPoint oAddress)
 {
 	for(HubHorizonHub* pHub = m_pActive ; pHub ; pHub = pHub->m_pNext)
 	{
@@ -175,7 +175,7 @@ HubHorizonGroup::~HubHorizonGroup()
 	}
 }
 
-void HubHorizonGroup::add(CEndPoint oAddress)
+void HubHorizonGroup::add(EndPoint oAddress)
 {
 	HubHorizonHub** ppHub = m_pList;
 

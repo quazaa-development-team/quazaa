@@ -42,7 +42,7 @@ class G2HostCacheHost : public HostCacheHost
 {
 private:
 	quint32     m_nQueryKey;    // QK
-	CEndPoint   m_oKeyHost;     // host dla ktorego jest QK
+	EndPoint   m_oKeyHost;     // host dla ktorego jest QK
 	quint32     m_nKeyTime;     // kiedy odebrano OK?
 
 	quint32     m_tAck;         // czas ostatniej operacji wymagajacej potwierdzenia
@@ -54,7 +54,7 @@ private:
 	G2HostCacheIterator m_iHostCacheIterator;
 
 public:
-	G2HostCacheHost(const CEndPoint& oAddress, const quint32 tTimestamp, const quint8 nFailures);
+	G2HostCacheHost(const EndPoint& oAddress, const quint32 tTimestamp, const quint8 nFailures);
 	G2HostCacheHost(const G2HostCacheHost& oHost, const quint32 tTimestamp, const quint8 nFailures);
 
 private:
@@ -64,10 +64,10 @@ public:
 	~G2HostCacheHost();
 
 	bool canQuery(const quint32 tNow = common::getTNowUTC()) const;
-	void setKey(quint32 nKey, const quint32 tNow = common::getTNowUTC(), CEndPoint* pHost = NULL);
+	void setKey(quint32 nKey, const quint32 tNow = common::getTNowUTC(), EndPoint* pHost = NULL);
 
 	inline quint32   queryKey()      const { return m_nQueryKey;      }
-	inline CEndPoint keyHost()       const { return m_oKeyHost;       }
+	inline EndPoint keyHost()       const { return m_oKeyHost;       }
 	inline quint32   keyTime()       const { return m_nKeyTime;       }
 	inline quint32   ack()           const { return m_tAck;           }
 	inline quint32   lastQuery()     const { return m_tLastQuery;     }
@@ -75,7 +75,7 @@ public:
 	inline bool      iteratorValid() const { return m_bIteratorValid; }
 
 	inline void      setQueryKey(    quint32   nQueryKey    ) { m_nQueryKey    = nQueryKey;    }
-	inline void      setKeyHost(     CEndPoint nKeyHost     ) { m_oKeyHost     = nKeyHost;     }
+	inline void      setKeyHost(     EndPoint nKeyHost     ) { m_oKeyHost     = nKeyHost;     }
 	inline void      setKeyTime(     quint32   nKeyTime     ) { m_nKeyTime     = nKeyTime;     }
 	inline void      setAck(         quint32   tAck         ) { m_tAck         = tAck;         }
 	inline void      setLastQuery(   quint32   tLastQuery   ) { m_tLastQuery   = tLastQuery;   }

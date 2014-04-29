@@ -40,7 +40,7 @@ class HostCacheHost
 protected:
 	DiscoveryProtocol::Protocol    m_nType;        // The network type
 
-	CEndPoint   m_oAddress;     // Hub address
+	EndPoint   m_oAddress;     // Hub address
 
 	quint32     m_tTimeStamp;   // Kiedy ostatnio widziany
 
@@ -57,7 +57,7 @@ protected:
 	static bool                 m_bShutDownFlag;
 
 public:
-	HostCacheHost(const CEndPoint& oAddress, const quint8 nFailures,
+	HostCacheHost(const EndPoint& oAddress, const quint8 nFailures,
 				  const quint32 tTimestamp,  const quint32 tLastConnect);
 	virtual ~HostCacheHost();
 
@@ -72,7 +72,7 @@ public:
 
 	inline DiscoveryProtocol::Protocol type() const { return m_nType; }
 
-	inline CEndPoint address()       const { return m_oAddress;       }
+	inline EndPoint address()       const { return m_oAddress;       }
 	inline quint32   timestamp()     const { return m_tTimeStamp;     }
 	inline quint32   id()            const { return m_nID;            }
 	inline quint32   lastConnect()   const { return m_tLastConnect;   }
@@ -81,7 +81,7 @@ public:
 
 	// There is no setTimestamp() as the timestamp needs to be maintained by the Host Cache.
 	// The same goes for failures and the GUI ID.
-	inline void      setAddress(     CEndPoint oAddress     ) { m_oAddress     = oAddress;     }
+	inline void      setAddress(     EndPoint oAddress     ) { m_oAddress     = oAddress;     }
 	inline void      setLastConnect( quint32   tLastConnect ) { m_tLastConnect = tLastConnect; }
 
 	// Important: setConnectable() is only to be used by maintain(), else the connectables counter
@@ -103,7 +103,7 @@ class HostData
 public:
 	SharedHostPtr   m_pHost;
 
-	const CEndPoint m_oAddress;
+	const EndPoint m_oAddress;
 	const QString   m_sAddress;
 	const QString   m_sCountryCode;
 	const QString   m_sCountry;

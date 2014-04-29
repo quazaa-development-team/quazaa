@@ -52,7 +52,7 @@ public:
 public:
 	bool             m_bActive;
 	QTimer*          m_pSecondTimer;
-	CEndPoint	     m_oAddress;
+	EndPoint	     m_oAddress;
 
 	RouteTable       m_oRoutingTable;
 	quint32          m_tCleanRoutesNext;
@@ -89,12 +89,12 @@ public:
 					 bool bBuffered = true);
 	bool routePacket(G2Packet* pPacket, G2Node* pNbr = 0);
 
-	inline CEndPoint getLocalAddress()
+	inline EndPoint getLocalAddress()
 	{
 		return m_oAddress;
 	}
 
-	bool isConnectedTo(CEndPoint addr);
+	bool isConnectedTo(EndPoint addr);
 
 public slots:
 	void onSecondTimer();
@@ -102,7 +102,7 @@ public slots:
 	void setupThread();
 	void cleanupThread();
 
-	void connectToNode(CEndPoint& addr);
+	void connectToNode(EndPoint& addr);
 
 	void onSharesReady();
 

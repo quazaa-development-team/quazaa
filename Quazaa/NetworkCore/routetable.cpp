@@ -35,7 +35,7 @@ RouteTable::~RouteTable()
 	m_lRoutes.clear();
 }
 
-bool RouteTable::add(QUuid& pGUID, G2Node* pNeighbour, CEndPoint* pEndPoint, bool bNoExpire)
+bool RouteTable::add(QUuid& pGUID, G2Node* pNeighbour, EndPoint* pEndPoint, bool bNoExpire)
 {
 
 	//qDebug() << "CRouteTable::Add " << pGUID << pNeighbour << pEndpoint << bNoExpire;
@@ -91,7 +91,7 @@ bool RouteTable::add(QUuid& pGUID, G2Node* pNeighbour, bool bNoExpire)
 {
 	return add(pGUID, pNeighbour, 0, bNoExpire);
 }
-bool RouteTable::add(QUuid& pGUID, CEndPoint& pEndpoint, bool bNoExpire)
+bool RouteTable::add(QUuid& pGUID, EndPoint& pEndpoint, bool bNoExpire)
 {
 	return add(pGUID, 0, &pEndpoint, bNoExpire);
 }
@@ -121,7 +121,7 @@ void RouteTable::remove(G2Node* pNeighbour)
 	}
 }
 
-bool RouteTable::find(QUuid& pGUID, G2Node** ppNeighbour, CEndPoint* pEndpoint)
+bool RouteTable::find(QUuid& pGUID, G2Node** ppNeighbour, EndPoint* pEndpoint)
 {
 	Q_ASSERT_X(ppNeighbour || pEndpoint, Q_FUNC_INFO, "Invalid arguments");
 

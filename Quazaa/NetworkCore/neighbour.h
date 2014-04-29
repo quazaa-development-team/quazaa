@@ -58,7 +58,7 @@ public:
 	Neighbour(QObject* parent = NULL);
 	virtual ~Neighbour();
 
-	virtual void connectTo(CEndPoint oAddress)
+	virtual void connectTo(EndPoint oAddress)
 	{
 		systemLog.postLog( LogSeverity::Information, Component::Network,
 						   "Initiating neighbour connection to %s...",

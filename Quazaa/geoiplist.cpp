@@ -104,8 +104,8 @@ void CGeoIPList::loadGeoIP()
 				systemLog.postLog(LogSeverity::Warning, "[GeoIP] Bad line, skippig");
 				continue;
 			}
-			CEndPoint rBegin(line[0] + ":0");
-			CEndPoint rEnd(line[1] + ":0");
+			EndPoint rBegin(line[0] + ":0");
+			EndPoint rEnd(line[1] + ":0");
 			QString sCountry = line[2];
 
 			GeoIPEntry item = QPair<quint32, QPair<quint32, QString> >(rBegin.toIPv4Address(), QPair<quint32, QString>(rEnd.toIPv4Address(), sCountry));
@@ -141,7 +141,7 @@ void CGeoIPList::loadGeoIP()
 
 QString CGeoIPList::findCountryCode(const QString& sIP) const
 {
-	CEndPoint ipAddress( sIP );
+	EndPoint ipAddress( sIP );
 	return findCountryCode( ipAddress );
 }
 

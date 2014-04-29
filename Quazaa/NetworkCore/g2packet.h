@@ -124,9 +124,9 @@ public:
 
 	inline uchar readByte();
 	inline void writeByte(uchar nByte);
-	inline void readHostAddress(CEndPoint* pDest, bool bIP4 = true);
+	inline void readHostAddress(EndPoint* pDest, bool bIP4 = true);
 	inline QUuid readGUID();
-	inline void writeHostAddress(const CEndPoint& src);
+	inline void writeHostAddress(const EndPoint& src);
 	inline void writeGUID(QUuid& guid);
 
 public:
@@ -275,7 +275,7 @@ void G2Packet::writeByte(uchar nByte)
 	write(&nByte, 1);
 }
 
-void G2Packet::readHostAddress(CEndPoint* pDest, bool bIP4)
+void G2Packet::readHostAddress(EndPoint* pDest, bool bIP4)
 {
 	if(bIP4)
 	{
@@ -308,7 +308,7 @@ QUuid G2Packet::readGUID()
 	return ret;
 }
 
-void G2Packet::writeHostAddress(const CEndPoint& src)
+void G2Packet::writeHostAddress(const EndPoint& src)
 {
 	if ( src.protocol() == QAbstractSocket::IPv4Protocol )   // IPv4
 	{

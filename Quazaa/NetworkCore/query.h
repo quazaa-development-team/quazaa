@@ -42,7 +42,7 @@ public:
 	quint64         m_nMinimumSize;
 	quint64         m_nMaximumSize;
 	QString         m_sDescriptiveName;	// Complete search string.
-	CEndPoint		m_oEndpoint;
+	EndPoint		m_oEndpoint;
 	quint32			m_nQueryKey;
 
 	QString			m_sG2PositiveWords;
@@ -65,13 +65,13 @@ public:
 
 	bool checkValid();
 
-	G2Packet* toG2Packet(CEndPoint* pAddr = 0, quint32 nKey = 0);
+	G2Packet* toG2Packet(EndPoint* pAddr = 0, quint32 nKey = 0);
 
-	static QuerySharedPtr fromPacket(G2Packet* pPacket, const CEndPoint* const pEndpoint = NULL);
+	static QuerySharedPtr fromPacket(G2Packet* pPacket, const EndPoint* const pEndpoint = NULL);
 
 private:
 	void buildG2Keywords(QString strPhrase);
-	bool fromG2Packet(G2Packet* pPacket, const CEndPoint* const pEndpoint);
+	bool fromG2Packet(G2Packet* pPacket, const EndPoint* const pEndpoint);
 };
 
 #endif // QUERY_H

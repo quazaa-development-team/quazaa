@@ -737,7 +737,7 @@ void G2Node::sendStartups()
 {
 	if ( networkG2.isListening() )
 	{
-		CEndPoint addr = networkG2.getLocalAddress();
+		EndPoint addr = networkG2.getLocalAddress();
 		G2Packet* pPacket = G2Packet::newPacket( "PI", true );
 		pPacket->writePacket( "UDP", 6 );
 		pPacket->writeHostAddress( addr );
@@ -822,7 +822,7 @@ void G2Node::onPing(G2Packet* pPacket)
 	bool bUdp = false;
 	bool bRelay = false;
 	//	bool bTestFirewall = false;
-	CEndPoint addr;
+	EndPoint addr;
 
 	if(pPacket->m_bCompound)
 	{
@@ -931,7 +931,7 @@ void G2Node::onLNI(G2Packet* pPacket)
 	QUuid pGUID;
 	bool hasGUID = false;
 
-	CEndPoint hostAddr;
+	EndPoint hostAddr;
 
 	char szType[9];
 	quint32 nLength = 0, nNext = 0;
@@ -1049,7 +1049,7 @@ void G2Node::onKHL(G2Packet* pPacket)
 
 			if(nLength >= 6)
 			{
-				CEndPoint pAddr;
+				EndPoint pAddr;
 
 				if(nLength >= 18)
 				{
@@ -1103,7 +1103,7 @@ void G2Node::onKHL(G2Packet* pPacket)
 
 			if(nLength >= 10)
 			{
-				CEndPoint ep;
+				EndPoint ep;
 				// quint32 nTs = 0;
 
 				if(nLength >= 22)
@@ -1204,7 +1204,7 @@ void G2Node::onQKR(G2Packet* pPacket)
 	char szType[9];
 	quint32 nLength = 0, nNext = 0;
 	bool bCacheOK = true;
-	CEndPoint addr;
+	EndPoint addr;
 
 	while(pPacket->readPacket(&szType[0], nLength))
 	{
@@ -1313,7 +1313,7 @@ void G2Node::onQKA(G2Packet* pPacket)
 	m_tKeyRequest = 0;
 
 	quint32 nKey = 0;
-	CEndPoint addr;
+	EndPoint addr;
 
 	char szType[9];
 	quint32 nLength = 0, nNext = 0;
@@ -1425,7 +1425,7 @@ void G2Node::onHaw(G2Packet *pPacket)
 	char szType[9];
 	quint32 nLength = 0, nNext = 0;
 
-	CEndPoint addr;
+	EndPoint addr;
 
 	while ( pPacket->readPacket( &szType[0], nLength ) )
 	{

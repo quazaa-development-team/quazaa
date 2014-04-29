@@ -33,9 +33,9 @@ class CChatSessionG2 : public ChatSession
 {
 	Q_OBJECT
 protected:
-	CEndPoint m_oRemoteHost;
+	EndPoint m_oRemoteHost;
 public:
-	CChatSessionG2(CEndPoint oRemoteHost, QObject *parent = 0);
+	CChatSessionG2(EndPoint oRemoteHost, QObject *parent = 0);
 
 	void connectNode();
 

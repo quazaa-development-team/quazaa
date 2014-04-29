@@ -59,7 +59,7 @@ public:
 		Neighbour*   pNode;
 
 
-		CEndPoint     oAddress;
+		EndPoint     oAddress;
 		G2NodeType    nType;
 		int           nState;
 		QString       sHandshake;

@@ -848,7 +848,7 @@ void CWinMain::on_actionConnectTo_triggered()
 
 	if(accepted)
 	{
-		CEndPoint ip(dlgConnectTo->getAddressAndPort());
+		EndPoint ip(dlgConnectTo->getAddressAndPort());
 
 		switch(dlgConnectTo->getConnectNetwork())
 		{
@@ -887,7 +887,7 @@ void CWinMain::on_actionChatWith_triggered()
 
 	if(accepted)
 	{
-		CEndPoint ip(dlgConnectTo->getAddressAndPort());
+		EndPoint ip(dlgConnectTo->getAddressAndPort());
 
 		switch(dlgConnectTo->getConnectNetwork())
 		{

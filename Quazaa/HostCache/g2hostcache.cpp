@@ -57,11 +57,11 @@ G2HostCache::G2HostCache() :
 	m_nLockWaitTime( 0 ),
 	m_nWorkTime( 0 ),
 #endif
-	m_oLokalAddress( CEndPoint() ),
+	m_oLokalAddress( EndPoint() ),
 	m_bLoading( false )
 {
-	static int foo = qRegisterMetaType<CEndPoint>( "CEndPoint" );
-	static int bar = qRegisterMetaType<CEndPoint*>( "CEndPoint*" );
+	static int foo = qRegisterMetaType<EndPoint>( "EndPoint" );
+	static int bar = qRegisterMetaType<EndPoint*>( "EndPoint*" );
 
 	Q_UNUSED( foo );
 	Q_UNUSED( bar );
@@ -76,23 +76,23 @@ G2HostCache::~G2HostCache()
 }
 
 /**
- * @brief CHostCache::add adds a CEndPoint asynchronously to the Host Cache.
+ * @brief CHostCache::add adds a EndPoint asynchronously to the Host Cache.
  * Locking: YES (asynchronous)
- * @param host: the CEndPoint
+ * @param host: the EndPoint
  * @param tTimeStamp: its timestamp
  */
-void G2HostCache::add(const CEndPoint host, const quint32 tTimeStamp)
+void G2HostCache::add(const EndPoint host, const quint32 tTimeStamp)
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "add()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
-	QMetaObject::invokeMethod( this, "addSync", Qt::QueuedConnection, Q_ARG(CEndPoint, host),
+	QMetaObject::invokeMethod( this, "addSync", Qt::QueuedConnection, Q_ARG(EndPoint, host),
 							   Q_ARG(quint32, tTimeStamp), Q_ARG(bool, true) );
 }
 
 /**
- * @brief CHostCache::addKey adds a CEndPoint asynchronously to the Host Cache.
+ * @brief CHostCache::addKey adds a EndPoint asynchronously to the Host Cache.
  * Locking: YES (asynchronous)
  * @param host
  * @param tTimeStamp
@@ -100,48 +100,48 @@ void G2HostCache::add(const CEndPoint host, const quint32 tTimeStamp)
  * @param nKey
  * @param tNow
  */
-void G2HostCache::addKey(const CEndPoint host, const quint32 tTimeStamp, CEndPoint* pKeyHost, const quint32 nKey, const quint32 tNow)
+void G2HostCache::addKey(const EndPoint host, const quint32 tTimeStamp, EndPoint* pKeyHost, const quint32 nKey, const quint32 tNow)
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "addKey()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
-	QMetaObject::invokeMethod( this, "addSyncKey", Qt::QueuedConnection, Q_ARG(CEndPoint, host),
-							   Q_ARG(quint32, tTimeStamp), Q_ARG(CEndPoint*, pKeyHost),
+	QMetaObject::invokeMethod( this, "addSyncKey", Qt::QueuedConnection, Q_ARG(EndPoint, host),
+							   Q_ARG(quint32, tTimeStamp), Q_ARG(EndPoint*, pKeyHost),
 							   Q_ARG(quint32, nKey),       Q_ARG(quint32, tNow),
 							   Q_ARG(bool, true) );
 }
 
 /**
- * @brief CHostCache::addAck adds a CEndPoint asynchronously to the Host Cache.
+ * @brief CHostCache::addAck adds a EndPoint asynchronously to the Host Cache.
  * Locking: YES (asynchronous)
  * @param host
  * @param tTimeStamp
  * @param tAck
  * @param tNow
  */
-void G2HostCache::addAck(const CEndPoint host, const quint32 tTimeStamp, const quint32 tAck, const quint32 tNow)
+void G2HostCache::addAck(const EndPoint host, const quint32 tTimeStamp, const quint32 tAck, const quint32 tNow)
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "addAck()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
-	QMetaObject::invokeMethod( this, "addSyncAck", Qt::QueuedConnection, Q_ARG(CEndPoint, host),
+	QMetaObject::invokeMethod( this, "addSyncAck", Qt::QueuedConnection, Q_ARG(EndPoint, host),
 							   Q_ARG(quint32, tTimeStamp), Q_ARG(quint32, tAck),
 							   Q_ARG(quint32, tNow), Q_ARG(bool, true) );
 }
 
 /**
- * @brief CHostCache::get allows you to access the CHostCacheHost object pertaining to a given CEndPoint.
+ * @brief CHostCache::get allows you to access the CHostCacheHost object pertaining to a given EndPoint.
  * Locking: REQUIRED
- * @param oHost: The CEndPoint.
- * @return the CHostCacheHost; NULL if the CEndPoint has not been found in the cache.
+ * @param oHost: The EndPoint.
+ * @return the CHostCacheHost; NULL if the EndPoint has not been found in the cache.
  */
-SharedG2HostPtr G2HostCache::get(const CEndPoint& oHost) const
+SharedG2HostPtr G2HostCache::get(const EndPoint& oHost) const
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache,
-					   QString( "get(const CEndPoint&)" ) );
+					   QString( "get(const EndPoint&)" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	ASSUME_LOCK( m_pSection );
@@ -180,25 +180,25 @@ SharedG2HostPtr G2HostCache::get(const CEndPoint& oHost) const
  * @param oAddress: the host
  * @param nFailures: its new failures
  */
-void G2HostCache::updateFailures(const CEndPoint& oAddress, const quint32 nFailures)
+void G2HostCache::updateFailures(const EndPoint& oAddress, const quint32 nFailures)
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "updateFailures()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	QMetaObject::invokeMethod( this, "asyncUpdateFailures", Qt::QueuedConnection,
-							   Q_ARG(CEndPoint, oAddress), Q_ARG(quint32, nFailures) );
+							   Q_ARG(EndPoint, oAddress), Q_ARG(quint32, nFailures) );
 }
 
 /**
- * @brief CHostCache::update updates the timestamp of a CEndPoint contained in the Host Cache.
+ * @brief CHostCache::update updates the timestamp of a EndPoint contained in the Host Cache.
  * Note that the caller needs to make sure the host is actually part of the cache.
  * Locking: REQUIRED
- * @param oHost: the CEndPoint
+ * @param oHost: the EndPoint
  * @param tTimeStamp: its new timestamp
  * @return the CHostCacheHost pointer pertaining to the updated host.
  */
-/*CHostCacheHost* CHostCache::update(const CEndPoint& oHost, const quint32 tTimeStamp)
+/*CHostCacheHost* CHostCache::update(const EndPoint& oHost, const quint32 tTimeStamp)
 {
 	ASSUME_LOCK( m_pSection );
 
@@ -264,17 +264,17 @@ SharedG2HostPtr G2HostCache::update(G2HostCacheIterator& itHost, const quint32 t
 }
 
 /**
- * @brief CHostCache::remove removes a CEndPoint from the cache.
+ * @brief CHostCache::remove removes a EndPoint from the cache.
  * Locking: YES (asynchronous)
- * @param oHost: the CEndPoint
+ * @param oHost: the EndPoint
  */
-void G2HostCache::remove(const CEndPoint& oHost)
+void G2HostCache::remove(const EndPoint& oHost)
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
-	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "remove(CEndPoint&)" ) );
+	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "remove(EndPoint&)" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
-	QMetaObject::invokeMethod( this, "removeSync", Qt::QueuedConnection, Q_ARG(CEndPoint, oHost) );
+	QMetaObject::invokeMethod( this, "removeSync", Qt::QueuedConnection, Q_ARG(EndPoint, oHost) );
 }
 
 /**
@@ -408,19 +408,19 @@ QString G2HostCache::getXTry() const
 }
 
 /**
- * @brief CHostCache::onFailure increases the failure counter of a given CEndPoint
+ * @brief CHostCache::onFailure increases the failure counter of a given EndPoint
  * Locking: YES (asynchronous)
- * @param addr: the CEndPoint
+ * @param addr: the EndPoint
  */
-void G2HostCache::onFailure(const CEndPoint& addr)
+void G2HostCache::onFailure(const EndPoint& addr)
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache,
-					   QString( "onFailure(CEndPoint&)" ) );
+					   QString( "onFailure(EndPoint&)" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	QMetaObject::invokeMethod( this, "asyncOnFailure", Qt::QueuedConnection,
-							   Q_ARG(CEndPoint, addr) );
+							   Q_ARG(EndPoint, addr) );
 }
 
 /**
@@ -740,14 +740,14 @@ void G2HostCache::localAddressChanged()
 }
 
 /**
- * @brief CHostCache::addSync adds a given CEndPoint synchronously to the cache.
+ * @brief CHostCache::addSync adds a given EndPoint synchronously to the cache.
  * Locking: see bLock
- * @param host: the CEndPoint
+ * @param host: the EndPoint
  * @param tTimeStamp: its timestamp
  * @param bLock: does the method need to lock the mutex?
- * @return the CHostCacheHost pointer pertaining to the CEndPoint
+ * @return the CHostCacheHost pointer pertaining to the EndPoint
  */
-SharedG2HostPtr G2HostCache::addSync(CEndPoint host, quint32 tTimeStamp, bool bLock)
+SharedG2HostPtr G2HostCache::addSync(EndPoint host, quint32 tTimeStamp, bool bLock)
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, "addSync()" );
@@ -769,16 +769,16 @@ SharedG2HostPtr G2HostCache::addSync(CEndPoint host, quint32 tTimeStamp, bool bL
 }
 
 /**
- * @brief CHostCache::addSync adds a given CEndPoint synchronously to the cache.
+ * @brief CHostCache::addSync adds a given EndPoint synchronously to the cache.
  * Locking: YES
- * @param host: the CEndPoint
+ * @param host: the EndPoint
  * @param tTimeStamp: its timestamp
  * @param pKeyHost: the query key host
  * @param nKey: the query key
  * @param tNow: the current time in sec since 1970-01-01 UTC.
- * @return the CHostCacheHost pointer pertaining to the CEndPoint
+ * @return the CHostCacheHost pointer pertaining to the EndPoint
  */
-SharedG2HostPtr G2HostCache::addSyncKey(CEndPoint host, quint32 tTimeStamp, CEndPoint* pKeyHost,
+SharedG2HostPtr G2HostCache::addSyncKey(EndPoint host, quint32 tTimeStamp, EndPoint* pKeyHost,
 									   const quint32 nKey, const quint32 tNow, bool bLock)
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
@@ -800,15 +800,15 @@ SharedG2HostPtr G2HostCache::addSyncKey(CEndPoint host, quint32 tTimeStamp, CEnd
 }
 
 /**
- * @brief CHostCache::addSync adds a given CEndPoint synchronously to the cache.
+ * @brief CHostCache::addSync adds a given EndPoint synchronously to the cache.
  * Locking: YES
- * @param host: the CEndPoint
+ * @param host: the EndPoint
  * @param tTimeStamp: its timestamp
  * @param tAck: the ack time
  * @param tNow: the current time in sec since 1970-01-01 UTC.
- * @return the CHostCacheHost pointer pertaining to the CEndPoint
+ * @return the CHostCacheHost pointer pertaining to the EndPoint
  */
-SharedG2HostPtr G2HostCache::addSyncAck(CEndPoint host, quint32 tTimeStamp,
+SharedG2HostPtr G2HostCache::addSyncAck(EndPoint host, quint32 tTimeStamp,
 									   const quint32 tAck, const quint32 tNow, bool bLock)
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
@@ -830,16 +830,16 @@ SharedG2HostPtr G2HostCache::addSyncAck(CEndPoint host, quint32 tTimeStamp,
 }
 
 /**
- * @brief CHostCache::removeSync removes a CEndPoint from the cache.
+ * @brief CHostCache::removeSync removes a EndPoint from the cache.
  * Note: It should never be necessary to remove a host manually from the cache, manual user
  * interaction excepted. Any banned hosts are removed from the cache automatically.
  * Locking: YES
- * @param oHost: the CEndPoint
+ * @param oHost: the EndPoint
  */
-void G2HostCache::removeSync(CEndPoint oHost)
+void G2HostCache::removeSync(EndPoint oHost)
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
-	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "remove(CEndPoint)" ) );
+	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "remove(EndPoint)" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	m_pSection.lock();
@@ -1061,12 +1061,12 @@ void G2HostCache::stopInternal()
 /**
  * @brief addSyncHelper adds synchronously.
  * Locking: REQUIRED
- * @param host: the CEndPoint to add
+ * @param host: the EndPoint to add
  * @param tTimeStamp: its timestamp
  * @param tNow: the current time in sec since 1970-01-01 UTC.
- * @return the CHostCacheHost pointer pertaining to the CEndPoint
+ * @return the CHostCacheHost pointer pertaining to the EndPoint
  */
-SharedG2HostPtr G2HostCache::addSyncHelper(const CEndPoint& oHostIP, quint32 tTimeStamp,
+SharedG2HostPtr G2HostCache::addSyncHelper(const EndPoint& oHostIP, quint32 tTimeStamp,
 											  const quint32 tNow, quint32 nFailures)
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
@@ -1280,16 +1280,16 @@ void G2HostCache::removeWorst(quint8& nFailures)
 }
 
 /**
- * @brief CHostCache::find allows to obtain the list iterator of a given CEndPoint.
+ * @brief CHostCache::find allows to obtain the list iterator of a given EndPoint.
  * Locking: REQUIRED
- * @param oHost: the given CEndPoint
+ * @param oHost: the given EndPoint
  * @param nFailures: allows the caller to obtain the amount of failures of the host.
  * @return the iterator respectively m_vlHosts[0].end() if not found.
  */
-G2HostCacheIterator G2HostCache::find(const CEndPoint& oHost)
+G2HostCacheIterator G2HostCache::find(const EndPoint& oHost)
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
-	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "find(CEndPoint)" ) );
+	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "find(EndPoint)" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	ASSUME_LOCK( m_pSection );
@@ -1318,7 +1318,7 @@ G2HostCacheIterator G2HostCache::find(const CEndPoint& oHost)
 	return m_lHosts.end();
 }
 
-G2HostCacheConstIterator G2HostCache::find(const CEndPoint& oHost) const
+G2HostCacheConstIterator G2HostCache::find(const EndPoint& oHost) const
 {
 	ASSUME_LOCK( m_pSection );
 
@@ -1481,10 +1481,10 @@ void G2HostCache::registerMetaTypesInternal()
 /**
  * @brief CHostCache::asyncUpdateFailures helper method for updateFailures().
  * Locking: YES
- * @param oAddress: a CEndPoint
+ * @param oAddress: a EndPoint
  * @param nFailures: its new value of failures
  */
-void G2HostCache::asyncUpdateFailures(CEndPoint oAddress, quint32 nNewFailures)
+void G2HostCache::asyncUpdateFailures(EndPoint oAddress, quint32 nNewFailures)
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "asyncUpdtFail()" ) );
@@ -1552,7 +1552,7 @@ void G2HostCache::asyncAddXTry(QString sHeader)
 			continue;
 		}
 
-		CEndPoint oAddress( entry.at( 0 ) );
+		EndPoint oAddress( entry.at( 0 ) );
 		if ( !oAddress.isValid() || securityManager.isDenied( oAddress ) )
 		{
 			continue;
@@ -1576,9 +1576,9 @@ void G2HostCache::asyncAddXTry(QString sHeader)
 /**
  * @brief CHostCache::asyncOnFailure helper method for onFailure().
  * Locking: YES
- * @param addr: the CEndPoint with the connection failure
+ * @param addr: the EndPoint with the connection failure
  */
-void G2HostCache::asyncOnFailure(CEndPoint addr)
+void G2HostCache::asyncOnFailure(EndPoint addr)
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "asyncOnFailure()" ) );

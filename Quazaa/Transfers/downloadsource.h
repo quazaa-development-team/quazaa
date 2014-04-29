@@ -13,9 +13,9 @@ class CDownloadSource : public QObject
 {
 	Q_OBJECT
 public:
-	CEndPoint			m_oAddress;		// source address
+	EndPoint			m_oAddress;		// source address
 	bool				m_bPush;		// is it a push source?
-	QList<CEndPoint>	m_oPushProxies;	// push proxy, in case we can't connect directly
+	QList<EndPoint>	m_oPushProxies;	// push proxy, in case we can't connect directly
 	TransferProtocol	m_nProtocol;	// protocol
 	DiscoveryProtocol::Protocol	m_nNetwork;		// network
 	QUuid				m_oGUID;		// source GUID (needed for pushing)

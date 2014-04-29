@@ -141,7 +141,7 @@ NetworkConnection::~NetworkConnection()
 	}
 }
 
-void NetworkConnection::connectTo(CEndPoint oAddress)
+void NetworkConnection::connectTo(EndPoint oAddress)
 {
 	m_oAddress = oAddress;
 

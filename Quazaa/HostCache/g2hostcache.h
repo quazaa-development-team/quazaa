@@ -68,7 +68,7 @@ private:
 	QAtomicInt              m_nWorkTime;
 #endif // ENABLE_G2_HOST_CACHE_BENCHMARKING
 
-	CEndPoint               m_oLokalAddress;
+	EndPoint               m_oLokalAddress;
 
 	bool                    m_bLoading;
 
@@ -76,30 +76,30 @@ public:
 	G2HostCache();
 	~G2HostCache();
 
-	void add(const CEndPoint host, const quint32 tTimeStamp);
-	void addKey(const CEndPoint host, const quint32 tTimeStamp,
-				CEndPoint* pKeyHost, const quint32 nKey, const quint32 tNow);
-	void addAck(const CEndPoint host, const quint32 tTimeStamp,
+	void add(const EndPoint host, const quint32 tTimeStamp);
+	void addKey(const EndPoint host, const quint32 tTimeStamp,
+				EndPoint* pKeyHost, const quint32 nKey, const quint32 tNow);
+	void addAck(const EndPoint host, const quint32 tTimeStamp,
 				const quint32 tAck, const quint32 tNow);
 
-	SharedG2HostPtr get(const CEndPoint& oHost) const;
+	SharedG2HostPtr get(const EndPoint& oHost) const;
 	//bool check(const SharedHostPtr pHost) const;
 
-	void updateFailures(const CEndPoint& oAddress, const quint32 nFailures);
+	void updateFailures(const EndPoint& oAddress, const quint32 nFailures);
 
 private: // remove this private if this is ever required...
-//	SharedG2HostPtr update(const CEndPoint& oHost,     const quint32 tTimeStamp);
+//	SharedG2HostPtr update(const EndPoint& oHost,     const quint32 tTimeStamp);
 	SharedG2HostPtr update(G2HostCacheIterator& itHost, const quint32 tTimeStamp,
 						   const quint32 nFailures);
 
 public:
-	void remove(const CEndPoint& oHost);
+	void remove(const EndPoint& oHost);
 	void remove(SharedG2HostPtr pHost);
 
 	void addXTry(QString sHeader);
 	QString getXTry() const;
 
-	void onFailure(const CEndPoint& addr);
+	void onFailure(const EndPoint& addr);
 	SharedG2HostPtr getConnectable(const QSet<SharedG2HostPtr>& oExcept = QSet<SharedG2HostPtr>(),
 								   QString sCountry = QString("ZZ"));
 
@@ -126,13 +126,13 @@ public slots:
 	void localAddressChanged();
 
 private slots:
-	SharedG2HostPtr addSync(CEndPoint host, quint32 tTimeStamp, bool bLock);
-	SharedG2HostPtr addSyncKey(CEndPoint host, quint32 tTimeStamp, CEndPoint* pKeyHost,
+	SharedG2HostPtr addSync(EndPoint host, quint32 tTimeStamp, bool bLock);
+	SharedG2HostPtr addSyncKey(EndPoint host, quint32 tTimeStamp, EndPoint* pKeyHost,
 							   const quint32 nKey, const quint32 tNow, bool bLock);
-	SharedG2HostPtr addSyncAck(CEndPoint host, quint32 tTimeStamp, const quint32 tAck,
+	SharedG2HostPtr addSyncAck(EndPoint host, quint32 tTimeStamp, const quint32 tAck,
 							   const quint32 tNow, bool bLock);
 
-	void removeSync(CEndPoint oHost);
+	void removeSync(EndPoint oHost);
 
 public slots:
 	void sanityCheck();
@@ -147,7 +147,7 @@ private:
 	 */
 	void stopInternal();
 
-	SharedG2HostPtr addSyncHelper(const CEndPoint& oHostIP, quint32 tTimeStamp,
+	SharedG2HostPtr addSyncHelper(const EndPoint& oHostIP, quint32 tTimeStamp,
 									const quint32 tNow, quint32 nNewFailures = 0);
 
 	void insert(SharedG2HostPtr pNew);
@@ -155,8 +155,8 @@ private:
 
 	void removeWorst(quint8& nFailures);
 
-	G2HostCacheIterator      find(const CEndPoint& oHost);
-	G2HostCacheConstIterator find(const CEndPoint& oHost) const;
+	G2HostCacheIterator      find(const EndPoint& oHost);
+	G2HostCacheConstIterator find(const EndPoint& oHost) const;
 
 	G2HostCacheIterator      find(const G2HostCacheHost* const pHost);
 	G2HostCacheConstIterator find(const G2HostCacheHost* const pHost) const;
@@ -166,9 +166,9 @@ private:
 private slots:
 	void startUpInternal();
 	void registerMetaTypesInternal();
-	void asyncUpdateFailures(CEndPoint oAddress, quint32 nNewFailures);
+	void asyncUpdateFailures(EndPoint oAddress, quint32 nNewFailures);
 	void asyncAddXTry(QString sHeader);
-	void asyncOnFailure(CEndPoint addr);
+	void asyncOnFailure(EndPoint addr);
 };
 
 extern G2HostCache hostCache;

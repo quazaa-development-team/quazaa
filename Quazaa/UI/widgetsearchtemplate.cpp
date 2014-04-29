@@ -387,7 +387,7 @@ void WidgetSearchTemplate::on_actionBanNode_triggered()
 												QLineEdit::Normal, "", &ok );
 		if ( ok && !reason.isEmpty() )
 		{
-			CEndPoint address =
+			EndPoint address =
 					itemSearch->m_oHitData.pQueryHit.data()->m_pHitInfo.data()->m_oNodeAddress;
 			securityManager.ban( address, Security::RuleTime::SixMonths, true, reason, false );
 			m_pSearchModel->removeQueryHit( currentItem().row(),
