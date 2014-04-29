@@ -79,22 +79,23 @@ public:
 	void exit(int retcode)
 	{
 		//QMutexLocker l(m_pMutex);
-		systemLog.postLog( LogSeverity::Debug, QString( "%1 Exiting thread"
-														).arg( m_sThreadName ) );
-		//qDebug() << m_sThreadName << "Exiting thread";
+		//systemLog.postLog( LogSeverity::Debug, QString( "%1 Exiting thread"
+		//												).arg( m_sThreadName ) );
+		qDebug() << m_sThreadName << "Exiting thread";
 
 		QThread::exit( retcode );
-		systemLog.postLog( LogSeverity::Debug, QString( "%1 Waiting for thread to finish..."
-														).arg( m_sThreadName ) );
-		//qDebug() << m_sThreadName << "Waiting for thread to finish...";
+		//systemLog.postLog( LogSeverity::Debug, QString( "%1 Waiting for thread to finish..."
+		//												).arg( m_sThreadName ) );
+		qDebug() << m_sThreadName << "Waiting for thread to finish...";
 
 		if ( isRunning() )
 		{
 			m_oStartCond.wait( m_pMutex );
 		}
 		//wait();
-		systemLog.postLog( LogSeverity::Debug, QString( "%1 Thread Finished"
-														).arg( m_sThreadName ) );
+		//systemLog.postLog( LogSeverity::Debug, QString( "%1 Thread Finished"
+		//												).arg( m_sThreadName ) );
+		qDebug() << m_sThreadName << "Thread finished.";
 	}
 
 protected:
