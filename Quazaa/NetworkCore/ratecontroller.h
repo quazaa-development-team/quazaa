@@ -76,11 +76,11 @@ public:
 
 	quint32 downloadSpeed()
 	{
-		return m_mDownload.AvgUsage();
+		return m_mDownload.avgUsage();
 	}
 	quint32 uploadSpeed()
 	{
-		return m_mUpload.AvgUsage();
+		return m_mUpload.avgUsage();
 	}
 
 public slots:

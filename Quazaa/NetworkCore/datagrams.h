@@ -185,11 +185,11 @@ typedef struct
 
 quint32 Datagrams::downloadSpeed()
 {
-	return m_mInput.AvgUsage();
+	return m_mInput.avgUsage();
 }
 quint32 Datagrams::uploadSpeed()
 {
-	return m_mOutput.AvgUsage();
+	return m_mOutput.avgUsage();
 }
 bool Datagrams::isFirewalled()
 {

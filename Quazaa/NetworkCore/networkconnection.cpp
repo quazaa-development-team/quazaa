@@ -31,6 +31,80 @@
 
 #include "debug_new.h"
 
+TCPBandwidthMeter::TCPBandwidthMeter()
+{
+	memset( &m_pSlots[0], 0, sizeof( m_pSlots ) );
+	m_nCurrentSlot = m_nTotal = 0;
+	m_tTime.start();
+}
+
+void TCPBandwidthMeter::add(quint32 nBytes)
+{
+	if ( m_tTime.hasExpired( 250 ) )
+	{
+		int nSlotsToClear = qMin( 20ll, m_tTime.elapsed() / 250ll );
+
+		for ( ; nSlotsToClear; --nSlotsToClear )
+		{
+			m_nCurrentSlot = ( m_nCurrentSlot + 1 ) % 20;
+			m_pSlots[m_nCurrentSlot] = 0;
+		}
+
+		m_tTime.start();
+	}
+
+	m_pSlots[m_nCurrentSlot] += nBytes;
+	m_nTotal += nBytes;
+}
+
+quint32 TCPBandwidthMeter::avgUsage()
+{
+	quint64 nTotal = 0;
+
+	if ( m_tTime.hasExpired( 250 ) )
+	{
+		int nSlotsToClear = qMin( 20ll, m_tTime.elapsed() / 250ll );
+
+		for ( ; nSlotsToClear; --nSlotsToClear )
+		{
+			m_nCurrentSlot = ( m_nCurrentSlot + 1 ) % 20;
+			m_pSlots[m_nCurrentSlot] = 0;
+		}
+
+		m_tTime.start();
+	}
+
+	for ( int i = 0; i < 20; ++i )
+	{
+		nTotal += m_pSlots[i];
+	}
+
+	return nTotal / 5;
+}
+
+quint32 TCPBandwidthMeter::usage()
+{
+	if ( m_tTime.hasExpired( 5000 ) )
+	{
+		return 0;
+	}
+
+	int nSlot = m_nCurrentSlot;
+	quint32 nUsage = 0;
+
+	for ( int i = 0; i < 4; ++i )
+	{
+		nUsage += m_pSlots[nSlot];
+		--nSlot;
+		if ( nSlot < 0 )
+		{
+			nSlot = 19;
+		}
+	}
+
+	return nUsage;
+}
+
 NetworkConnection::NetworkConnection(QObject* parent)
 	: QObject(parent)
 {
@@ -237,7 +311,7 @@ qint64 NetworkConnection::readFromNetwork(qint64 nBytes)
 
 	if(nBytesRead > 0)
 	{
-		m_mInput.Add(nBytesRead);
+		m_mInput.add(nBytesRead);
 		emit readyRead();
 	}
 
@@ -256,7 +330,7 @@ qint64 NetworkConnection::writeToNetwork(qint64 nBytes)
 	}
 
 	m_pOutput->remove(nBytesWritten);
-	m_mOutput.Add(nBytesWritten);
+	m_mOutput.add(nBytesWritten);
 
 	return nBytesWritten;
 }
@@ -354,78 +428,6 @@ QByteArray NetworkConnection::peek(qint64 nMaxLength)
 	return QByteArray::fromRawData( pBuffer->data(),
 									qMin<qint64>( nMaxLength > 0 ? nMaxLength : pBuffer->size(),
 												  pBuffer->size() ) );
-}
-
-TCPBandwidthMeter::TCPBandwidthMeter()
-{
-	memset(&m_pSlots[0], 0, sizeof(m_pSlots));
-	m_nCurrentSlot = m_nTotal = 0;
-	m_tTime.start();
-}
-
-void TCPBandwidthMeter::Add(quint32 nBytes)
-{
-	if(m_tTime.hasExpired(250))
-	{
-		int nSlotsToClear = qMin(20ll, m_tTime.elapsed() / 250ll);
-
-		for(; nSlotsToClear; --nSlotsToClear)
-		{
-			m_nCurrentSlot = (m_nCurrentSlot + 1) % 20;
-			m_pSlots[m_nCurrentSlot] = 0;
-		}
-
-		m_tTime.start();
-	}
-
-	m_pSlots[m_nCurrentSlot] += nBytes;
-	m_nTotal += nBytes;
-}
-quint32 TCPBandwidthMeter::AvgUsage()
-{
-	quint64 nTotal = 0;
-
-	if(m_tTime.hasExpired(250))
-	{
-		int nSlotsToClear = qMin(20ll, m_tTime.elapsed() / 250ll);
-
-		for(; nSlotsToClear; --nSlotsToClear)
-		{
-			m_nCurrentSlot = (m_nCurrentSlot + 1) % 20;
-			m_pSlots[m_nCurrentSlot] = 0;
-		}
-
-		m_tTime.start();
-	}
-
-	for(int i = 0; i < 20; i++)
-	{
-		nTotal += m_pSlots[i];
-	}
-
-	return nTotal / 5;
-}
-quint32 TCPBandwidthMeter::Usage()
-{
-	if(m_tTime.hasExpired(5000))
-	{
-		return 0;
-	}
-
-	int nSlot = m_nCurrentSlot;
-	quint32 nUsage = 0;
-
-	for(int i = 0; i < 4; i++)
-	{
-		nUsage += m_pSlots[nSlot];
-		--nSlot;
-		if(nSlot < 0)
-		{
-			nSlot = 19;
-		}
-	}
-
-	return nUsage;
 }
 
 void NetworkConnection::onDisconnectInt()

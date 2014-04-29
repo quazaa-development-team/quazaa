@@ -46,8 +46,8 @@ NeighboursTableModel::NeighbourData::NeighbourData(Neighbour* pNeighbour) : pNod
 	sHandshake      = pNode->m_sHandshake;
 	oAddress        = pNode->address();
 	tConnected      = tNow - pNode->m_tConnected;
-	nBandwidthIn    = pNode->m_mInput.Usage();
-	nBandwidthOut   = pNode->m_mOutput.Usage();
+	nBandwidthIn    = pNode->m_mInput.usage();
+	nBandwidthOut   = pNode->m_mOutput.usage();
 	nBytesReceived  = pNode->m_mInput.m_nTotal;
 	nBytesSent      = pNode->m_mOutput.m_nTotal;
 	nCompressionIn  = pNode->getTotalInDecompressed();
@@ -126,8 +126,8 @@ bool NeighboursTableModel::NeighbourData::update(int row, int col, QModelIndexLi
 		}
 	}
 
-	nBandwidthIn  = pNode->m_mInput.Usage();
-	nBandwidthOut = pNode->m_mOutput.Usage();
+	nBandwidthIn  = pNode->m_mInput.usage();
+	nBandwidthOut = pNode->m_mOutput.usage();
 	to_update.append( model->index( row, BANDWIDTH ) );
 
 	if ( col == BANDWIDTH )

@@ -175,8 +175,8 @@ void RateController::transfer()
 			++itSocket;
 		}
 
-		m_mDownload.Add(nDownloaded);
-		m_mUpload.Add(nUploaded);
+		m_mDownload.add(nDownloaded);
+		m_mUpload.add(nUploaded);
 	}
 	while(bCanTransferMore && (nToRead > 0 || nToWrite > 0) && !lSockets.isEmpty());
 

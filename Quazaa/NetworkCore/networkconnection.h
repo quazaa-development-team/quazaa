@@ -47,9 +47,9 @@ public:
 public:
 	TCPBandwidthMeter();
 
-	void	Add(quint32 nBytes);
-	quint32	AvgUsage();
-	quint32 Usage();
+	void	add(quint32 nBytes);
+	quint32	avgUsage();
+	quint32 usage();
 
 };
 

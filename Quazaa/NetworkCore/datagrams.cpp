@@ -208,7 +208,7 @@ void Datagrams::onDatagram()
 		m_pRecvBuffer->resize( nSize );
 		qint64 nReadSize = m_pSocket->readDatagram( m_pRecvBuffer->data(), nSize, m_pHostAddress, &m_nPort );
 
-		m_mInput.Add( nReadSize );
+		m_mInput.add( nReadSize );
 
 		if ( nReadSize < 8 )
 		{
@@ -519,18 +519,18 @@ void Datagrams::__FlushSendCache()
 
 	quint32 tNow = time(0);
 
-	qint64 nToWrite = qint64(m_nUploadLimit) - qint64(m_mOutput.Usage());
+	qint64 nToWrite = qint64(m_nUploadLimit) - qint64(m_mOutput.usage());
 
 	static TCPBandwidthMeter meter;
 
 	// TODO: Maybe make it dynamic? So bad routers are automatically detected and settings adjusted?
-	qint64 nMaxPPS = quazaaSettings.Connection.UDPOutLimitPPS - meter.Usage();
+	qint64 nMaxPPS = quazaaSettings.Connection.UDPOutLimitPPS - meter.usage();
 
 	if( nMaxPPS <= 0 )
 	{
 		systemLog.postLog( LogSeverity::Debug, Component::Network,
 						   "UDP: PPS limit reached, ACKS: %d, Packets: %d, Average PPS: %u / %u",
-						   m_AckCache.size(), m_SendCache.size(), meter.AvgUsage(), meter.Usage() );
+						   m_AckCache.size(), m_SendCache.size(), meter.avgUsage(), meter.usage() );
 		return;
 	}
 
@@ -538,11 +538,11 @@ void Datagrams::__FlushSendCache()
 	{
 		QPair< CEndPoint, char* > oAck = m_AckCache.takeFirst();
 		m_pSocket->writeDatagram(oAck.second, sizeof(GND_HEADER), oAck.first, oAck.first.port());
-		m_mOutput.Add(sizeof(GND_HEADER));
+		m_mOutput.add(sizeof(GND_HEADER));
 		nToWrite -= sizeof(GND_HEADER);
 		delete (GND_HEADER*)oAck.second;
 		--nMaxPPS;
-		meter.Add(1);
+		meter.add(1);
 	}
 
 	QHostAddress nLastHost;
@@ -585,7 +585,7 @@ void Datagrams::__FlushSendCache()
 					nToWrite = 0;
 				}
 
-				m_mOutput.Add(nPacket);
+				m_mOutput.add(nPacket);
 
 				if(!pDatagramOut->m_bAck)
 				{
@@ -593,7 +593,7 @@ void Datagrams::__FlushSendCache()
 				}
 
 				nMaxPPS--;
-				meter.Add(1);
+				meter.add(1);
 
 				bSent = true;
 
