@@ -51,6 +51,9 @@ class DatagramIn;
 class Buffer;
 class QHostAddress;
 
+/**
+ * @brief The Datagrams class handles sending and recieving UDP datagrams.
+ */
 class Datagrams : public QObject
 {
 	Q_OBJECT
@@ -103,7 +106,8 @@ public:
 	void listen();
 	void disconnectNode();
 
-	void sendPacket(CEndPoint oAddr, G2Packet* pPacket, bool bAck = false, DatagramWatcher* pWatcher = 0, void* pParam = 0);
+	void sendPacket(G2Packet* pPacket, const CEndPoint& oAddr, bool bAck = false,
+					DatagramWatcher* pWatcher = NULL, void* pParam = NULL);
 
 	void removeOldIn(bool bForce = false);
 	void remove(DatagramIn* pDatagramIn, bool bReclaim = false);
@@ -111,15 +115,15 @@ public:
 	void onReceiveGND();
 	void onAcknowledgeGND();
 
-	void onPacket(CEndPoint addr, G2Packet* pPacket);
-	void onPing(CEndPoint& addr, G2Packet* pPacket);
-	void onPong(CEndPoint& addr, G2Packet* pPacket);
-	void onCRAWLR(CEndPoint& addr, G2Packet* pPacket);
-	void onQKR(CEndPoint& addr, G2Packet* pPacket);
-	void onQKA(CEndPoint& addr, G2Packet* pPacket);
-	void onQA(CEndPoint& addr, G2Packet* pPacket);
-	void onQH2(CEndPoint& addr, G2Packet* pPacket);
-	void onQuery(CEndPoint& addr, G2Packet* pPacket);
+	void onPacket(G2Packet* pPacket, const CEndPoint& addr);
+	void onPing  (G2Packet* pPacket, const CEndPoint& addr);
+	void onPong  (G2Packet* pPacket, const CEndPoint& addr);
+	void onCRAWLR(G2Packet* pPacket, const CEndPoint& addr);
+	void onQKR   (G2Packet* pPacket, const CEndPoint& addr);
+	void onQKA   (G2Packet* pPacket, const CEndPoint& addr);
+	void onQA    (G2Packet* pPacket, const CEndPoint& addr);
+	void onQH2   (G2Packet* pPacket, const CEndPoint& addr);
+	void onQuery (G2Packet* pPacket, const CEndPoint& addr);
 
 	inline quint32 downloadSpeed();
 	inline quint32 uploadSpeed();

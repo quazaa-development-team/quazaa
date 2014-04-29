@@ -239,24 +239,25 @@ void Query::buildG2Keywords(QString strPhrase)
 	}
 }
 
-QuerySharedPtr Query::fromPacket(G2Packet *pPacket, CEndPoint *pEndpoint)
+QuerySharedPtr Query::fromPacket(G2Packet *pPacket, const CEndPoint* const pEndpoint)
 {
-	QuerySharedPtr pQuery(new Query());
+	QuerySharedPtr pQuery( new Query() );
 
 	try
 	{
-		if( pQuery->fromG2Packet(pPacket, pEndpoint) )
+		if ( pQuery->fromG2Packet( pPacket, pEndpoint ) )
 			return pQuery;
 	}
-	catch(...)
+	catch (...)
 	{
-
+		systemLog.postLog( LogSeverity::Debug, Component::G2,
+						   "Failed to parse Query from packet." );
 	}
 
 	return QuerySharedPtr();
 }
 
-bool Query::fromG2Packet(G2Packet *pPacket, CEndPoint *pEndpoint)
+bool Query::fromG2Packet(G2Packet* pPacket, const CEndPoint* const pEndpoint)
 {
 	if( !pPacket->m_bCompound )
 		return false;

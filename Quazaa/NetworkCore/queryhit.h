@@ -68,8 +68,8 @@ public:
 	QueryHit(QueryHit* pHit); // deep copies hit without m_pNext
 	~QueryHit();
 
-	static QueryHitInfo* readInfo(G2Packet* pPacket, CEndPoint* pSender = 0);
-	static QueryHit*    readPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo);
+	static QueryHitInfo* readInfo(G2Packet* pPacket, const CEndPoint* const pSender = NULL);
+	static QueryHit*     readPacket(G2Packet* pPacket, QueryHitInfo* pHitInfo);
 
 	void resolveURLs();
 	bool isValid(Query* pQuery = NULL) const;

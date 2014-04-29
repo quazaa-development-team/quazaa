@@ -77,7 +77,7 @@ QueryHit::~QueryHit()
  * @param pSender Where we got the packet from.
  * @return A new QueryHitInfo struct if the packet could be parsed without errors; NULL otherwise.
  */
-QueryHitInfo* QueryHit::readInfo(G2Packet* pPacket, CEndPoint* pSender)
+QueryHitInfo* QueryHit::readInfo(G2Packet* pPacket, const CEndPoint* const pSender)
 {
 	// do a shallow parsing...
 

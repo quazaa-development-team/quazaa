@@ -228,13 +228,13 @@ void Datagrams::onDatagram()
 			return;
 		}
 
-		m_nInFrags++;
+		++m_nInFrags;
 
 		GND_HEADER* pHeader = (GND_HEADER*)m_pRecvBuffer->data();
 		if ( strncmp( (char*)&pHeader->szTag, "GND", 3 ) == 0 &&
-			 pHeader->nPart > 0 && (pHeader->nCount == 0 || pHeader->nPart <= pHeader->nCount ) )
+			 pHeader->nPart > 0 && ( !pHeader->nCount || pHeader->nPart <= pHeader->nCount ) )
 		{
-			if ( pHeader->nCount == 0 )
+			if ( !pHeader->nCount )
 			{
 				// ACK
 				onAcknowledgeGND();
@@ -347,7 +347,7 @@ void Datagrams::onReceiveGND()
 			pPacket = pDatagramIn->toG2Packet();
 			if(pPacket)
 			{
-				onPacket(addr, pPacket);
+				onPacket( pPacket, addr );
 			}
 		}
 		catch(...)
@@ -598,9 +598,10 @@ void Datagrams::__FlushSendCache()
 	}
 }
 
-void Datagrams::sendPacket(CEndPoint oAddr, G2Packet* pPacket, bool bAck, DatagramWatcher* pWatcher, void* pParam)
+void Datagrams::sendPacket(G2Packet* pPacket, const CEndPoint& oAddr, bool bAck,
+						   DatagramWatcher* pWatcher, void* pParam)
 {
-	if(!m_bActive)
+	if ( !m_bActive )
 	{
 		return;
 	}
@@ -649,41 +650,41 @@ void Datagrams::sendPacket(CEndPoint oAddr, G2Packet* pPacket, bool bAck, Datagr
 	__FlushSendCache();
 }
 
-void Datagrams::onPacket(CEndPoint addr, G2Packet* pPacket)
+void Datagrams::onPacket(G2Packet* pPacket, const CEndPoint& addr)
 {
 	try
 	{
-		if(pPacket->isType("PI"))
+		if ( pPacket->isType( "PI" ) )
 		{
-			onPing(addr, pPacket);
+			onPing( pPacket, addr );
 		}
-		else if(pPacket->isType("PO"))
+		else if ( pPacket->isType( "PO" ) )
 		{
-			onPong(addr, pPacket);
+			onPong( pPacket, addr );
 		}
-		else if(pPacket->isType("CRAWLR"))
+		else if ( pPacket->isType( "CRAWLR" ) )
 		{
-			onCRAWLR(addr, pPacket);
+			onCRAWLR( pPacket, addr );
 		}
-		else if(pPacket->isType("QKR"))
+		else if ( pPacket->isType( "QKR" ) )
 		{
-			onQKR(addr, pPacket);
+			onQKR( pPacket, addr );
 		}
-		else if(pPacket->isType("QKA"))
+		else if ( pPacket->isType( "QKA" ) )
 		{
-			onQKA(addr, pPacket);
+			onQKA( pPacket, addr );
 		}
-		else if(pPacket->isType("QA"))
+		else if ( pPacket->isType( "QA" ) )
 		{
-			onQA(addr, pPacket);
+			onQA( pPacket, addr );
 		}
-		else if(pPacket->isType("QH2"))
+		else if ( pPacket->isType( "QH2" ) )
 		{
-			onQH2(addr, pPacket);
+			onQH2( pPacket, addr );
 		}
-		else if(pPacket->isType("Q2"))
+		else if ( pPacket->isType( "Q2" ) )
 		{
-			onQuery(addr, pPacket);
+			onQuery( pPacket, addr );
 		}
 		else
 		{
@@ -691,23 +692,23 @@ void Datagrams::onPacket(CEndPoint addr, G2Packet* pPacket)
 			//qDebug() << "UDP RECEIVED unknown packet " << pPacket->GetType();
 		}
 	}
-	catch(...)
+	catch ( ... )
 	{
 		systemLog.postLog( LogSeverity::Debug, Component::Network, QString( "malformed packet" ) );
 		//qDebug() << "malformed packet";
 	}
 }
 
-void Datagrams::onPing(CEndPoint& addr, G2Packet* pPacket)
+void Datagrams::onPing(G2Packet* pPacket, const CEndPoint& addr)
 {
 	Q_UNUSED(pPacket);
 
 	G2Packet* pNew = G2Packet::newPacket("PO", false);
-	sendPacket(addr, pNew, false);
+	sendPacket( pNew, addr, false );
 	pNew->release();
 }
 
-void Datagrams::onPong(CEndPoint& addr, G2Packet* pPacket)
+void Datagrams::onPong(G2Packet* pPacket, const CEndPoint& addr)
 {
 	if(pPacket->m_bCompound)
 	{
@@ -731,7 +732,7 @@ void Datagrams::onPong(CEndPoint& addr, G2Packet* pPacket)
 	}
 }
 
-void Datagrams::onCRAWLR(CEndPoint& addr, G2Packet* pPacket)
+void Datagrams::onCRAWLR(G2Packet* pPacket, const CEndPoint& addr)
 {
 	QMutexLocker l2(&neighbours.m_pSection);
 
@@ -824,12 +825,12 @@ void Datagrams::onCRAWLR(CEndPoint& addr, G2Packet* pPacket)
 		}
 	}
 
-	sendPacket(addr, pCA, true);
+	sendPacket( pCA, addr, true );
 
 	pCA->release();
 }
 
-void Datagrams::onQKR(CEndPoint& addr, G2Packet* pPacket)
+void Datagrams::onQKR(G2Packet* pPacket, const CEndPoint& addr)
 {
 	if(!neighbours.isG2Hub())
 	{
@@ -891,7 +892,7 @@ void Datagrams::onQKR(CEndPoint& addr, G2Packet* pPacket)
 	pAns->writePacket(pSNA);
 	pSNA->release();
 
-	sendPacket(oRequestedAddress, pAns, false);
+	sendPacket( pAns, oRequestedAddress, false );
 	pAns->release();
 
 #if LOG_QUERY_HANDLING
@@ -899,7 +900,7 @@ void Datagrams::onQKR(CEndPoint& addr, G2Packet* pPacket)
 #endif // LOG_QUERY_HANDLING
 }
 
-void Datagrams::onQKA(CEndPoint& addr, G2Packet* pPacket)
+void Datagrams::onQKA(G2Packet* pPacket, const CEndPoint& addr)
 {
 	if ( !pPacket->m_bCompound )
 	{
@@ -963,7 +964,7 @@ void Datagrams::onQKA(CEndPoint& addr, G2Packet* pPacket)
 	}
 }
 
-void Datagrams::onQA(CEndPoint& addr, G2Packet* pPacket)
+void Datagrams::onQA(G2Packet* pPacket, const CEndPoint& addr)
 {
 	const quint32 tAck = 0;
 	const quint32 tNow = common::getTNowUTC();
@@ -985,7 +986,7 @@ void Datagrams::onQA(CEndPoint& addr, G2Packet* pPacket)
 	}
 }
 
-void Datagrams::onQH2(CEndPoint& addr, G2Packet* pPacket)
+void Datagrams::onQH2(G2Packet* pPacket, const CEndPoint& addr)
 {
 	if ( !pPacket->m_bCompound )
 	{
@@ -1035,9 +1036,9 @@ void Datagrams::onQH2(CEndPoint& addr, G2Packet* pPacket)
 	}
 }
 
-void Datagrams::onQuery(CEndPoint &addr, G2Packet *pPacket)
+void Datagrams::onQuery(G2Packet *pPacket, const CEndPoint& addr)
 {
-	QuerySharedPtr pQuery = Query::fromPacket(pPacket, &addr);
+	QuerySharedPtr pQuery = Query::fromPacket( pPacket, &addr );
 
 	if(pQuery.isNull())
 	{
@@ -1065,7 +1066,7 @@ void Datagrams::onQuery(CEndPoint &addr, G2Packet *pPacket)
 			pQKA->writePacket("SNA", (pQuery->m_oEndpoint.protocol() == QAbstractSocket::IPv6Protocol ? 18 : 6))->writeHostAddress(pQuery->m_oEndpoint);
 		}
 
-		sendPacket(pQuery->m_oEndpoint, pQKA);
+		sendPacket( pQKA, pQuery->m_oEndpoint );
 		pQKA->release();
 
 		return;
@@ -1084,7 +1085,7 @@ void Datagrams::onQuery(CEndPoint &addr, G2Packet *pPacket)
 		{
 			pQKA->writePacket("SNA", (pQuery->m_oEndpoint.protocol() == QAbstractSocket::IPv6Protocol ? 18 : 6))->writeHostAddress(pQuery->m_oEndpoint);
 		}
-		sendPacket(addr, pPacket);
+		sendPacket( pPacket, addr );
 		pQKA->release();
 
 		return;
@@ -1096,7 +1097,7 @@ void Datagrams::onQuery(CEndPoint &addr, G2Packet *pPacket)
 		qDebug() << "Query already processed, ignoring";
 #endif // LOG_QUERY_HANDLING
 		G2Packet* pQA = neighbours.createQueryAck(pQuery->m_oGUID, false, 0, false);
-		sendPacket(pQuery->m_oEndpoint, pQA, true);
+		sendPacket( pQA, pQuery->m_oEndpoint, true );
 		pQA->release();
 		return;
 	}
@@ -1119,7 +1120,7 @@ void Datagrams::onQuery(CEndPoint &addr, G2Packet *pPacket)
 
 	neighbours.m_pSection.lock();
 	G2Packet* pQA = neighbours.createQueryAck(pQuery->m_oGUID);
-	sendPacket(pQuery->m_oEndpoint, pQA, true);
+	sendPacket( pQA, pQuery->m_oEndpoint, true );
 	pQA->release();
 
 	neighbours.routeQuery(pQuery, pPacket);

@@ -36,9 +36,12 @@
 class QTimer;
 class CThread;
 class G2Packet;
-
 class ManagedSearch;
 
+/**
+ * @brief The NetworkG2 class represents the Gnutella2 network within Quazaa. It allows to connect
+ * to and disconnect from the network and manages the G2 network thread.
+ */
 class NetworkG2 : public QObject
 {
 	Q_OBJECT
@@ -60,7 +63,16 @@ public:
 	NetworkG2(QObject* parent = 0);
 	~NetworkG2();
 
+	/**
+	 * @brief start Starts the G2 network thread and connects to the network if the network has not
+	 * already been started.
+	 */
 	void start();
+
+	/**
+	 * @brief NetworkG2::stop Disconnects from the G2 network and stops the network thread if it is
+	 * currently active.
+	 */
 	void stop();
 
 	/**
@@ -81,7 +93,6 @@ public:
 	{
 		return m_oAddress;
 	}
-
 
 	bool isConnectedTo(CEndPoint addr);
 

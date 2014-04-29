@@ -900,7 +900,7 @@ void G2Node::onPing(G2Packet* pPacket)
 	{
 		G2Packet* pPong = G2Packet::newPacket("PO", true);
 		pPong->writePacket("RELAY", 0);
-		datagrams.sendPacket(addr, pPong, true);
+		datagrams.sendPacket( pPong, addr, true );
 		pPong->release();
 	}
 }
@@ -1292,7 +1292,7 @@ void G2Node::onQKR(G2Packet* pPacket)
 			pQKR->writePacket( "RNA", 18 )->writeHostAddress( networkG2.m_oAddress );
 		}
 
-		datagrams.sendPacket( addr, pQKR, false );
+		datagrams.sendPacket( pQKR, addr, false );
 		pQKR->release();
 	}
 

@@ -393,7 +393,7 @@ void ManagedSearch::searchG2(const QDateTime& tNowDT, quint32* pnMaxPackets)
 						G2Packet* pQKR = G2Packet::newPacket( "QKR", true );
 						pQKR->writePacket( "RNA", (pHub->m_oAddress.protocol() ? 18 : 6)
 										   )->writeHostAddress( pHub->m_oAddress );
-						datagrams.sendPacket( pHost->address(), pQKR, false );
+						datagrams.sendPacket( pQKR, pHost->address(), false );
 						pQKR->release();
 
 #if LOG_QUERY_HANDLING
@@ -479,7 +479,7 @@ void ManagedSearch::sendG2Query(CEndPoint pReceiver, SharedG2HostPtr pHost,
 #endif // LOG_QUERY_HANDLING
 
 		*pnMaxPackets -= 1;
-		datagrams.sendPacket( pHost->address(), pQuery, true );
+		datagrams.sendPacket( pQuery, pHost->address(), true );
 		pQuery->release();
 		++m_nQueryCount;
 	}
@@ -491,7 +491,7 @@ void ManagedSearch::requestG2QueryKey(SharedG2HostPtr pHost)
 	G2Packet* pQKR = G2Packet::newPacket( "QKR", false );
 	pQKR->writePacket( "RNA", (networkG2.m_oAddress.protocol() ? 18 : 6)
 					   )->writeHostAddress( networkG2.m_oAddress );
-	datagrams.sendPacket( pHost->address(), pQKR, false );
+	datagrams.sendPacket( pQKR, pHost->address(), false );
 	pQKR->release();
 
 #if LOG_QUERY_HANDLING

@@ -59,6 +59,10 @@ NetworkG2::~NetworkG2()
 	stop();
 }
 
+/**
+ * @brief start Starts the G2 network thread and connects to the network if the network has not
+ * already been started.
+ */
 void NetworkG2::start()
 {
 	QMutexLocker l( &m_pSection );
@@ -76,18 +80,20 @@ void NetworkG2::start()
 
 	m_oRoutingTable.clear();
 
-	connect( &shareManager, SIGNAL(sharesReady()), this, SLOT(onSharesReady()), Qt::UniqueConnection);
+	connect( &shareManager, &ShareManager::sharesReady,
+			 this, &NetworkG2::onSharesReady, Qt::UniqueConnection );
 
-	networkThread.start("Network", &m_pSection, this);
+	networkThread.start( "Network", &m_pSection, this );
 
-	datagrams.moveToThread(&networkThread);
-	searchManager.moveToThread(&networkThread);
-	neighbours.moveToThread(&networkThread);
+	datagrams.moveToThread( &networkThread );
+	searchManager.moveToThread( &networkThread );
+	neighbours.moveToThread( &networkThread );
 	neighbours.connectNode();
 }
 
 /**
- * @brief NetworkG2::stop Stops the G2 network and network thread if it is currently active.
+ * @brief NetworkG2::stop Disconnects from the G2 network and stops the network thread if it is
+ * currently active.
  */
 void NetworkG2::stop()
 {
@@ -237,7 +243,7 @@ bool NetworkG2::routePacket(QUuid& pTargetGUID, G2Packet* pPacket, bool bLockNei
 		}
 		else if(pAddr.isValid())
 		{
-			datagrams.sendPacket(pAddr, pPacket, true);
+			datagrams.sendPacket( pPacket, pAddr, true );
 
 #if LOG_ROUTED_PACKETS
 			systemLog.postLog(LogSeverity::Debug, QString("CNetwork::RoutePacket %1 Packet: %2 routed to remote node: %3").arg(pTargetGUID.toString()).arg(pPacket->GetType()).arg(pAddr.toString().toLocal8Bit().constData()));
@@ -295,7 +301,7 @@ bool NetworkG2::routePacket(G2Packet* pPacket, G2Node* pNbr)
 			}
 			else if(pAddr.isValid() && bForwardUDP)
 			{
-				datagrams.sendPacket(pAddr, pPacket, true);
+				datagrams.sendPacket( pPacket, pAddr, true );
 				return true;
 			}
 			// drop
