@@ -231,19 +231,34 @@ void Datagrams::onDatagram()
 		++m_nInFrags;
 
 		GND_HEADER* pHeader = (GND_HEADER*)m_pRecvBuffer->data();
-		if ( strncmp( (char*)&pHeader->szTag, "GND", 3 ) == 0 &&
-			 pHeader->nPart > 0 && ( !pHeader->nCount || pHeader->nPart <= pHeader->nCount ) )
+		// else packet is not a GNutella Datagram and we can't handle it here
+		if ( strncmp( (char*)&pHeader->szTag, "GND", 3 ) == 0 )
 		{
-			if ( !pHeader->nCount )
+			// check if nPart and nCount are valid
+			if ( pHeader->nPart > 0 && ( !pHeader->nCount || pHeader->nPart <= pHeader->nCount ) )
 			{
-				// ACK
-				onAcknowledgeGND();
+				// Specs: if nCount == 0, the packet is an ACK
+				if ( !pHeader->nCount )
+				{
+					// ACK
+					onAcknowledgeGND();
+				}
+				else
+				{
+					// DG
+					onReceiveGND();
+				}
 			}
 			else
 			{
-				// DG
-				onReceiveGND();
+				systemLog.postLog( LogSeverity::Debug, Component::G2,
+								   "Received and dropped G2 packet with encoding error in the reliability header data." );
 			}
+		}
+		else
+		{
+			systemLog.postLog( LogSeverity::Debug, Component::G2,
+							   "Received and dropped non-G2 UDP packet." );
 		}
 	}
 }

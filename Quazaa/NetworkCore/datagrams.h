@@ -141,13 +141,43 @@ signals:
 	friend class CNetwork;
 };
 
-#pragma pack(push, 1)
+#pragma pack(push, 1) // instructs the compiler to not to use padding when declaring the struct
+/**
+ * @typedef GND_HEADER defines the UDP reliability protocol control header used in Gnutella2.
+ */
 typedef struct
 {
+	/**
+	 * @brief szTag contains a three byte encoding protocol identifier, in our case "GND" for
+	 * "GNutella Datagram". If this signature is not present the packet should not be decoded as a
+	 * Gnutella2 reliability layer transmission.
+	 */
 	char     szTag[3];
+
+	/**
+	 * @brief nFlags contains flags which modify the content of the packet.
+	 * See: http://g2.doxu.org/index.php/UDP_Transceiver#Encoding
+	 */
 	quint8   nFlags;
+
+	/**
+	 * @brief nSequence contains the sequence number of the packet. Sequence numbers on consecutive
+	 * packets need not be increasing (although that is convenient), they must only be different.
+	 * If a packet is fragmented, all of its fragments will have the same sequence number.
+	 * Byte order is unimportant here.
+	 */
 	quint16  nSequence;
+
+	/**
+	 * @brief nPart contains the fragment part number (1 <= nPart <= nCount)
+	 */
 	quint8   nPart;
+
+	/**
+	 * @brief nCount contains the number of fragment parts in this packet. On a transmission, this
+	 * value will be non-zero (all packets must have at least one fragment). If nCount is zero, this
+	 * is an acknowledgement.
+	 */
 	quint8   nCount;
 } GND_HEADER;
 
