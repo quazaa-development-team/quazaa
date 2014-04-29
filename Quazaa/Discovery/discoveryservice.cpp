@@ -551,7 +551,7 @@ bool DiscoveryService::handleRedirect(QNAMPtr pNAMgr, QNetworkReply* pReply,
 
 		// generate request with redirected URL
 		pRequest = new QNetworkRequest( oRedirect );
-		pRequest->setRawHeader( "User-Agent", CQuazaaGlobals::USER_AGENT_STRING().toLocal8Bit() );
+		pRequest->setRawHeader( "User-Agent", QuazaaGlobals::USER_AGENT_STRING().toLocal8Bit() );
 
 		// remove query strings
 		oOriginal.setQuery( "" );

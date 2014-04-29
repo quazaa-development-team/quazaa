@@ -520,7 +520,7 @@ bool Manager::asyncSyncSavingHelper()
 	postLog( LogSeverity::Debug, "asyncSyncSavingHelper()", true );
 #endif
 
-	const quint32 nCount = common::securedSaveFile( CQuazaaGlobals::DATA_PATH(), "discovery.dat",
+	const quint32 nCount = common::securedSaveFile( QuazaaGlobals::DATA_PATH(), "discovery.dat",
 													Component::Discovery, this,
 													&Manager::writeToFile );
 
@@ -834,7 +834,7 @@ bool Manager::doRemove(ServiceID nID)
 // Called only from within startup sequence
 void Manager::load()
 {
-	QString sPath = CQuazaaGlobals::DATA_PATH() + "discovery.dat";
+	QString sPath = QuazaaGlobals::DATA_PATH() + "discovery.dat";
 
 	if ( load( sPath ) )
 	{
@@ -843,7 +843,7 @@ void Manager::load()
 	}
 	else // Unable to load default file. Switch to backup one instead.
 	{
-		sPath = CQuazaaGlobals::DATA_PATH() + "discovery_backup.dat";
+		sPath = QuazaaGlobals::DATA_PATH() + "discovery_backup.dat";
 
 		postLog( LogSeverity::Warning,
 				 tr( "Failed to load discovery services from primary file. Switching to backup: " )

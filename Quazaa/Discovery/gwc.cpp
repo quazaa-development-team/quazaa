@@ -68,7 +68,7 @@ void GWC::doQuery() throw()
 		query.addQueryItem( "ping", "1" );
 		query.addQueryItem( "get", "1" );
 		query.addQueryItem( "net", "gnutella2" );
-		query.addQueryItem( "client", CQuazaaGlobals::VENDOR_CODE() );
+		query.addQueryItem( "client", QuazaaGlobals::VENDOR_CODE() );
 		query.addQueryItem( "version", sVersion.toLocal8Bit().data() );
 		oURL.setQuery( query );
 	}
@@ -80,7 +80,7 @@ void GWC::doQuery() throw()
 
 	// generate request
 	m_pRequest = new QNetworkRequest( oURL );
-	m_pRequest->setRawHeader( "User-Agent", CQuazaaGlobals::USER_AGENT_STRING().toLocal8Bit() );
+	m_pRequest->setRawHeader( "User-Agent", QuazaaGlobals::USER_AGENT_STRING().toLocal8Bit() );
 
 	// obtain network access manager for query
 	m_pNAMgr = discoveryManager.requestNAM();
@@ -109,7 +109,7 @@ void GWC::doUpdate() throw()
 		query.addQueryItem( "update", "1" );
 		query.addQueryItem( "net", "gnutella2" );
 		query.addQueryItem( "ip", sOwnIP );
-		query.addQueryItem( "client", CQuazaaGlobals::VENDOR_CODE() );
+		query.addQueryItem( "client", QuazaaGlobals::VENDOR_CODE() );
 		query.addQueryItem( "version", sVersion );
 
 		if ( !sPromoteURL.isEmpty() )
@@ -127,7 +127,7 @@ void GWC::doUpdate() throw()
 
 	// generate request
 	m_pRequest = new QNetworkRequest( oURL );
-	m_pRequest->setRawHeader( "User-Agent", CQuazaaGlobals::USER_AGENT_STRING().toLocal8Bit() );
+	m_pRequest->setRawHeader( "User-Agent", QuazaaGlobals::USER_AGENT_STRING().toLocal8Bit() );
 
 	// obtain network access manager for update
 	m_pNAMgr = discoveryManager.requestNAM();

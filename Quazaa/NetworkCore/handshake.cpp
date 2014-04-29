@@ -98,7 +98,7 @@ void CHandshake::onRead()
 
 		QByteArray baResp;
 		baResp += "HTTP/1.1 501 Not Implemented\r\n";
-		baResp += "Server: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
+		baResp += "Server: " + QuazaaGlobals::USER_AGENT_STRING() + "\r\n";
 		baResp += "\r\n";
 
 		write( baResp );
@@ -143,13 +143,13 @@ void CHandshake::onWebRequest()
 		QByteArray baResp;
 
 		baResp += "HTTP/1.1 200 OK\r\n";
-		baResp += "Server: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
+		baResp += "Server: " + QuazaaGlobals::USER_AGENT_STRING() + "\r\n";
 		baResp += "Connection: close\r\n";
 		baResp += "Content-Type: text/html; charset=utf-8\r\n";
 
 
 		QByteArray baHtml;
-		baHtml += "<!DOCTYPE html><html><head><title>Quazaa " + CQuazaaGlobals::APPLICATION_VERSION_STRING() + " : Node Information</title>";
+		baHtml += "<!DOCTYPE html><html><head><title>Quazaa " + QuazaaGlobals::APPLICATION_VERSION_STRING() + " : Node Information</title>";
 		baHtml += "<link href=\"/res/favicon.ico\" rel=\"shortcut icon\" type=\"image/vnd.microsoft.icon\" />";
 		baHtml += "<meta name=\"robots\" content=\"noindex,nofollow\"></head>";
 		baHtml += "<body style=\"color:white;background-color:rgb(12,26,43);padding-left:12px;padding-right:12px;\">";
@@ -157,7 +157,7 @@ void CHandshake::onWebRequest()
 		baHtml += "<div style=\"height:130px;border:1px solid rgb(197,197,197);border-bottom:0px;border-radius:6px 6px 0px 0px;background:url('/res/header_background.png') no-repeat scroll left top rgb(0,102,152);\">";
 		baHtml += "<a href=\"http://quazaa.sf.net\"><img src=\"/res/QuazaaLogo.png\"></a></div>";
 		baHtml += "<div style=\"color:rgb(51,51,51);background-color:white;border:1px solid rgb(197,197,197);border-top:0px;border-radius:0px 0px 6px 6px;padding:14px 20px 12px;\">";
-		baHtml += "This node is powered by <a href=\"http://quazaa.sf.net\">Quazaa " + CQuazaaGlobals::APPLICATION_VERSION_STRING() + "</a>.</div></div>";
+		baHtml += "This node is powered by <a href=\"http://quazaa.sf.net\">Quazaa " + QuazaaGlobals::APPLICATION_VERSION_STRING() + "</a>.</div></div>";
 		baHtml += "<div style=\"border:1px solid rgb(197,197,197);box-shadow:0px 0px 8px rgb(189,189,189);border-radius:6px;margin-bottom:15px;margin-left:15px;margin-right:15px;\">";
 		baHtml += "<div style=\"text-align:center;color:white;background-color:rgb(34,34,34);border-radius:6px 6px 0px 0px;padding:14px 20px 12px;\">";
 		baHtml += "What is <a href=\"http://quazaa.sf.net\">Quazaa</a>?</div>";
@@ -238,7 +238,7 @@ void CHandshake::onWebRequest()
 					bFound = true;
 
 					baResp += "HTTP/1.1 200 OK\r\n";
-					baResp += "Server: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
+					baResp += "Server: " + QuazaaGlobals::USER_AGENT_STRING() + "\r\n";
 					baResp += "Connection: close\r\n";
 					baResp += "Content-Length: " + QString::number(f.size()) + "\r\n";
 					baResp += "\r\n";
@@ -256,7 +256,7 @@ void CHandshake::onWebRequest()
 		if( !bFound )
 		{
 			baResp += "HTTP/1.1 404 Not found\r\n";
-			baResp += "Server: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
+			baResp += "Server: " + QuazaaGlobals::USER_AGENT_STRING() + "\r\n";
 			baResp += "Connection: close\r\n";
 			baResp += "Content-Type: text/plain\r\n";
 			baResp += "\r\n";

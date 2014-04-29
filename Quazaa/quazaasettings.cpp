@@ -65,7 +65,7 @@ CQuazaaSettings::CQuazaaSettings()
  */
 void CQuazaaSettings::saveSettings()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Ares");
 	m_qSettings.setValue("Enable", quazaaSettings.Ares.Enable);
@@ -478,7 +478,7 @@ void CQuazaaSettings::saveSettings()
  */
 void CQuazaaSettings::loadSettings()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Ares");
 	quazaaSettings.Ares.Enable = m_qSettings.value("Enable", true).toBool();
@@ -512,7 +512,7 @@ void CQuazaaSettings::loadSettings()
 	quazaaSettings.BitTorrent.SourceExchangePeriod = m_qSettings.value("SourceExchangePeriod", 10).toInt();
 	quazaaSettings.BitTorrent.StartPaused = m_qSettings.value("StartPaused", false).toBool();
 	quazaaSettings.BitTorrent.TestPartials = m_qSettings.value("TestPartials", true).toBool();
-	quazaaSettings.BitTorrent.TorrentPath = m_qSettings.value("TorrentPath", CQuazaaGlobals::STORAGE_PATH() + "Torrents").toString();
+	quazaaSettings.BitTorrent.TorrentPath = m_qSettings.value("TorrentPath", QuazaaGlobals::STORAGE_PATH() + "Torrents").toString();
 	quazaaSettings.BitTorrent.TrackerKey = m_qSettings.value("TrackerKey", true).toBool();
 	quazaaSettings.BitTorrent.UploadCount = m_qSettings.value("UploadCount", 4).toInt();
 	quazaaSettings.BitTorrent.UseKademlia = m_qSettings.value("UseKademlia", true).toBool();
@@ -559,7 +559,7 @@ void CQuazaaSettings::loadSettings()
 	quazaaSettings.Downloads.DropFailedSourcesThreshold = m_qSettings.value("DropFailedSourcesThreshold", 20).toInt();
 	quazaaSettings.Downloads.ExpandDownloads = m_qSettings.value("ExpandDownloads", false).toBool();
 	quazaaSettings.Downloads.FlushSD = m_qSettings.value("FlushSD", true).toBool();
-	quazaaSettings.Downloads.IncompletePath = m_qSettings.value("IncompletePath", CQuazaaGlobals::STORAGE_PATH() + "Incomplete").toString();
+	quazaaSettings.Downloads.IncompletePath = m_qSettings.value("IncompletePath", QuazaaGlobals::STORAGE_PATH() + "Incomplete").toString();
 	quazaaSettings.Downloads.MaxAllowedFailures = m_qSettings.value("MaxAllowedFailures", 10).toInt();
 	quazaaSettings.Downloads.MaxConnectingSources = m_qSettings.value("MaxConnectingSources", 8).toInt();
 	quazaaSettings.Downloads.MaxFiles = m_qSettings.value("MaxFiles", 26).toInt();
@@ -913,7 +913,7 @@ void CQuazaaSettings::loadSettings()
  */
 void CQuazaaSettings::saveChatConnections()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Chat");
 	m_qSettings.setValue("Connections", quazaaSettings.Chat.Connections);
@@ -925,7 +925,7 @@ void CQuazaaSettings::saveChatConnections()
  */
 void CQuazaaSettings::loadChatConnections()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Chat");
 	quazaaSettings.Chat.Connections = m_qSettings.value("Connections");
@@ -937,7 +937,7 @@ void CQuazaaSettings::loadChatConnections()
  */
 void CQuazaaSettings::saveChatConnectionWizard()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Chat");
 	m_qSettings.setValue("Hosts", quazaaSettings.Chat.Hosts);
@@ -953,7 +953,7 @@ void CQuazaaSettings::saveChatConnectionWizard()
  */
 void CQuazaaSettings::loadChatConnectionWizard()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Chat");
 	quazaaSettings.Chat.Hosts = m_qSettings.value("Hosts", QStringList() << "irc.paradoxirc.net" << "us.paradoxirc.net"
@@ -972,7 +972,7 @@ void CQuazaaSettings::loadChatConnectionWizard()
  */
 void CQuazaaSettings::saveChat()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Chat");
 	m_qSettings.setValue("Font", quazaaSettings.Chat.Font);
@@ -1057,7 +1057,7 @@ void CQuazaaSettings::saveChat()
  */
 void CQuazaaSettings::loadChat()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Chat");
 
@@ -1170,7 +1170,7 @@ void CQuazaaSettings::loadChat()
  */
 void CQuazaaSettings::saveProfile()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Profile");
 	m_qSettings.setValue("Age", quazaaSettings.Profile.Age);
@@ -1206,7 +1206,7 @@ void CQuazaaSettings::saveProfile()
  */
 void CQuazaaSettings::loadProfile()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Profile");
 
@@ -1258,7 +1258,7 @@ void CQuazaaSettings::loadProfile()
  */
 void CQuazaaSettings::saveWindowSettings(QMainWindow* window)
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.setValue("WindowGeometry", window->saveGeometry());
 	m_qSettings.setValue("WindowState", window->saveState());
@@ -1341,7 +1341,7 @@ void CQuazaaSettings::saveWindowSettings(QMainWindow* window)
  */
 void CQuazaaSettings::loadWindowSettings(QMainWindow* window)
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	QList<QVariant> intListInitializer;
 	intListInitializer << 0 << 0;
@@ -1423,7 +1423,7 @@ void CQuazaaSettings::loadWindowSettings(QMainWindow* window)
  */
 void CQuazaaSettings::saveLanguageSettings()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Language");
 	m_qSettings.setValue("LanguageFile", quazaaSettings.Language.File);
@@ -1435,7 +1435,7 @@ void CQuazaaSettings::saveLanguageSettings()
  */
 void CQuazaaSettings::loadLanguageSettings()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Language");
 	quazaaSettings.Language.File = m_qSettings.value("LanguageFile", ("quazaa_default_en")).toString();
@@ -1447,7 +1447,7 @@ void CQuazaaSettings::loadLanguageSettings()
  */
 void CQuazaaSettings::saveFirstRun(bool firstRun)
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.setValue("FirstRun", firstRun);
 }
@@ -1457,7 +1457,7 @@ void CQuazaaSettings::saveFirstRun(bool firstRun)
  */
 bool CQuazaaSettings::isFirstRun()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	return m_qSettings.value("FirstRun", true).toBool();
 }
@@ -1467,7 +1467,7 @@ bool CQuazaaSettings::isFirstRun()
  */
 void CQuazaaSettings::saveSkinSettings()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.setValue("SkinFile", Skin.File);
 }
@@ -1477,7 +1477,7 @@ void CQuazaaSettings::saveSkinSettings()
  */
 void CQuazaaSettings::loadSkinSettings()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	Skin.File = m_qSettings.value("SkinFile", qApp->applicationDirPath() + "/Skin/Greenery/Greenery.qsk").toString();
 }
@@ -1487,7 +1487,7 @@ void CQuazaaSettings::loadSkinSettings()
  */
 void CQuazaaSettings::saveLogSettings()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup("Logging");
 	m_qSettings.setValue("SaveLog", Logging.SaveLog);
@@ -1508,7 +1508,7 @@ void CQuazaaSettings::saveLogSettings()
  */
 void CQuazaaSettings::loadLogSettings()
 {
-	QSettings m_qSettings( CQuazaaGlobals::INI_FILE(), QSettings::IniFormat );
+	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
 	m_qSettings.beginGroup( "Logging" );
 	Logging.SaveLog          = m_qSettings.value( "SaveLog",          false ).toBool();

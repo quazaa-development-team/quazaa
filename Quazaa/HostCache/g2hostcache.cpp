@@ -544,7 +544,7 @@ void G2HostCache::save(const quint32 tNow) const
 
 	ASSUME_LOCK( m_pSection );
 
-	quint32 nCount = common::securedSaveFile( CQuazaaGlobals::DATA_PATH(), "hostcache.dat",
+	quint32 nCount = common::securedSaveFile( QuazaaGlobals::DATA_PATH(), "hostcache.dat",
 											  Component::HostCache, this,
 											  &G2HostCache::writeToFile );
 	if ( nCount )
@@ -1371,7 +1371,7 @@ void G2HostCache::load()
 	m_pSection.lock();
 	m_bLoading = true;
 
-	QFile file( CQuazaaGlobals::DATA_PATH() + "hostcache.dat" );
+	QFile file( QuazaaGlobals::DATA_PATH() + "hostcache.dat" );
 
 	if ( !file.exists() || !file.open( QIODevice::ReadOnly ) )
 	{

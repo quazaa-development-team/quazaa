@@ -87,7 +87,7 @@ CSuggestedLineEdit::~CSuggestedLineEdit()
 
 void CSuggestedLineEdit::load()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup(objectName());
 	m_lRecent = m_qSettings.value("recent").toStringList();
@@ -97,7 +97,7 @@ void CSuggestedLineEdit::load()
 
 void CSuggestedLineEdit::save()
 {
-	QSettings m_qSettings(CQuazaaGlobals::INI_FILE(), QSettings::IniFormat);
+	QSettings m_qSettings(QuazaaGlobals::INI_FILE(), QSettings::IniFormat);
 
 	m_qSettings.beginGroup(objectName());
 	m_qSettings.setValue("recent", m_lRecent);

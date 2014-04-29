@@ -72,7 +72,7 @@ CWidgetDownloads::CWidgetDownloads(QWidget* parent) :
 		header->resizeSection(CDownloadsTreeModel::SIZE, fm.width(" 123.45 MB "));
 		header->resizeSection(CDownloadsTreeModel::COMPLETED, fm.width(" 1234.45 MB "));
 		header->resizeSection(CDownloadsTreeModel::BANDWIDTH, fm.width(" 1234.45 MB/s "));
-		header->resizeSection(CDownloadsTreeModel::CLIENT, fm.width(CQuazaaGlobals::USER_AGENT_STRING()));
+		header->resizeSection(CDownloadsTreeModel::CLIENT, fm.width(QuazaaGlobals::USER_AGENT_STRING()));
 		header->resizeSection(CDownloadsTreeModel::PROGRESS, 200);
 		header->resizeSection(CDownloadsTreeModel::PRIORITY, fm.width("    Priority    "));
 		header->resizeSection(CDownloadsTreeModel::STATUS, fm.width("Tracker Down"));

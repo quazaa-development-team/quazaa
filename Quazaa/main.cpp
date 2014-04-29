@@ -77,7 +77,7 @@ static void setApplicationProxy(QUrl url)
 	}
 }
 
-CQuazaaGlobals quazaaGlobals;
+//QuazaaGlobals quazaaGlobals;
 
 int main(int argc, char *argv[])
 {
@@ -165,11 +165,11 @@ int main(int argc, char *argv[])
 
 #endif // Q_OS_LINUX
 
-	theApp.setApplicationName(    CQuazaaGlobals::APPLICATION_NAME() );
-	theApp.setApplicationVersion( CQuazaaGlobals::APPLICATION_VERSION_STRING() );
-	theApp.setOrganizationDomain( CQuazaaGlobals::APPLICATION_ORGANIZATION_DOMAIN() );
-	theApp.setOrganizationName(   CQuazaaGlobals::APPLICATION_ORGANIZATION_NAME() );
-	theApp.setApplicationSlogan( QObject::tr("World class file sharing.") );
+	theApp.setApplicationName(    QuazaaGlobals::APPLICATION_NAME() );
+	theApp.setApplicationVersion( QuazaaGlobals::APPLICATION_VERSION_STRING() );
+	theApp.setOrganizationDomain( QuazaaGlobals::APPLICATION_ORGANIZATION_DOMAIN() );
+	theApp.setOrganizationName(   QuazaaGlobals::APPLICATION_ORGANIZATION_NAME() );
+	theApp.setApplicationSlogan(  QObject::tr("World class file sharing.") );
 
 	QIcon icon;
 	icon.addFile( ":/Resource/Quazaa16.png" );
@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Initialize GeoIP list
-	dlgSplash->updateProgress( 12, QObject::tr( "Loading settings..." ) );
+	dlgSplash->updateProgress( 12, QObject::tr( "Loading GeoIP..." ) );
 	qApp->processEvents();
 	geoIP.loadGeoIP();
 

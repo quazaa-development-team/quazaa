@@ -52,7 +52,7 @@
 /*!
 	Returns the application name of Quazaa at run-time as a string.
  */
-QString CQuazaaGlobals::APPLICATION_NAME()
+QString QuazaaGlobals::APPLICATION_NAME()
 {
 	return "Quazaa";
 }
@@ -61,7 +61,7 @@ QString CQuazaaGlobals::APPLICATION_NAME()
 	Returns the version of Quazaa at run-time as a string.
  */
 #ifdef QT_DEBUG
-QString CQuazaaGlobals::APPLICATION_VERSION()
+QString QuazaaGlobals::APPLICATION_VERSION()
 {
 	return QString().sprintf("%d.%d Git:%s (debug build)", Version::MAJOR, Version::MINOR, Version::REVISION);
 }
@@ -75,7 +75,7 @@ QString CQuazaaGlobals::APPLICATION_VERSION()
 /*!
 	Returns the version of Quazaa including build date at run-time as a string.
  */
-QString CQuazaaGlobals::APPLICATION_VERSION_STRING()
+QString QuazaaGlobals::APPLICATION_VERSION_STRING()
 {
 	return QString().sprintf("%d.%d Git:%s (%s)", Version::MAJOR, Version::MINOR, Version::REVISION, Version::BUILD_DATE);
 }
@@ -83,7 +83,7 @@ QString CQuazaaGlobals::APPLICATION_VERSION_STRING()
 /*!
 	Returns the application fingerprint at run-time as a string.
  */
-QString CQuazaaGlobals::APPLICATION_FINGERPRINT()
+QString QuazaaGlobals::APPLICATION_FINGERPRINT()
 {
 	return "QZ" + APPLICATION_VERSION();
 }
@@ -91,7 +91,7 @@ QString CQuazaaGlobals::APPLICATION_FINGERPRINT()
 /*!
 	Returns the organization name of Quazaa at run-time as a string.
  */
-QString CQuazaaGlobals::APPLICATION_ORGANIZATION_NAME()
+QString QuazaaGlobals::APPLICATION_ORGANIZATION_NAME()
 {
 	return "Quazaa Development Team";
 }
@@ -99,7 +99,7 @@ QString CQuazaaGlobals::APPLICATION_ORGANIZATION_NAME()
 /*!
 	Returns the Quazaa website domain at run-time as a string.
  */
-QString CQuazaaGlobals::APPLICATION_ORGANIZATION_DOMAIN()
+QString QuazaaGlobals::APPLICATION_ORGANIZATION_DOMAIN()
 {
 	return "quazaa.sourceforge.net";
 }
@@ -108,7 +108,7 @@ QString CQuazaaGlobals::APPLICATION_ORGANIZATION_DOMAIN()
 	Returns the user agent of Quazaa at run-time as a string.
 	This is used by most of the network protocols in user agent pakets.
  */
-QString CQuazaaGlobals::USER_AGENT_STRING()
+QString QuazaaGlobals::USER_AGENT_STRING()
 {
 	return APPLICATION_NAME() + "/" + APPLICATION_VERSION().replace(",", ".");
 }
@@ -118,7 +118,7 @@ QString CQuazaaGlobals::USER_AGENT_STRING()
 	This is used by most of the network protocols in vendor code pakets.
  */
 #ifdef QT_DEBUG
-QString CQuazaaGlobals::VENDOR_CODE()
+QString QuazaaGlobals::VENDOR_CODE()
 {
 	return "QAZB";
 }
@@ -132,12 +132,12 @@ QString CQuazaaGlobals::VENDOR_CODE()
 /*!
 	Returns the media open filter used by file open dialogs when opening media files.
  */
-QString CQuazaaGlobals::MEDIA_OPEN_FILTER()
+QString QuazaaGlobals::MEDIA_OPEN_FILTER()
 {
 	return tr("All Media Files ") + "(*.3g2 *.3gp *.3gp2 *.3gpp *.d2v *.divx *.amr *.amv *.asf *.avi *.bik *.drc *.dsa *.dsm *.dss *.dsv *.evo *.flc *.fli *.flic *.flv *.hdmov *.ifo *.ivf *.m1v *.m2p *.m2t *.m2ts *.m2v *.m4v *.mkv *.mov *.mp2v *.mp4 *.mp4v *.mpe *.mpeg *.mpg *.mpv2 *.mpv4 *.mts *.ogm *.ogv *.pss *.pva *.ram *.ratdvd *.rm *.rmm *.roq *.rp *.rmvb *.rpm *.rt *.smi *.smil *.smk *.swf *.tp *.tpr *.ts *.tta *.vob *.vp6 *.wm *.wmp *.wmv *.aac *.ac3 *.aif *.aifc *.aiff *.alac *.au *.cda *.dts *.flac *.mid *.midi *.m1a *.m2a *.m4a *.m4b *.mka *.mpa *.mpc *.mp2 *.mp3 *.oga *.ogg *.ra *.rmi *.snd *.wav *.wma);;" + tr("All Files ") + "(*.*);;" + tr("Video Files ") + "(*.3g2 *.3gp *.3gp2 *.3gpp *.d2v *.divx *.amr *.amv *.asf *.avi *.bik *.drc *.dsa *.dsm *.dss *.dsv *.evo *.flc *.fli *.flic *.flv *.hdmov *.ifo *.ivf *.m1v *.m2p *.m2t *.m2ts *.m2v *.m4v *.mkv *.mov *.mp2v *.mp4 *.mp4v *.mpe *.mpeg *.mpg *.mpv2 *.mpv4 *.mts *.ogm *.ogv *.pss *.pva *.ram *.ratdvd *.rm *.rmm *.roq *.rp *.rmvb *.rpm *.rt *.smi *.smil *.smk *.swf *.tp *.tpr *.ts *.tta *.vob *.vp6 *.wm *.wmp *.wmv);;" + tr("Audio Files") + " (*.aac *.ac3 *.aif *.aifc *.aiff *.alac *.au *.cda *.dts *.flac *.mid *.midi *.m1a *.m2a *.m4a *.m4b *.mka *.mpa *.mpc *.mp2 *.mp3 *.oga *.ogg *.ra *.rmi *.snd *.wav *.wma)";
 }
 
-QString CQuazaaGlobals::SETTINGS_PATH()
+QString QuazaaGlobals::SETTINGS_PATH()
 {
 	QDir path;
 	path.mkpath( ( QString("%1/.quazaa/").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation ) ) ) );
@@ -147,21 +147,21 @@ QString CQuazaaGlobals::SETTINGS_PATH()
 /*!
 	Returns the path to store Quazaa data files.
 */
-QString CQuazaaGlobals::DATA_PATH()
+QString QuazaaGlobals::DATA_PATH()
 {
 	QDir path;
 	path.mkpath(QString( "%1Data/" ).arg( SETTINGS_PATH()));
 	return QDir::toNativeSeparators( QString( "%1Data/" ).arg( SETTINGS_PATH() ) );
 }
 
-QString CQuazaaGlobals::STORAGE_PATH()
+QString QuazaaGlobals::STORAGE_PATH()
 {
 	QDir path;
 	path.mkpath( QString("%1/Quazaa/").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation ) ) );
 	return QDir::toNativeSeparators( QString("%1/Quazaa/").arg(QStandardPaths::writableLocation(QStandardPaths::HomeLocation ) ) );
 }
 
-QString CQuazaaGlobals::INI_FILE()
+QString QuazaaGlobals::INI_FILE()
 {
 	return QString("%1quazaa.ini").arg( SETTINGS_PATH() );
 }

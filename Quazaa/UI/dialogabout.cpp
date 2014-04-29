@@ -37,7 +37,7 @@ CDialogAbout::CDialogAbout(QWidget* parent) :
 	ui(new Ui::CDialogAbout)
 {
 	ui->setupUi(this);
-	ui->labelVersion->setText(ui->labelVersion->text().replace("&lt;version&gt;", CQuazaaGlobals::APPLICATION_VERSION_STRING()));
+	ui->labelVersion->setText(ui->labelVersion->text().replace("&lt;version&gt;", QuazaaGlobals::APPLICATION_VERSION_STRING()));
 	setSkin();
 }
 

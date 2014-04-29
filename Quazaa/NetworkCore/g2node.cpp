@@ -128,7 +128,7 @@ void G2Node::sendLNI()
 		pLNI->writePacket("NA", 18)->writeHostAddress(networkG2.m_oAddress);
 	}
 	pLNI->writePacket("GU", 16)->writeGUID(quazaaSettings.Profile.GUID);
-	pLNI->writePacket("V", 4)->writeString(CQuazaaGlobals::VENDOR_CODE(), false);
+	pLNI->writePacket("V", 4)->writeString(QuazaaGlobals::VENDOR_CODE(), false);
 
 	if(neighbours.isG2Hub())
 	{
@@ -153,7 +153,7 @@ void G2Node::sendHAW()
 	pPacket->writeHostAddress(networkG2.m_oAddress);
 
 	pPacket->writePacket("V", 4);
-	pPacket->writeString(CQuazaaGlobals::VENDOR_CODE());
+	pPacket->writeString(QuazaaGlobals::VENDOR_CODE());
 
 	pPacket->writePacket("HS", 2);
 	pPacket->writeIntLE<quint16>(neighbours.m_nLeavesConnectedG2);
@@ -278,7 +278,7 @@ void G2Node::initiateHandshake()
 	sHandshake += "GNUTELLA CONNECT/0.6\r\n";
 	sHandshake += "Listen-IP: " + networkG2.getLocalAddress().toStringWithPort() + "\r\n";
 	sHandshake += "Remote-IP: " + m_oAddress.toString() + "\r\n";
-	sHandshake += "User-Agent: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
+	sHandshake += "User-Agent: " + QuazaaGlobals::USER_AGENT_STRING() + "\r\n";
 	sHandshake += "Accept: application/x-gnutella2\r\n";
 
 	// TODO: Remove X-Ultrapeer at a later time.
@@ -656,7 +656,7 @@ void G2Node::send_ConnectError(QString sReason, bool bXTry)
 	QByteArray sHandshake;
 
 	sHandshake += "GNUTELLA/0.6 " + sReason + "\r\n";
-	sHandshake += "User-Agent: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
+	sHandshake += "User-Agent: " + QuazaaGlobals::USER_AGENT_STRING() + "\r\n";
 	sHandshake += "Accept: application/x-gnutella2\r\n";
 	sHandshake += "Content-Type: application/x-gnutella2\r\n";
 
@@ -681,7 +681,7 @@ void G2Node::send_ConnectOK(bool bHandshakeStep2, bool bDeflate)
 	QByteArray sHandshake;
 
 	sHandshake += "GNUTELLA/0.6 200 OK\r\n";
-	sHandshake += "User-Agent: " + CQuazaaGlobals::USER_AGENT_STRING() + "\r\n";
+	sHandshake += "User-Agent: " + QuazaaGlobals::USER_AGENT_STRING() + "\r\n";
 	sHandshake += "Content-Type: application/x-gnutella2\r\n";
 
 	// TODO: Remove X-Ultrapeer at a later time.

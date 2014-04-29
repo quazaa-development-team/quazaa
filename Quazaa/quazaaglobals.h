@@ -32,7 +32,7 @@
 #define LOG_ROUTED_PACKETS 0
 #define LOG_CONNECTIONS 0
 
-class CQuazaaGlobals : public QObject
+class QuazaaGlobals : public QObject
 {
 		Q_OBJECT
 public:
