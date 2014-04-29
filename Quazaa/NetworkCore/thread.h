@@ -108,15 +108,9 @@ public:
 
 		if ( isRunning() )
 		{
-			qDebug() << m_sThreadName << "exit(): Thread is running";
-
 			// m_pMutex MUST be locked when calling m_oWaitCond.wait( m_pMutex );
 			Q_ASSERT( !m_pMutex->tryLock() );
 			m_oWaitCond.wait( m_pMutex );
-		}
-		else
-		{
-			qDebug() << m_sThreadName << "exit(): Thread is not running";
 		}
 
 		if ( bNeedLock )
@@ -168,13 +162,12 @@ protected:
 			}
 		}
 
-		qDebug() << m_sThreadName << "run(): waking all";
+		qDebug() << m_sThreadName << "run(): Finished cleanup";
 
 		Q_ASSERT( !m_pMutex->tryLock() );
 		m_oWaitCond.wakeAll();
 		Q_ASSERT( !m_pMutex->tryLock() );
 
-		qDebug() << m_sThreadName << "run(): finished";
 		m_pMutex->unlock();
 	}
 };
