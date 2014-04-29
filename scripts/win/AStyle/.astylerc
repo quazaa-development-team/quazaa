@@ -25,3 +25,11 @@ add-brackets
 
 # Break lines if their length is longer than 120 chars
 max-code-length=120
+
+# Excludes
+exclude=3rdparty
+exclude=bin
+exclude=debug
+exclude=release
+exclude=temp
+exclude=version.h
