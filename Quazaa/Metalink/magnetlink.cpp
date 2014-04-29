@@ -224,7 +224,7 @@ bool CMagnet::parseMagnet(QString sMagnet)
 	return m_lFiles.size() + m_lSearches.size();
 }
 
-bool CMagnet::file(const quint16 nID, CDownload* pDownload) const
+bool CMagnet::file(const quint16 nID, Download* pDownload) const
 {
 	if ( nID >= m_lFiles.size() )
 	{
@@ -233,7 +233,7 @@ bool CMagnet::file(const quint16 nID, CDownload* pDownload) const
 
 	if ( !pDownload )
 	{
-		pDownload = new CDownload();
+		pDownload = new Download();
 	}
 
 	MagnetFile file = operator[]( nID );

@@ -235,7 +235,7 @@ CWinMain::CWinMain(QWidget* parent) :
 
 	interfaceLoaded = true;
 
-	connect(&ChatCore, SIGNAL(openChatWindow(CChatSession*)), this, SLOT(OpenChat(CChatSession*)));
+	connect(&chatCore, SIGNAL(openChatWindow(ChatSession*)), this, SLOT(OpenChat(ChatSession*)));
 	connect(&networkG2, SIGNAL(localAddressChanged()), this, SLOT(localAddressChanged()));
 	connect(&shareManager, SIGNAL(hasherStarted(int)), this, SLOT(onHasherStarted(int)));
 	setSkin();
@@ -800,9 +800,9 @@ void CWinMain::updateStatusBar()
 		return;
 	}
 
-	if(Handshakes.m_pSection.tryLock(50))
+	if(handshakes.m_pSection.tryLock(50))
 	{
-		if(!Handshakes.isFirewalled())
+		if(!handshakes.isFirewalled())
 		{
 			tcpFirewalled = ":/Resource/Network/CheckedShieldGreen.png";
 		}
@@ -810,7 +810,7 @@ void CWinMain::updateStatusBar()
 		{
 			tcpFirewalled = ":/Resource/Network/ShieldRed.png";
 		}
-		Handshakes.m_pSection.unlock();
+		handshakes.m_pSection.unlock();
 	}
 
 	if(neighbours.m_pSection.tryLock(50))
@@ -867,7 +867,7 @@ void CWinMain::on_actionConnectTo_triggered()
 	}
 }
 
-void CWinMain::OpenChat(CChatSession* pSess)
+void CWinMain::OpenChat(ChatSession* pSess)
 {
 	if(dlgPrivateMessages == 0)
 	{

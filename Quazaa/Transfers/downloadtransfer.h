@@ -4,7 +4,7 @@
 #include "transfer.h"
 #include "FileFragments.hpp"
 
-class CDownload;
+class Download;
 class CDownloadSource;
 
 class CDownloadTransfer : public CTransfer
@@ -24,7 +24,7 @@ public:
 	};
 
 public:
-	CDownload*			m_pOwner;
+	Download*			m_pOwner;
 	CDownloadSource*	m_pSource;
 
 	DownloadTransferState m_nState;
@@ -36,7 +36,7 @@ public:
 
 	Fragments::Queue	m_lRequested;
 public:
-	CDownloadTransfer(CDownload* pOwner, CDownloadSource* pSource, QObject *parent = 0);
+	CDownloadTransfer(Download* pOwner, CDownloadSource* pSource, QObject *parent = 0);
 	virtual ~CDownloadTransfer();
 
 	virtual void onTimer(quint32 tNow = 0);

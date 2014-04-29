@@ -42,8 +42,8 @@ CDownloadsTreeModel::CDownloadsTreeModel(QObject *parent) :
 	m_pIconProvider(new FileIconProvider)
 {
 	rootItem = new CDownloadsItemBase(this);
-	connect(&Downloads, SIGNAL(downloadAdded(CDownload*)), this, SLOT(onDownloadAdded(CDownload*)), Qt::QueuedConnection);
-	QMetaObject::invokeMethod(&Downloads, "emitDownloads");
+	connect(&downloads, SIGNAL(downloadAdded(Download*)), this, SLOT(onDownloadAdded(Download*)), Qt::QueuedConnection);
+	QMetaObject::invokeMethod(&downloads, "emitDownloads");
 }
 
 CDownloadsTreeModel::~CDownloadsTreeModel()
@@ -205,11 +205,11 @@ int CDownloadsTreeModel::columnCount(const QModelIndex &parent) const
 	return _NO_OF_COLUMNS;
 }
 
-void CDownloadsTreeModel::onDownloadAdded(CDownload *pDownload)
+void CDownloadsTreeModel::onDownloadAdded(Download *pDownload)
 {
-	QMutexLocker l(&Downloads.m_pSection);
+	QMutexLocker l(&downloads.m_pSection);
 
-	if(!Downloads.exists(pDownload))
+	if(!downloads.exists(pDownload))
 		return;
 
 	beginInsertRows(QModelIndex(), rootItem->childCount(), rootItem->childCount());
@@ -271,7 +271,7 @@ CDownloadsItemBase *CDownloadsItemBase::parent()
 	return parentItem;
 }
 
-CDownloadItem::CDownloadItem(CDownload *download, CDownloadsItemBase *parent, CDownloadsTreeModel* model, QObject *parentQObject)
+CDownloadItem::CDownloadItem(Download *download, CDownloadsItemBase *parent, CDownloadsTreeModel* model, QObject *parentQObject)
 	: CDownloadsItemBase(parentQObject),
 	  m_pDownload(download),
 	  m_oCompletedFrags(0),
@@ -343,23 +343,23 @@ QVariant CDownloadItem::data(int column) const
 		case CDownloadsTreeModel::STATUS:
 			switch( m_nStatus )
 			{
-				case CDownload::dsQueued:
+				case Download::dsQueued:
 					return tr("Queued");
-				case CDownload::dsPaused:
+				case Download::dsPaused:
 					return tr("Paused");
-				case CDownload::dsSearching:
+				case Download::dsSearching:
 					return tr("Searching");
-				case CDownload::dsPending:
+				case Download::dsPending:
 					return tr("Pending");
-				case CDownload::dsDownloading:
+				case Download::dsDownloading:
 					return tr("Downloading");
-				case CDownload::dsVerifying:
+				case Download::dsVerifying:
 					return tr("Verifying");
-				case CDownload::dsMoving:
+				case Download::dsMoving:
 					return tr("Moving");
-				case CDownload::dsFileError:
+				case Download::dsFileError:
 					return tr("File Error");
-				case CDownload::dsCompleted:
+				case Download::dsCompleted:
 					return tr("Completed");
 			}
 			return tr("Unknown"); // should not happen, but...
@@ -399,7 +399,7 @@ QVariant CDownloadItem::data(int column) const
 
 void CDownloadItem::onSourceAdded(CDownloadSource *pSource)
 {
-	QMutexLocker l(&Downloads.m_pSection);
+	QMutexLocker l(&downloads.m_pSection);
 
 	if(m_pDownload->sourceExists(pSource))
 	{

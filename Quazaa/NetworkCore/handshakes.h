@@ -30,17 +30,17 @@
 #include "types.h"
 #include "thread.h"
 
-class CHandshake;
+class Handshake;
 class NetworkConnection;
 class RateController;
 class QTimer;
 
-class CHandshakes : public QTcpServer
+class Handshakes : public QTcpServer
 {
 	Q_OBJECT
 
 protected:
-	QSet<CHandshake*>   m_lHandshakes;
+	QSet<Handshake*>    m_lHandshakes;
 	quint32             m_nAccepted;
 	RateController* 	m_pController;
 	QTimer*				m_pTimer;
@@ -50,12 +50,12 @@ public:
 	QMutex	m_pSection;
 
 public:
-	CHandshakes(QObject* parent = 0);
-	virtual ~CHandshakes();
+	Handshakes(QObject* parent = 0);
+	virtual ~Handshakes();
 
 	bool isFirewalled()
 	{
-		return (m_nAccepted == 0);
+		return !m_nAccepted;
 	}
 
 public slots:
@@ -72,14 +72,14 @@ signals:
 protected:
 	void incomingConnection(qintptr handle);
 
-	void removeHandshake(CHandshake* pHs);
+	void removeHandshake(Handshake* pHs);
 
-	void processNeighbour(CHandshake* pHs);
+	void processNeighbour(Handshake* pHs);
 
-	friend class CHandshake;
+	friend class Handshake;
 };
 
-extern CHandshakes Handshakes;
-extern CThread HandshakesThread;
+extern Handshakes handshakes;
+extern CThread handshakesThread;
 
 #endif // HANDSHAKES_H

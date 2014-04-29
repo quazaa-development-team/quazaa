@@ -29,7 +29,7 @@
 
 class G2Packet;
 
-class CChatSessionG2 : public CChatSession
+class CChatSessionG2 : public ChatSession
 {
 	Q_OBJECT
 protected:

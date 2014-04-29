@@ -34,21 +34,21 @@
 
 #include "debug_new.h"
 
-CDownloads Downloads;
+Downloads downloads;
 
-CDownloads::CDownloads(QObject *parent) :
+Downloads::Downloads(QObject *parent) :
 	QObject(parent)
 {
-	qRegisterMetaType<CDownload*>("CDownload*");
+	qRegisterMetaType<Download*>("CDownload*");
 	qRegisterMetaType<CDownloadSource*>("CDownloadSource*");
-	qRegisterMetaType<CDownload::DownloadState>("CDownload::DownloadState");
+	qRegisterMetaType<Download::DownloadState>("CDownload::DownloadState");
 }
 
-void CDownloads::add(QueryHit *pHit)
+void Downloads::add(QueryHit *pHit)
 {
-	ASSUME_LOCK( Downloads.m_pSection );
+	ASSUME_LOCK( downloads.m_pSection );
 
-	CDownload* pDownload = new CDownload( pHit );
+	Download* pDownload = new Download( pHit );
 	pDownload->moveToThread( &transfersThread );
 	m_lDownloads.append( pDownload );
 	pDownload->saveState();
@@ -58,12 +58,12 @@ void CDownloads::add(QueryHit *pHit)
 	emit downloadAdded( pDownload );
 }
 
-bool CDownloads::exists(CDownload *pDownload)
+bool Downloads::exists(Download *pDownload)
 {
 	return (m_lDownloads.indexOf(pDownload) != -1);
 }
 
-void CDownloads::start()
+void Downloads::start()
 {
 	QMutexLocker l(&m_pSection);
 
@@ -82,7 +82,7 @@ void CDownloads::start()
 
 			if( file.exists() && file.open(QFile::ReadOnly) )
 			{
-				CDownload* pDownload = new CDownload();
+				Download* pDownload = new Download();
 				QDataStream stream(&file);
 
 				stream >> *pDownload;
@@ -98,11 +98,11 @@ void CDownloads::start()
 	}
 }
 
-void CDownloads::stop()
+void Downloads::stop()
 {
 	QMutexLocker l(&m_pSection);
 
-	foreach ( CDownload* pDownload, m_lDownloads )
+	foreach ( Download* pDownload, m_lDownloads )
 	{
 		if( pDownload->isModified() )
 		{
@@ -115,17 +115,17 @@ void CDownloads::stop()
 	m_lDownloads.clear();
 }
 
-void CDownloads::emitDownloads()
+void Downloads::emitDownloads()
 {
 	QMutexLocker l(&m_pSection);
 
-	foreach ( CDownload* pDl, m_lDownloads )
+	foreach ( Download* pDl, m_lDownloads )
 	{
 		emit downloadAdded(pDl);
 	}
 }
 
-void CDownloads::onTimer()
+void Downloads::onTimer()
 {
 	if(m_lDownloads.isEmpty())
 		return;
@@ -134,25 +134,25 @@ void CDownloads::onTimer()
 
 	int nActive = 0, nQueued = 0, nTransfers = 0;
 
-	foreach ( CDownload* pDownload, m_lDownloads )
+	foreach ( Download* pDownload, m_lDownloads )
 	{
 		switch(pDownload->m_nState)
 		{
-			case CDownload::dsQueued:
+			case Download::dsQueued:
 				nQueued++;
 				break;
-			case CDownload::dsPaused:
+			case Download::dsPaused:
 				break;
-			case CDownload::dsPending:
-			case CDownload::dsSearching:
-			case CDownload::dsDownloading:
+			case Download::dsPending:
+			case Download::dsSearching:
+			case Download::dsDownloading:
 				nActive++;
 				nTransfers += pDownload->transfersCount();
 				break;
-			case CDownload::dsVerifying:
-			case CDownload::dsMoving:
-			case CDownload::dsFileError:
-			case CDownload::dsCompleted:
+			case Download::dsVerifying:
+			case Download::dsMoving:
+			case Download::dsFileError:
+			case Download::dsCompleted:
 				break;
 
 		}
@@ -160,9 +160,9 @@ void CDownloads::onTimer()
 
 	int nTransfersLeft = quazaaSettings.Downloads.MaxTransfers - nTransfers;
 
-	foreach ( CDownload* pDownload, m_lDownloads )
+	foreach ( Download* pDownload, m_lDownloads )
 	{
-		if( pDownload->m_nState == CDownload::dsPending )
+		if( pDownload->m_nState == Download::dsPending )
 		{
 			if( false /* starved? */ )
 			{
@@ -173,7 +173,7 @@ void CDownloads::onTimer()
 				// run search
 			}
 		}
-		else if( pDownload->m_nState == CDownload::dsQueued )
+		else if( pDownload->m_nState == Download::dsQueued )
 		{
 			if( nActive < quazaaSettings.Downloads.MaxFiles )
 			{

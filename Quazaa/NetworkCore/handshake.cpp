@@ -36,18 +36,18 @@
 
 #include "debug_new.h"
 
-CHandshake::CHandshake(QObject* parent)
+Handshake::Handshake(QObject* parent)
 	: NetworkConnection(parent)
 {
 }
-CHandshake::~CHandshake()
+Handshake::~Handshake()
 {
-	ASSUME_LOCK( Handshakes.m_pSection );
+	ASSUME_LOCK( handshakes.m_pSection );
 
-	Handshakes.removeHandshake( this );
+	handshakes.removeHandshake( this );
 }
 
-void CHandshake::onTimer(quint32 tNow)
+void Handshake::onTimer(quint32 tNow)
 {
 	if ( tNow - m_tConnected > 15 )
 	{
@@ -57,9 +57,9 @@ void CHandshake::onTimer(quint32 tNow)
 		close();
 	}
 }
-void CHandshake::onRead()
+void Handshake::onRead()
 {
-	QMutexLocker l( &Handshakes.m_pSection );
+	QMutexLocker l( &handshakes.m_pSection );
 
 	//qDebug() << "CHandshake::OnRead()";
 
@@ -75,7 +75,7 @@ void CHandshake::onRead()
 						   QString( "Incoming connection from %1 is Gnutella Neighbour connection"
 									).arg( m_pSocket->peerAddress().toString() ) );
 #endif
-		Handshakes.processNeighbour( this );
+		handshakes.processNeighbour( this );
 		delete this;
 	}
 	else if ( peek( 5 ).startsWith( "GET /" ) )
@@ -106,30 +106,30 @@ void CHandshake::onRead()
 	}
 }
 
-void CHandshake::onConnectNode()
+void Handshake::onConnectNode()
 {
 
 }
-void CHandshake::onDisconnectNode()
+void Handshake::onDisconnectNode()
 {
-	Handshakes.m_pSection.lock();
+	handshakes.m_pSection.lock();
 	delete this;
-	Handshakes.m_pSection.unlock();
+	handshakes.m_pSection.unlock();
 }
-void CHandshake::onError(QAbstractSocket::SocketError e)
+void Handshake::onError(QAbstractSocket::SocketError e)
 {
 	Q_UNUSED(e);
-	Handshakes.m_pSection.lock();
+	handshakes.m_pSection.lock();
 	delete this;
-	Handshakes.m_pSection.unlock();
+	handshakes.m_pSection.unlock();
 }
 
-void CHandshake::onStateChange(QAbstractSocket::SocketState s)
+void Handshake::onStateChange(QAbstractSocket::SocketState s)
 {
 	Q_UNUSED(s);
 }
 
-void CHandshake::onWebRequest()
+void Handshake::onWebRequest()
 {
 	QString sRequest;
 

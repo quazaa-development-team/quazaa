@@ -28,13 +28,13 @@
 #include <QObject>
 #include "networkconnection.h"
 
-class CHandshake: public NetworkConnection
+class Handshake: public NetworkConnection
 {
 	Q_OBJECT
 
 public:
-	CHandshake(QObject* parent = 0);
-	~CHandshake();
+	Handshake(QObject* parent = 0);
+	~Handshake();
 
 	void onTimer(quint32 tNow);
 

@@ -6,7 +6,7 @@
 #include "FileFragments.hpp"
 
 class QueryHit;
-class CDownload;
+class Download;
 class CTransfer;
 
 class CDownloadSource : public QObject
@@ -24,14 +24,14 @@ public:
 	quint32				m_nFailures;	// number of failures
 	QString				m_sURL;			// URL
 
-	CDownload*			m_pDownload;
+	Download*			m_pDownload;
 	CTransfer*			m_pTransfer;
 
 	Fragments::List		m_lAvailableFrags;
 	Fragments::List		m_lDownloadedFrags;
 public:
-	CDownloadSource(CDownload* pDownload, QObject* parent = 0);
-	CDownloadSource(CDownload* pDownload, QueryHit* pHit, QObject* parent = 0);
+	CDownloadSource(Download* pDownload, QObject* parent = 0);
+	CDownloadSource(Download* pDownload, QueryHit* pHit, QObject* parent = 0);
 	virtual ~CDownloadSource();
 
 public slots:

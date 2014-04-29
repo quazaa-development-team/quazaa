@@ -62,13 +62,13 @@ CMetalinkHandler::CMetalinkHandler(QFile& oFile) :
 CMetalinkHandler::~CMetalinkHandler()
 {}
 
-QList<CDownload*> CMetalinkHandler::files() const
+QList<Download*> CMetalinkHandler::files() const
 {
-	QList<CDownload*> result;
+	QList<Download*> result;
 
 	for ( unsigned int i = 0; i < m_nSize; ++i )
 	{
-		CDownload* pFile = file( i );
+		Download* pFile = file( i );
 		if ( pFile )
 		{
 			result.append( pFile );

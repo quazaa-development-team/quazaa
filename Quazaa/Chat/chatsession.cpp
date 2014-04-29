@@ -32,7 +32,7 @@
 #include "debug_new.h"
 #endif
 
-CChatSession::CChatSession(QObject *parent) :
+ChatSession::ChatSession(QObject *parent) :
 	NetworkConnection(parent)
 {
 	m_nState = csNull;
@@ -41,23 +41,23 @@ CChatSession::CChatSession(QObject *parent) :
 
 	m_bShareaza = false;
 }
-CChatSession::~CChatSession()
+ChatSession::~ChatSession()
 {
-	ChatCore.Remove(this);
+	chatCore.remove(this);
 }
 
 // called from GUI thread
-void CChatSession::connectNode()
+void ChatSession::connectNode()
 {
 	mainWindow->OpenChat(this);
 	m_nState = csConnecting;
-	ChatCore.Add(this);
+	chatCore.add(this);
 
-	if( thread() != &ChatThread )
-		moveToThread(&ChatThread);
+	if( thread() != &chatThread )
+		moveToThread(&chatThread);
 }
 
-void CChatSession::onTimer(quint32 tNow)
+void ChatSession::onTimer(quint32 tNow)
 {
 	if( m_nState < csConnected )
 	{
@@ -74,30 +74,30 @@ void CChatSession::onTimer(quint32 tNow)
 	}
 }
 
-void CChatSession::onConnectNode()
+void ChatSession::onConnectNode()
 {
 
 }
-void CChatSession::onDisconnectNode()
+void ChatSession::onDisconnectNode()
 {
 	m_nState = csClosed;
 	emit systemMessage("Connection lost");
 }
-void CChatSession::onRead()
+void ChatSession::onRead()
 {
 
 }
-void CChatSession::onError(QAbstractSocket::SocketError e)
+void ChatSession::onError(QAbstractSocket::SocketError e)
 {
 	Q_UNUSED(e);
 }
 
-void CChatSession::onStateChange(QAbstractSocket::SocketState s)
+void ChatSession::onStateChange(QAbstractSocket::SocketState s)
 {
 	Q_UNUSED(s);
 }
 
-void CChatSession::setupWidget(CWidgetPrivateMessage *pWg)
+void ChatSession::setupWidget(CWidgetPrivateMessage *pWg)
 {
 	m_pWidget = pWg;
 

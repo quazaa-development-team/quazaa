@@ -52,7 +52,7 @@
 #include <QUuid>
 #include <QHBoxLayout>
 
-class CChatSession;
+class ChatSession;
 
 namespace Ui
 {
@@ -102,7 +102,7 @@ signals:
 	void shutDown();
 
 public slots:
-	void OpenChat(CChatSession* pSess);
+	void OpenChat(ChatSession* pSess);
 	void showOnTop();
 
 protected:

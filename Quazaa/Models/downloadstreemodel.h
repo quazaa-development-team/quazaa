@@ -33,7 +33,7 @@
 #include <QItemDelegate>
 #include <QPalette>
 
-class CDownload;
+class Download;
 class CDownloadSource;
 class CDownloadsTreeModel;
 class CDownloadSourceItem;
@@ -73,13 +73,13 @@ class CDownloadItem : public CDownloadsItemBase
 {
 	Q_OBJECT
 public:
-	CDownloadItem(CDownload* download, CDownloadsItemBase* parent, CDownloadsTreeModel* model, QObject* parentQObject = 0);
+	CDownloadItem(Download* download, CDownloadsItemBase* parent, CDownloadsTreeModel* model, QObject* parentQObject = 0);
 	virtual ~CDownloadItem();
 
 	void appendChild(CDownloadsItemBase* child);
 	QVariant data(int column) const;
 protected:
-	CDownload* m_pDownload; // pointer to corresponding CDownload object
+	Download* m_pDownload; // pointer to corresponding CDownload object
 
 	QString m_sName;		// download name
 	quint64 m_nSize;		// size
@@ -171,7 +171,7 @@ private:
 signals:
 
 public slots:
-	void onDownloadAdded(CDownload* pDownload);
+	void onDownloadAdded(Download* pDownload);
 
 	friend class CDownloadItem;
 };

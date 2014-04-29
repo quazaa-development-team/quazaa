@@ -63,7 +63,7 @@
  */
 
 CChatSessionG2::CChatSessionG2(CEndPoint oRemoteHost, QObject *parent) :
-	CChatSession(parent)
+	ChatSession(parent)
 {
 	m_oRemoteHost = m_oAddress = oRemoteHost;
 }
@@ -71,7 +71,7 @@ CChatSessionG2::CChatSessionG2(CEndPoint oRemoteHost, QObject *parent) :
 void CChatSessionG2::connectNode()
 {
 	NetworkConnection::connectTo(m_oRemoteHost);
-	CChatSession::connectNode();
+	ChatSession::connectNode();
 }
 
 void CChatSessionG2::onConnectNode()
@@ -96,7 +96,7 @@ void CChatSessionG2::onConnectNode()
 }
 void CChatSessionG2::onDisconnectNode()
 {
-	CChatSession::onDisconnectNode();
+	ChatSession::onDisconnectNode();
 }
 
 void CChatSessionG2::onRead()

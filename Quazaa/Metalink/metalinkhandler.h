@@ -65,8 +65,8 @@ public:
 	explicit CMetalinkHandler(QFile& oFile = m_oEmptyQFile);
 	virtual ~CMetalinkHandler();
 
-	virtual CDownload* file(const quint16& ID) const = 0;
-	QList<CDownload*> files() const;
+	virtual Download* file(const quint16& ID) const = 0;
+	QList<Download*> files() const;
 
 	inline int size() const;
 	inline bool isNull() const;

@@ -75,9 +75,9 @@ void CDialogPrivateMessages::changeEvent(QEvent *e)
 	}
 }
 
-void CDialogPrivateMessages::OpenChat(CChatSession* pSess)
+void CDialogPrivateMessages::OpenChat(ChatSession* pSess)
 {
-	ChatCore.m_pSection.lock();
+	chatCore.m_pSection.lock();
 	CWidgetPrivateMessage* pWg = FindByGUID(pSess->m_oGUID);
 	if( pWg == 0 )
 	{
@@ -90,7 +90,7 @@ void CDialogPrivateMessages::OpenChat(CChatSession* pSess)
 
 	pSess->setupWidget(pWg);
 	pWg->show();
-	ChatCore.m_pSection.unlock();
+	chatCore.m_pSection.unlock();
 	raise();
 }
 

@@ -43,7 +43,7 @@ enum ChatState
 	csClosed
 };
 
-class CChatSession : public NetworkConnection
+class ChatSession : public NetworkConnection
 {
 	Q_OBJECT
 protected:
@@ -55,8 +55,8 @@ public:
 	ChatState		  m_nState;
 	QString			  m_sNick;
 public:
-	CChatSession(QObject *parent = 0);
-	virtual ~CChatSession();
+	ChatSession(QObject *parent = 0);
+	virtual ~ChatSession();
 
 	virtual void connectNode();
 

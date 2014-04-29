@@ -3,7 +3,7 @@
 
 #include "quazaasettings.h"
 
-CDownloadTransfer::CDownloadTransfer(CDownload *pOwner, CDownloadSource *pSource, QObject *parent) :
+CDownloadTransfer::CDownloadTransfer(Download *pOwner, CDownloadSource *pSource, QObject *parent) :
 	CTransfer(pOwner, parent),
 	m_pSource(pSource),
 	m_nState(dtsNull),

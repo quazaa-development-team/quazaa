@@ -308,9 +308,9 @@ void WidgetSearchTemplate::on_treeViewSearchResults_doubleClicked(const QModelIn
 			}
 		}
 
-		Downloads.m_pSection.lock();
-		Downloads.add( pHits );
-		Downloads.m_pSection.unlock();
+		downloads.m_pSection.lock();
+		downloads.add( pHits );
+		downloads.m_pSection.unlock();
 
 		delete pHits;
 	}

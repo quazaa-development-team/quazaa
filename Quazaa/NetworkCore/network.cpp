@@ -76,7 +76,7 @@ void NetworkG2::start()
 	m_bActive = true;
 	m_oAddress.setPort( quazaaSettings.Connection.Port );
 
-	Handshakes.listen();
+	handshakes.listen();
 
 	m_oRoutingTable.clear();
 
@@ -114,7 +114,7 @@ void NetworkG2::setupThread()
 	m_pSecondTimer->start(1000);
 
 	datagrams.listen();
-	Handshakes.listen();
+	handshakes.listen();
 
 	m_bSharesReady = shareManager.sharesAreReady();
 }
@@ -127,7 +127,7 @@ void NetworkG2::cleanupThread()
 	m_pSecondTimer = 0;
 
 	qDebug() << "Shutting down Handshakes...";
-	Handshakes.stop();
+	handshakes.stop();
 	qDebug() << "Shutting down Datagrams...";
 	datagrams.disconnectNode();
 	qDebug() << "Shutting down Neighbours...";
@@ -179,12 +179,12 @@ void NetworkG2::onSecondTimer()
 
 bool NetworkG2::isListening()
 {
-	return Handshakes.isListening() && datagrams.isListening();
+	return handshakes.isListening() && datagrams.isListening();
 }
 
 bool NetworkG2::isFirewalled()
 {
-	return datagrams.isFirewalled() || Handshakes.isFirewalled();
+	return datagrams.isFirewalled() || handshakes.isFirewalled();
 }
 
 bool NetworkG2::acquireLocalAddress(const QString& sHeader)

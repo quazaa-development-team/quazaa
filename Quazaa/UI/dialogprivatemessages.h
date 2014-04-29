@@ -44,7 +44,7 @@ public:
 
 	CWidgetPrivateMessage* FindByGUID(QUuid oGUID);
 
-	void OpenChat(CChatSession* pSess);
+	void OpenChat(ChatSession* pSess);
 
 protected:
 	void changeEvent(QEvent *e);

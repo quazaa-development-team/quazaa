@@ -64,7 +64,7 @@ public:
 	  * Inserts the information for ID into the download passed as parameter. If NULL is passed, a
 	  * new download is created.
 	  */
-	bool file(const quint16 nID, CDownload* pDownload) const;
+	bool file(const quint16 nID, Download* pDownload) const;
 
 	/**
 	  * Returns search string by ID. Returns empty strings for invalid IDs.

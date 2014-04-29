@@ -29,46 +29,45 @@
 #include <QObject>
 #include "thread.h"
 
-class CChatSession;
+class ChatSession;
 class RateController;
 class NetworkConnection;
 
-class CChatCore : public QObject
+class ChatCore : public QObject
 {
 	Q_OBJECT
 public:
 	QMutex	m_pSection;
 protected:
-	QList<CChatSession*> m_lSessions;
+	QList<ChatSession*> m_lSessions;
 	RateController* m_pController;
 	bool m_bActive;
 public:
-	CChatCore(QObject *parent = 0);
-	virtual ~CChatCore();
+	ChatCore(QObject *parent = 0);
+	virtual ~ChatCore();
 
-	void OnAccept(NetworkConnection* pConn, DiscoveryProtocol::Protocol nProto);
+	void onAccept(NetworkConnection* pConn, DiscoveryProtocol::Protocol nProto);
 
 protected:
-	void Add(CChatSession* pSession);
-	void Remove(CChatSession* pSession);
+	void add(ChatSession* pSession);
+	void remove(ChatSession* pSession);
 
-	void Start();
-	void Stop();
+	void start();
+	void stop();
 
 protected slots:
-	void OnTimer();
+	void onTimer();
 
 public:
 
 signals:
-	void openChatWindow(CChatSession*);
+	void openChatWindow(ChatSession*);
 
 public slots:
 
-
-	friend class CChatSession;
+	friend class ChatSession;
 };
 
-extern CChatCore ChatCore;
-extern CThread ChatThread;
+extern ChatCore chatCore;
+extern CThread chatThread;
 #endif // CHATCORE_H

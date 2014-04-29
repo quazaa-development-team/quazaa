@@ -41,7 +41,7 @@ class CWidgetPrivateMessage : public QWidget {
 public:
 	QUuid	m_oGUID;
 	QString m_sNick;
-	CChatSession* m_pSession;
+	ChatSession* m_pSession;
 public:
 	CWidgetPrivateMessage(QWidget *parent = 0);
 	~CWidgetPrivateMessage();

@@ -91,7 +91,7 @@ CMetalink4Handler::CMetalink4Handler(QFile& oFile) :
 	//TODO: Parse more data within the metalink
 }
 
-CDownload* CMetalink4Handler::file(const unsigned int& ID) const
+Download* CMetalink4Handler::file(const unsigned int& ID) const
 {
 	MetaFile oFile = m_vFiles[ ID ];
 
@@ -99,7 +99,7 @@ CDownload* CMetalink4Handler::file(const unsigned int& ID) const
 	// TODO: Implement.
 
 
-	return new CDownload();
+	return new Download();
 }
 
 bool CMetalink4Handler::parseFile(QList<MetaFile> &lFiles, quint16 ID)

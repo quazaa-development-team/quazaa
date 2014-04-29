@@ -9,7 +9,7 @@ class CDownloadSource;
 class QueryHit;
 class CTransfer;
 
-class CDownload : public QObject
+class Download : public QObject
 {
 	Q_OBJECT
 
@@ -55,14 +55,14 @@ public:
 	int						m_nTransfers;
 	QDateTime				m_tStarted;
 public:
-	CDownload()
+	Download()
 		: m_lCompleted(0),
 		  m_lVerified(0),
 		  m_lActive(0),
 		  m_bSignalSources(false), m_bModified(false),m_nTransfers(0)
 	{}
-	CDownload(QueryHit* pHit, QObject *parent = 0);
-	~CDownload();
+	Download(QueryHit* pHit, QObject *parent = 0);
+	~Download();
 
 	void start();
 	void pause();
@@ -88,7 +88,7 @@ public:
 	inline int  transfersCount();
 	inline bool canDownload();
 protected:
-	void setState(CDownload::DownloadState state);
+	void setState(Download::DownloadState state);
 signals:
 	void sourceAdded(CDownloadSource*);
 	void stateChanged(int);
@@ -96,34 +96,34 @@ public slots:
 	void emitSources();
 };
 
-Q_DECLARE_METATYPE(CDownload*);
-Q_DECLARE_METATYPE(CDownload::DownloadState);
+Q_DECLARE_METATYPE(Download*);
+Q_DECLARE_METATYPE(Download::DownloadState);
 
-QDataStream& operator<<(QDataStream& s, const CDownload& rhs);
-QDataStream& operator>>(QDataStream& s, CDownload& rhs);
+QDataStream& operator<<(QDataStream& s, const Download& rhs);
+QDataStream& operator>>(QDataStream& s, Download& rhs);
 
-bool CDownload::isModified()
+bool Download::isModified()
 {
 	return m_bModified;
 }
-bool CDownload::isCompleted()
+bool Download::isCompleted()
 {
 	return (m_nState == dsCompleted);
 }
-bool CDownload::isDownloading()
+bool Download::isDownloading()
 {
 	return (m_nState == dsDownloading);
 }
 
-int CDownload::sourceCount()
+int Download::sourceCount()
 {
 	return m_lSources.size();
 }
-int CDownload::transfersCount()
+int Download::transfersCount()
 {
 	return m_nTransfers;
 }
-bool CDownload::canDownload()
+bool Download::canDownload()
 {
 	return (m_nState != dsPaused && m_nState != dsCompleted
 			&& m_nState != dsMoving && m_nState != dsVerifying

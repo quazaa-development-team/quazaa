@@ -33,17 +33,17 @@
 
 #include "debug_new.h"
 
-CHandshakes Handshakes;
-CThread HandshakesThread;
+Handshakes handshakes;
+CThread handshakesThread;
 
-CHandshakes::CHandshakes(QObject* parent) :
+Handshakes::Handshakes(QObject* parent) :
 	QTcpServer(parent)
 {
 	m_nAccepted = 0;
 	m_bActive = false;
 }
 
-CHandshakes::~CHandshakes()
+Handshakes::~Handshakes()
 {
 	if(m_bActive)
 	{
@@ -51,7 +51,7 @@ CHandshakes::~CHandshakes()
 	}
 }
 
-void CHandshakes::listen()
+void Handshakes::listen()
 {
 	QMutexLocker l(&m_pSection);
 
@@ -63,28 +63,28 @@ void CHandshakes::listen()
 	m_nAccepted = 0;
 	m_bActive = true;
 
-	HandshakesThread.start("Handshakes", &m_pSection, this);
+	handshakesThread.start("Handshakes", &m_pSection, this);
 }
-void CHandshakes::stop()
+void Handshakes::stop()
 {
 	m_pSection.lock();
 	m_bActive = false;
 
-	HandshakesThread.exit( 0 );
+	handshakesThread.exit( 0 );
 
 	Q_ASSERT( m_lHandshakes.isEmpty() );
 
 	m_pSection.unlock();
 }
 
-void CHandshakes::incomingConnection(qintptr handle)
+void Handshakes::incomingConnection(qintptr handle)
 {
 	QMutexLocker l(&m_pSection);
 
-	CHandshake* pNew = new CHandshake();
+	Handshake* pNew = new Handshake();
 	m_lHandshakes.insert(pNew);
 	pNew->acceptFrom(handle);
-	pNew->moveToThread(&HandshakesThread);
+	pNew->moveToThread(&handshakesThread);
 	m_pController->addSocket(pNew);
 	m_nAccepted++;
 
@@ -95,21 +95,21 @@ void CHandshakes::incomingConnection(qintptr handle)
 	}
 }
 
-void CHandshakes::onTimer()
+void Handshakes::onTimer()
 {
 	QMutexLocker l( &m_pSection );
 
 	quint32 tNow = time( NULL );
 
-	foreach ( CHandshake* pHs, m_lHandshakes )
+	foreach ( Handshake* pHs, m_lHandshakes )
 	{
 		pHs->onTimer( tNow );
 	}
 }
 
-void CHandshakes::removeHandshake(CHandshake* pHs)
+void Handshakes::removeHandshake(Handshake* pHs)
 {
-	ASSUME_LOCK(Handshakes.m_pSection);
+	ASSUME_LOCK(handshakes.m_pSection);
 
 	m_lHandshakes.remove(pHs);
 	if(m_pController)
@@ -118,17 +118,17 @@ void CHandshakes::removeHandshake(CHandshake* pHs)
 	}
 }
 
-void CHandshakes::processNeighbour(CHandshake* pHs)
+void Handshakes::processNeighbour(Handshake* pHs)
 {
 	removeHandshake( pHs );
 	neighbours.onAccept( pHs );
 }
 
-void CHandshakes::setupThread()
+void Handshakes::setupThread()
 {
 	m_pController = new RateController( &m_pSection );
 
-	m_pController->moveToThread( &HandshakesThread ); // should not be necesarry
+	m_pController->moveToThread( &handshakesThread ); // should not be necesarry
 
 	m_pController->setDownloadLimit( 4096 );
 	m_pController->setUploadLimit( 4096 );
@@ -149,18 +149,18 @@ void CHandshakes::setupThread()
 	}
 
 	m_pTimer = new QTimer( this );
-	connect( m_pTimer, &QTimer::timeout, this, &CHandshakes::onTimer );
+	connect( m_pTimer, &QTimer::timeout, this, &Handshakes::onTimer );
 	m_pTimer->start( 1000 );
 }
-void CHandshakes::cleanupThread()
+void Handshakes::cleanupThread()
 {
 	if ( isListening() )
 	{
 		close();
 
-		for ( QSet<CHandshake*>::iterator itHs = m_lHandshakes.begin(); itHs != m_lHandshakes.end(); )
+		for ( QSet<Handshake*>::iterator itHs = m_lHandshakes.begin(); itHs != m_lHandshakes.end(); )
 		{
-			CHandshake* pHs = *itHs;
+			Handshake* pHs = *itHs;
 
 			pHs->close();
 

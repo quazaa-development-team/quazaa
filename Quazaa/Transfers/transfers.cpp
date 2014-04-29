@@ -60,11 +60,11 @@ void Transfers::start()
 	m_bActive = true;
 	transfersThread.start( "Transfers", &m_pSection );
 	m_pController->moveToThread( &transfersThread );
-	Downloads.start();
-	Downloads.moveToThread( &transfersThread );
+	downloads.start();
+	downloads.moveToThread( &transfersThread );
 
 	connect( &m_oTimer, SIGNAL(timeout()), this, SLOT(onTimer() ) );
-	connect( &m_oTimer, SIGNAL(timeout()), &Downloads, SLOT(onTimer() ) );
+	connect( &m_oTimer, SIGNAL(timeout()), &downloads, SLOT(onTimer() ) );
 	m_oTimer.start(1000);
 
 	m_pSection.unlock();
@@ -82,7 +82,7 @@ void Transfers::stop()
 	m_bActive = false;
 
 	transfersThread.exit( 0, true );
-	Downloads.stop();
+	downloads.stop();
 }
 
 void Transfers::add(CTransfer *pTransfer)

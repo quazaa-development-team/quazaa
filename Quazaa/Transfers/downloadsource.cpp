@@ -31,7 +31,7 @@
 
 #include "debug_new.h"
 
-CDownloadSource::CDownloadSource(CDownload *pDownload, QObject *parent)
+CDownloadSource::CDownloadSource(Download *pDownload, QObject *parent)
 	: QObject(parent),
 	  m_bPush(false),
 	  m_nFailures(0),
@@ -43,7 +43,7 @@ CDownloadSource::CDownloadSource(CDownload *pDownload, QObject *parent)
 	m_tNextAccess = time(0);
 }
 
-CDownloadSource::CDownloadSource(CDownload *pDownload, QueryHit *pHit, QObject *parent)
+CDownloadSource::CDownloadSource(Download *pDownload, QueryHit *pHit, QObject *parent)
 	: QObject(parent),
 	  m_pDownload(pDownload),
 	  m_pTransfer(0),
@@ -70,7 +70,7 @@ CDownloadSource::~CDownloadSource()
 
 CTransfer *CDownloadSource::createTransfer()
 {
-	ASSUME_LOCK(Downloads.m_pSection);
+	ASSUME_LOCK(downloads.m_pSection);
 
 	CTransfer* pTransfer = 0;
 
@@ -92,7 +92,7 @@ CTransfer *CDownloadSource::createTransfer()
 
 void CDownloadSource::closeTransfer()
 {
-	ASSUME_LOCK(Downloads.m_pSection);
+	ASSUME_LOCK(downloads.m_pSection);
 
 	if( m_pTransfer )
 	{
