@@ -12,7 +12,7 @@
 class CTransfer;
 class RateController;
 
-class CTransfers : public QObject
+class Transfers : public QObject
 {
 	Q_OBJECT
 public:
@@ -25,8 +25,8 @@ protected:
 	QMultiHash<void*, CTransfer*> m_lTransfers;
 
 public:
-	CTransfers(QObject* parent = 0);
-	~CTransfers();
+	Transfers(QObject* parent = 0);
+	~Transfers();
 	void start();
 	void stop();
 
@@ -40,6 +40,6 @@ public slots:
 	void onTimer();
 };
 
-extern CTransfers Transfers;
-extern CThread TransfersThread;
+extern Transfers transfers;
+extern CThread transfersThread;
 #endif // TRANSFERS_H

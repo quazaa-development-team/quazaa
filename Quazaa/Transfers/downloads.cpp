@@ -49,7 +49,7 @@ void CDownloads::add(QueryHit *pHit)
 	ASSUME_LOCK( Downloads.m_pSection );
 
 	CDownload* pDownload = new CDownload( pHit );
-	pDownload->moveToThread( &TransfersThread );
+	pDownload->moveToThread( &transfersThread );
 	m_lDownloads.append( pDownload );
 	pDownload->saveState();
 	systemLog.postLog( LogSeverity::Notice, Component::Downloads,
@@ -87,7 +87,7 @@ void CDownloads::start()
 
 				stream >> *pDownload;
 
-				pDownload->moveToThread(&TransfersThread);
+				pDownload->moveToThread(&transfersThread);
 				m_lDownloads.append(pDownload);
 				emit downloadAdded(pDownload);
 				systemLog.postLog( LogSeverity::Notice, Component::Downloads,

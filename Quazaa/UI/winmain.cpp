@@ -73,7 +73,7 @@
 
 #include "debug_new.h"
 
-CWinMain* MainWindow = 0;
+CWinMain* mainWindow = 0;
 
 void CWinMain::quazaaStartup()
 {
@@ -458,7 +458,7 @@ void CWinMain::quazaaShutdown()
 
 	dlgSplash->updateProgress(15, tr("Stopping transfers..."));
 	qApp->processEvents();
-	Transfers.stop();
+	transfers.stop();
 
 	qApp->processEvents();
 

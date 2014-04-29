@@ -49,7 +49,7 @@ CChatSession::~CChatSession()
 // called from GUI thread
 void CChatSession::connectNode()
 {
-	MainWindow->OpenChat(this);
+	mainWindow->OpenChat(this);
 	m_nState = csConnecting;
 	ChatCore.Add(this);
 

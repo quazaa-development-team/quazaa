@@ -158,9 +158,9 @@ void NetworkG2::onSecondTimer()
 		m_tCleanRoutesNext = 60;
 	}
 
-	if(!QueryHashMaster.isValid())
+	if(!queryHashMaster.isValid())
 	{
-		QueryHashMaster.build();
+		queryHashMaster.build();
 	}
 
 	neighbours.maintain();

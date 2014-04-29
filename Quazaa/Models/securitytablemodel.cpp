@@ -620,7 +620,7 @@ void SecurityTableModel::securityStartUpFinished()
 			 SLOT( updateRule( ID ) ), Qt::QueuedConnection );
 
 	// Prepare GUI for closing
-	connect( MainWindow, SIGNAL( shutDown() ), this, SLOT( onShutdown() ) );
+	connect( mainWindow, SIGNAL( shutDown() ), this, SLOT( onShutdown() ) );
 
 	// This needs to be called to make sure that all rules added to the securityManager before this
 	// part of the GUI is loaded are properly added to the model.

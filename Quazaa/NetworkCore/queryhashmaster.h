@@ -29,12 +29,12 @@
 
 class QueryHashGroup;
 
-class CQueryHashMaster : public QueryHashTable
+class QueryHashMaster : public QueryHashTable
 {
 	Q_OBJECT
 public:
-	CQueryHashMaster();
-	virtual ~CQueryHashMaster();
+	QueryHashMaster();
+	virtual ~QueryHashMaster();
 
 protected:
 	QList< QueryHashGroup* > m_pGroups;
@@ -65,6 +65,6 @@ public:
 	}
 };
 
-extern CQueryHashMaster QueryHashMaster;
+extern QueryHashMaster queryHashMaster;
 
 #endif // QUERYHASHMASTER_H

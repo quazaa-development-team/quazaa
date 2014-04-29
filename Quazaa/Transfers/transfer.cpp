@@ -31,14 +31,14 @@ CTransfer::CTransfer(void* pOwner, QObject *parent) :
 	NetworkConnection(parent),
 	m_pOwner(pOwner)
 {
-	ASSUME_LOCK(Transfers.m_pSection);
-	Transfers.add(this);
+	ASSUME_LOCK(transfers.m_pSection);
+	transfers.add(this);
 }
 
 CTransfer::~CTransfer()
 {
-	ASSUME_LOCK(Transfers.m_pSection);
-	Transfers.remove(this);
+	ASSUME_LOCK(transfers.m_pSection);
+	transfers.remove(this);
 }
 
 void CTransfer::onTimer(quint32 /*tNow*/)

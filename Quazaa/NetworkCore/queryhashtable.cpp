@@ -59,7 +59,7 @@ QueryHashTable::~QueryHashTable()
 {
 	if(m_pGroup)
 	{
-		QueryHashMaster.remove(this);
+		queryHashMaster.remove(this);
 	}
 
 	delete [] m_pHash;
@@ -71,7 +71,7 @@ void QueryHashTable::create()
 	const bool bGrouped = (m_pGroup != 0);
 	if(bGrouped)
 	{
-		QueryHashMaster.remove(this);
+		queryHashMaster.remove(this);
 	}
 
 	delete [] m_pHash;
@@ -87,7 +87,7 @@ void QueryHashTable::create()
 
 	if(bGrouped)
 	{
-		QueryHashMaster.add(this);
+		queryHashMaster.add(this);
 	}
 }
 
@@ -101,7 +101,7 @@ void QueryHashTable::clear()
 	const bool bGrouped = (m_pGroup != 0);
 	if(bGrouped)
 	{
-		QueryHashMaster.remove(this);
+		queryHashMaster.remove(this);
 	}
 
 	m_nCookie	= time(0) + 1;
@@ -111,7 +111,7 @@ void QueryHashTable::clear()
 
 	if(bGrouped)
 	{
-		QueryHashMaster.add(this);
+		queryHashMaster.add(this);
 	}
 }
 
@@ -498,7 +498,7 @@ bool QueryHashTable::onReset(G2Packet* pPacket)
 	const bool bGrouped = (m_pGroup != 0);
 	if(bGrouped)
 	{
-		QueryHashMaster.remove(this);
+		queryHashMaster.remove(this);
 	}
 
 	nHashSize	= pPacket->readIntLE<quint32>();
@@ -536,7 +536,7 @@ bool QueryHashTable::onReset(G2Packet* pPacket)
 
 	if(bGrouped)
 	{
-		QueryHashMaster.add(this);
+		queryHashMaster.add(this);
 	}
 
 	m_bLive		= false;
@@ -678,7 +678,7 @@ bool QueryHashTable::onPatch(G2Packet* pPacket)
 
 	if(bGroup)
 	{
-		QueryHashMaster.invalidate();
+		queryHashMaster.invalidate();
 	}
 
 	return true;

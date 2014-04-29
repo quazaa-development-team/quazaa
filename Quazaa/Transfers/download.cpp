@@ -359,9 +359,9 @@ bool CDownload::sourceExists(CDownloadSource *pSource)
 
 QList<CTransfer *> CDownload::getTransfers()
 {
-	ASSUME_LOCK(Transfers.m_pSection);
+	ASSUME_LOCK(transfers.m_pSection);
 
-	return Transfers.getByOwner(this);
+	return transfers.getByOwner(this);
 }
 
 Fragments::List CDownload::getWantedFragments()

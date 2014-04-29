@@ -193,9 +193,9 @@ int main(int argc, char *argv[])
 
 	// If the MainWindow object is not created and shown before any other dialogs,
 	// the media player will break input event processing
-	MainWindow = new CWinMain();
-	MainWindow->show();
-	MainWindow->hide();
+	mainWindow = new CWinMain();
+	mainWindow->show();
+	mainWindow->hide();
 
 	//Create splash window
 	CDialogSplash* dlgSplash = new CDialogSplash();
@@ -256,28 +256,28 @@ int main(int argc, char *argv[])
 	//Load the library
 	dlgSplash->updateProgress( 40, QObject::tr( "Loading Library..." ) );
 	qApp->processEvents();
-	QueryHashMaster.create();
+	queryHashMaster.create();
 	shareManager.start();
 
 	// Load Download Manager
 	dlgSplash->updateProgress( 60, QObject::tr( "Loading Transfer Manager..." ) );
 	qApp->processEvents();
-	Transfers.start();
+	transfers.start();
 
 	dlgSplash->updateProgress( 80, QObject::tr( "Loading User Interface..." ) );
 	qApp->processEvents();
 
 	if ( quazaaSettings.WinMain.Visible )
 	{
-		if(bFirstRun)
-			MainWindow->showMaximized();
+		if ( bFirstRun)
+			mainWindow->showMaximized();
 		else
-			MainWindow->show();
+			mainWindow->show();
 	}
 
 	dlgSplash->updateProgress( 90, QObject::tr( "Loading Tray Icon..." ) );
 	qApp->processEvents();
-	MainWindow->loadTrayIcon();
+	mainWindow->loadTrayIcon();
 
 	dlgSplash->updateProgress( 100, QObject::tr( "Welcome to Quazaa!" ) );
 	qApp->processEvents();

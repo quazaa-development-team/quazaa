@@ -172,5 +172,5 @@ private slots:
 	void setSkin();
 };
 
-extern CWinMain* MainWindow;
+extern CWinMain* mainWindow;
 #endif // WINMAIN_H

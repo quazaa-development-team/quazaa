@@ -60,7 +60,7 @@ void QueryHashGroup::add(QueryHashTable* pTable)
 	m_pTables.append(pTable);
 
 	operate(pTable, true);
-	QueryHashMaster.invalidate();
+	queryHashMaster.invalidate();
 }
 
 void QueryHashGroup::remove(QueryHashTable* pTable)
@@ -75,7 +75,7 @@ void QueryHashGroup::remove(QueryHashTable* pTable)
 	pTable->m_pGroup = 0;
 
 	operate(pTable, false);
-	QueryHashMaster.invalidate();
+	queryHashMaster.invalidate();
 }
 
 void QueryHashGroup::operate(QueryHashTable* pTable, bool bAdd)

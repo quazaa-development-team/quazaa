@@ -31,22 +31,22 @@
 
 #include "debug_new.h"
 
-CTransfers Transfers;
-CThread TransfersThread;
+Transfers transfers;
+CThread transfersThread;
 
-CTransfers::CTransfers(QObject* parent)
+Transfers::Transfers(QObject* parent)
 	: QObject(parent),
 	  m_bActive(false)
 {
 	m_pController = new RateController(&m_pSection);
 }
 
-CTransfers::~CTransfers()
+Transfers::~Transfers()
 {
 	delete m_pController;
 }
 
-void CTransfers::start()
+void Transfers::start()
 {
 	if( m_bActive )
 		return;
@@ -54,17 +54,17 @@ void CTransfers::start()
 	systemLog.postLog(LogSeverity::Notice, qPrintable(tr("Starting transfers...")));
 
 	m_bActive = true;
-	TransfersThread.start("Transfers", &m_pSection);
-	m_pController->moveToThread(&TransfersThread);
+	transfersThread.start("Transfers", &m_pSection);
+	m_pController->moveToThread(&transfersThread);
 	Downloads.start();
-	Downloads.moveToThread(&TransfersThread);
+	Downloads.moveToThread(&transfersThread);
 
 	connect(&m_oTimer, SIGNAL(timeout()), this, SLOT(onTimer()));
 	connect(&m_oTimer, SIGNAL(timeout()), &Downloads, SLOT(onTimer()));
 	m_oTimer.start(1000);
 }
 
-void CTransfers::stop()
+void Transfers::stop()
 {
 	if( !m_bActive )
 		return;
@@ -73,11 +73,11 @@ void CTransfers::stop()
 
 	m_bActive = false;
 
-	TransfersThread.exit(0);
+	transfersThread.exit(0);
 	Downloads.stop();
 }
 
-void CTransfers::add(CTransfer *pTransfer)
+void Transfers::add(CTransfer *pTransfer)
 {
 	QMutexLocker l(&m_pSection);
 
@@ -95,7 +95,7 @@ void CTransfers::add(CTransfer *pTransfer)
 	// start
 }
 
-void CTransfers::remove(CTransfer *pTransfer)
+void Transfers::remove(CTransfer *pTransfer)
 {
 	QMutexLocker l(&m_pSection);
 
@@ -109,12 +109,12 @@ void CTransfers::remove(CTransfer *pTransfer)
 	m_lTransfers.remove(pTransfer->m_pOwner, pTransfer);
 }
 
-QList<CTransfer *> CTransfers::getByOwner(void *pOwner)
+QList<CTransfer *> Transfers::getByOwner(void *pOwner)
 {
 	return m_lTransfers.values(pOwner);
 }
 
-void CTransfers::onTimer()
+void Transfers::onTimer()
 {
 	if(!m_bActive || m_lTransfers.isEmpty())
 		return;

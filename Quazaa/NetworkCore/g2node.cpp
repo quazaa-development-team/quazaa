@@ -197,13 +197,13 @@ void G2Node::onTimer(quint32 tNow)
 		}*/
 
 		if ( ( m_nType == G2_HUB && tNow - m_tConnected > 30 ) &&
-				(( m_pLocalTable != 0 && m_pLocalTable->m_nCookie != QueryHashMaster.m_nCookie &&
+				(( m_pLocalTable != 0 && m_pLocalTable->m_nCookie != queryHashMaster.m_nCookie &&
 				   tNow - m_pLocalTable->m_nCookie > 60 ) ||
-				 ( QueryHashMaster.m_nCookie - m_pLocalTable->m_nCookie > 60 ||
+				 ( queryHashMaster.m_nCookie - m_pLocalTable->m_nCookie > 60 ||
 				   !m_pLocalTable->m_bLive ))
 		   )
 		{
-			if ( m_pLocalTable->patchTo( &QueryHashMaster, this ) )
+			if ( m_pLocalTable->patchTo( &queryHashMaster, this ) )
 			{
 				systemLog.postLog( LogSeverity::Notice, Component::G2,
 				tr( "Sending query routing table to %1 (%2 bits, %3 entries, %4 bytes, %5% full)"
@@ -1190,7 +1190,7 @@ void G2Node::onQHT(G2Packet* pPacket)
 
 	if(m_nType == G2_LEAF && m_pRemoteTable->m_pGroup == 0)
 	{
-		QueryHashMaster.add(m_pRemoteTable);
+		queryHashMaster.add(m_pRemoteTable);
 	}
 }
 

@@ -29,19 +29,19 @@
 
 #include "debug_new.h"
 
-CQueryHashMaster QueryHashMaster;
+QueryHashMaster queryHashMaster;
 
-CQueryHashMaster::CQueryHashMaster()
+QueryHashMaster::QueryHashMaster()
 {
 	m_nPerGroup = 0;
 }
 
-CQueryHashMaster::~CQueryHashMaster()
+QueryHashMaster::~QueryHashMaster()
 {
 	Q_ASSERT(getCount() == 0);
 }
 
-void CQueryHashMaster::create()
+void QueryHashMaster::create()
 {
 	QueryHashTable::create();
 
@@ -51,7 +51,7 @@ void CQueryHashMaster::create()
 	m_nCookie			= 0;
 }
 
-void CQueryHashMaster::add(QueryHashTable* pTable)
+void QueryHashMaster::add(QueryHashTable* pTable)
 {
 	Q_ASSERT(m_nPerGroup > 0);
 	Q_ASSERT(pTable != 0);
@@ -77,7 +77,7 @@ void CQueryHashMaster::add(QueryHashTable* pTable)
 	m_bValid = false;
 }
 
-void CQueryHashMaster::remove(QueryHashTable* pTable)
+void QueryHashMaster::remove(QueryHashTable* pTable)
 {
 	Q_ASSERT(pTable != 0);
 	if(pTable->m_pGroup == 0)
@@ -99,7 +99,7 @@ void CQueryHashMaster::remove(QueryHashTable* pTable)
 	m_bValid = false;
 }
 
-void CQueryHashMaster::build()
+void QueryHashMaster::build()
 {
 	quint32 tNow = time(0);
 
