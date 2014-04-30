@@ -27,7 +27,7 @@
 
 #include "types.h"
 
-struct invalid_hash_exception{};
+struct invalid_hash_exception {};
 
 class CHash
 {
@@ -44,23 +44,23 @@ protected:
 	QByteArray          m_baRawValue;
 
 public:
-	CHash(const CHash& rhs);
-	CHash(Algorithm algo);
-	CHash(QByteArray baRaw, CHash::Algorithm algo);
+	CHash( const CHash& rhs );
+	CHash( Algorithm algo );
+	CHash( QByteArray baRaw, CHash::Algorithm algo );
 	~CHash();
 
-	static int	byteCount(int algo);
+	static int	byteCount( int algo );
 
-	static CHash* fromURN(QString sURN);
-	static CHash* fromRaw(QByteArray& baRaw, CHash::Algorithm algo);
+	static CHash* fromURN( QString sURN );
+	static CHash* fromRaw( QByteArray& baRaw, CHash::Algorithm algo );
 
-	static int lengthForUrn(const QString& urn);
+	static int lengthForUrn( const QString& urn );
 
 	QString toURN() const;
 	QString toString() const;
 
-	void addData(const char* pData, quint32 nLength);
-	void addData(QByteArray baData);
+	void addData( const char* pData, quint32 nLength );
+	void addData( QByteArray baData );
 
 	QString getFamilyName() const;
 
@@ -69,23 +69,23 @@ public:
 	inline CHash::Algorithm getAlgorithm() const;
 	inline QByteArray rawValue() const;
 
-	inline bool operator==(const CHash& oHash) const;
-	inline bool operator!=(const CHash& oHash) const;
-	inline bool operator>(const CHash& oHash) const;
-	inline bool operator<(const CHash& oHash) const;
+	inline bool operator==( const CHash& oHash ) const;
+	inline bool operator!=( const CHash& oHash ) const;
+	inline bool operator>( const CHash& oHash ) const;
+	inline bool operator<( const CHash& oHash ) const;
 };
 
 // allows using CHash with std::unordered_map
 namespace std
 {
-	template <>
-	struct hash<CHash> : public unary_function<CHash, size_t>
+template <>
+struct hash<CHash> : public unary_function<CHash, size_t>
+{
+	size_t operator()( const CHash& value ) const
 	{
-		size_t operator()(const CHash& value) const
-		{
-			return qHash( value.rawValue() );
-		}
-	};
+		return qHash( value.rawValue() );
+	}
+};
 }
 
 typedef std::vector< CHash > HashVector;
@@ -100,33 +100,33 @@ QByteArray CHash::rawValue() const
 	return m_baRawValue;
 }
 
-bool CHash::operator ==(const CHash& oHash) const
+bool CHash::operator ==( const CHash& oHash ) const
 {
-	Q_ASSERT(oHash.m_bFinalized && m_bFinalized);
-	return (oHash.m_nHashAlgorithm == m_nHashAlgorithm && oHash.m_baRawValue == m_baRawValue);
+	Q_ASSERT( oHash.m_bFinalized && m_bFinalized );
+	return ( oHash.m_nHashAlgorithm == m_nHashAlgorithm && oHash.m_baRawValue == m_baRawValue );
 }
 
-bool CHash::operator !=(const CHash& oHash) const
+bool CHash::operator !=( const CHash& oHash ) const
 {
-	return !(*this == oHash);
+	return !( *this == oHash );
 }
 
-bool CHash::operator <(const CHash& oHash) const
+bool CHash::operator <( const CHash& oHash ) const
 {
-	return (m_baRawValue < oHash.m_baRawValue);
+	return ( m_baRawValue < oHash.m_baRawValue );
 }
 
-bool CHash::operator >(const CHash& oHash) const
+bool CHash::operator >( const CHash& oHash ) const
 {
-	return (m_baRawValue > oHash.m_baRawValue);
+	return ( m_baRawValue > oHash.m_baRawValue );
 }
 
-QDataStream& operator<<(QDataStream& s, const CHash& rhs);
-QDataStream& operator>>(QDataStream& s, CHash& rhs);
+QDataStream& operator<<( QDataStream& s, const CHash& rhs );
+QDataStream& operator>>( QDataStream& s, CHash& rhs );
 
-QList<CHash>& operator<<(      QList<CHash>& list, const HashVector& vector);
-QList<CHash>& operator>>(const QList<CHash>& list,       HashVector& vector);
-HashVector&   operator<<(      HashVector& vector, const QList<CHash>& list);
-HashVector&   operator>>(const HashVector& vector,       QList<CHash>& list);
+QList<CHash>& operator<<(      QList<CHash>& list, const HashVector& vector );
+QList<CHash>& operator>>( const QList<CHash>& list,       HashVector& vector );
+HashVector&   operator<<(      HashVector& vector, const QList<CHash>& list );
+HashVector&   operator>>( const HashVector& vector,       QList<CHash>& list );
 
 #endif // HASH_H

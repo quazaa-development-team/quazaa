@@ -54,35 +54,74 @@ private:
 	G2HostCacheIterator m_iHostCacheIterator;
 
 public:
-	G2HostCacheHost(const EndPoint& oAddress, const quint32 tTimestamp, const quint8 nFailures);
-	G2HostCacheHost(const G2HostCacheHost& oHost, const quint32 tTimestamp, const quint8 nFailures);
+	G2HostCacheHost( const EndPoint& oAddress, const quint32 tTimestamp, const quint8 nFailures );
+	G2HostCacheHost( const G2HostCacheHost& oHost, const quint32 tTimestamp, const quint8 nFailures );
 
 private:
-	G2HostCacheHost(const G2HostCacheHost&); // avoids unintentionnal copies
+	G2HostCacheHost( const G2HostCacheHost& ); // avoids unintentionnal copies
 
 public:
 	~G2HostCacheHost();
 
-	bool canQuery(const quint32 tNow = common::getTNowUTC()) const;
-	void setKey(quint32 nKey, const quint32 tNow = common::getTNowUTC(), EndPoint* pHost = NULL);
+	bool canQuery( const quint32 tNow = common::getTNowUTC() ) const;
+	void setKey( quint32 nKey, const quint32 tNow = common::getTNowUTC(), EndPoint* pHost = NULL );
 
-	inline quint32   queryKey()      const { return m_nQueryKey;      }
-	inline EndPoint keyHost()       const { return m_oKeyHost;       }
-	inline quint32   keyTime()       const { return m_nKeyTime;       }
-	inline quint32   ack()           const { return m_tAck;           }
-	inline quint32   lastQuery()     const { return m_tLastQuery;     }
-	inline quint32   retryAfter()    const { return m_tRetryAfter;    }
-	inline bool      iteratorValid() const { return m_bIteratorValid; }
+	inline quint32   queryKey()      const
+	{
+		return m_nQueryKey;
+	}
+	inline EndPoint keyHost()       const
+	{
+		return m_oKeyHost;
+	}
+	inline quint32   keyTime()       const
+	{
+		return m_nKeyTime;
+	}
+	inline quint32   ack()           const
+	{
+		return m_tAck;
+	}
+	inline quint32   lastQuery()     const
+	{
+		return m_tLastQuery;
+	}
+	inline quint32   retryAfter()    const
+	{
+		return m_tRetryAfter;
+	}
+	inline bool      iteratorValid() const
+	{
+		return m_bIteratorValid;
+	}
 
-	inline void      setQueryKey(    quint32   nQueryKey    ) { m_nQueryKey    = nQueryKey;    }
-	inline void      setKeyHost(     EndPoint nKeyHost     ) { m_oKeyHost     = nKeyHost;     }
-	inline void      setKeyTime(     quint32   nKeyTime     ) { m_nKeyTime     = nKeyTime;     }
-	inline void      setAck(         quint32   tAck         ) { m_tAck         = tAck;         }
-	inline void      setLastQuery(   quint32   tLastQuery   ) { m_tLastQuery   = tLastQuery;   }
-	inline void      setRetryAfter(  quint32   tRetryAfter  ) { m_tRetryAfter  = tRetryAfter;  }
+	inline void      setQueryKey(    quint32   nQueryKey    )
+	{
+		m_nQueryKey    = nQueryKey;
+	}
+	inline void      setKeyHost(     EndPoint nKeyHost     )
+	{
+		m_oKeyHost     = nKeyHost;
+	}
+	inline void      setKeyTime(     quint32   nKeyTime     )
+	{
+		m_nKeyTime     = nKeyTime;
+	}
+	inline void      setAck(         quint32   tAck         )
+	{
+		m_tAck         = tAck;
+	}
+	inline void      setLastQuery(   quint32   tLastQuery   )
+	{
+		m_tLastQuery   = tLastQuery;
+	}
+	inline void      setRetryAfter(  quint32   tRetryAfter  )
+	{
+		m_tRetryAfter  = tRetryAfter;
+	}
 
 	G2HostCacheIterator iterator() const;
-	void setIterator(const G2HostCacheIterator& it);
+	void setIterator( const G2HostCacheIterator& it );
 	void invalidateIterator();
 };
 

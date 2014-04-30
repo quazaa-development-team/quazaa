@@ -29,19 +29,19 @@
 
 namespace Ui
 {
-	class CWidgetScheduler;
+class CWidgetScheduler;
 }
 
 class CWidgetScheduler : public QMainWindow
 {
 	Q_OBJECT
 public:
-	CWidgetScheduler(QWidget* parent = 0);
+	CWidgetScheduler( QWidget* parent = 0 );
 	~CWidgetScheduler();
 	void saveWidget();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CWidgetScheduler* ui;

@@ -27,8 +27,8 @@
 
 Neighbours neighbours;
 
-Neighbours::Neighbours(QObject* parent) :
-	NeighboursG2(parent)
+Neighbours::Neighbours( QObject* parent ) :
+	NeighboursG2( parent )
 {
 
 }
@@ -38,7 +38,7 @@ Neighbours::~Neighbours()
 
 void Neighbours::maintain()
 {
-	QMutexLocker l(&m_pSection);
+	QMutexLocker l( &m_pSection );
 
 	NeighboursG2::maintain();
 }

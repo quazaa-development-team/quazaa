@@ -82,31 +82,31 @@ public:
 		QIcon		  iNetwork;
 		QIcon		  iCountry;
 
-		NeighbourData(Neighbour* pNeighbour);
-		bool update(int row, int col, QModelIndexList& to_update, NeighboursTableModel* model);
-		QVariant data(int col) const;
-		bool lessThan(int col, NeighboursTableModel::NeighbourData* pOther) const;
+		NeighbourData( Neighbour* pNeighbour );
+		bool update( int row, int col, QModelIndexList& to_update, NeighboursTableModel* model );
+		QVariant data( int col ) const;
+		bool lessThan( int col, NeighboursTableModel::NeighbourData* pOther ) const;
 
-		QString stateToString(int s) const;
-		QString typeToString(G2NodeType t) const;
+		QString stateToString( int s ) const;
+		QString typeToString( G2NodeType t ) const;
 	};
 
 protected:
 	QVector<NeighbourData*>   m_lNodes;
 
 public:
-	explicit NeighboursTableModel(QObject* parent = 0, QWidget* container = 0);
+	explicit NeighboursTableModel( QObject* parent = 0, QWidget* container = 0 );
 	~NeighboursTableModel();
 
-	int rowCount(const QModelIndex& parent) const;
-	int columnCount(const QModelIndex& parent) const;
-	QVariant data(const QModelIndex& index, int role) const;
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-	QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const;
+	int rowCount( const QModelIndex& parent ) const;
+	int columnCount( const QModelIndex& parent ) const;
+	QVariant data( const QModelIndex& index, int role ) const;
+	QVariant headerData( int section, Qt::Orientation orientation, int role ) const;
+	QModelIndex index( int row, int column, const QModelIndex& parent = QModelIndex() ) const;
 
-	void sort(int column, Qt::SortOrder order);
+	void sort( int column, Qt::SortOrder order );
 
-	Neighbour* nodeFromIndex(const QModelIndex& index);
+	Neighbour* nodeFromIndex( const QModelIndex& index );
 
 protected:
 
@@ -117,8 +117,8 @@ private:
 	bool			m_bNeedSorting;
 
 public slots:
-	void addNode(Neighbour* pNode);
-	void removeNode(Neighbour* pNode);
+	void addNode( Neighbour* pNode );
+	void removeNode( Neighbour* pNode );
 	void updateAll();
 };
 

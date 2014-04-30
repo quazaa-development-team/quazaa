@@ -35,7 +35,7 @@
 
 namespace Ui
 {
-	class WidgetSearchTemplate;
+class WidgetSearchTemplate;
 }
 
 class ManagedSearch;
@@ -43,7 +43,7 @@ class Query;
 
 namespace SearchState
 {
-		enum SearchState { Default, Stopped, Searching, Paused };
+enum SearchState { Default, Stopped, Searching, Paused };
 }
 
 class WidgetSearchTemplate : public QWidget
@@ -51,7 +51,7 @@ class WidgetSearchTemplate : public QWidget
 	Q_OBJECT
 private:
 	Ui::WidgetSearchTemplate* ui;
-	QMenu *searchMenu;
+	QMenu* searchMenu;
 
 public:
 	SearchTreeModel*            m_pSearchModel;
@@ -67,32 +67,32 @@ public:
 	int m_nFiles;
 
 public:
-	WidgetSearchTemplate(QString searchString = "", QWidget* parent = 0);
+	WidgetSearchTemplate( QString searchString = "", QWidget* parent = 0 );
 	~WidgetSearchTemplate();
 
-	void startSearch(Query* pQuery);
+	void startSearch( Query* pQuery );
 	void pauseSearch();
 	void stopSearch();
 	void clearSearch();
 	QModelIndex currentItem();
 
-	void filter(const SearchFilter::FilterControlData& rData);
+	void filter( const SearchFilter::FilterControlData& rData );
 	SearchFilter::FilterControlData* getFilterDataCopy() const;
 	//void getStats(quint32& nHubs, quint32& nLeaves, quint32& nHits);
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	CHash* getHash();
 
 signals:
-	void statsUpdated(WidgetSearchTemplate* thisSearch);
+	void statsUpdated( WidgetSearchTemplate* thisSearch );
 	void stateChanged();
 
 private slots:
-	void on_treeViewSearchResults_doubleClicked(const QModelIndex &index);
-	void on_treeViewSearchResults_customContextMenuRequested(const QPoint &pos);
+	void on_treeViewSearchResults_doubleClicked( const QModelIndex& index );
+	void on_treeViewSearchResults_customContextMenuRequested( const QPoint& pos );
 	void on_actionDownload_triggered();
 	void on_actionViewReviews_triggered();
 	void on_actionVirusTotalCheck_triggered();

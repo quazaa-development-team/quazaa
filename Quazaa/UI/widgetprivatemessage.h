@@ -32,42 +32,44 @@
 
 class QTextDocument;
 
-namespace Ui {
-	class CWidgetPrivateMessage;
+namespace Ui
+{
+class CWidgetPrivateMessage;
 }
 
-class CWidgetPrivateMessage : public QWidget {
+class CWidgetPrivateMessage : public QWidget
+{
 	Q_OBJECT
 public:
 	QUuid	m_oGUID;
 	QString m_sNick;
 	ChatSession* m_pSession;
 public:
-	CWidgetPrivateMessage(QWidget *parent = 0);
+	CWidgetPrivateMessage( QWidget* parent = 0 );
 	~CWidgetPrivateMessage();
 	QString inputMessage;
 
-	void SendPrivateMessage(QTextDocument* pMessage, bool bAction = false);
-	void SendPrivateMessage(QString sMessage, bool bAction = false);
+	void SendPrivateMessage( QTextDocument* pMessage, bool bAction = false );
+	void SendPrivateMessage( QString sMessage, bool bAction = false );
 
 protected:
-	void changeEvent(QEvent *e);
+	void changeEvent( QEvent* e );
 
 private:
-	Ui::CWidgetPrivateMessage *ui;
+	Ui::CWidgetPrivateMessage* ui;
 
 signals:
-	void SendMessageS(QTextDocument*, bool);
-	void SendMessageS(QString, bool);
+	void SendMessageS( QTextDocument*, bool );
+	void SendMessageS( QString, bool );
 
 public slots:
-	void OnIncomingMessage(QString sMessage, bool bAction = false);
-	void OnSystemMessage(QString sMessage);
-	void OnGUIDChanged(QUuid oGUID);
-	void OnNickChanged(QString sNick);
+	void OnIncomingMessage( QString sMessage, bool bAction = false );
+	void OnSystemMessage( QString sMessage );
+	void OnGUIDChanged( QUuid oGUID );
+	void OnNickChanged( QString sNick );
 
 private slots:
-	void on_textEdit_anchorClicked(QUrl link);
+	void on_textEdit_anchorClicked( QUrl link );
 	void setSkin();
 };
 

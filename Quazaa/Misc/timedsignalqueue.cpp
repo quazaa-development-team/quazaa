@@ -35,12 +35,12 @@ TimedSignalQueue signalQueue;
 /* ---------------------------------------- CTimerObject ---------------------------------------- */
 /* ---------------------------------------------------------------------------------------------- */
 
-TimerObject::TimerObject(QObject* obj, const char* member, quint64 tIntervalMs, bool bMultiShot,
-						 QGenericArgument val0, QGenericArgument val1,
-						 QGenericArgument val2, QGenericArgument val3,
-						 QGenericArgument val4, QGenericArgument val5,
-						 QGenericArgument val6, QGenericArgument val7,
-						 QGenericArgument val8, QGenericArgument val9) :
+TimerObject::TimerObject( QObject* obj, const char* member, quint64 tIntervalMs, bool bMultiShot,
+						  QGenericArgument val0, QGenericArgument val1,
+						  QGenericArgument val2, QGenericArgument val3,
+						  QGenericArgument val4, QGenericArgument val5,
+						  QGenericArgument val6, QGenericArgument val7,
+						  QGenericArgument val8, QGenericArgument val9 ) :
 	m_tInterval( tIntervalMs ),
 	m_bMultiShot( bMultiShot )
 {
@@ -76,12 +76,12 @@ TimerObject::TimerObject(QObject* obj, const char* member, quint64 tIntervalMs, 
 	m_oUUID = QUuid::createUuid();
 }
 
-TimerObject::TimerObject(QObject* obj, const char* member, quint32 tDelaySec,
-						 QGenericArgument val0, QGenericArgument val1,
-						 QGenericArgument val2, QGenericArgument val3,
-						 QGenericArgument val4, QGenericArgument val5,
-						 QGenericArgument val6, QGenericArgument val7,
-						 QGenericArgument val8, QGenericArgument val9) :
+TimerObject::TimerObject( QObject* obj, const char* member, quint32 tDelaySec,
+						  QGenericArgument val0, QGenericArgument val1,
+						  QGenericArgument val2, QGenericArgument val3,
+						  QGenericArgument val4, QGenericArgument val5,
+						  QGenericArgument val6, QGenericArgument val7,
+						  QGenericArgument val8, QGenericArgument val9 ) :
 	m_tInterval( 0 ),
 	m_bMultiShot( false )
 {
@@ -92,10 +92,10 @@ TimerObject::TimerObject(QObject* obj, const char* member, quint32 tDelaySec,
 
 #ifdef _DEBUG
 #if ENABLE_SIGNAL_QUEUE_DEBUGGING
-	qint64 tTest = (m_tTime + signalQueue.m_tTimerStartUTCInMSec) / 1000 - common::getTNowUTC();
+	qint64 tTest = ( m_tTime + signalQueue.m_tTimerStartUTCInMSec ) / 1000 - common::getTNowUTC();
 	systemLog.postLog( LogSeverity::Debug, Component::SignalQueue,
 					   QString( "Added event with %1s delay to signal queue."
-								).arg( QString::number( tTest ) ) );
+							  ).arg( QString::number( tTest ) ) );
 #endif // ENABLE_SIGNAL_QUEUE_DEBUGGING
 #endif // _DEBUG
 
@@ -129,7 +129,7 @@ TimerObject::TimerObject(QObject* obj, const char* member, quint32 tDelaySec,
 	m_oUUID = QUuid::createUuid();
 }
 
-TimerObject::TimerObject(const TimerObject* const pTimerObject)
+TimerObject::TimerObject( const TimerObject* const pTimerObject )
 {
 	m_tTime			= pTimerObject->m_tTime;
 	m_tInterval		= pTimerObject->m_tInterval;
@@ -199,7 +199,7 @@ QElapsedTimer TimedSignalQueue::m_oElapsedTime;
 quint64       TimedSignalQueue::m_tTimerStartUTCInMSec = 0;
 #endif
 
-TimedSignalQueue::TimedSignalQueue(QObject *parent) :
+TimedSignalQueue::TimedSignalQueue( QObject* parent ) :
 	QObject( parent ),
 	m_nPrecision( 1000 )
 {
@@ -249,7 +249,7 @@ void TimedSignalQueue::clear()
 	for ( SignalQueueIterator i = m_QueuedSignals.begin(); i != m_QueuedSignals.end(); )
 	{
 		delete i.value();
-		i = m_QueuedSignals.erase(i);
+		i = m_QueuedSignals.erase( i );
 	}
 }
 
@@ -264,7 +264,7 @@ void TimedSignalQueue::setPrecision( quint64 tInterval )
 	}
 }
 
-void TimedSignalQueue::timerEvent(QTimerEvent* event)
+void TimedSignalQueue::timerEvent( QTimerEvent* event )
 {
 	if ( event->timerId() == m_oTimer.timerId() )
 	{
@@ -286,10 +286,12 @@ void TimedSignalQueue::checkSchedule()
 		for ( SignalQueueIterator i = m_QueuedSignals.begin(); i != m_QueuedSignals.end(); )
 		{
 			if ( i.key() > tRelativeTimeMs )
+			{
 				break;
+			}
 
 			TimerObject* pObj = i.value();
-			i = m_QueuedSignals.erase(i);
+			i = m_QueuedSignals.erase( i );
 
 			bool bSuccess = pObj->emitSignal();
 
@@ -324,30 +326,30 @@ void TimedSignalQueue::checkSchedule()
 	}
 }
 
-QUuid TimedSignalQueue::push(QObject* parent, const char* signal,
-							 quint64 tIntervalMs, bool bMultiShot,
-							 QGenericArgument val0, QGenericArgument val1,
-							 QGenericArgument val2, QGenericArgument val3,
-							 QGenericArgument val4, QGenericArgument val5,
-							 QGenericArgument val6, QGenericArgument val7,
-							 QGenericArgument val8, QGenericArgument val9)
+QUuid TimedSignalQueue::push( QObject* parent, const char* signal,
+							  quint64 tIntervalMs, bool bMultiShot,
+							  QGenericArgument val0, QGenericArgument val1,
+							  QGenericArgument val2, QGenericArgument val3,
+							  QGenericArgument val4, QGenericArgument val5,
+							  QGenericArgument val6, QGenericArgument val7,
+							  QGenericArgument val8, QGenericArgument val9 )
 {
 	return push( new TimerObject( parent, signal, tIntervalMs, bMultiShot,
 								  val0, val1, val2, val3, val4, val5, val6, val7, val8, val9 ) );
 }
 
-QUuid TimedSignalQueue::push(QObject* parent, const char* signal, quint32 tDelaySec,
-							 QGenericArgument val0, QGenericArgument val1,
-							 QGenericArgument val2, QGenericArgument val3,
-							 QGenericArgument val4, QGenericArgument val5,
-							 QGenericArgument val6, QGenericArgument val7,
-							 QGenericArgument val8, QGenericArgument val9)
+QUuid TimedSignalQueue::push( QObject* parent, const char* signal, quint32 tDelaySec,
+							  QGenericArgument val0, QGenericArgument val1,
+							  QGenericArgument val2, QGenericArgument val3,
+							  QGenericArgument val4, QGenericArgument val5,
+							  QGenericArgument val6, QGenericArgument val7,
+							  QGenericArgument val8, QGenericArgument val9 )
 {
 	return push( new TimerObject( parent, signal, tDelaySec,
 								  val0, val1, val2, val3, val4, val5, val6, val7, val8, val9 ) );
 }
 
-QUuid TimedSignalQueue::push(TimerObject* pTimedSignal)
+QUuid TimedSignalQueue::push( TimerObject* pTimedSignal )
 {
 	QMutexLocker l( &m_pSection );
 
@@ -356,16 +358,20 @@ QUuid TimedSignalQueue::push(TimerObject* pTimedSignal)
 	return pTimedSignal->m_oUUID;
 }
 
-bool TimedSignalQueue::pop(const QObject* parent, const char* signal)
+bool TimedSignalQueue::pop( const QObject* parent, const char* signal )
 {
 	if ( !parent )
+	{
 		return false;
+	}
 
 	bool bFound = false;
 	QString sSignalName = "";
 
 	if ( signal )
+	{
 		sSignalName = signal;
+	}
 
 	QMutexLocker l( &m_pSection );
 
@@ -387,7 +393,7 @@ bool TimedSignalQueue::pop(const QObject* parent, const char* signal)
 	return bFound;
 }
 
-bool TimedSignalQueue::pop(QUuid oTimer_ID)
+bool TimedSignalQueue::pop( QUuid oTimer_ID )
 {
 	QMutexLocker l( &m_pSection );
 
@@ -402,7 +408,7 @@ bool TimedSignalQueue::pop(QUuid oTimer_ID)
 	return false;
 }
 
-bool TimedSignalQueue::setInterval(QUuid oTimer_ID, quint64 tInterval)
+bool TimedSignalQueue::setInterval( QUuid oTimer_ID, quint64 tInterval )
 {
 	QMutexLocker l( &m_pSection );
 
@@ -422,7 +428,7 @@ bool TimedSignalQueue::setInterval(QUuid oTimer_ID, quint64 tInterval)
 	return false;
 }
 
-TimerObject* TimedSignalQueue::popInternal(QUuid oTimer_ID)
+TimerObject* TimedSignalQueue::popInternal( QUuid oTimer_ID )
 {
 	TimerObject* pTimer;
 

@@ -55,7 +55,7 @@
 #include "commonfunctions.h"
 #include "Discovery/networktype.h"
 
-uint qHash(const QUuid& key);
+uint qHash( const QUuid& key );
 
 enum TransferProtocol
 {

@@ -46,18 +46,18 @@ public:
 	quint32 m_nCookie;
 
 public:
-	SearchManager(QObject* parent = 0);
+	SearchManager( QObject* parent = 0 );
 
 	void onTimer();
 
-	void add(ManagedSearch* pSearch);
-	void remove(ManagedSearch* pSearch);
+	void add( ManagedSearch* pSearch );
+	void remove( ManagedSearch* pSearch );
 
-	ManagedSearch* find(QUuid& oGUID);
+	ManagedSearch* find( QUuid& oGUID );
 
 	// Returns true if the packet is to be routed
-	bool onQueryAcknowledge(G2Packet* pPacket, const EndPoint& oSender, QUuid& oGUID);
-	bool onQueryHit(G2Packet* pPacket, QueryHitInfo* pHitInfo);
+	bool onQueryAcknowledge( G2Packet* pPacket, const EndPoint& oSender, QUuid& oGUID );
+	bool onQueryHit( G2Packet* pPacket, QueryHitInfo* pHitInfo );
 
 signals:
 

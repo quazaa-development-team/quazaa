@@ -43,14 +43,14 @@ protected:
 	RateController* m_pController;
 	bool m_bActive;
 public:
-	ChatCore(QObject *parent = 0);
+	ChatCore( QObject* parent = 0 );
 	virtual ~ChatCore();
 
-	void onAccept(NetworkConnection* pConn, DiscoveryProtocol::Protocol nProto);
+	void onAccept( NetworkConnection* pConn, DiscoveryProtocol::Protocol nProto );
 
 protected:
-	void add(ChatSession* pSession);
-	void remove(ChatSession* pSession);
+	void add( ChatSession* pSession );
+	void remove( ChatSession* pSession );
 
 	void start();
 	void stop();
@@ -61,7 +61,7 @@ protected slots:
 public:
 
 signals:
-	void openChatWindow(ChatSession*);
+	void openChatWindow( ChatSession* );
 
 public slots:
 

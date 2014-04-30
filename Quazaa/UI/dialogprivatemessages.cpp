@@ -33,16 +33,16 @@
 
 #include "debug_new.h"
 
-CDialogPrivateMessages::CDialogPrivateMessages(QWidget *parent) :
-	QDialog(parent),
-	ui(new Ui::CDialogPrivateMessages)
+CDialogPrivateMessages::CDialogPrivateMessages( QWidget* parent ) :
+	QDialog( parent ),
+	ui( new Ui::CDialogPrivateMessages )
 {
-	ui->setupUi(this);
-	widgetChatInput = new CWidgetChatInput(this);
-	ui->horizontalLayoutChatInput->addWidget(widgetChatInput);
-	connect(widgetChatInput, SIGNAL(messageSent(QTextDocument*)), this, SLOT(onMessageSent(QTextDocument*)));
+	ui->setupUi( this );
+	widgetChatInput = new CWidgetChatInput( this );
+	ui->horizontalLayoutChatInput->addWidget( widgetChatInput );
+	connect( widgetChatInput, SIGNAL( messageSent( QTextDocument* ) ), this, SLOT( onMessageSent( QTextDocument* ) ) );
 	m_pCurrentWidget = 0;
-	qRegisterMetaType<QUuid>("QUuid");
+	qRegisterMetaType<QUuid>( "QUuid" );
 	setSkin();
 }
 
@@ -52,95 +52,106 @@ CDialogPrivateMessages::~CDialogPrivateMessages()
 	delete ui;
 }
 
-CWidgetPrivateMessage* CDialogPrivateMessages::FindByGUID(QUuid oGUID)
+CWidgetPrivateMessage* CDialogPrivateMessages::FindByGUID( QUuid oGUID )
 {
-	foreach ( CWidgetPrivateMessage* pWg, m_lChatWindows )
+	foreach ( CWidgetPrivateMessage * pWg, m_lChatWindows )
 	{
 		if ( oGUID == pWg->m_oGUID )
+		{
 			return pWg;
+		}
 	}
 
 	return 0;
 }
 
-void CDialogPrivateMessages::changeEvent(QEvent *e)
+void CDialogPrivateMessages::changeEvent( QEvent* e )
 {
-	QDialog::changeEvent(e);
-	switch (e->type()) {
+	QDialog::changeEvent( e );
+	switch ( e->type() )
+	{
 	case QEvent::LanguageChange:
-		ui->retranslateUi(this);
+		ui->retranslateUi( this );
 		break;
 	default:
 		break;
 	}
 }
 
-void CDialogPrivateMessages::OpenChat(ChatSession* pSess)
+void CDialogPrivateMessages::OpenChat( ChatSession* pSess )
 {
 	chatCore.m_pSection.lock();
-	CWidgetPrivateMessage* pWg = FindByGUID(pSess->m_oGUID);
-	if( pWg == 0 )
+	CWidgetPrivateMessage* pWg = FindByGUID( pSess->m_oGUID );
+	if ( pWg == 0 )
 	{
-		pWg = new CWidgetPrivateMessage(this);
-		m_lChatWindows.append(pWg);
-		int idx = ui->tabWidgetPrivateMessages->addTab(pWg, pSess->m_oAddress.toStringWithPort());
+		pWg = new CWidgetPrivateMessage( this );
+		m_lChatWindows.append( pWg );
+		int idx = ui->tabWidgetPrivateMessages->addTab( pWg, pSess->m_oAddress.toStringWithPort() );
 		m_pCurrentWidget = pWg;
-		ui->tabWidgetPrivateMessages->setCurrentIndex(idx);
+		ui->tabWidgetPrivateMessages->setCurrentIndex( idx );
 	}
 
-	pSess->setupWidget(pWg);
+	pSess->setupWidget( pWg );
 	pWg->show();
 	chatCore.m_pSection.unlock();
 	raise();
 }
 
-void CDialogPrivateMessages::onMessageSent(QTextDocument *pDoc)
+void CDialogPrivateMessages::onMessageSent( QTextDocument* pDoc )
 {
 	QString sMessage = pDoc->toPlainText();
 
-	if( sMessage.isEmpty() )
-		return;
-
-	if( sMessage.left(2) != "//" )
+	if ( sMessage.isEmpty() )
 	{
-		if( sMessage.left(1) == "/" ) // is it a command?
+		return;
+	}
+
+	if ( sMessage.left( 2 ) != "//" )
+	{
+		if ( sMessage.left( 1 ) == "/" ) // is it a command?
 		{
 			QString sCmd, sParam;
-			int nSpace = sMessage.indexOf(" ");
-			if( nSpace == -1 )
-				nSpace = sMessage.length();
-
-			sCmd = sMessage.left(nSpace).toLower();
-			sParam = sMessage.mid(nSpace + 1);
-
-			if( sCmd == "/me" )
+			int nSpace = sMessage.indexOf( " " );
+			if ( nSpace == -1 )
 			{
-				if( !sParam.isEmpty() )
-					m_pCurrentWidget->SendPrivateMessage(sParam, true);
+				nSpace = sMessage.length();
+			}
+
+			sCmd = sMessage.left( nSpace ).toLower();
+			sParam = sMessage.mid( nSpace + 1 );
+
+			if ( sCmd == "/me" )
+			{
+				if ( !sParam.isEmpty() )
+				{
+					m_pCurrentWidget->SendPrivateMessage( sParam, true );
+				}
 			}
 			else
 			{
-				m_pCurrentWidget->OnSystemMessage("Unknown command");
+				m_pCurrentWidget->OnSystemMessage( "Unknown command" );
 			}
 
 			return;
 		}
 	}
-	m_pCurrentWidget->SendPrivateMessage(pDoc, false);
+	m_pCurrentWidget->SendPrivateMessage( pDoc, false );
 }
 
-void CDialogPrivateMessages::on_tabWidgetPrivateMessages_currentChanged(int index)
+void CDialogPrivateMessages::on_tabWidgetPrivateMessages_currentChanged( int index )
 {
-	if( ui->tabWidgetPrivateMessages->count() > 0 )
+	if ( ui->tabWidgetPrivateMessages->count() > 0 )
+	{
 		m_pCurrentWidget = m_lChatWindows[index];
+	}
 }
 
-void CDialogPrivateMessages::on_tabWidgetPrivateMessages_tabCloseRequested(int index)
+void CDialogPrivateMessages::on_tabWidgetPrivateMessages_tabCloseRequested( int index )
 {
-	ui->tabWidgetPrivateMessages->removeTab(index);
-	m_lChatWindows.removeAt(index);
+	ui->tabWidgetPrivateMessages->removeTab( index );
+	m_lChatWindows.removeAt( index );
 
-	if( m_lChatWindows.isEmpty() )
+	if ( m_lChatWindows.isEmpty() )
 	{
 		close();
 	}

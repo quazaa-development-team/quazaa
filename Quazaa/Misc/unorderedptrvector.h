@@ -69,7 +69,7 @@ public:
 		T** m_pPosition;
 
 	private:
-		const_iterator(const UnorderedPtrVector<T>* const pParent, T** const pPosition);
+		const_iterator( const UnorderedPtrVector<T>* const pParent, T** const pPosition );
 
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 		bool isValid() const;
@@ -77,18 +77,18 @@ public:
 
 	public:
 		virtual ~const_iterator();
-		const_iterator(const const_iterator& it);
+		const_iterator( const const_iterator& it );
 
 		const_iterator& operator++();   // pre
-		const_iterator operator++(int); // post
+		const_iterator operator++( int ); // post
 
 		const_iterator& operator--();   // pre
-		const_iterator operator--(int); // post
+		const_iterator operator--( int ); // post
 
-		const_iterator& operator=(const const_iterator& other);
+		const_iterator& operator=( const const_iterator& other );
 
-		bool operator==(const const_iterator& other) const;
-		bool operator!=(const const_iterator& other) const;
+		bool operator==( const const_iterator& other ) const;
+		bool operator!=( const const_iterator& other ) const;
 
 		T*& operator*();
 
@@ -98,13 +98,13 @@ public:
 	class iterator : public const_iterator
 	{
 	private:
-		iterator(UnorderedPtrVector<T>* pParent, T** pPosition);
+		iterator( UnorderedPtrVector<T>* pParent, T** pPosition );
 
 	public:
 		~iterator();
-		iterator(const iterator& it);
+		iterator( const iterator& it );
 
-		iterator& operator=(const iterator& other);
+		iterator& operator=( const iterator& other );
 
 		friend class UnorderedPtrVector<T>;
 	};
@@ -121,18 +121,18 @@ private:
 	quint32 m_nAllocatedSize;
 
 public:
-	UnorderedPtrVector(quint32 nReserve = 1023);
-	UnorderedPtrVector(const UnorderedPtrVector& other);
+	UnorderedPtrVector( quint32 nReserve = 1023 );
+	UnorderedPtrVector( const UnorderedPtrVector& other );
 	~UnorderedPtrVector();
 
-	T*& operator[](quint32 nPos);
+	T*& operator[]( quint32 nPos );
 
-	void reserve(const quint32 nReserve);
+	void reserve( const quint32 nReserve );
 	quint32 capacity() const;
 
-	void push(T* item);
-	void push_back(T* item);
-	void erase(quint32 nPos);
+	void push( T* item );
+	void push_back( T* item );
+	void erase( quint32 nPos );
 
 	void clear();
 
@@ -144,25 +144,25 @@ public:
 	iterator end();
 	const_iterator end() const;
 
-	iterator erase(iterator it);
+	iterator erase( iterator it );
 
 private:
 	void grow();
-	void reallocate(quint32 nNewSize) throw(std::bad_alloc);
+	void reallocate( quint32 nNewSize ) throw( std::bad_alloc );
 
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
-	void setIteratorValidity(T** pInvalidateAfter);
-	void registerIterator(const_iterator* pIterator);
-	void unregisterIterator(const_iterator* pIterator);
+	void setIteratorValidity( T** pInvalidateAfter );
+	void registerIterator( const_iterator* pIterator );
+	void unregisterIterator( const_iterator* pIterator );
 
 	// TODO: remove later
-	bool checkIterator(const const_iterator* const pIterator) const;
+	bool checkIterator( const const_iterator* const pIterator ) const;
 #endif // DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 };
 
 template <typename T>
-UnorderedPtrVector<T>::const_iterator::const_iterator(const UnorderedPtrVector<T>* const pParent,
-													  T** const pPosition) :
+UnorderedPtrVector<T>::const_iterator::const_iterator( const UnorderedPtrVector<T>* const pParent,
+													   T** const pPosition ) :
 	m_bValid( true ),
 	m_pPosition( pPosition )
 {
@@ -186,9 +186,9 @@ bool UnorderedPtrVector<T>::const_iterator::isValid() const
 	Q_ASSERT( m_pParent->checkIterator( this ) );
 
 	return m_pFirstValidPos == m_pParent->m_pBuffer &&
-			m_pLastValidPos >= m_pParent->m_pBuffer &&
-			m_pLastValidPos <= m_pParent->m_pPastTheEnd &&
-			m_bValid;
+		   m_pLastValidPos >= m_pParent->m_pBuffer &&
+		   m_pLastValidPos <= m_pParent->m_pPastTheEnd &&
+		   m_bValid;
 }
 #endif // DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 
@@ -202,7 +202,7 @@ UnorderedPtrVector<T>::const_iterator::~const_iterator()
 
 template <typename T>
 UnorderedPtrVector<T>::const_iterator::const_iterator(
-		const typename UnorderedPtrVector<T>::const_iterator& it) :
+	const typename UnorderedPtrVector<T>::const_iterator& it ) :
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 	m_pParent( it.m_pParent ),
 	m_pFirstValidPos( it.m_pFirstValidPos ),
@@ -235,7 +235,7 @@ typename UnorderedPtrVector<T>::const_iterator& UnorderedPtrVector<T>::const_ite
 
 template <typename T>
 typename UnorderedPtrVector<T>::const_iterator
-	UnorderedPtrVector<T>::const_iterator::operator++(int)
+UnorderedPtrVector<T>::const_iterator::operator++( int )
 {
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 	// tests for iterator validity
@@ -269,7 +269,7 @@ typename UnorderedPtrVector<T>::const_iterator& UnorderedPtrVector<T>::const_ite
 
 template <typename T>
 typename UnorderedPtrVector<T>::const_iterator
-	UnorderedPtrVector<T>::const_iterator::operator--(int)
+UnorderedPtrVector<T>::const_iterator::operator--( int )
 {
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 	// tests for iterator validity
@@ -287,7 +287,7 @@ typename UnorderedPtrVector<T>::const_iterator
 
 template <typename T>
 typename UnorderedPtrVector<T>::const_iterator& UnorderedPtrVector<T>::const_iterator::operator=(
-		const typename UnorderedPtrVector<T>::const_iterator& other)
+	const typename UnorderedPtrVector<T>::const_iterator& other )
 {
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 	// handle parent changes correctly
@@ -307,7 +307,7 @@ typename UnorderedPtrVector<T>::const_iterator& UnorderedPtrVector<T>::const_ite
 
 template <typename T>
 bool UnorderedPtrVector<T>::const_iterator::operator==(
-		const typename UnorderedPtrVector<T>::const_iterator& other) const
+	const typename UnorderedPtrVector<T>::const_iterator& other ) const
 {
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 	// tests for iterator validity
@@ -325,7 +325,7 @@ bool UnorderedPtrVector<T>::const_iterator::operator==(
 
 template <typename T>
 bool UnorderedPtrVector<T>::const_iterator::operator!=(
-		const typename UnorderedPtrVector<T>::const_iterator& other) const
+	const typename UnorderedPtrVector<T>::const_iterator& other ) const
 {
 	return !( *this == other );
 }
@@ -349,7 +349,7 @@ T*& UnorderedPtrVector<T>::const_iterator::operator*()
 }
 
 template <typename T>
-UnorderedPtrVector<T>::iterator::iterator(UnorderedPtrVector<T>* pParent, T** pPosition) :
+UnorderedPtrVector<T>::iterator::iterator( UnorderedPtrVector<T>* pParent, T** pPosition ) :
 	const_iterator( pParent, pPosition )
 {
 	Q_ASSERT( m_pParent->checkIterator( this ) );
@@ -362,7 +362,7 @@ UnorderedPtrVector<T>::iterator::~iterator()
 }
 
 template <typename T>
-UnorderedPtrVector<T>::iterator::iterator(const typename UnorderedPtrVector<T>::iterator& it) :
+UnorderedPtrVector<T>::iterator::iterator( const typename UnorderedPtrVector<T>::iterator& it ) :
 	const_iterator( it )
 {
 	Q_ASSERT( m_pParent->checkIterator( this ) );
@@ -370,14 +370,14 @@ UnorderedPtrVector<T>::iterator::iterator(const typename UnorderedPtrVector<T>::
 
 template <typename T>
 typename UnorderedPtrVector<T>::iterator& UnorderedPtrVector<T>::iterator::operator=(
-		const typename UnorderedPtrVector<T>::iterator& other)
+	const typename UnorderedPtrVector<T>::iterator& other )
 {
 	UnorderedPtrVector<T>::const_iterator::operator=( other );
 	return *this;
 }
 
 template <typename T>
-UnorderedPtrVector<T>::UnorderedPtrVector(quint32 nReserve) :
+UnorderedPtrVector<T>::UnorderedPtrVector( quint32 nReserve ) :
 	m_pBuffer( NULL ),
 	m_pPastTheEnd( NULL ),
 	m_nSize( 0 ),
@@ -392,7 +392,7 @@ UnorderedPtrVector<T>::UnorderedPtrVector(quint32 nReserve) :
  * @param other
  */
 template <typename T>
-UnorderedPtrVector<T>::UnorderedPtrVector(const UnorderedPtrVector& other) :
+UnorderedPtrVector<T>::UnorderedPtrVector( const UnorderedPtrVector& other ) :
 	m_pBuffer( NULL ),
 	m_pPastTheEnd( NULL ),
 	m_nSize( other.m_nSize ),
@@ -417,7 +417,7 @@ UnorderedPtrVector<T>::~UnorderedPtrVector()
  * @return Reference to the item pointer at position nPos.
  */
 template <typename T>
-T*& UnorderedPtrVector<T>::operator[](quint32 nPos)
+T*& UnorderedPtrVector<T>::operator[]( quint32 nPos )
 {
 #ifdef _DEBUG
 	Q_ASSERT( nPos < m_nSize );
@@ -431,11 +431,13 @@ T*& UnorderedPtrVector<T>::operator[](quint32 nPos)
  * @param nReserve The minimum amount of items the container can hold without having to grow.
  */
 template <typename T>
-void UnorderedPtrVector<T>::reserve(const quint32 nReserve)
+void UnorderedPtrVector<T>::reserve( const quint32 nReserve )
 {
 	// we need one aditionnal space for past the end pointer
 	if ( nReserve + 1 > m_nAllocatedSize )
+	{
 		reallocate( nReserve + 1 );
+	}
 }
 
 /**
@@ -455,13 +457,13 @@ quint32 UnorderedPtrVector<T>::capacity() const
  * @param item The item to add.
  */
 template <typename T>
-void UnorderedPtrVector<T>::push_back(T* item)
+void UnorderedPtrVector<T>::push_back( T* item )
 {
 	push( item );
 }
 
 template <typename T>
-void UnorderedPtrVector<T>::push(T* item)
+void UnorderedPtrVector<T>::push( T* item )
 {
 	m_pBuffer[m_nSize] = item;
 
@@ -486,7 +488,7 @@ void UnorderedPtrVector<T>::push(T* item)
  * @param nPos The item posistion.
  */
 template <typename T>
-void UnorderedPtrVector<T>::erase(quint32 nPos)
+void UnorderedPtrVector<T>::erase( quint32 nPos )
 {
 #ifdef _DEBUG
 	Q_ASSERT( nPos < m_nSize );
@@ -570,13 +572,13 @@ typename UnorderedPtrVector<T>::const_iterator UnorderedPtrVector<T>::end() cons
  * Returns the iterator to the next element.
  */
 template <typename T>
-typename UnorderedPtrVector<T>::iterator UnorderedPtrVector<T>::erase(iterator it)
+typename UnorderedPtrVector<T>::iterator UnorderedPtrVector<T>::erase( iterator it )
 {
 #ifdef _DEBUG
 	Q_ASSERT( it.isValid() );
 #endif
 
-	*(it.m_pPosition) = m_pBuffer[--m_nSize];
+	*( it.m_pPosition ) = m_pBuffer[--m_nSize];
 	--m_pPastTheEnd;
 
 #ifdef _DEBUG
@@ -607,9 +609,9 @@ void UnorderedPtrVector<T>::grow()
  * @param nNewSize
  */
 template <typename T>
-void UnorderedPtrVector<T>::reallocate(quint32 nNewSize) throw(std::bad_alloc)
+void UnorderedPtrVector<T>::reallocate( quint32 nNewSize ) throw( std::bad_alloc )
 {
-	T** pBuffer = (T**)realloc( m_pBuffer, nNewSize * sizeof ( T* ) );
+	T** pBuffer = ( T** )realloc( m_pBuffer, nNewSize * sizeof ( T* ) );
 
 	if ( !pBuffer )
 	{
@@ -626,7 +628,7 @@ void UnorderedPtrVector<T>::reallocate(quint32 nNewSize) throw(std::bad_alloc)
 
 #ifdef DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 template <typename T>
-void UnorderedPtrVector<T>::setIteratorValidity(T** pInvalidateAfter)
+void UnorderedPtrVector<T>::setIteratorValidity( T** pInvalidateAfter )
 {
 	// Note: pRangeStart > pInvalidateAfter invalidates all iterators (if first element is removed)
 
@@ -646,14 +648,14 @@ void UnorderedPtrVector<T>::setIteratorValidity(T** pInvalidateAfter)
 }
 
 template <typename T>
-void UnorderedPtrVector<T>::registerIterator(const_iterator* pIterator)
+void UnorderedPtrVector<T>::registerIterator( const_iterator* pIterator )
 {
 	//qDebug() << "  Registered Iterator: " << pIterator << " for parent " << this;
 	m_lIterators.push_back( pIterator );
 }
 
 template <typename T>
-void UnorderedPtrVector<T>::unregisterIterator(const_iterator* pIterator)
+void UnorderedPtrVector<T>::unregisterIterator( const_iterator* pIterator )
 {
 	std::list<const_iterator*>::iterator it = m_lIterators.begin();
 	while ( it != m_lIterators.end() )
@@ -675,7 +677,7 @@ void UnorderedPtrVector<T>::unregisterIterator(const_iterator* pIterator)
 }
 
 template <typename T>
-bool UnorderedPtrVector<T>::checkIterator(const const_iterator* const pIterator) const
+bool UnorderedPtrVector<T>::checkIterator( const const_iterator* const pIterator ) const
 {
 	//qDebug() << "    Checking Iterator: " << pIterator << " for parent " << this;
 

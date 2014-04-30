@@ -10,7 +10,7 @@ public:
 
 protected:
 	// This overwrites certain key events...
-	virtual void keyPressEvent(QKeyEvent *event);
+	virtual void keyPressEvent( QKeyEvent* event );
 };
 
 #endif // TABLEVIEW_H

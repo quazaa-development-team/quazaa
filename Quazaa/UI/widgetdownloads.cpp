@@ -36,49 +36,50 @@
 
 #include "debug_new.h"
 
-CWidgetDownloads::CWidgetDownloads(QWidget* parent) :
-	QMainWindow(parent),
-	ui(new Ui::CWidgetDownloads)
+CWidgetDownloads::CWidgetDownloads( QWidget* parent ) :
+	QMainWindow( parent ),
+	ui( new Ui::CWidgetDownloads )
 {
-	ui->setupUi(this);
-	downloadMenu = new QMenu(this);
-	downloadMenu->addAction(ui->actionPreview);
-	downloadMenu->addAction(ui->actionAddToPlaylist);
-	downloadMenu->addAction(ui->actionShowMonitor);
+	ui->setupUi( this );
+	downloadMenu = new QMenu( this );
+	downloadMenu->addAction( ui->actionPreview );
+	downloadMenu->addAction( ui->actionAddToPlaylist );
+	downloadMenu->addAction( ui->actionShowMonitor );
 	downloadMenu->addSeparator();
-	downloadMenu->addAction(ui->actionResume);
-	downloadMenu->addAction(ui->actionPause);
-	downloadMenu->addAction(ui->actionCancel);
+	downloadMenu->addAction( ui->actionResume );
+	downloadMenu->addAction( ui->actionPause );
+	downloadMenu->addAction( ui->actionCancel );
 	downloadMenu->addSeparator();
-	downloadMenu->addAction(ui->actionFindMoreSources);
+	downloadMenu->addAction( ui->actionFindMoreSources );
 	downloadMenu->addSeparator();
-	downloadMenu->addAction(ui->actionViewReviews);
-	downloadMenu->addAction(ui->actionVirusTotalCheck);
+	downloadMenu->addAction( ui->actionViewReviews );
+	downloadMenu->addAction( ui->actionVirusTotalCheck );
 	downloadMenu->addSeparator();
-	downloadMenu->addAction(ui->actionHelp);
+	downloadMenu->addAction( ui->actionHelp );
 
 	m_pModel = new CDownloadsTreeModel();
-	ui->tableViewDownloads->setModel(m_pModel);
-	ui->tableViewDownloads->setColumnHidden(CDownloadsTreeModel::COUNTRY, true);
-	ui->tableViewDownloads->setItemDelegate(new CDownloadsItemDelegate(this));
+	ui->tableViewDownloads->setModel( m_pModel );
+	ui->tableViewDownloads->setColumnHidden( CDownloadsTreeModel::COUNTRY, true );
+	ui->tableViewDownloads->setItemDelegate( new CDownloadsItemDelegate( this ) );
 	setSkin();
 
 	// Set up header sizes
-	if(!ui->tableViewDownloads->horizontalHeader()->restoreState(quazaaSettings.WinMain.DownloadsHeader))
+	if ( !ui->tableViewDownloads->horizontalHeader()->restoreState( quazaaSettings.WinMain.DownloadsHeader ) )
 	{
 		QFontMetrics fm = ui->tableViewDownloads->fontMetrics();
 		QHeaderView* header = ui->tableViewDownloads->horizontalHeader();
-		header->resizeSection(CDownloadsTreeModel::NAME, fm.width("a-typical-name-of-mp3-or-movie-or-xxx-or-other-porn.avi"));
-		header->resizeSection(CDownloadsTreeModel::SIZE, fm.width(" 123.45 MB "));
-		header->resizeSection(CDownloadsTreeModel::COMPLETED, fm.width(" 1234.45 MB "));
-		header->resizeSection(CDownloadsTreeModel::BANDWIDTH, fm.width(" 1234.45 MB/s "));
-		header->resizeSection(CDownloadsTreeModel::CLIENT, fm.width(QuazaaGlobals::USER_AGENT_STRING()));
-		header->resizeSection(CDownloadsTreeModel::PROGRESS, 200);
-		header->resizeSection(CDownloadsTreeModel::PRIORITY, fm.width("    Priority    "));
-		header->resizeSection(CDownloadsTreeModel::STATUS, fm.width("Tracker Down"));
+		header->resizeSection( CDownloadsTreeModel::NAME,
+							   fm.width( "a-typical-name-of-mp3-or-movie-or-xxx-or-other-porn.avi" ) );
+		header->resizeSection( CDownloadsTreeModel::SIZE, fm.width( " 123.45 MB " ) );
+		header->resizeSection( CDownloadsTreeModel::COMPLETED, fm.width( " 1234.45 MB " ) );
+		header->resizeSection( CDownloadsTreeModel::BANDWIDTH, fm.width( " 1234.45 MB/s " ) );
+		header->resizeSection( CDownloadsTreeModel::CLIENT, fm.width( QuazaaGlobals::USER_AGENT_STRING() ) );
+		header->resizeSection( CDownloadsTreeModel::PROGRESS, 200 );
+		header->resizeSection( CDownloadsTreeModel::PRIORITY, fm.width( "    Priority    " ) );
+		header->resizeSection( CDownloadsTreeModel::STATUS, fm.width( "Tracker Down" ) );
 	}
 
-	restoreState(quazaaSettings.WinMain.DownloadsToolbar);
+	restoreState( quazaaSettings.WinMain.DownloadsToolbar );
 }
 
 CWidgetDownloads::~CWidgetDownloads()
@@ -87,16 +88,16 @@ CWidgetDownloads::~CWidgetDownloads()
 	delete ui;
 }
 
-void CWidgetDownloads::changeEvent(QEvent* e)
+void CWidgetDownloads::changeEvent( QEvent* e )
 {
-	QMainWindow::changeEvent(e);
-	switch(e->type())
+	QMainWindow::changeEvent( e );
+	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 
@@ -107,29 +108,29 @@ void CWidgetDownloads::saveWidget()
 }
 
 
-void CWidgetDownloads::on_tableViewDownloads_customContextMenuRequested(const QPoint &pos)
+void CWidgetDownloads::on_tableViewDownloads_customContextMenuRequested( const QPoint& pos )
 {
-	QModelIndex currIndex = ui->tableViewDownloads->indexAt(pos);
-	if( currIndex.isValid() )
+	QModelIndex currIndex = ui->tableViewDownloads->indexAt( pos );
+	if ( currIndex.isValid() )
 	{
-		downloadMenu->exec(QCursor::pos());
+		downloadMenu->exec( QCursor::pos() );
 	}
 }
 
 void CWidgetDownloads::setSkin()
 {
-	ui->tableViewDownloads->setStyleSheet(skinSettings.listViews);
+	ui->tableViewDownloads->setStyleSheet( skinSettings.listViews );
 }
 
 void CWidgetDownloads::on_actionOpenTorrent_triggered()
 {
-	CDialogOpenTorrent* dlgOpenTorrent = new CDialogOpenTorrent(this);
+	CDialogOpenTorrent* dlgOpenTorrent = new CDialogOpenTorrent( this );
 
 	dlgOpenTorrent->show();
 }
 
-void CWidgetDownloads::on_tableViewDownloads_clicked(const QModelIndex &index)
+void CWidgetDownloads::on_tableViewDownloads_clicked( const QModelIndex& index )
 {
-	emit onItemChange(index);
+	emit onItemChange( index );
 	ui->tableViewDownloads->reset();
 }

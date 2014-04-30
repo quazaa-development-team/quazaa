@@ -12,12 +12,12 @@ namespace URI
 class CMetalink4Handler : public CMetalinkHandler
 {
 public:
-	explicit CMetalink4Handler(QFile& oFile = m_oEmptyQFile);
+	explicit CMetalink4Handler( QFile& oFile = m_oEmptyQFile );
 
-	Download* file(const unsigned int& ID) const;
+	Download* file( const unsigned int& ID ) const;
 
 private:
-	bool parseFile(QList<MetaFile> &lFiles, quint16 ID);
+	bool parseFile( QList<MetaFile>& lFiles, quint16 ID );
 };
 
 } // namespace URI

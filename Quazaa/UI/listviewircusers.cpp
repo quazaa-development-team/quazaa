@@ -21,11 +21,11 @@
 #include <QScrollBar>
 #include <QAction>
 
-CListViewIrcUsers::CListViewIrcUsers(QWidget* parent) : QListView(parent)
+CListViewIrcUsers::CListViewIrcUsers( QWidget* parent ) : QListView( parent )
 {
 	d.menuFactory = 0;
 	d.userModel = new IrcUserListModel();
-	connect(this, SIGNAL(doubleClicked(QModelIndex)), SLOT(onDoubleClicked(QModelIndex)));
+	connect( this, SIGNAL( doubleClicked( QModelIndex ) ), SLOT( onDoubleClicked( QModelIndex ) ) );
 }
 
 CListViewIrcUsers::~CListViewIrcUsers()
@@ -34,7 +34,8 @@ CListViewIrcUsers::~CListViewIrcUsers()
 
 QSize CListViewIrcUsers::sizeHint() const
 {
-	return QSize(16 * fontMetrics().width('#') + verticalScrollBar()->sizeHint().width(), QListView::sizeHint().height());
+	return QSize( 16 * fontMetrics().width( '#' ) + verticalScrollBar()->sizeHint().width(),
+				  QListView::sizeHint().height() );
 }
 
 Session* CListViewIrcUsers::session() const
@@ -42,9 +43,9 @@ Session* CListViewIrcUsers::session() const
 	return d.userModel->session();
 }
 
-void CListViewIrcUsers::setSession(Session* session)
+void CListViewIrcUsers::setSession( Session* session )
 {
-    d.userModel->setSession(session);
+	d.userModel->setSession( session );
 }
 
 QString CListViewIrcUsers::channel() const
@@ -52,69 +53,78 @@ QString CListViewIrcUsers::channel() const
 	return d.userModel->channel();
 }
 
-void CListViewIrcUsers::setChannel(const QString& channel)
+void CListViewIrcUsers::setChannel( const QString& channel )
 {
-	d.userModel->setChannel(channel);
+	d.userModel->setChannel( channel );
 }
 
-IrcUserListModel *CListViewIrcUsers::userModel() const
+IrcUserListModel* CListViewIrcUsers::userModel() const
 {
 	return d.userModel;
 }
 
-bool CListViewIrcUsers::hasUser(const QString& user) const
+bool CListViewIrcUsers::hasUser( const QString& user ) const
 {
-	return d.userModel->hasUser(user);
+	return d.userModel->hasUser( user );
 }
 
 MenuFactory* CListViewIrcUsers::menuFactory() const
 {
-	if (!d.menuFactory) {
-        CListViewIrcUsers* that = const_cast<CListViewIrcUsers*>(this);
-		that->d.menuFactory = new MenuFactory(that);
+	if ( !d.menuFactory )
+	{
+		CListViewIrcUsers* that = const_cast<CListViewIrcUsers*>( this );
+		that->d.menuFactory = new MenuFactory( that );
 	}
 	return d.menuFactory;
 }
 
-void CListViewIrcUsers::setMenuFactory(MenuFactory* factory)
+void CListViewIrcUsers::setMenuFactory( MenuFactory* factory )
 {
-	if (d.menuFactory && d.menuFactory->parent() == this)
+	if ( d.menuFactory && d.menuFactory->parent() == this )
+	{
 		delete d.menuFactory;
+	}
 	d.menuFactory = factory;
 }
 
-void CListViewIrcUsers::processMessage(IrcMessage* message)
+void CListViewIrcUsers::processMessage( IrcMessage* message )
 {
-	d.userModel->processMessage(message);
+	d.userModel->processMessage( message );
 }
 
-void CListViewIrcUsers::contextMenuEvent(QContextMenuEvent* event)
+void CListViewIrcUsers::contextMenuEvent( QContextMenuEvent* event )
 {
-	QModelIndex index = indexAt(event->pos());
-	if (index.isValid()) {
-		QMenu* menu = menuFactory()->createUserListMenu(index.data().toString(), this);
-		menu->exec(event->globalPos());
+	QModelIndex index = indexAt( event->pos() );
+	if ( index.isValid() )
+	{
+		QMenu* menu = menuFactory()->createUserListMenu( index.data().toString(), this );
+		menu->exec( event->globalPos() );
 		menu->deleteLater();
 	}
 }
 
-void CListViewIrcUsers::mousePressEvent(QMouseEvent* event)
+void CListViewIrcUsers::mousePressEvent( QMouseEvent* event )
 {
-	QListView::mousePressEvent(event);
-	if (!indexAt(event->pos()).isValid())
-        selectionModel()->clear();
+	QListView::mousePressEvent( event );
+	if ( !indexAt( event->pos() ).isValid() )
+	{
+		selectionModel()->clear();
+	}
 }
 
-void CListViewIrcUsers::showEvent(QShowEvent *event)
+void CListViewIrcUsers::showEvent( QShowEvent* event )
 {
-    QListView::showEvent(event);
-    if (!model()) {
-        setModel(d.userModel);
-    }
+	QListView::showEvent( event );
+	if ( !model() )
+	{
+		setModel( d.userModel );
+	}
 }
 
-void CListViewIrcUsers::onDoubleClicked(const QModelIndex& index)
+void CListViewIrcUsers::onDoubleClicked( const QModelIndex& index )
 {
-	if (index.isValid())
-		emit doubleClicked(index.data(Qt::DisplayRole).toString());
+	if ( index.isValid() )
+	{
+		emit doubleClicked( index.data( Qt::DisplayRole ).toString() );
+	}
 }

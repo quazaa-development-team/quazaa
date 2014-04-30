@@ -11,11 +11,14 @@ class BannedDiscoveryService : public DiscoveryService
 	Q_OBJECT
 
 public:
-	BannedDiscoveryService(const QUrl& oURL, const CNetworkType& oNType, quint8 nRating);
+	BannedDiscoveryService( const QUrl& oURL, const CNetworkType& oNType, quint8 nRating );
 
 	~BannedDiscoveryService();
 
-	inline QString type() const { return QString( "Banned" ); }
+	inline QString type() const
+	{
+		return QString( "Banned" );
+	}
 
 private:
 	void doQuery()  throw();

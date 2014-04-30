@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -30,13 +30,13 @@
 
 #include "debug_new.h"
 
-CWidgetGraph::CWidgetGraph(QWidget* parent) :
-	QMainWindow(parent),
-	ui(new Ui::CWidgetGraph)
+CWidgetGraph::CWidgetGraph( QWidget* parent ) :
+	QMainWindow( parent ),
+	ui( new Ui::CWidgetGraph )
 {
-	ui->setupUi(this);
-	restoreState(quazaaSettings.WinMain.GraphToolbar);
-	ui->splitterGraph->restoreState(quazaaSettings.WinMain.GraphSplitter);
+	ui->setupUi( this );
+	restoreState( quazaaSettings.WinMain.GraphToolbar );
+	ui->splitterGraph->restoreState( quazaaSettings.WinMain.GraphSplitter );
 	setSkin();
 }
 
@@ -45,16 +45,16 @@ CWidgetGraph::~CWidgetGraph()
 	delete ui;
 }
 
-void CWidgetGraph::changeEvent(QEvent* e)
+void CWidgetGraph::changeEvent( QEvent* e )
 {
-	QMainWindow::changeEvent(e);
-	switch(e->type())
+	QMainWindow::changeEvent( e );
+	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 
@@ -64,27 +64,27 @@ void CWidgetGraph::saveWidget()
 	quazaaSettings.WinMain.GraphSplitter = ui->splitterGraph->saveState();
 }
 
-void CWidgetGraph::on_splitterGraph_customContextMenuRequested(QPoint pos)
+void CWidgetGraph::on_splitterGraph_customContextMenuRequested( QPoint pos )
 {
-	Q_UNUSED(pos);
+	Q_UNUSED( pos );
 
-	if(ui->splitterGraph->handle(1)->underMouse())
+	if ( ui->splitterGraph->handle( 1 )->underMouse() )
 	{
-		if(ui->splitterGraph->sizes()[0] > 0)
+		if ( ui->splitterGraph->sizes()[0] > 0 )
 		{
 			quazaaSettings.WinMain.GraphSplitterRestoreLeft = ui->splitterGraph->sizes()[0];
 			quazaaSettings.WinMain.GraphSplitterRestoreRight = ui->splitterGraph->sizes()[1];
 			QList<int> newSizes;
-			newSizes.append(0);
-			newSizes.append(ui->splitterGraph->sizes()[0] + ui->splitterGraph->sizes()[1]);
-			ui->splitterGraph->setSizes(newSizes);
+			newSizes.append( 0 );
+			newSizes.append( ui->splitterGraph->sizes()[0] + ui->splitterGraph->sizes()[1] );
+			ui->splitterGraph->setSizes( newSizes );
 		}
 		else
 		{
 			QList<int> sizesList;
-			sizesList.append(quazaaSettings.WinMain.GraphSplitterRestoreLeft);
-			sizesList.append(quazaaSettings.WinMain.GraphSplitterRestoreRight);
-			ui->splitterGraph->setSizes(sizesList);
+			sizesList.append( quazaaSettings.WinMain.GraphSplitterRestoreLeft );
+			sizesList.append( quazaaSettings.WinMain.GraphSplitterRestoreRight );
+			ui->splitterGraph->setSizes( sizesList );
 		}
 	}
 }

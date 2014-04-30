@@ -28,7 +28,7 @@
 #include "hostcachehost.h"
 #include "debug_new.h"
 
-HostCacheTableModel::HostCacheTableModel(QObject* parent, QWidget* container) :
+HostCacheTableModel::HostCacheTableModel( QObject* parent, QWidget* container ) :
 	QAbstractTableModel( parent ),
 	m_oContainer( container ),
 	m_nSortColumn( -1 ),
@@ -64,7 +64,7 @@ HostCacheTableModel::~HostCacheTableModel()
 	m_vHosts.clear();
 }
 
-int HostCacheTableModel::rowCount(const QModelIndex& parent) const
+int HostCacheTableModel::rowCount( const QModelIndex& parent ) const
 {
 	if ( parent.isValid() )
 	{
@@ -72,11 +72,11 @@ int HostCacheTableModel::rowCount(const QModelIndex& parent) const
 	}
 	else
 	{
-		return (int)m_vHosts.size();
+		return ( int )m_vHosts.size();
 	}
 }
 
-int HostCacheTableModel::columnCount(const QModelIndex& parent) const
+int HostCacheTableModel::columnCount( const QModelIndex& parent ) const
 {
 	if ( parent.isValid() )
 	{
@@ -88,7 +88,7 @@ int HostCacheTableModel::columnCount(const QModelIndex& parent) const
 	}
 }
 
-QVariant HostCacheTableModel::data(const QModelIndex& index, int nRole) const
+QVariant HostCacheTableModel::data( const QModelIndex& index, int nRole ) const
 {
 	if ( !index.isValid() || index.row() > m_vHosts.size() || index.row() < 0 )
 	{
@@ -151,10 +151,12 @@ QVariant HostCacheTableModel::data(const QModelIndex& index, int nRole) const
 	return QVariant();
 }
 
-QVariant HostCacheTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant HostCacheTableModel::headerData( int section, Qt::Orientation orientation, int role ) const
 {
 	if ( orientation != Qt::Horizontal )
+	{
 		return QVariant();
+	}
 
 	if ( role == Qt::DisplayRole )
 	{
@@ -175,7 +177,7 @@ QVariant HostCacheTableModel::headerData(int section, Qt::Orientation orientatio
 	}
 	else if ( role == Qt::ToolTipRole )
 	{
-		switch(section)
+		switch ( section )
 		{
 		case ADDRESS:
 			return tr( "The Host IP Address" );
@@ -194,24 +196,28 @@ QVariant HostCacheTableModel::headerData(int section, Qt::Orientation orientatio
 	return QVariant();
 }
 
-QModelIndex HostCacheTableModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex HostCacheTableModel::index( int row, int column, const QModelIndex& parent ) const
 {
 	if ( parent.isValid() || row < 0 || row >= m_vHosts.size() )
+	{
 		return QModelIndex();
+	}
 	else
+	{
 		return createIndex( row, column, m_vHosts[row] );
+	}
 }
 
 class G2CacheTableModelCmp
 {
 public:
-	G2CacheTableModelCmp(int nCol, Qt::SortOrder nOrder) :
+	G2CacheTableModelCmp( int nCol, Qt::SortOrder nOrder ) :
 		m_nColumn( nCol ),
 		m_nOrder( nOrder )
 	{
 	}
 
-	bool operator()(HostData* a, HostData* b)
+	bool operator()( HostData* a, HostData* b )
 	{
 		if ( m_nOrder == Qt::AscendingOrder )
 		{
@@ -227,7 +233,7 @@ public:
 	Qt::SortOrder m_nOrder;
 };
 
-void HostCacheTableModel::sort(int column, Qt::SortOrder order)
+void HostCacheTableModel::sort( int column, Qt::SortOrder order )
 {
 	m_nSortColumn = column;
 	m_nSortOrder  = order;
@@ -242,20 +248,20 @@ void HostCacheTableModel::sort(int column, Qt::SortOrder order)
 
 	for ( int i = 0; i < oldIdx.size(); ++i ) // For each persistent index
 	{
-		int oldRow = oldIdx.at(i).row();
+		int oldRow = oldIdx.at( i ).row();
 
 		// if oldRow is outside range
 		if ( oldRow > m_vHosts.size()
-				// or the index points to another item
-				|| oldIdx.at(i).internalPointer() != m_vHosts[oldRow] )
+			 // or the index points to another item
+			 || oldIdx.at( i ).internalPointer() != m_vHosts[oldRow] )
 		{
 			// find the correct item and update persistent index
 			for ( int j = 0; j < m_vHosts.size(); ++j )
 			{
-				if ( oldIdx.at(i).internalPointer() == m_vHosts[j] )
+				if ( oldIdx.at( i ).internalPointer() == m_vHosts[j] )
 				{
-					newIdx[i] = createIndex( j, oldIdx.at(i).column(),
-											 oldIdx.at(i).internalPointer() );
+					newIdx[i] = createIndex( j, oldIdx.at( i ).column(),
+											 oldIdx.at( i ).internalPointer() );
 					break;
 				}
 			}
@@ -268,25 +274,31 @@ void HostCacheTableModel::sort(int column, Qt::SortOrder order)
 	m_bNeedSorting = false;
 }
 
-int HostCacheTableModel::find(quint32 nRuleID)
+int HostCacheTableModel::find( quint32 nRuleID )
 {
-	const int nSize = (int)m_vHosts.size();
+	const int nSize = ( int )m_vHosts.size();
 
 	for ( int nPos = 0; nPos < nSize; ++nPos )
 	{
 		if ( m_vHosts[nPos]->m_nID == nRuleID )
+		{
 			return nPos;
+		}
 	}
 
 	return -1;
 }
 
-HostData* HostCacheTableModel::dataFromRow(int nRow) const
+HostData* HostCacheTableModel::dataFromRow( int nRow ) const
 {
 	if ( nRow < m_vHosts.size() && nRow >= 0 )
+	{
 		return m_vHosts[nRow];
+	}
 	else
+	{
 		return NULL;
+	}
 }
 
 /*Rule* SecurityTableModel::ruleFromIndex(const QModelIndex &index) const
@@ -302,9 +314,11 @@ void HostCacheTableModel::completeRefresh()
 	// Remove all Hosts.
 	if ( m_vHosts.size() )
 	{
-		beginRemoveRows( QModelIndex(), 0, (int)m_vHosts.size() - 1 );
+		beginRemoveRows( QModelIndex(), 0, ( int )m_vHosts.size() - 1 );
 		for ( uint i = 0; i < m_vHosts.size(); ++i )
+		{
 			delete m_vHosts[i];
+		}
 		m_vHosts.clear();
 		endRemoveRows();
 	}
@@ -323,14 +337,14 @@ void HostCacheTableModel::completeRefresh()
  * @brief SecurityTableModel::triggerRuleRemoval
  * @param nIndex
  */
-void HostCacheTableModel::triggerHostRemoval(int nIndex)
+void HostCacheTableModel::triggerHostRemoval( int nIndex )
 {
 	Q_ASSERT( nIndex >= 0 && nIndex < m_vHosts.size() );
 
 	hostCache.remove( m_vHosts[nIndex]->m_oAddress );
 }
 
-void HostCacheTableModel::recieveHostInfo(HostData* pHostData)
+void HostCacheTableModel::recieveHostInfo( HostData* pHostData )
 {
 	Q_ASSERT( pHostData->m_oAddress.isValid() );
 
@@ -351,7 +365,7 @@ void HostCacheTableModel::recieveHostInfo(HostData* pHostData)
  * @brief addHost adds a rule to the GUI.
  * @param pHost : the host
  */
-void HostCacheTableModel::addHost(HostData* pHostData)
+void HostCacheTableModel::addHost( HostData* pHostData )
 {
 	Q_ASSERT( pHostData->m_oAddress.isValid() );
 
@@ -389,7 +403,7 @@ void HostCacheTableModel::addHost(HostData* pHostData)
  * This is to be triggered from the host cache AFTER the host has been removed.
  * @param pHost : the host
  */
-void HostCacheTableModel::removeHost(SharedHostPtr pHost)
+void HostCacheTableModel::removeHost( SharedHostPtr pHost )
 {
 	for ( int i = 0; i < m_vHosts.size(); ++i )
 	{
@@ -430,7 +444,7 @@ void HostCacheTableModel::removeHost(SharedHostPtr pHost)
  */
 void HostCacheTableModel::updateAll()
 {
-	if ( (quint32)m_vHosts.size() != hostCache.size() )
+	if ( ( quint32 )m_vHosts.size() != hostCache.size() )
 	{
 		completeRefresh();
 		return;
@@ -439,7 +453,7 @@ void HostCacheTableModel::updateAll()
 	QModelIndexList uplist;
 
 	hostCache.m_pSection.lock();
-	for ( int i = 0, max = (int)m_vHosts.size(); i < max; ++i )
+	for ( int i = 0, max = ( int )m_vHosts.size(); i < max; ++i )
 	{
 		if ( m_vHosts[i]->update( i, m_nSortColumn, uplist, this ) )
 		{
@@ -459,7 +473,7 @@ void HostCacheTableModel::clear()
 	endRemoveRows();
 }
 
-void HostCacheTableModel::updateView(QModelIndexList uplist)
+void HostCacheTableModel::updateView( QModelIndexList uplist )
 {
 	// if necessary adjust container order (also updates view)
 	if ( m_bNeedSorting )
@@ -473,7 +487,7 @@ void HostCacheTableModel::updateView(QModelIndexList uplist)
 
 		if ( pView )
 		{
-			foreach ( const QModelIndex& index, uplist )
+			foreach ( const QModelIndex & index, uplist )
 			{
 				pView->update( index );
 			}
@@ -481,11 +495,11 @@ void HostCacheTableModel::updateView(QModelIndexList uplist)
 	}
 }
 
-void HostCacheTableModel::insert(HostData* pData)
+void HostCacheTableModel::insert( HostData* pData )
 {
 	if ( m_bNeedSorting )
 	{
-		beginInsertRows( QModelIndex(), (int)m_vHosts.size(), (int)m_vHosts.size() );
+		beginInsertRows( QModelIndex(), ( int )m_vHosts.size(), ( int )m_vHosts.size() );
 
 		m_vHosts.push_back( pData );
 
@@ -495,7 +509,7 @@ void HostCacheTableModel::insert(HostData* pData)
 	}
 	else // TODO: improve efficiency later
 	{
-		beginInsertRows( QModelIndex(), (int)m_vHosts.size(), (int)m_vHosts.size() );
+		beginInsertRows( QModelIndex(), ( int )m_vHosts.size(), ( int )m_vHosts.size() );
 
 		m_vHosts.push_back( pData );
 
@@ -505,14 +519,14 @@ void HostCacheTableModel::insert(HostData* pData)
 	}
 }
 
-void HostCacheTableModel::erase(int nPos)
+void HostCacheTableModel::erase( int nPos )
 {
 	beginRemoveRows( QModelIndex(), nPos, nPos );
 	delete m_vHosts[nPos];
 
 	for ( int i = nPos; i < m_vHosts.size() - 1; ++i )
 	{
-		m_vHosts[i] = m_vHosts[i+1];
+		m_vHosts[i] = m_vHosts[i + 1];
 	}
 	m_vHosts.pop_back();
 

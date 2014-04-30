@@ -37,10 +37,10 @@ class NeighboursRouting : public NeighboursBase
 {
 	Q_OBJECT
 public:
-	NeighboursRouting(QObject* parent = 0);
+	NeighboursRouting( QObject* parent = 0 );
 	virtual ~NeighboursRouting();
 
-	void routeQuery(QuerySharedPtr pQuery, G2Packet* pPacket, Neighbour* pFrom = 0, bool bToHubs = true);
+	void routeQuery( QuerySharedPtr pQuery, G2Packet* pPacket, Neighbour* pFrom = 0, bool bToHubs = true );
 
 signals:
 

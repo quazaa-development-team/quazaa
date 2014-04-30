@@ -35,40 +35,41 @@ class IrcChannelStackView : public QStackedWidget
 	Q_OBJECT
 
 public:
-	IrcChannelStackView(IrcConnection* connection, QWidget* parent = 0);
+	IrcChannelStackView( IrcConnection* connection, QWidget* parent = 0 );
 
 	IrcConnection* connection() const;
 	CommandParser* parser() const;
 	QStringListModel* commandModel() const;
 
 	MessageView* currentView() const;
-	MessageView* viewAt(int index) const;
+	MessageView* viewAt( int index ) const;
 
 public slots:
-	MessageView* addView(const QString& receiver);
-	void restoreView(const ViewInfo& view);
-	void openView(const QString& receiver);
-	void removeView(const QString& receiver);
-	void closeView(int index);
-	void renameView(const QString& from, const QString& to);
-	void sendMessage(const QString& receiver, const QString& message);
+	MessageView* addView( const QString& receiver );
+	void restoreView( const ViewInfo& view );
+	void openView( const QString& receiver );
+	void removeView( const QString& receiver );
+	void closeView( int index );
+	void renameView( const QString& from, const QString& to );
+	void sendMessage( const QString& receiver, const QString& message );
 	void switchToServerTab();
 
 signals:
-	void viewAdded(MessageView* view);
-	void viewRemoved(MessageView* view);
-	void viewRenamed(MessageView* view);
-	void viewActivated(MessageView* view);
+	void viewAdded( MessageView* view );
+	void viewRemoved( MessageView* view );
+	void viewRenamed( MessageView* view );
+	void viewActivated( MessageView* view );
 
 private slots:
 	void applySettings();
-	void activateView(int index);
-	void setBuffer(IrcBuffer* buffer);
+	void activateView( int index );
+	void setBuffer( IrcBuffer* buffer );
 
 private:
-	MessageView* createView(ViewInfo::Type type, const QString& receiver);
+	MessageView* createView( ViewInfo::Type type, const QString& receiver );
 
-	struct Private {
+	struct Private
+	{
 		IrcConnection* connection;
 		CommandParser parser;
 		IrcLagTimer* lagTimer;

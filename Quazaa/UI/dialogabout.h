@@ -30,19 +30,19 @@
 
 namespace Ui
 {
-	class CDialogAbout;
+class CDialogAbout;
 }
 
 class CDialogAbout : public QDialog
 {
 	Q_OBJECT
-	Q_DISABLE_COPY(CDialogAbout)
+	Q_DISABLE_COPY( CDialogAbout )
 public:
-	explicit CDialogAbout(QWidget* parent = 0);
+	explicit CDialogAbout( QWidget* parent = 0 );
 	virtual ~CDialogAbout();
 
 protected:
-	virtual void changeEvent(QEvent* e);
+	virtual void changeEvent( QEvent* e );
 
 private:
 	Ui::CDialogAbout* ui;
@@ -51,8 +51,8 @@ signals:
 	void closed();
 
 private slots:
-	void on_textBrowserCredits_anchorClicked(QUrl link);
-	void on_labelCopyright_linkActivated(QString link);
+	void on_textBrowserCredits_anchorClicked( QUrl link );
+	void on_labelCopyright_linkActivated( QString link );
 	void on_pushButtonOK_clicked();
 	void setSkin();
 };

@@ -34,16 +34,16 @@ class NeighboursG2 : public NeighboursConnections
 {
 	Q_OBJECT
 public:
-	NeighboursG2(QObject* parent = 0);
+	NeighboursG2( QObject* parent = 0 );
 	virtual ~NeighboursG2();
 
 	void dispatchKHL();
-	bool switchG2ClientMode(G2NodeType nRequestedMode);
-	bool needMoreG2(G2NodeType nType);
+	bool switchG2ClientMode( G2NodeType nRequestedMode );
+	bool needMoreG2( G2NodeType nType );
 
 	virtual void connectNode();
 
-	G2Packet* createQueryAck(QUuid oGUID, bool bWithHubs = true, Neighbour* pExcept = 0, bool bDone = true);
+	G2Packet* createQueryAck( QUuid oGUID, bool bWithHubs = true, Neighbour* pExcept = 0, bool bDone = true );
 
 	void hubBalancing();
 
@@ -69,7 +69,7 @@ public slots:
 public:
 	inline bool isG2Hub()
 	{
-		return (m_nClientMode == G2_HUB);
+		return ( m_nClientMode == G2_HUB );
 	}
 };
 

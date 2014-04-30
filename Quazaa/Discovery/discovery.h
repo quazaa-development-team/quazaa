@@ -74,10 +74,10 @@ class DiscoveryService;
  */
 namespace ServiceType
 {
-	enum Type
-	{
-		Null = 0, Banned = 1, GWC = 2, NoOfTypes = 3
-	};
+enum Type
+{
+	Null = 0, Banned = 1, GWC = 2, NoOfTypes = 3
+};
 }
 
 /**
@@ -170,7 +170,7 @@ public:
 	 * @brief CDiscovery: Constructs a new discovery services manager.
 	 * @param parent
 	 */
-	Manager(QObject* parent = NULL);
+	Manager( QObject* parent = NULL );
 
 	/**
 	 * @brief ~CDiscovery: Destructor. Make sure you have stopped the magager befor destroying it.
@@ -185,7 +185,7 @@ public:
 	 * is null, the total number of all services is returned, no matter whether they are working or
 	 * not.
 	 */
-	quint32 count(const CNetworkType& oType = CNetworkType());
+	quint32 count( const CNetworkType& oType = CNetworkType() );
 
 	/**
 	 * @brief start initializes the Discovery Services Manager. Make sure this is called after
@@ -213,7 +213,7 @@ public:
 	 * @return true if saving to file is known to have been successful; false otherwise (e.g. error
 	 * or asynchronous execution)
 	 */
-	bool save(bool bForceSaving = false);
+	bool save( bool bForceSaving = false );
 
 	/**
 	 * @brief add adds a new Service with a given URL to the manager.
@@ -225,8 +225,8 @@ public:
 	 * @return the service ID used to identify the service internally; 0 if the service has not been
 	 * added.
 	 */
-	ServiceID add(QString sURL, const ServiceType::Type eSType,
-				  const CNetworkType& oNType, const quint8 nRating);
+	ServiceID add( QString sURL, const ServiceType::Type eSType,
+				   const CNetworkType& oNType, const quint8 nRating );
 
 	/**
 	 * @brief remove removes a service by ID.
@@ -235,7 +235,7 @@ public:
 	 * @return true if the removal was successful (e.g. the service could be found), false
 	 * otherwise.
 	 */
-	bool remove(ServiceID nID);
+	bool remove( ServiceID nID );
 
 	/**
 	 * @brief clear removes all services from the manager.
@@ -244,14 +244,14 @@ public:
 	 * services. The default value is false, which represents the scenario on shutdown, where the
 	 * GUI will be removed shortly anyway.
 	 */
-	void clear(bool bInformGUI = false);
+	void clear( bool bInformGUI = false );
 
 	/**
 	 * @brief check verifies whether the given service is managed by the manager.
 	 * Locking: YES (synchronous)
 	 * @return true if managed; false otherwise
 	 */
-	bool check(const ConstServicePtr pService);
+	bool check( const ConstServicePtr pService );
 
 	/**
 	 * @brief initiateSearchForDuplicates schedules a check for services identical to the service
@@ -259,7 +259,7 @@ public:
 	 * Locking: YES (asynchronous)
 	 * @param nID : the service ID
 	 */
-	void initiateSearchForDuplicates(ServiceID nID);
+	void initiateSearchForDuplicates( ServiceID nID );
 
 	/**
 	 * @brief isActive allows to find out whether the Discovery Manager is currently doing an
@@ -268,7 +268,7 @@ public:
 	 * @param eSType
 	 * @return true if active; false otherwise
 	 */
-	bool isActive(const ServiceType::Type eSType);
+	bool isActive( const ServiceType::Type eSType );
 
 	/**
 	 * @brief isOperating allows to find out whether the Manager has finished starting up and not
@@ -300,16 +300,16 @@ public:
 	 * Locking: YES (asynchronous)
 	 * @param type
 	 */
-	void updateService(const CNetworkType& type); // Random service access
-	void updateService(ServiceID nID);           // Manual service access
+	void updateService( const CNetworkType& type ); // Random service access
+	void updateService( ServiceID nID );         // Manual service access
 
 	/**
 	 * @brief queryService queries a service for hosts to connect to.
 	 * Locking: YES (asynchronous)
 	 * @param type
 	 */
-	void queryService(const CNetworkType& type); // Random service access
-	void queryService(ServiceID nID);           // Manual service access
+	void queryService( const CNetworkType& type ); // Random service access
+	void queryService( ServiceID nID );         // Manual service access
 
 	/**
 	 * @brief getWorkingService
@@ -317,7 +317,7 @@ public:
 	 * @param type
 	 * @return the URL of a service of the requested type that is known to work
 	 */
-	QString getWorkingService(ServiceType::Type type);
+	QString getWorkingService( ServiceType::Type type );
 
 public:
 	/**
@@ -329,7 +329,7 @@ public:
 	 * to the system log.
 	 */
 	static void postLog( LogSeverity severity, QString message,
-						 bool bDebug = false, ServiceID nID = 0);
+						 bool bDebug = false, ServiceID nID = 0 );
 
 	/**
 	 * @brief writeToFile is a helper method for save()
@@ -338,26 +338,26 @@ public:
 	 * @param oFile
 	 * @return The number of services written to the specified file
 	 */
-	static quint32 writeToFile(const void* const pManager, QFile& oFile);
+	static quint32 writeToFile( const void* const pManager, QFile& oFile );
 
 signals:
 	/**
 	 * @brief serviceAdded is emitted each time a new service is added to the manager.
 	 * @param pService
 	 */
-	void serviceAdded(ConstServicePtr pService);
+	void serviceAdded( ConstServicePtr pService );
 
 	/**
 	 * @brief serviceRemoved is emitted (almost) each time a service is removed from the manager.
 	 * @param nServiceID
 	 */
-	void serviceRemoved(ServiceID nServiceID);
+	void serviceRemoved( ServiceID nServiceID );
 
 	/**
 	 * @brief serviceInfo is emitted once for each service on request via requestServiceList().
 	 * @param pService
 	 */
-	void serviceInfo(ConstServicePtr pService);
+	void serviceInfo( ConstServicePtr pService );
 
 	/**
 	 * @brief loadingFinished is emitted after new rules have been loaded.
@@ -369,27 +369,27 @@ private slots:
 	// respective callers for documentation.
 	bool asyncSyncSavingHelper();
 	void asyncRequestServiceListHelper();
-	void asyncUpdateServiceHelper(const CNetworkType type);
-	void asyncUpdateServiceHelper(ServiceID nID);
-	void asyncQueryServiceHelper(const CNetworkType type);
-	void asyncQueryServiceHelper(ServiceID nID);
-	void asyncManageDuplicatesHelper(ServiceID nID);
+	void asyncUpdateServiceHelper( const CNetworkType type );
+	void asyncUpdateServiceHelper( ServiceID nID );
+	void asyncQueryServiceHelper( const CNetworkType type );
+	void asyncQueryServiceHelper( ServiceID nID );
+	void asyncManageDuplicatesHelper( ServiceID nID );
 
 private:
 	/**
 	 * @brief doCount: Internal helper without locking. See count for documentation.
 	 */
-	quint32 doCount(const CNetworkType& oType = CNetworkType());
+	quint32 doCount( const CNetworkType& oType = CNetworkType() );
 
 	/**
 	 * @brief doClear: Internal helper without locking. See clear for documentation.
 	 */
-	void doClear(bool bInformGUI = false);
+	void doClear( bool bInformGUI = false );
 
 	/**
 	 * @brief doRemove: Internal helper without locking. See remove for documentation.
 	 */
-	bool doRemove(ServiceID nID);
+	bool doRemove( ServiceID nID );
 
 	/**
 	 * @brief load retrieves stored services from the HDD.
@@ -397,7 +397,7 @@ private:
 	 * @return true if loading from file was successful; false otherwise.
 	 */
 	void load();
-	bool load(QString sPath);
+	bool load( QString sPath );
 
 	/**
 	 * @brief add... obvious... Note: if a duplicate is detected, the CDiscoveryService passed to
@@ -406,7 +406,7 @@ private:
 	 * @param pService
 	 * @return true if the service was added; false if not (e.g. duplicate was detected).
 	 */
-	bool add(ServicePtr& pService);
+	bool add( ServicePtr& pService );
 
 	/**
 	 * @brief addDefaults loads the DefaultServices.dat file (compatible with Shareaza) into the
@@ -423,7 +423,7 @@ private:
 	 * @param oNType : the network type of the banned service
 	 * @return true if the caller needs not to worry about adding the requested ban anymore
 	 */
-	bool manageBan(const QString& sURL, const ServiceType::Type eSType, const CNetworkType& oNType);
+	bool manageBan( const QString& sURL, const ServiceType::Type eSType, const CNetworkType& oNType );
 
 	/**
 	 * @brief checkBan checks a given URL against the list of banned services.
@@ -431,7 +431,7 @@ private:
 	 * @param sURL : the URL
 	 * @return true if the URL is banned; false otherwise.
 	 */
-	bool checkBan(const QString& sURL) const;
+	bool checkBan( const QString& sURL ) const;
 
 	/**
 	 * @brief lookupUrl finds the service with the specified URL if such a service exists.
@@ -439,7 +439,7 @@ private:
 	 * @param sURL : the URL
 	 * @return the service; note that it is locked for read
 	 */
-	ServicePtr lookupUrl(const QString& sURL) const;
+	ServicePtr lookupUrl( const QString& sURL ) const;
 
 	/**
 	 * @brief lookupDuplicates hands the caller a list of possible duplicates of a specified service
@@ -457,7 +457,7 @@ private:
 	 * @return true if a duplicate was detected. pService is deleted and set to nullptr in that
 	 * case. false otherwise.
 	 */
-	bool manageDuplicates(ServicePtr &pService, bool bNeedRemoval);
+	bool manageDuplicates( ServicePtr& pService, bool bNeedRemoval );
 
 	/**
 	 * @brief normalizeURL transforms a given URL string into a standard form to ease the detection
@@ -466,7 +466,7 @@ private:
 	 * @param sURL
 	 * @return true if sURL has been changed; false if sURL has not seen a change
 	 */
-	bool normalizeURL(QString& sURL);
+	bool normalizeURL( QString& sURL );
 
 	/**
 	 * @brief getRandomService: Helper method. Allows to get a random service for a specified
@@ -476,7 +476,7 @@ private:
 	 * @return A discovery service for the specified network; Null if no working service could be
 	 * found for the specified network.
 	 */
-	ServicePtr getRandomService(const CNetworkType& oNType);
+	ServicePtr getRandomService( const CNetworkType& oNType );
 };
 
 } // namespace Discovery

@@ -48,28 +48,28 @@ private:
 
 public:
 	CMagnet();
-	CMagnet(QString sMagnet);
+	CMagnet( QString sMagnet );
 
 	/**
 	  * Returns File struct for ID. Remember to verify their validity with isNull().
 	  */
-	MagnetFile operator[](const quint16 nID) const;
+	MagnetFile operator[]( const quint16 nID ) const;
 
 	/**
 	  * Returns true if Magnet link could be parsed without errors.
 	  */
-	bool parseMagnet(QString sMagnet);
+	bool parseMagnet( QString sMagnet );
 
 	/**
 	  * Inserts the information for ID into the download passed as parameter. If NULL is passed, a
 	  * new download is created.
 	  */
-	bool file(const quint16 nID, Download* pDownload) const;
+	bool file( const quint16 nID, Download* pDownload ) const;
 
 	/**
 	  * Returns search string by ID. Returns empty strings for invalid IDs.
 	  */
-	QString search(const quint16 nID) const;
+	QString search( const quint16 nID ) const;
 
 	/**
 	  * Returns true for magnets that have been created using the default constructor without having
@@ -98,7 +98,7 @@ public:
 	inline QString toString() const;
 
 private:
-	void subsectionError(QString sParam, QString sSubsection);
+	void subsectionError( QString sParam, QString sSubsection );
 };
 
 bool CMagnet::isNull() const

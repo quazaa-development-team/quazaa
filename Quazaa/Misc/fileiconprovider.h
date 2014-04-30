@@ -49,14 +49,14 @@ public:
 	 * @param info
 	 * @return The requested QIcon
 	 */
-	QIcon icon(const QFileInfo &info) const;
+	QIcon icon( const QFileInfo& info ) const;
 
 	/**
 	 * @brief icon provides an icon given a file path.
 	 * @param info
 	 * @return The requested QIcon
 	 */
-	QIcon icon(const QString &file) const;
+	QIcon icon( const QString& file ) const;
 };
 
 #endif // FILEICONPROVIDER_H

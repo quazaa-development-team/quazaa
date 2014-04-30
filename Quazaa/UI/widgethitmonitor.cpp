@@ -31,12 +31,12 @@
 
 #include "debug_new.h"
 
-CWidgetHitMonitor::CWidgetHitMonitor(QWidget* parent) :
-	QMainWindow(parent),
-	ui(new Ui::CWidgetHitMonitor)
+CWidgetHitMonitor::CWidgetHitMonitor( QWidget* parent ) :
+	QMainWindow( parent ),
+	ui( new Ui::CWidgetHitMonitor )
 {
-	ui->setupUi(this);
-	restoreState(quazaaSettings.WinMain.HitMonitorToolbar);
+	ui->setupUi( this );
+	restoreState( quazaaSettings.WinMain.HitMonitorToolbar );
 	setSkin();
 }
 
@@ -45,16 +45,16 @@ CWidgetHitMonitor::~CWidgetHitMonitor()
 	delete ui;
 }
 
-void CWidgetHitMonitor::changeEvent(QEvent* e)
+void CWidgetHitMonitor::changeEvent( QEvent* e )
 {
-	QMainWindow::changeEvent(e);
-	switch(e->type())
+	QMainWindow::changeEvent( e );
+	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 

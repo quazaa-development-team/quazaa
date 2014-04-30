@@ -32,7 +32,7 @@
 
 namespace Ui
 {
-	class WidgetHostCache;
+class WidgetHostCache;
 }
 
 class WidgetHostCache : public QMainWindow
@@ -48,24 +48,24 @@ private:
 	CTableView*             m_pTableViewG2Cache;
 
 public:
-	WidgetHostCache(QWidget* parent = 0);
+	WidgetHostCache( QWidget* parent = 0 );
 	~WidgetHostCache();
 	void saveWidget();
 
 protected:
-	void changeEvent(QEvent* e);
-	virtual void keyPressEvent(QKeyEvent *event);
+	void changeEvent( QEvent* e );
+	virtual void keyPressEvent( QKeyEvent* event );
 
 public slots:
 	//void update();
 
 private slots:
-	void on_splitterHostCache_customContextMenuRequested(QPoint pos);
+	void on_splitterHostCache_customContextMenuRequested( QPoint pos );
 	void setSkin();
 
-	void tableViewG2Cache_doubleClicked(const QModelIndex& index);
-	void tableViewG2Cache_clicked(const QModelIndex& index);
-	void tableViewG2Cache_customContextMenuRequested(const QPoint &pos);
+	void tableViewG2Cache_doubleClicked( const QModelIndex& index );
+	void tableViewG2Cache_clicked( const QModelIndex& index );
+	void tableViewG2Cache_customContextMenuRequested( const QPoint& pos );
 };
 
 #endif // WIDGETHOSTCACHE_H

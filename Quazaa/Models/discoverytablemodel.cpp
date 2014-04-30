@@ -29,7 +29,7 @@
 
 #include "debug_new.h"
 
-DiscoveryTableModel::Service::Service(ConstServicePtr pService, DiscoveryTableModel* model) :
+DiscoveryTableModel::Service::Service( ConstServicePtr pService, DiscoveryTableModel* model ) :
 	m_pNode       ( pService                 ),
 	m_nID         ( pService->id()           ),
 	m_nType       ( pService->serviceType()  ),
@@ -58,8 +58,8 @@ DiscoveryTableModel::Service::~Service()
 {
 }
 
-bool DiscoveryTableModel::Service::update(int row, int sortCol, QModelIndexList &to_update,
-										   DiscoveryTableModel* model)
+bool DiscoveryTableModel::Service::update( int row, int sortCol, QModelIndexList& to_update,
+										   DiscoveryTableModel* model )
 {
 	bool bReturn = false;
 
@@ -76,7 +76,9 @@ bool DiscoveryTableModel::Service::update(int row, int sortCol, QModelIndexList 
 		refreshServiceIcon( model );
 
 		if ( sortCol == TYPE )
+		{
 			bReturn = true;
+		}
 	}
 
 	if ( m_sURL != m_pNode->url() )
@@ -85,7 +87,9 @@ bool DiscoveryTableModel::Service::update(int row, int sortCol, QModelIndexList 
 		m_sURL = m_pNode->url();
 
 		if ( sortCol == URL )
+		{
 			bReturn = true;
+		}
 	}
 
 	if ( m_tAccessed != m_pNode->lastAccessed() )
@@ -94,7 +98,9 @@ bool DiscoveryTableModel::Service::update(int row, int sortCol, QModelIndexList 
 		m_tAccessed = m_pNode->lastAccessed();
 
 		if ( sortCol == ACCESSED )
+		{
 			bReturn = true;
+		}
 	}
 
 	if ( m_nLastHosts != m_pNode->lastHosts() )
@@ -103,7 +109,9 @@ bool DiscoveryTableModel::Service::update(int row, int sortCol, QModelIndexList 
 		m_nLastHosts = m_pNode->lastHosts();
 
 		if ( sortCol == HOSTS )
+		{
 			bReturn = true;
+		}
 	}
 
 	if ( m_nTotalHosts != m_pNode->totalHosts() )
@@ -112,7 +120,9 @@ bool DiscoveryTableModel::Service::update(int row, int sortCol, QModelIndexList 
 		m_nTotalHosts = m_pNode->totalHosts();
 
 		if ( sortCol == TOTAL_HOSTS )
+		{
 			bReturn = true;
+		}
 	}
 
 	if ( m_nAltServices != m_pNode->altServices() )
@@ -121,7 +131,9 @@ bool DiscoveryTableModel::Service::update(int row, int sortCol, QModelIndexList 
 		m_nAltServices = m_pNode->altServices();
 
 		if ( sortCol == ALTERNATE_SERVICES )
+		{
 			bReturn = true;
+		}
 	}
 
 	if ( m_nFailures != m_pNode->failures() )
@@ -130,7 +142,9 @@ bool DiscoveryTableModel::Service::update(int row, int sortCol, QModelIndexList 
 		m_nFailures = m_pNode->failures();
 
 		if ( sortCol == FAILURES )
+		{
 			bReturn = true;
+		}
 	}
 
 #if ENABLE_DISCOVERY_DEBUGGING
@@ -140,7 +154,9 @@ bool DiscoveryTableModel::Service::update(int row, int sortCol, QModelIndexList 
 		m_nRating = m_pNode->rating();
 
 		if ( sortCol == RATING )
+		{
 			bReturn = true;
+		}
 	}
 
 	if ( m_nMultipilcator != m_pNode->probaMult() )
@@ -149,7 +165,9 @@ bool DiscoveryTableModel::Service::update(int row, int sortCol, QModelIndexList 
 		m_nMultipilcator = m_pNode->probaMult();
 
 		if ( sortCol == MULTIPLICATOR )
+		{
 			bReturn = true;
+		}
 	}
 #endif
 
@@ -159,7 +177,9 @@ bool DiscoveryTableModel::Service::update(int row, int sortCol, QModelIndexList 
 		m_sPong = m_pNode->pong();
 
 		if ( sortCol == PONG )
+		{
 			bReturn = true;
+		}
 	}
 
 	m_pNode->unlock();
@@ -167,7 +187,7 @@ bool DiscoveryTableModel::Service::update(int row, int sortCol, QModelIndexList 
 	return bReturn;
 }
 
-QVariant DiscoveryTableModel::Service::data(int col) const
+QVariant DiscoveryTableModel::Service::data( int col ) const
 {
 	switch ( col )
 	{
@@ -207,11 +227,13 @@ QVariant DiscoveryTableModel::Service::data(int col) const
 	return QVariant();
 }
 
-bool DiscoveryTableModel::Service::lessThan(int col, const DiscoveryTableModel::Service*
-											 const pOther) const
+bool DiscoveryTableModel::Service::lessThan( int col, const DiscoveryTableModel::Service*
+											 const pOther ) const
 {
 	if ( !pOther )
+	{
 		return false;
+	}
 
 	switch ( col )
 	{
@@ -253,9 +275,9 @@ bool DiscoveryTableModel::Service::lessThan(int col, const DiscoveryTableModel::
 	}
 }
 
-void DiscoveryTableModel::Service::refreshServiceIcon(DiscoveryTableModel* model)
+void DiscoveryTableModel::Service::refreshServiceIcon( DiscoveryTableModel* model )
 {
-	switch( m_nType )
+	switch ( m_nType )
 	{
 	case Discovery::ServiceType::Null:
 		Q_ASSERT( false ); // Should not happen.
@@ -267,7 +289,7 @@ void DiscoveryTableModel::Service::refreshServiceIcon(DiscoveryTableModel* model
 
 	case Discovery::ServiceType::GWC:
 	{
-		Discovery::GWC* pGWC = (Discovery::GWC*)m_pNode.data();
+		Discovery::GWC* pGWC = ( Discovery::GWC* )m_pNode.data();
 
 		if ( pGWC->isG2() )
 		{
@@ -285,7 +307,7 @@ void DiscoveryTableModel::Service::refreshServiceIcon(DiscoveryTableModel* model
 			m_piType = model->m_pIcons[GWC_GRAY];
 		}
 	}
-		break;
+	break;
 
 	default:
 		Q_ASSERT( false );
@@ -297,7 +319,7 @@ void DiscoveryTableModel::Service::refreshServiceIcon(DiscoveryTableModel* model
 	}
 }
 
-DiscoveryTableModel::DiscoveryTableModel(QObject *parent, QWidget* container) :
+DiscoveryTableModel::DiscoveryTableModel( QObject* parent, QWidget* container ) :
 	QAbstractTableModel( parent ),
 	m_oContainer( container ),
 	m_nSortColumn( -1 ),
@@ -333,7 +355,7 @@ DiscoveryTableModel::~DiscoveryTableModel()
 	delete[] m_pIcons;
 }
 
-int DiscoveryTableModel::rowCount(const QModelIndex& parent) const
+int DiscoveryTableModel::rowCount( const QModelIndex& parent ) const
 {
 	if ( parent.isValid() )
 	{
@@ -345,7 +367,7 @@ int DiscoveryTableModel::rowCount(const QModelIndex& parent) const
 	}
 }
 
-int DiscoveryTableModel::columnCount(const QModelIndex& parent) const
+int DiscoveryTableModel::columnCount( const QModelIndex& parent ) const
 {
 	if ( parent.isValid() )
 	{
@@ -357,7 +379,7 @@ int DiscoveryTableModel::columnCount(const QModelIndex& parent) const
 	}
 }
 
-QVariant DiscoveryTableModel::data(const QModelIndex& index, int role) const
+QVariant DiscoveryTableModel::data( const QModelIndex& index, int role ) const
 {
 	if ( !index.isValid() || index.row() > m_lNodes.size() || index.row() < 0 )
 	{
@@ -417,10 +439,12 @@ QVariant DiscoveryTableModel::data(const QModelIndex& index, int role) const
 	return QVariant();
 }
 
-QVariant DiscoveryTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant DiscoveryTableModel::headerData( int section, Qt::Orientation orientation, int role ) const
 {
 	if ( orientation != Qt::Horizontal )
+	{
 		return QVariant();
+	}
 
 	if ( role == Qt::DisplayRole )
 	{
@@ -461,7 +485,7 @@ QVariant DiscoveryTableModel::headerData(int section, Qt::Orientation orientatio
 	}
 	else if ( role == Qt::ToolTipRole )
 	{
-		switch( section )
+		switch ( section )
 		{
 		case TYPE:
 			return tr( "The type of the Discovery Service" );
@@ -501,12 +525,16 @@ QVariant DiscoveryTableModel::headerData(int section, Qt::Orientation orientatio
 	return QVariant();
 }
 
-QModelIndex DiscoveryTableModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex DiscoveryTableModel::index( int row, int column, const QModelIndex& parent ) const
 {
 	if ( parent.isValid() || row < 0 || row >= m_lNodes.count() )
+	{
 		return QModelIndex();
+	}
 	else
+	{
 		return createIndex( row, column, m_lNodes[row] );
+	}
 }
 
 class CDiscoveryTableModelCmp
@@ -534,7 +562,7 @@ public:
 	Qt::SortOrder order;
 };
 
-void DiscoveryTableModel::sort(int column, Qt::SortOrder order)
+void DiscoveryTableModel::sort( int column, Qt::SortOrder order )
 {
 	m_nSortColumn = column;
 	m_nSortOrder = order;
@@ -546,9 +574,9 @@ void DiscoveryTableModel::sort(int column, Qt::SortOrder order)
 	m_bNeedSorting = false;
 }
 
-DiscoveryTableModel::ConstServicePtr DiscoveryTableModel::nodeFromRow(quint32 row) const
+DiscoveryTableModel::ConstServicePtr DiscoveryTableModel::nodeFromRow( quint32 row ) const
 {
-	if ( row < (quint32)m_lNodes.count() )
+	if ( row < ( quint32 )m_lNodes.count() )
 	{
 		return m_lNodes[ row ]->m_pNode;
 	}
@@ -559,16 +587,20 @@ DiscoveryTableModel::ConstServicePtr DiscoveryTableModel::nodeFromRow(quint32 ro
 }
 
 DiscoveryTableModel::ConstServicePtr
-DiscoveryTableModel::nodeFromIndex(const QModelIndex &index) const
+DiscoveryTableModel::nodeFromIndex( const QModelIndex& index ) const
 {
 	if ( !index.isValid() || !( index.row() < m_lNodes.count() ) || index.row() < 0 )
+	{
 		return ConstServicePtr();
+	}
 	else
+	{
 		return m_lNodes[ index.row() ]->m_pNode;
+	}
 }
 
 
-bool DiscoveryTableModel::isIndexBanned(const QModelIndex& index) const
+bool DiscoveryTableModel::isIndexBanned( const QModelIndex& index ) const
 {
 	// All service with type stBanned have m_bBanned set to true.
 	return ( m_lNodes[ index.row() ]->m_bBanned /*||
@@ -601,7 +633,7 @@ void DiscoveryTableModel::completeRefresh()
 	discoveryManager.requestServiceList();
 }
 
-void DiscoveryTableModel::addService(ConstServicePtr pService)
+void DiscoveryTableModel::addService( ConstServicePtr pService )
 {
 	if ( discoveryManager.check( pService ) )
 	{
@@ -618,7 +650,7 @@ void DiscoveryTableModel::addService(ConstServicePtr pService)
 	}
 
 	// if we're not currently doing a complete refresh/if the complete refresh has just been finished
-	if ( m_lNodes.size() == (int)discoveryManager.count() )
+	if ( m_lNodes.size() == ( int )discoveryManager.count() )
 	{
 		// Make sure we don't recieve any signals we don't want once we got all rules once.
 		disconnect( &discoveryManager, &Discovery::Manager::serviceInfo, this,
@@ -629,7 +661,7 @@ void DiscoveryTableModel::addService(ConstServicePtr pService)
 	}
 }
 
-void DiscoveryTableModel::removeService(ServiceID nID)
+void DiscoveryTableModel::removeService( ServiceID nID )
 {
 	for ( int i = 0; i < m_lNodes.size(); ++i )
 	{
@@ -644,7 +676,7 @@ void DiscoveryTableModel::removeService(ServiceID nID)
 	}
 }
 
-void DiscoveryTableModel::update(ServiceID nID)
+void DiscoveryTableModel::update( ServiceID nID )
 {
 	QModelIndexList uplist;
 	for ( quint32 i = 0, max = m_lNodes.count(); i < max; ++i )
@@ -652,7 +684,9 @@ void DiscoveryTableModel::update(ServiceID nID)
 		if ( m_lNodes[i]->m_nID == nID )
 		{
 			if ( m_lNodes[i]->update( i, m_nSortColumn, uplist, this ) )
+			{
 				m_bNeedSorting = true;
+			}
 			break;
 		}
 	}
@@ -662,7 +696,7 @@ void DiscoveryTableModel::update(ServiceID nID)
 
 void DiscoveryTableModel::updateAll()
 {
-	if ( (quint32)m_lNodes.size() != discoveryManager.count() )
+	if ( ( quint32 )m_lNodes.size() != discoveryManager.count() )
 	{
 		completeRefresh();
 		return;
@@ -672,13 +706,15 @@ void DiscoveryTableModel::updateAll()
 	for ( quint32 i = 0, max = m_lNodes.count(); i < max; ++i )
 	{
 		if ( m_lNodes[i]->update( i, m_nSortColumn, uplist, this ) )
+		{
 			m_bNeedSorting = true;
+		}
 	}
 
 	updateView( uplist );
 }
 
-void DiscoveryTableModel::updateView(QModelIndexList uplist)
+void DiscoveryTableModel::updateView( QModelIndexList uplist )
 {
 	if ( m_bNeedSorting )
 	{
@@ -690,7 +726,7 @@ void DiscoveryTableModel::updateView(QModelIndexList uplist)
 
 		if ( pView )
 		{
-			foreach ( const QModelIndex& index, uplist )
+			foreach ( const QModelIndex & index, uplist )
 			{
 				pView->update( index );
 			}

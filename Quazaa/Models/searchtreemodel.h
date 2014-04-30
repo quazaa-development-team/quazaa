@@ -39,15 +39,16 @@ class FileIconProvider;
 
 namespace SearchHitData
 {
-	struct sSearchHitData
-	{
-		QIcon iNetwork;
-		QIcon iCountry;
-		QueryHitSharedPtr pQueryHit;
-	};
+struct sSearchHitData
+{
+	QIcon iNetwork;
+	QIcon iCountry;
+	QueryHitSharedPtr pQueryHit;
+};
 } // namespace SearchHitData
 
-namespace SearchFilter {
+namespace SearchFilter
+{
 class Filter;
 class FilterControl;
 struct FilterControlData;
@@ -90,7 +91,7 @@ public:
 	SearchHitData::sSearchHitData m_oHitData;
 
 public:
-	SearchTreeItem(SearchTreeItem* pParent);
+	SearchTreeItem( SearchTreeItem* pParent );
 	virtual ~SearchTreeItem();
 
 	SearchTreeItem* parent() const;
@@ -99,14 +100,14 @@ public:
 	bool visible() const;
 	int row() const;
 
-	virtual void appendChild(SearchTreeItem* pItem);
-	virtual void removeChild(int position);
+	virtual void appendChild( SearchTreeItem* pItem );
+	virtual void removeChild( int position );
 
-	SearchTreeItem* child(int row) const;
+	SearchTreeItem* child( int row ) const;
 	virtual int childCount() const;
 
 	int columnCount() const;
-	QVariant data(int column) const;
+	QVariant data( int column ) const;
 
 	const SearchFilter::Filter* const getFilter() const;
 
@@ -128,23 +129,23 @@ private:
 	std::unordered_map< CHash, SearchFile* > m_mHashes;
 
 public:
-	TreeRoot(SearchTreeModel* pModel);
+	TreeRoot( SearchTreeModel* pModel );
 	~TreeRoot();
 
-	void appendChild(SearchTreeItem* pItem);
-	void removeChild(int position);
+	void appendChild( SearchTreeItem* pItem );
+	void removeChild( int position );
 
 	void clearSearch();
 
-	QueryHit* addQueryHit(QueryHit* pHit);
-	int find(const CHash& rHash) const; // find child number with given hash
+	QueryHit* addQueryHit( QueryHit* pHit );
+	int find( const CHash& rHash ) const; // find child number with given hash
 
-	void registerHash(const CHash& rHash, SearchFile* pFileItem);
-	void unregisterHash(const CHash& rHash);
+	void registerHash( const CHash& rHash, SearchFile* pFileItem );
+	void unregisterHash( const CHash& rHash );
 
 private:
-	void addToFilterControl(SearchTreeItem* pItem);
-	void removeFromFilterControl(SearchTreeItem* pItem);
+	void addToFilterControl( SearchTreeItem* pItem );
+	void removeFromFilterControl( SearchTreeItem* pItem );
 	friend class SearchFile;
 };
 
@@ -155,19 +156,19 @@ public:
 	HashVector      m_lHashes;
 
 public:
-	SearchFile(SearchTreeItem* parent, const QueryHit* const pHit, const QFileInfo& fileInfo);
+	SearchFile( SearchTreeItem* parent, const QueryHit* const pHit, const QFileInfo& fileInfo );
 	~SearchFile();
 
-	void appendChild(SearchTreeItem* pItem);
-	void removeChild(int position);
+	void appendChild( SearchTreeItem* pItem );
+	void removeChild( int position );
 
-	bool manages(const CHash& rHash) const;
+	bool manages( const CHash& rHash ) const;
 	void updateHitCount(); // change number of hits
 
 private:
-	void insertHashes(const HashVector& vHashes);
-	bool duplicateHitCheck(QueryHit* pNewHit) const;
-	void addQueryHit(QueryHit* pHit, const QFileInfo& fileInfo);
+	void insertHashes( const HashVector& vHashes );
+	bool duplicateHitCheck( QueryHit* pNewHit ) const;
+	void addQueryHit( QueryHit* pHit, const QFileInfo& fileInfo );
 
 	friend class TreeRoot;
 };
@@ -178,11 +179,11 @@ class SearchHit : public SearchTreeItem
 
 public:
 	// Note: SearchHit takes ownership of Query hit on creation
-	SearchHit(SearchTreeItem* parent, QueryHit* pHit, const QFileInfo& fileInfo);
+	SearchHit( SearchTreeItem* parent, QueryHit* pHit, const QFileInfo& fileInfo );
 	~SearchHit();
 
-	void appendChild(SearchTreeItem* pItem);
-	void removeChild(int position);
+	void appendChild( SearchTreeItem* pItem );
+	void removeChild( int position );
 
 	int childCount() const;
 	void updateFilterData();
@@ -205,24 +206,24 @@ public:
 	SearchTreeModel();
 	~SearchTreeModel();
 
-	QModelIndex parent(const QModelIndex& index) const;
-	QVariant data(const QModelIndex& index, int role) const;
-	Qt::ItemFlags flags(const QModelIndex& index) const;
-	QVariant headerData(int section, Qt::Orientation orientation,
-						int role = Qt::DisplayRole) const;
-	QModelIndex index(int row, int column,
-					  const QModelIndex& parent = QModelIndex()) const;
-	int rowCount(const QModelIndex& parent = QModelIndex()) const;
-	int columnCount(const QModelIndex& parent = QModelIndex()) const;
+	QModelIndex parent( const QModelIndex& index ) const;
+	QVariant data( const QModelIndex& index, int role ) const;
+	Qt::ItemFlags flags( const QModelIndex& index ) const;
+	QVariant headerData( int section, Qt::Orientation orientation,
+						 int role = Qt::DisplayRole ) const;
+	QModelIndex index( int row, int column,
+					   const QModelIndex& parent = QModelIndex() ) const;
+	int rowCount( const QModelIndex& parent = QModelIndex() ) const;
+	int columnCount( const QModelIndex& parent = QModelIndex() ) const;
 	int fileCount() const;
 
-	bool fileVisible(int row) const;
+	bool fileVisible( int row ) const;
 
-	SearchTreeItem* topLevelItemFromIndex(QModelIndex index);
-	SearchTreeItem* itemFromIndex(QModelIndex index);
+	SearchTreeItem* topLevelItemFromIndex( QModelIndex index );
+	SearchTreeItem* itemFromIndex( QModelIndex index );
 
 	SearchFilter::FilterControlData* getFilterControlDataCopy() const;
-	void updateFilter(const SearchFilter::FilterControlData& rControlData);
+	void updateFilter( const SearchFilter::FilterControlData& rControlData );
 
 signals:
 	void updateStats();
@@ -235,8 +236,8 @@ private:
 public slots:
 	void clear();
 	//bool isRoot(QModelIndex index);
-	void addQueryHit(QueryHit* pHit);
-	void removeQueryHit(int position, const QModelIndex &parent);
+	void addQueryHit( QueryHit* pHit );
+	void removeQueryHit( int position, const QModelIndex& parent );
 
 	friend class TreeRoot;
 };

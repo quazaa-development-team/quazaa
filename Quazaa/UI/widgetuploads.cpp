@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -30,12 +30,12 @@
 
 #include "debug_new.h"
 
-CWidgetUploads::CWidgetUploads(QWidget* parent) :
-	QMainWindow(parent),
-	ui(new Ui::CWidgetUploads)
+CWidgetUploads::CWidgetUploads( QWidget* parent ) :
+	QMainWindow( parent ),
+	ui( new Ui::CWidgetUploads )
 {
-	ui->setupUi(this);
-	restoreState(quazaaSettings.WinMain.UploadsToolbar);
+	ui->setupUi( this );
+	restoreState( quazaaSettings.WinMain.UploadsToolbar );
 	setSkin();
 }
 
@@ -44,16 +44,16 @@ CWidgetUploads::~CWidgetUploads()
 	delete ui;
 }
 
-void CWidgetUploads::changeEvent(QEvent* e)
+void CWidgetUploads::changeEvent( QEvent* e )
 {
-	QMainWindow::changeEvent(e);
-	switch(e->type())
+	QMainWindow::changeEvent( e );
+	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 
@@ -64,5 +64,5 @@ void CWidgetUploads::saveWidget()
 
 void CWidgetUploads::setSkin()
 {
-	ui->treeViewUploads->setStyleSheet(skinSettings.listViews);
+	ui->treeViewUploads->setStyleSheet( skinSettings.listViews );
 }

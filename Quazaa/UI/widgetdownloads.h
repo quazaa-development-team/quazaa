@@ -33,35 +33,35 @@ class CDownloadsTreeModel;
 
 namespace Ui
 {
-	class CWidgetDownloads;
+class CWidgetDownloads;
 }
 
 class CWidgetDownloads : public QMainWindow
 {
 	Q_OBJECT
 public:
-	CWidgetDownloads(QWidget* parent = 0);
+	CWidgetDownloads( QWidget* parent = 0 );
 	~CWidgetDownloads();
 	void saveWidget();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CWidgetDownloads* ui;
-	QMenu *downloadMenu;
+	QMenu* downloadMenu;
 
 protected:
 	CDownloadsTreeModel* m_pModel;
 
 signals:
-	void onItemChange(const QModelIndex index);
+	void onItemChange( const QModelIndex index );
 
 private slots:
-	void on_tableViewDownloads_customContextMenuRequested(const QPoint &pos);
+	void on_tableViewDownloads_customContextMenuRequested( const QPoint& pos );
 	void setSkin();
 	void on_actionOpenTorrent_triggered();
-	void on_tableViewDownloads_clicked(const QModelIndex &index);
+	void on_tableViewDownloads_clicked( const QModelIndex& index );
 
 	friend class CWidgetTransfers;
 };

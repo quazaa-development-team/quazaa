@@ -106,13 +106,13 @@
 #define PROCESSOR_ARCHITECTURE_AMD64 9
 #define SM_SERVERR2 89
 
-typedef void (WINAPI *PGetNativeSystemInfo)(LPSYSTEM_INFO);
+typedef void ( WINAPI* PGetNativeSystemInfo )( LPSYSTEM_INFO );
 
-typedef bool (WINAPI *PGetProductInfo)(DWORD, DWORD, DWORD, DWORD, PDWORD);
+typedef bool ( WINAPI* PGetProductInfo )( DWORD, DWORD, DWORD, DWORD, PDWORD );
 #endif
 
-CQuazaaSysInfo::CQuazaaSysInfo(QObject *parent) :
-	QObject(parent)
+CQuazaaSysInfo::CQuazaaSysInfo( QObject* parent ) :
+	QObject( parent )
 {
 #ifdef Q_OS_WIN
 	bool canDetect = true;
@@ -121,28 +121,36 @@ CQuazaaSysInfo::CQuazaaSysInfo(QObject *parent) :
 	m_bOsVersionInfoEx = false;
 	m_nWindowsVersion = WindowsVersion::Windows;
 	m_nWindowsEdition = WindowsEdition::EditionUnknown;
-	memset(m_sServicePack, 0, sizeof(m_sServicePack));
+	memset( m_sServicePack, 0, sizeof( m_sServicePack ) );
 
 	// Try calling GetVersionEx using the OSVERSIONINFOEX structure.
-	ZeroMemory(&m_osvi, sizeof(OSVERSIONINFOEX));
-	m_osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	ZeroMemory( &m_osvi, sizeof( OSVERSIONINFOEX ) );
+	m_osvi.dwOSVersionInfoSize = sizeof( OSVERSIONINFOEX );
 
-	if( !(m_bOsVersionInfoEx = GetVersionEx ((OSVERSIONINFO *) &m_osvi)) )
+	if ( !( m_bOsVersionInfoEx = GetVersionEx ( ( OSVERSIONINFO* ) &m_osvi ) ) )
 	{
 		// If that fails, try using the OSVERSIONINFO structure.
-		m_osvi.dwOSVersionInfoSize = sizeof (OSVERSIONINFO);
-		if (! GetVersionEx ( (OSVERSIONINFO *) &m_osvi) )
-		canDetect = FALSE;
+		m_osvi.dwOSVersionInfoSize = sizeof ( OSVERSIONINFO );
+		if ( ! GetVersionEx ( ( OSVERSIONINFO* ) &m_osvi ) )
+		{
+			canDetect = FALSE;
+		}
 	}
 
-	pGNSI = (PGetNativeSystemInfo) GetProcAddress(
-		GetModuleHandle(L"kernel32.dll"),
-		"GetNativeSystemInfo");
+	pGNSI = ( PGetNativeSystemInfo ) GetProcAddress(
+				GetModuleHandle( L"kernel32.dll" ),
+				"GetNativeSystemInfo" );
 
-	if(0 != pGNSI) pGNSI(&m_SysInfo);
-	else GetSystemInfo(&m_SysInfo);
+	if ( 0 != pGNSI )
+	{
+		pGNSI( &m_SysInfo );
+	}
+	else
+	{
+		GetSystemInfo( &m_SysInfo );
+	}
 
-	if(canDetect)
+	if ( canDetect )
 	{
 		DetectWindowsVersion();
 		DetectWindowsEdition();
@@ -225,7 +233,7 @@ QString CQuazaaSysInfo::osVersionToString()
 	QString sServicePack;
 	QString sMachine;
 
-	switch(GetWindowsVersion())
+	switch ( GetWindowsVersion() )
 	{
 	case WindowsVersion::Windows:
 		sVersion = "Windows";
@@ -298,7 +306,7 @@ QString CQuazaaSysInfo::osVersionToString()
 		break;
 	}
 
-	switch(GetWindowsEdition())
+	switch ( GetWindowsEdition() )
 	{
 	case WindowsEdition::EditionUnknown:
 		sEdition = "Unknown Edition";
@@ -570,176 +578,194 @@ QString CQuazaaSysInfo::osVersionToString()
 
 	sServicePack = GetServicePackInfo();
 
-	if(Is64bitPlatform())
+	if ( Is64bitPlatform() )
+	{
 		sMachine = "64-bit";
+	}
 	else
+	{
 		sMachine = "32-bit";
+	}
 
-	operatingSystemString = QString(sVersion + " ");
-	if(!sEdition.isEmpty())
-		operatingSystemString.append(sEdition + " ");
-	if(!sServicePack.isEmpty())
-		operatingSystemString.append(tr("with %1 ").arg(sServicePack));
-	operatingSystemString.append(sMachine);
+	operatingSystemString = QString( sVersion + " " );
+	if ( !sEdition.isEmpty() )
+	{
+		operatingSystemString.append( sEdition + " " );
+	}
+	if ( !sServicePack.isEmpty() )
+	{
+		operatingSystemString.append( tr( "with %1 " ).arg( sServicePack ) );
+	}
+	operatingSystemString.append( sMachine );
 
 #elif defined(Q_OS_MAC)
-	switch ( QSysInfo::MacintoshVersion ) {
-		case QSysInfo::MV_9 :
-			operatingSystemString = "Mac OS 9 (unsupported)";
-			break;
-		case QSysInfo::MV_10_0 :
-			operatingSystemString = "Mac OS X 10.0 Cheetah (unsupported)";
-			break;
-		case QSysInfo::MV_10_1 :
-			operatingSystemString = "Mac OS X 10.1 Puma (unsupported)";
-			break;
-		case QSysInfo::MV_10_2 :
-			operatingSystemString = "Mac OS X 10.2 Jaguar (unsupported)";
-			break;
-		case QSysInfo::MV_10_3 :
-			operatingSystemString = "Mac OS X 10.3 Panther";
-			break;
-		case QSysInfo::MV_10_4 :
-			operatingSystemString = "Mac OS X 10.4 Tiger";
-			break;
-		case QSysInfo::MV_10_5 :
-			operatingSystemString = "Mac OS X 10.5 Leopard";
-			break;
-		case QSysInfo::MV_10_6 :
-			operatingSystemString = "Mac OS X 10.6 Snow Leopard";
-			break;
-		case QSysInfo::MV_10_7 :
-			operatingSystemString = "Mac OS X 10.7 Lion";
-			break;
-		case QSysInfo::MV_10_8 :
-			operatingSystemString = "Mac OS X 10.8 Mountain Lion";
-			break;
-		case QSysInfo::MV_10_9 :
-			operatingSystemString = "Mac OS X 10.9 Mavericks";
-			break;
-		case QSysInfo::MV_Unknown :
-			operatingSystemString = "An unknown and currently unsupported Mac platform";
-			break;
-		default :
-			operatingSystemString = "Unknown Mac operating system.";
-			break;
+	switch ( QSysInfo::MacintoshVersion )
+	{
+	case QSysInfo::MV_9 :
+		operatingSystemString = "Mac OS 9 (unsupported)";
+		break;
+	case QSysInfo::MV_10_0 :
+		operatingSystemString = "Mac OS X 10.0 Cheetah (unsupported)";
+		break;
+	case QSysInfo::MV_10_1 :
+		operatingSystemString = "Mac OS X 10.1 Puma (unsupported)";
+		break;
+	case QSysInfo::MV_10_2 :
+		operatingSystemString = "Mac OS X 10.2 Jaguar (unsupported)";
+		break;
+	case QSysInfo::MV_10_3 :
+		operatingSystemString = "Mac OS X 10.3 Panther";
+		break;
+	case QSysInfo::MV_10_4 :
+		operatingSystemString = "Mac OS X 10.4 Tiger";
+		break;
+	case QSysInfo::MV_10_5 :
+		operatingSystemString = "Mac OS X 10.5 Leopard";
+		break;
+	case QSysInfo::MV_10_6 :
+		operatingSystemString = "Mac OS X 10.6 Snow Leopard";
+		break;
+	case QSysInfo::MV_10_7 :
+		operatingSystemString = "Mac OS X 10.7 Lion";
+		break;
+	case QSysInfo::MV_10_8 :
+		operatingSystemString = "Mac OS X 10.8 Mountain Lion";
+		break;
+	case QSysInfo::MV_10_9 :
+		operatingSystemString = "Mac OS X 10.9 Mavericks";
+		break;
+	case QSysInfo::MV_Unknown :
+		operatingSystemString = "An unknown and currently unsupported Mac platform";
+		break;
+	default :
+		operatingSystemString = "Unknown Mac operating system.";
+		break;
 	}
 #else
 	//TODO: Detect Unix, Linux etc. distro as described on http://www.novell.com/coolsolutions/feature/11251.html
 	operatingSystemString = "Linux";
 	QProcess process;
-	process.start("uname -s");
-	bool result = process.waitForFinished(1000);
+	process.start( "uname -s" );
+	bool result = process.waitForFinished( 1000 );
 	QString os = process.readAllStandardOutput().trimmed();
 
-	process.start("uname -r");
-	result = process.waitForFinished(1000);
+	process.start( "uname -r" );
+	result = process.waitForFinished( 1000 );
 	QString rev = process.readAllStandardOutput().trimmed();
 
-	process.start("uname -m");
-	result = process.waitForFinished(1000);
+	process.start( "uname -m" );
+	result = process.waitForFinished( 1000 );
 	QString mach = process.readAllStandardOutput().trimmed();
 
-	if ( os == "SunOS" ) {
+	if ( os == "SunOS" )
+	{
 		os = "Solaris";
 
-		process.start("uname -p");
-		result = process.waitForFinished(1000);
+		process.start( "uname -p" );
+		result = process.waitForFinished( 1000 );
 		QString arch = process.readAllStandardOutput().trimmed();
 
-		process.start("uname -v");
-		result = process.waitForFinished(1000);
+		process.start( "uname -v" );
+		result = process.waitForFinished( 1000 );
 		QString timestamp = process.readAllStandardOutput().trimmed();
 
 		operatingSystemString = os + " " + rev + " (" + arch + " " + timestamp + ")";
 	}
-	else if ( os == "AIX" ) {
-		process.start("oslevel -r");
-		result = process.waitForFinished(1000);
+	else if ( os == "AIX" )
+	{
+		process.start( "oslevel -r" );
+		result = process.waitForFinished( 1000 );
 		QString oslevel = process.readAllStandardOutput().trimmed();
 
 		operatingSystemString = os + "oslevel " + oslevel;
 	}
-	else if ( os == "Linux" ) {
+	else if ( os == "Linux" )
+	{
 		QString dist;
 		QString pseudoname;
 		QString kernel = rev;
 
-		if ( QFile::exists("/etc/SUSE-release") ) {
-			process.start("sh -c \"cat /etc/SUSE-release | tr '\\n' ' '| sed s/VERSION.*//\"");
-			result = process.waitForFinished(1000);
+		if ( QFile::exists( "/etc/SUSE-release" ) )
+		{
+			process.start( "sh -c \"cat /etc/SUSE-release | tr '\\n' ' '| sed s/VERSION.*//\"" );
+			result = process.waitForFinished( 1000 );
 			dist = process.readAllStandardOutput().trimmed();
 
-			process.start("sh -c \"cat /etc/SUSE-release | tr '\\n' ' ' | sed s/.*=\\ //\"");
-			result = process.waitForFinished(1000);
+			process.start( "sh -c \"cat /etc/SUSE-release | tr '\\n' ' ' | sed s/.*=\\ //\"" );
+			result = process.waitForFinished( 1000 );
 			rev = process.readAllStandardOutput().trimmed();
 		}
-		else if ( QFile::exists("/etc/mandrake-release") ) {
+		else if ( QFile::exists( "/etc/mandrake-release" ) )
+		{
 			dist = "Mandrake";
 
-			process.start("sh -c \"cat /etc/mandrake-release | sed s/.*\\(// | sed s/\\)//\"");
-			result = process.waitForFinished(1000);
+			process.start( "sh -c \"cat /etc/mandrake-release | sed s/.*\\(// | sed s/\\)//\"" );
+			result = process.waitForFinished( 1000 );
 			pseudoname = process.readAllStandardOutput().trimmed();
 
-			process.start("sh -c \"cat /etc/mandrake-release | sed s/.*release\\ // | sed s/\\ .*//\"");
-			result = process.waitForFinished(1000);
+			process.start( "sh -c \"cat /etc/mandrake-release | sed s/.*release\\ // | sed s/\\ .*//\"" );
+			result = process.waitForFinished( 1000 );
 			rev = process.readAllStandardOutput().trimmed();
 		}
-		else if ( QFile::exists("/etc/lsb-release") ) {
+		else if ( QFile::exists( "/etc/lsb-release" ) )
+		{
 			dist = "Ubuntu";
 
 			QString processCall = "sh -c \"cat /etc/lsb-release | grep --max-count=1 DISTRIB_RELEASE=\"";
 			process.start( processCall );
-			result = process.waitForFinished(1000);
+			result = process.waitForFinished( 1000 );
 			rev = process.readAllStandardOutput().trimmed();
 			qDebug() << "revision:" << rev;
-			if(!rev.isEmpty())
+			if ( !rev.isEmpty() )
 			{
-				rev.remove("DISTRIB_RELEASE=");
-				rev.remove("\"");
+				rev.remove( "DISTRIB_RELEASE=" );
+				rev.remove( "\"" );
 			}
 			QString errorStr = process.readAllStandardError();
 
-			process.start("sh -c \"cat /etc/lsb-release | grep --max-count=1 DISTRIB_CODENAME=\"");
-			result = process.waitForFinished(1000);
+			process.start( "sh -c \"cat /etc/lsb-release | grep --max-count=1 DISTRIB_CODENAME=\"" );
+			result = process.waitForFinished( 1000 );
 			pseudoname = process.readAllStandardOutput().trimmed();
 			qDebug() << "pseudoname:" << pseudoname;
-			if(!pseudoname.isEmpty())
+			if ( !pseudoname.isEmpty() )
 			{
-				pseudoname.remove("DISTRIB_CODENAME=");
-				pseudoname.remove("\"");
+				pseudoname.remove( "DISTRIB_CODENAME=" );
+				pseudoname.remove( "\"" );
 			}
-	   }
-			else if ( QFile::exists("/etc/debian_version") ) {
+		}
+		else if ( QFile::exists( "/etc/debian_version" ) )
+		{
 			dist = "Debian";
 
-			process.start("cat /etc/debian_version");
-			result = process.waitForFinished(1000);
+			process.start( "cat /etc/debian_version" );
+			result = process.waitForFinished( 1000 );
 			dist += process.readAllStandardOutput().trimmed();
 
 			rev = "";
 		}
 
-		if ( QFile::exists("/etc/UnitedLinux-release") ) {
-			process.start("sh -c \"cat /etc/UnitedLinux-release | grep --max-count=1 \"VERSION = \"\"");
-			result = process.waitForFinished(1000);
+		if ( QFile::exists( "/etc/UnitedLinux-release" ) )
+		{
+			process.start( "sh -c \"cat /etc/UnitedLinux-release | grep --max-count=1 \"VERSION = \"\"" );
+			result = process.waitForFinished( 1000 );
 			dist += process.readAllStandardOutput().trimmed();
-			if(!dist.isEmpty())
+			if ( !dist.isEmpty() )
 			{
-				dist.remove("VERSION = ");
-				dist.remove("\"");
+				dist.remove( "VERSION = " );
+				dist.remove( "\"" );
 			}
 		}
 
 
-		if ( QFile::exists("/etc/os-release") ) { //This file makes distribution identification much easier.
-			process.start("sh -c \"cat /etc/os-release | grep --max-count=1 PRETTY_NAME=\"");
-			result = process.waitForFinished(1000);
+		if ( QFile::exists( "/etc/os-release" ) ) //This file makes distribution identification much easier.
+		{
+			process.start( "sh -c \"cat /etc/os-release | grep --max-count=1 PRETTY_NAME=\"" );
+			result = process.waitForFinished( 1000 );
 			QString distname = process.readAllStandardOutput().trimmed();
-			if(!distname.isEmpty())
+			if ( !distname.isEmpty() )
 			{
-				distname.remove("PRETTY_NAME=");
-				distname.remove("\"");
+				distname.remove( "PRETTY_NAME=" );
+				distname.remove( "\"" );
 
 				dist = distname;
 				pseudoname = "";
@@ -747,16 +773,24 @@ QString CQuazaaSysInfo::osVersionToString()
 		}
 
 		operatingSystemString = os;
-		if(!dist.isEmpty())
-			operatingSystemString.append(" " + dist);
-		if(!rev.isEmpty())
-			operatingSystemString.append(" " + rev);
-		operatingSystemString.append(" (");
-		if(!pseudoname.isEmpty())
-			operatingSystemString.append(pseudoname + " ");
-		if(!kernel.isEmpty())
-			operatingSystemString.append(kernel + " ");
-		operatingSystemString.append(mach + ")");
+		if ( !dist.isEmpty() )
+		{
+			operatingSystemString.append( " " + dist );
+		}
+		if ( !rev.isEmpty() )
+		{
+			operatingSystemString.append( " " + rev );
+		}
+		operatingSystemString.append( " (" );
+		if ( !pseudoname.isEmpty() )
+		{
+			operatingSystemString.append( pseudoname + " " );
+		}
+		if ( !kernel.isEmpty() )
+		{
+			operatingSystemString.append( kernel + " " );
+		}
+		operatingSystemString.append( mach + ")" );
 	}
 #endif
 
@@ -766,363 +800,371 @@ QString CQuazaaSysInfo::osVersionToString()
 #ifdef Q_OS_WIN
 void CQuazaaSysInfo::DetectWindowsVersion()
 {
-   if(m_bOsVersionInfoEx)
-   {
-	  switch (m_osvi.dwPlatformId)
-	  {
-	  case VER_PLATFORM_WIN32s:
-		 {
+	if ( m_bOsVersionInfoEx )
+	{
+		switch ( m_osvi.dwPlatformId )
+		{
+		case VER_PLATFORM_WIN32s:
+		{
 			m_nWindowsVersion = WindowsVersion::Windows32s;
-		 }
-		 break;
+		}
+		break;
 
-		 // Test for the Windows 95 product family.
-	  case VER_PLATFORM_WIN32_WINDOWS:
-		 {
-			switch(m_osvi.dwMajorVersion)
+		// Test for the Windows 95 product family.
+		case VER_PLATFORM_WIN32_WINDOWS:
+		{
+			switch ( m_osvi.dwMajorVersion )
 			{
 			case 4:
-			   {
-				  switch(m_osvi.dwMinorVersion)
-				  {
-				  case 0:
-					 if (m_osvi.szCSDVersion[0] == 'B' || m_osvi.szCSDVersion[0] == 'C')
-						m_nWindowsVersion = WindowsVersion::Windows95OSR2;
-					 else
-						m_nWindowsVersion = WindowsVersion::Windows95;
-					 break;
-				  case 10:
-					 if (m_osvi.szCSDVersion[0] == 'A')
-						m_nWindowsVersion = WindowsVersion::Windows98SE;
-					 else
-						m_nWindowsVersion = WindowsVersion::Windows98;
-					 break;
-				  case 90:
-					 m_nWindowsVersion = WindowsVersion::WindowsMillennium;
-					 break;
-				  }
-			   }
-			   break;
-			}
-		 }
-		 break;
-
-		 // Test for the Windows NT product family.
-	  case VER_PLATFORM_WIN32_NT:
-		 {
-			switch (m_osvi.dwMajorVersion)
 			{
-			case 3:
-			   m_nWindowsVersion = WindowsVersion::WindowsNT351;
-			   break;
-
-			case 4:
-			   switch (m_osvi.wProductType)
-			   {
-			   case 1:
-				  m_nWindowsVersion = WindowsVersion::WindowsNT40;
-				  break;
-			   case 3:
-				  m_nWindowsVersion = WindowsVersion::WindowsNT40Server;
-				  break;
-			   }
-			   break;
-
-			case 5:
-			   {
-				  switch (m_osvi.dwMinorVersion)
-				  {
-				  case 0:
-					 m_nWindowsVersion = WindowsVersion::Windows2000;
-					 break;
-				  case 1:
-					 m_nWindowsVersion = WindowsVersion::WindowsXP;
-					 break;
-				  case 2:
-					 {
-						if (m_osvi.wSuiteMask == VER_SUITE_WH_SERVER)
-						{
-						   m_nWindowsVersion = WindowsVersion::WindowsHomeServer;
-						}
-						else if (m_osvi.wProductType == VER_NT_WORKSTATION &&
-						   m_SysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
-						{
-						   m_nWindowsVersion = WindowsVersion::WindowsXPProfessionalx64;
-						}
-						else
-						{
-						   m_nWindowsVersion = ::GetSystemMetrics(SM_SERVERR2) == 0 ?
-						   WindowsVersion::WindowsServer2003 :
-						   WindowsVersion::WindowsServer2003R2;
-						}
-					 }
-					 break;
-				  }
-
-			   }
-			   break;
-
-			case 6:
-			   {
-				  switch (m_osvi.dwMinorVersion)
-				  {
-				  case 0:
-					 {
-						m_nWindowsVersion = m_osvi.wProductType == VER_NT_WORKSTATION ?
-						WindowsVersion::WindowsVista :
-						WindowsVersion::WindowsServer2008;
-					 }
-					 break;
-
-				  case 1:
-					 {
-						m_nWindowsVersion = m_osvi.wProductType == VER_NT_WORKSTATION ?
-						WindowsVersion::Windows7 :
-						WindowsVersion::WindowsServer2008R2;
-					 }
-					 break;
-
-				  case 2:
+				switch ( m_osvi.dwMinorVersion )
+				{
+				case 0:
+					if ( m_osvi.szCSDVersion[0] == 'B' || m_osvi.szCSDVersion[0] == 'C' )
 					{
-						m_nWindowsVersion = m_osvi.wProductType == VER_NT_WORKSTATION ?
-						WindowsVersion::Windows8 :
-						WindowsVersion::WindowsServer2012;
+						m_nWindowsVersion = WindowsVersion::Windows95OSR2;
+					}
+					else
+					{
+						m_nWindowsVersion = WindowsVersion::Windows95;
 					}
 					break;
-				  }
-			   }
-			   break;
+				case 10:
+					if ( m_osvi.szCSDVersion[0] == 'A' )
+					{
+						m_nWindowsVersion = WindowsVersion::Windows98SE;
+					}
+					else
+					{
+						m_nWindowsVersion = WindowsVersion::Windows98;
+					}
+					break;
+				case 90:
+					m_nWindowsVersion = WindowsVersion::WindowsMillennium;
+					break;
+				}
 			}
-		 }
-		 break;
-	  }
-   }
-   else // Test for specific product on Windows NT 4.0 SP5 and earlier
-   {
-	  QSettings registry("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\ProductOptions",QSettings::NativeFormat);
-	  QString sProductType;
+			break;
+			}
+		}
+		break;
+
+		// Test for the Windows NT product family.
+		case VER_PLATFORM_WIN32_NT:
+		{
+			switch ( m_osvi.dwMajorVersion )
+			{
+			case 3:
+				m_nWindowsVersion = WindowsVersion::WindowsNT351;
+				break;
+
+			case 4:
+				switch ( m_osvi.wProductType )
+				{
+				case 1:
+					m_nWindowsVersion = WindowsVersion::WindowsNT40;
+					break;
+				case 3:
+					m_nWindowsVersion = WindowsVersion::WindowsNT40Server;
+					break;
+				}
+				break;
+
+			case 5:
+			{
+				switch ( m_osvi.dwMinorVersion )
+				{
+				case 0:
+					m_nWindowsVersion = WindowsVersion::Windows2000;
+					break;
+				case 1:
+					m_nWindowsVersion = WindowsVersion::WindowsXP;
+					break;
+				case 2:
+				{
+					if ( m_osvi.wSuiteMask == VER_SUITE_WH_SERVER )
+					{
+						m_nWindowsVersion = WindowsVersion::WindowsHomeServer;
+					}
+					else if ( m_osvi.wProductType == VER_NT_WORKSTATION &&
+							  m_SysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 )
+					{
+						m_nWindowsVersion = WindowsVersion::WindowsXPProfessionalx64;
+					}
+					else
+					{
+						m_nWindowsVersion = ::GetSystemMetrics( SM_SERVERR2 ) == 0 ?
+											WindowsVersion::WindowsServer2003 :
+											WindowsVersion::WindowsServer2003R2;
+					}
+				}
+				break;
+				}
+
+			}
+			break;
+
+			case 6:
+			{
+				switch ( m_osvi.dwMinorVersion )
+				{
+				case 0:
+				{
+					m_nWindowsVersion = m_osvi.wProductType == VER_NT_WORKSTATION ?
+										WindowsVersion::WindowsVista :
+										WindowsVersion::WindowsServer2008;
+				}
+				break;
+
+				case 1:
+				{
+					m_nWindowsVersion = m_osvi.wProductType == VER_NT_WORKSTATION ?
+										WindowsVersion::Windows7 :
+										WindowsVersion::WindowsServer2008R2;
+				}
+				break;
+
+				case 2:
+				{
+					m_nWindowsVersion = m_osvi.wProductType == VER_NT_WORKSTATION ?
+										WindowsVersion::Windows8 :
+										WindowsVersion::WindowsServer2012;
+				}
+				break;
+				}
+			}
+			break;
+			}
+		}
+		break;
+		}
+	}
+	else // Test for specific product on Windows NT 4.0 SP5 and earlier
+	{
+		QSettings registry( "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\ProductOptions", QSettings::NativeFormat );
+		QString sProductType;
 
 
-	  sProductType = registry.value("ProductType").toString();
-	  sProductType = sProductType.toUpper();
+		sProductType = registry.value( "ProductType" ).toString();
+		sProductType = sProductType.toUpper();
 
-	  if ( sProductType == "WINNT" )
-	  {
-		 if ( m_osvi.dwMajorVersion <= 4 )
-		 {
-			m_nWindowsVersion = WindowsVersion::WindowsNT40;
-			m_nWindowsEdition = WindowsEdition::Workstation;
-		 }
-	  }
-	  if ( sProductType == "LANMANNT" )
-	  {
-		 if ( m_osvi.dwMajorVersion == 5 && m_osvi.dwMinorVersion == 2 )
-		 {
-			m_nWindowsVersion = WindowsVersion::WindowsServer2003;
-		 }
+		if ( sProductType == "WINNT" )
+		{
+			if ( m_osvi.dwMajorVersion <= 4 )
+			{
+				m_nWindowsVersion = WindowsVersion::WindowsNT40;
+				m_nWindowsEdition = WindowsEdition::Workstation;
+			}
+		}
+		if ( sProductType == "LANMANNT" )
+		{
+			if ( m_osvi.dwMajorVersion == 5 && m_osvi.dwMinorVersion == 2 )
+			{
+				m_nWindowsVersion = WindowsVersion::WindowsServer2003;
+			}
 
-		 if ( m_osvi.dwMajorVersion == 5 && m_osvi.dwMinorVersion == 0 )
-		 {
-			m_nWindowsVersion = WindowsVersion::Windows2000;
-			m_nWindowsEdition = WindowsEdition::Server;
-		 }
+			if ( m_osvi.dwMajorVersion == 5 && m_osvi.dwMinorVersion == 0 )
+			{
+				m_nWindowsVersion = WindowsVersion::Windows2000;
+				m_nWindowsEdition = WindowsEdition::Server;
+			}
 
-		 if ( m_osvi.dwMajorVersion <= 4 )
-		 {
-			m_nWindowsVersion = WindowsVersion::WindowsNT40;
-			m_nWindowsEdition = WindowsEdition::Server;
-		 }
-	  }
-	  if ( sProductType == "SERVERNT" )
-	  {
-		 if ( m_osvi.dwMajorVersion == 5 && m_osvi.dwMinorVersion == 2 )
-		 {
-			m_nWindowsVersion = WindowsVersion::WindowsServer2003;
-			m_nWindowsEdition = WindowsEdition::EnterpriseServer;
-		 }
+			if ( m_osvi.dwMajorVersion <= 4 )
+			{
+				m_nWindowsVersion = WindowsVersion::WindowsNT40;
+				m_nWindowsEdition = WindowsEdition::Server;
+			}
+		}
+		if ( sProductType == "SERVERNT" )
+		{
+			if ( m_osvi.dwMajorVersion == 5 && m_osvi.dwMinorVersion == 2 )
+			{
+				m_nWindowsVersion = WindowsVersion::WindowsServer2003;
+				m_nWindowsEdition = WindowsEdition::EnterpriseServer;
+			}
 
-		 if ( m_osvi.dwMajorVersion == 5 && m_osvi.dwMinorVersion == 0 )
-		 {
-			m_nWindowsVersion = WindowsVersion::Windows2000;
-			m_nWindowsEdition = WindowsEdition::AdvancedServer;
-		 }
+			if ( m_osvi.dwMajorVersion == 5 && m_osvi.dwMinorVersion == 0 )
+			{
+				m_nWindowsVersion = WindowsVersion::Windows2000;
+				m_nWindowsEdition = WindowsEdition::AdvancedServer;
+			}
 
-		 if ( m_osvi.dwMajorVersion <= 4 )
-		 {
-			m_nWindowsVersion = WindowsVersion::WindowsNT40;
-			m_nWindowsEdition = WindowsEdition::EnterpriseServer;
-		 }
-	  }
-   }
+			if ( m_osvi.dwMajorVersion <= 4 )
+			{
+				m_nWindowsVersion = WindowsVersion::WindowsNT40;
+				m_nWindowsEdition = WindowsEdition::EnterpriseServer;
+			}
+		}
+	}
 }
 
 void CQuazaaSysInfo::DetectWindowsEdition()
 {
-   if(m_bOsVersionInfoEx)
-   {
-	  switch(m_osvi.dwMajorVersion)
-	  {
-	  case 4:
-		 {
-			switch(m_osvi.wProductType)
+	if ( m_bOsVersionInfoEx )
+	{
+		switch ( m_osvi.dwMajorVersion )
+		{
+		case 4:
+		{
+			switch ( m_osvi.wProductType )
 			{
 			case VER_NT_WORKSTATION:
-			   m_nWindowsEdition = WindowsEdition::Workstation;
-			   break;
+				m_nWindowsEdition = WindowsEdition::Workstation;
+				break;
 
 			case VER_NT_SERVER:
-			   m_nWindowsEdition = (m_osvi.wSuiteMask & VER_SUITE_ENTERPRISE) != 0 ?
-				  WindowsEdition::EnterpriseServer :
-				  WindowsEdition::StandardServer;
-			   break;
+				m_nWindowsEdition = ( m_osvi.wSuiteMask & VER_SUITE_ENTERPRISE ) != 0 ?
+									WindowsEdition::EnterpriseServer :
+									WindowsEdition::StandardServer;
+				break;
 			}
-		 }
-		 break;
+		}
+		break;
 
-	  case 5:
-		 {
-			switch (m_osvi.wProductType)
+		case 5:
+		{
+			switch ( m_osvi.wProductType )
 			{
 			case VER_NT_WORKSTATION:
-			   {
-				  m_nWindowsEdition = (m_osvi.wSuiteMask & VER_SUITE_PERSONAL) != 0 ?
-					 WindowsEdition::Home :
-					 WindowsEdition::Professional;
-			   }
-			   break;
+			{
+				m_nWindowsEdition = ( m_osvi.wSuiteMask & VER_SUITE_PERSONAL ) != 0 ?
+									WindowsEdition::Home :
+									WindowsEdition::Professional;
+			}
+			break;
 
 			case VER_NT_SERVER:
-			   {
-				  switch(m_osvi.dwMinorVersion)
-				  {
-				  case 0:
-					 {
-						if ((m_osvi.wSuiteMask & VER_SUITE_DATACENTER) != 0)
-						{
-						   m_nWindowsEdition = WindowsEdition::DatacenterServer;
-						}
-						else if ((m_osvi.wSuiteMask & VER_SUITE_ENTERPRISE) != 0)
-						{
-						   m_nWindowsEdition = WindowsEdition::AdvancedServer;
-						}
-						else
-						{
-						   m_nWindowsEdition = WindowsEdition::Server;
-						}
-					 }
-					 break;
+			{
+				switch ( m_osvi.dwMinorVersion )
+				{
+				case 0:
+				{
+					if ( ( m_osvi.wSuiteMask & VER_SUITE_DATACENTER ) != 0 )
+					{
+						m_nWindowsEdition = WindowsEdition::DatacenterServer;
+					}
+					else if ( ( m_osvi.wSuiteMask & VER_SUITE_ENTERPRISE ) != 0 )
+					{
+						m_nWindowsEdition = WindowsEdition::AdvancedServer;
+					}
+					else
+					{
+						m_nWindowsEdition = WindowsEdition::Server;
+					}
+				}
+				break;
 
-				  default:
-					 {
-						if ((m_osvi.wSuiteMask & VER_SUITE_DATACENTER) != 0)
-						{
-						   m_nWindowsEdition = WindowsEdition::DatacenterServer;
-						}
-						else if ((m_osvi.wSuiteMask & VER_SUITE_ENTERPRISE) != 0)
-						{
-						   m_nWindowsEdition = WindowsEdition::EnterpriseServer;
-						}
-						else if ((m_osvi.wSuiteMask & VER_SUITE_BLADE) != 0)
-						{
-						   m_nWindowsEdition = WindowsEdition::WebServer;
-						}
-						else
-						{
-						   m_nWindowsEdition = WindowsEdition::StandardServer;
-						}
-					 }
-					 break;
-				  }
-			   }
-			   break;
+				default:
+				{
+					if ( ( m_osvi.wSuiteMask & VER_SUITE_DATACENTER ) != 0 )
+					{
+						m_nWindowsEdition = WindowsEdition::DatacenterServer;
+					}
+					else if ( ( m_osvi.wSuiteMask & VER_SUITE_ENTERPRISE ) != 0 )
+					{
+						m_nWindowsEdition = WindowsEdition::EnterpriseServer;
+					}
+					else if ( ( m_osvi.wSuiteMask & VER_SUITE_BLADE ) != 0 )
+					{
+						m_nWindowsEdition = WindowsEdition::WebServer;
+					}
+					else
+					{
+						m_nWindowsEdition = WindowsEdition::StandardServer;
+					}
+				}
+				break;
+				}
 			}
-		 }
-		 break;
+			break;
+			}
+		}
+		break;
 
-	  case 6:
-		 {
+		case 6:
+		{
 			DWORD dwReturnedProductType = DetectProductInfo();
-			switch (dwReturnedProductType)
+			switch ( dwReturnedProductType )
 			{
 			case PRODUCT_UNDEFINED:
-			   m_nWindowsEdition = WindowsEdition::EditionUnknown;
-			   break;
+				m_nWindowsEdition = WindowsEdition::EditionUnknown;
+				break;
 
 			case PRODUCT_ULTIMATE:
-			   m_nWindowsEdition = WindowsEdition::Ultimate;
-			   break;
+				m_nWindowsEdition = WindowsEdition::Ultimate;
+				break;
 			case PRODUCT_HOME_BASIC:
-			   m_nWindowsEdition = WindowsEdition::HomeBasic;
-			   break;
+				m_nWindowsEdition = WindowsEdition::HomeBasic;
+				break;
 			case PRODUCT_HOME_PREMIUM:
-			   m_nWindowsEdition = WindowsEdition::HomePremium;
-			   break;
+				m_nWindowsEdition = WindowsEdition::HomePremium;
+				break;
 			case PRODUCT_ENTERPRISE:
-			   m_nWindowsEdition = WindowsEdition::Enterprise;
-			   break;
+				m_nWindowsEdition = WindowsEdition::Enterprise;
+				break;
 			case PRODUCT_HOME_BASIC_N:
-			   m_nWindowsEdition = WindowsEdition::HomeBasicN;
-			   break;
+				m_nWindowsEdition = WindowsEdition::HomeBasicN;
+				break;
 			case PRODUCT_BUSINESS:
-			   m_nWindowsEdition = WindowsEdition::Business;
-			   break;
+				m_nWindowsEdition = WindowsEdition::Business;
+				break;
 			case PRODUCT_STANDARD_SERVER:
-			   m_nWindowsEdition = WindowsEdition::StandardServer;
-			   break;
+				m_nWindowsEdition = WindowsEdition::StandardServer;
+				break;
 			case PRODUCT_DATACENTER_SERVER:
-			   m_nWindowsEdition = WindowsEdition::DatacenterServer;
-			   break;
+				m_nWindowsEdition = WindowsEdition::DatacenterServer;
+				break;
 			case PRODUCT_SMALLBUSINESS_SERVER:
-			   m_nWindowsEdition = WindowsEdition::SmallBusinessServer;
-			   break;
+				m_nWindowsEdition = WindowsEdition::SmallBusinessServer;
+				break;
 			case PRODUCT_ENTERPRISE_SERVER:
-			   m_nWindowsEdition = WindowsEdition::EnterpriseServer;
-			   break;
+				m_nWindowsEdition = WindowsEdition::EnterpriseServer;
+				break;
 			case PRODUCT_STARTER:
-			   m_nWindowsEdition = WindowsEdition::Starter;
-			   break;
+				m_nWindowsEdition = WindowsEdition::Starter;
+				break;
 			case PRODUCT_DATACENTER_SERVER_CORE:
-			   m_nWindowsEdition = WindowsEdition::DatacenterServerCore;
-			   break;
+				m_nWindowsEdition = WindowsEdition::DatacenterServerCore;
+				break;
 			case PRODUCT_STANDARD_SERVER_CORE:
-			   m_nWindowsEdition = WindowsEdition::StandardServerCore;
-			   break;
+				m_nWindowsEdition = WindowsEdition::StandardServerCore;
+				break;
 			case PRODUCT_ENTERPRISE_SERVER_CORE:
-			   m_nWindowsEdition = WindowsEdition::EnterpriseServerCore;
-			   break;
+				m_nWindowsEdition = WindowsEdition::EnterpriseServerCore;
+				break;
 			case PRODUCT_ENTERPRISE_SERVER_IA64:
-			   m_nWindowsEdition = WindowsEdition::EnterpriseServerIA64;
-			   break;
+				m_nWindowsEdition = WindowsEdition::EnterpriseServerIA64;
+				break;
 			case PRODUCT_BUSINESS_N:
-			   m_nWindowsEdition = WindowsEdition::BusinessN;
-			   break;
+				m_nWindowsEdition = WindowsEdition::BusinessN;
+				break;
 			case PRODUCT_WEB_SERVER:
-			   m_nWindowsEdition = WindowsEdition::WebServer;
-			   break;
+				m_nWindowsEdition = WindowsEdition::WebServer;
+				break;
 			case PRODUCT_CLUSTER_SERVER:
-			   m_nWindowsEdition = WindowsEdition::ClusterServer;
-			   break;
+				m_nWindowsEdition = WindowsEdition::ClusterServer;
+				break;
 			case PRODUCT_HOME_SERVER:
-			   m_nWindowsEdition = WindowsEdition::HomeServer;
-			   break;
+				m_nWindowsEdition = WindowsEdition::HomeServer;
+				break;
 			case PRODUCT_STORAGE_EXPRESS_SERVER:
-			   m_nWindowsEdition = WindowsEdition::StorageExpressServer;
-			   break;
+				m_nWindowsEdition = WindowsEdition::StorageExpressServer;
+				break;
 			case PRODUCT_STORAGE_STANDARD_SERVER:
-			   m_nWindowsEdition = WindowsEdition::StorageStandardServer;
-			   break;
+				m_nWindowsEdition = WindowsEdition::StorageStandardServer;
+				break;
 			case PRODUCT_STORAGE_WORKGROUP_SERVER:
-			   m_nWindowsEdition = WindowsEdition::StorageWorkgroupServer;
-			   break;
+				m_nWindowsEdition = WindowsEdition::StorageWorkgroupServer;
+				break;
 			case PRODUCT_STORAGE_ENTERPRISE_SERVER:
-			   m_nWindowsEdition = WindowsEdition::StorageEnterpriseServer;
-			   break;
+				m_nWindowsEdition = WindowsEdition::StorageEnterpriseServer;
+				break;
 			case PRODUCT_SERVER_FOR_SMALLBUSINESS:
-			   m_nWindowsEdition = WindowsEdition::ServerForSmallBusiness;
-			   break;
+				m_nWindowsEdition = WindowsEdition::ServerForSmallBusiness;
+				break;
 			case PRODUCT_SMALLBUSINESS_SERVER_PREMIUM:
-			   m_nWindowsEdition = WindowsEdition::SmallBusinessServerPremium;
-			   break;
+				m_nWindowsEdition = WindowsEdition::SmallBusinessServerPremium;
+				break;
 			case PRODUCT_HOME_PREMIUM_N:
 				m_nWindowsEdition = WindowsEdition::HomePremiumN;
 				break;
@@ -1298,42 +1340,42 @@ void CQuazaaSysInfo::DetectWindowsEdition()
 				m_nWindowsEdition = WindowsEdition::ProfessionalWindowsMediaCenter;
 				break;
 			}
-		 }
-		 break;
-	  }
-   }
+		}
+		break;
+		}
+	}
 }
 
 void CQuazaaSysInfo::DetectWindowsServicePack()
 {
 	// Display service pack (if any) and build number.
 
-	if( m_osvi.dwMajorVersion == 4 &&
-		   lstrcmpi( m_osvi.szCSDVersion, L"Service Pack 6" ) == 0 )
+	if ( m_osvi.dwMajorVersion == 4 &&
+		 lstrcmpi( m_osvi.szCSDVersion, L"Service Pack 6" ) == 0 )
 	{
-		QSettings registry("HKEY_LOCAL_MACHINE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix", QSettings::NativeFormat);
+		QSettings registry( "HKEY_LOCAL_MACHINE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix", QSettings::NativeFormat );
 
 		// Test for SP6 versus SP6a.
-		if( registry.childGroups().contains("Q246009"))
+		if ( registry.childGroups().contains( "Q246009" ) )
 		{
-			sprintf(m_sServicePack, "Service Pack 6a (Build %lu)", m_osvi.dwBuildNumber & 0xFFFF );
+			sprintf( m_sServicePack, "Service Pack 6a (Build %lu)", m_osvi.dwBuildNumber & 0xFFFF );
 		}
 		else // Windows NT 4.0 prior to SP6a
 		{
 			char* sCSDVersion = new char[128];
-			wcstombs(sCSDVersion, m_osvi.szCSDVersion, sizeof(m_osvi.szCSDVersion));
-			sprintf(m_sServicePack, "%s (Build %lu)",
-				sCSDVersion,
-				m_osvi.dwBuildNumber & 0xFFFF);
+			wcstombs( sCSDVersion, m_osvi.szCSDVersion, sizeof( m_osvi.szCSDVersion ) );
+			sprintf( m_sServicePack, "%s (Build %lu)",
+					 sCSDVersion,
+					 m_osvi.dwBuildNumber & 0xFFFF );
 		}
 	}
 	else // Windows NT 3.51 and earlier or Windows 2000 and later
 	{
 		char* sCSDVersion = new char[128];
-		wcstombs(sCSDVersion, m_osvi.szCSDVersion, sizeof(m_osvi.szCSDVersion));
-		sprintf(m_sServicePack, "%s (Build %lu)",
-			sCSDVersion,
-			m_osvi.dwBuildNumber & 0xFFFF);
+		wcstombs( sCSDVersion, m_osvi.szCSDVersion, sizeof( m_osvi.szCSDVersion ) );
+		sprintf( m_sServicePack, "%s (Build %lu)",
+				 sCSDVersion,
+				 m_osvi.dwBuildNumber & 0xFFFF );
 	}
 }
 
@@ -1341,25 +1383,25 @@ DWORD CQuazaaSysInfo::DetectProductInfo()
 {
 	DWORD dwProductInfo = PRODUCT_UNDEFINED;
 
-	if (QSysInfo::windowsVersion() >= QSysInfo::WV_VISTA)
+	if ( QSysInfo::windowsVersion() >= QSysInfo::WV_VISTA )
 	{
-		if(m_osvi.dwMajorVersion >= 6)
+		if ( m_osvi.dwMajorVersion >= 6 )
 		{
-			PGetProductInfo lpProducInfo = (PGetProductInfo)GetProcAddress(
-				GetModuleHandle(L"kernel32.dll"), "GetProductInfo");
+			PGetProductInfo lpProducInfo = ( PGetProductInfo )GetProcAddress(
+											   GetModuleHandle( L"kernel32.dll" ), "GetProductInfo" );
 
-			if(0 != lpProducInfo)
+			if ( 0 != lpProducInfo )
 			{
-				lpProducInfo(m_osvi.dwMajorVersion,
-							m_osvi.dwMinorVersion,
-							m_osvi.wServicePackMajor,
-							m_osvi.wServicePackMinor,
-							&dwProductInfo);
+				lpProducInfo( m_osvi.dwMajorVersion,
+							  m_osvi.dwMinorVersion,
+							  m_osvi.wServicePackMajor,
+							  m_osvi.wServicePackMinor,
+							  &dwProductInfo );
 			}
 		}
-   }
+	}
 
-   return dwProductInfo;
+	return dwProductInfo;
 }
 
 WindowsVersion::WindowsVersion CQuazaaSysInfo::GetWindowsVersion() const
@@ -1369,7 +1411,7 @@ WindowsVersion::WindowsVersion CQuazaaSysInfo::GetWindowsVersion() const
 
 WindowsEdition::WindowsEdition CQuazaaSysInfo::GetWindowsEdition() const
 {
-   return m_nWindowsEdition;
+	return m_nWindowsEdition;
 }
 
 bool CQuazaaSysInfo::IsNTPlatform() const
@@ -1411,10 +1453,14 @@ QString CQuazaaSysInfo::GetServicePackInfo() const
 {
 	QString servicePack = m_sServicePack;
 
-	if(servicePack.isEmpty())
+	if ( servicePack.isEmpty() )
+	{
 		return "";
+	}
 	else
+	{
 		return servicePack;
+	}
 }
 
 bool CQuazaaSysInfo::Is32bitPlatform() const
@@ -1425,8 +1471,8 @@ bool CQuazaaSysInfo::Is32bitPlatform() const
 bool CQuazaaSysInfo::Is64bitPlatform() const
 {
 	return (
-		m_SysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64 ||
-		m_SysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 ||
-		m_SysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_ALPHA64);
+			   m_SysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64 ||
+			   m_SysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 ||
+			   m_SysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_ALPHA64 );
 }
 #endif //Q_OS_WIN

@@ -45,7 +45,7 @@ struct MetaFile
 	QList<MediaURI> m_lURIs; // Includes web links, links to .torrent files, as well as Magnets.
 
 	MetaFile();
-	MetaFile(quint16 ID);
+	MetaFile( quint16 ID );
 	bool isValid() const;    // Returns true if file struct contains enough data to initialize a download.
 };
 
@@ -62,10 +62,10 @@ protected:
 	QVector<MetaFile>       m_vFiles; // Files are inerted in the order of their ID and always stay sorted.
 
 public:
-	explicit CMetalinkHandler(QFile& oFile = m_oEmptyQFile);
+	explicit CMetalinkHandler( QFile& oFile = m_oEmptyQFile );
 	virtual ~CMetalinkHandler();
 
-	virtual Download* file(const quint16& ID) const = 0;
+	virtual Download* file( const quint16& ID ) const = 0;
 	QList<Download*> files() const;
 
 	inline int size() const;

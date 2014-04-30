@@ -32,24 +32,24 @@ CNetworkType::CNetworkType() :
 	registerMetaType();
 }
 
-CNetworkType::CNetworkType(quint16 type) :
+CNetworkType::CNetworkType( quint16 type ) :
 	m_nNetworks( type )
 {
 	registerMetaType();
 }
 
-CNetworkType::CNetworkType(DiscoveryProtocol::Protocol type) :
-	m_nNetworks( (quint16)type )
+CNetworkType::CNetworkType( DiscoveryProtocol::Protocol type ) :
+	m_nNetworks( ( quint16 )type )
 {
 	registerMetaType();
 }
 
-bool CNetworkType::operator==(const CNetworkType& type) const
+bool CNetworkType::operator==( const CNetworkType& type ) const
 {
 	return ( m_nNetworks == type.m_nNetworks );
 }
 
-bool CNetworkType::operator!=(const CNetworkType& type) const
+bool CNetworkType::operator!=( const CNetworkType& type ) const
 {
 	return ( m_nNetworks != type.m_nNetworks );
 }
@@ -99,22 +99,26 @@ void CNetworkType::setEDonkey2000( bool )
 	m_nNetworks |= DiscoveryProtocol::eDonkey2000;
 }
 
-bool CNetworkType::isNetwork(const CNetworkType& type) const
+bool CNetworkType::isNetwork( const CNetworkType& type ) const
 {
 	return ( m_nNetworks & type.toQuint16() ) == type.toQuint16();
 }
 
-void CNetworkType::setNetwork(const CNetworkType& type)
+void CNetworkType::setNetwork( const CNetworkType& type )
 {
 	m_nNetworks |= type.m_nNetworks;
 }
 
 bool CNetworkType::isMulti() const
 {
-	if ( !m_nNetworks || ( m_nNetworks && !(m_nNetworks & (m_nNetworks - 1)) ) )
-		return false;	// m_nNetworks is 0 or power of 2
+	if ( !m_nNetworks || ( m_nNetworks && !( m_nNetworks & ( m_nNetworks - 1 ) ) ) )
+	{
+		return false;    // m_nNetworks is 0 or power of 2
+	}
 	else				// m_nNetworks is not 0 or a power of 2 - meaning there are at
-		return true;	// least 2 different bits set to 1 within the 16 bit uint
+	{
+		return true;    // least 2 different bits set to 1 within the 16 bit uint
+	}
 }
 
 quint16 CNetworkType::toQuint16() const

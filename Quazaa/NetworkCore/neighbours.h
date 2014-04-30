@@ -31,7 +31,7 @@ class Neighbours : public NeighboursG2
 {
 	Q_OBJECT
 public:
-	Neighbours(QObject* parent = 0);
+	Neighbours( QObject* parent = 0 );
 	virtual ~Neighbours();
 
 	void maintain();

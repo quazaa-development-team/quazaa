@@ -25,15 +25,15 @@ protected:
 	QMultiHash<void*, CTransfer*> m_lTransfers;
 
 public:
-	Transfers(QObject* parent = 0);
+	Transfers( QObject* parent = 0 );
 	~Transfers();
 	void start();
 	void stop();
 
-	void add(CTransfer* pTransfer);
-	void remove(CTransfer* pTransfer);
+	void add( CTransfer* pTransfer );
+	void remove( CTransfer* pTransfer );
 
-	QList<CTransfer*> getByOwner(void* pOwner);
+	QList<CTransfer*> getByOwner( void* pOwner );
 signals:
 
 public slots:

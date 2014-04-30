@@ -13,15 +13,15 @@ private:
 	quint32 nLockID;
 
 public:
-	CDebugRWLock(RecursionMode recursionMode = NonRecursive);
+	CDebugRWLock( RecursionMode recursionMode = NonRecursive );
 	~CDebugRWLock();
 
-	void	lockForRead(const char *caller = NULL);
-	void	lockForWrite(const char* caller = NULL);
-	bool	tryLockForRead(const char *caller = NULL);
-	bool	tryLockForRead(int timeout);
-	bool	tryLockForWrite(const char *caller = NULL);
-	bool	tryLockForWrite(int timeout);
+	void	lockForRead( const char* caller = NULL );
+	void	lockForWrite( const char* caller = NULL );
+	bool	tryLockForRead( const char* caller = NULL );
+	bool	tryLockForRead( int timeout );
+	bool	tryLockForWrite( const char* caller = NULL );
+	bool	tryLockForWrite( int timeout );
 	void	unlock();
 };
 

@@ -33,7 +33,7 @@
 ChatCore chatCore;
 CThread chatThread;
 
-ChatCore::ChatCore(QObject *parent) :
+ChatCore::ChatCore( QObject* parent ) :
 	QObject( parent ),
 	m_bActive( false )
 {
@@ -41,21 +41,25 @@ ChatCore::ChatCore(QObject *parent) :
 ChatCore::~ChatCore()
 {
 	if ( m_bActive )
+	{
 		stop();
+	}
 }
 
-void ChatCore::add(ChatSession *pSession)
+void ChatCore::add( ChatSession* pSession )
 {
 	QMutexLocker l( &m_pSection );
 
 	if ( !m_lSessions.contains( pSession ) )
+	{
 		m_lSessions.append( pSession );
+	}
 
 	start();
 
 	m_pController->addSocket( pSession );
 }
-void ChatCore::remove(ChatSession *pSession)
+void ChatCore::remove( ChatSession* pSession )
 {
 	QMutexLocker l( &m_pSection );
 
@@ -69,7 +73,9 @@ void ChatCore::remove(ChatSession *pSession)
 void ChatCore::start()
 {
 	if ( m_bActive )
+	{
 		return;
+	}
 
 	chatThread.start( "ChatCore", &m_pSection );
 	m_bActive = true;

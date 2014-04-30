@@ -25,24 +25,24 @@ class CTabWidget : public QTabWidget
 	Q_OBJECT
 
 public:
-	CTabWidget(QWidget* parent = 0);
+	CTabWidget( QWidget* parent = 0 );
 
 	QTabBar* tabBar() const;
 	QSize sizeHint() const;
 
 	enum TabRole { Active, Inactive, Alert, Highlight };
 
-	QColor tabTextColor(TabRole role) const;
-	void setTabTextColor(TabRole role, const QColor& color);
+	QColor tabTextColor( TabRole role ) const;
+	void setTabTextColor( TabRole role, const QColor& color );
 
-	bool isTabInactive(int index = -1);
-	void setTabInactive(int index, bool inactive);
+	bool isTabInactive( int index = -1 );
+	void setTabInactive( int index, bool inactive );
 
-	bool hasTabAlert(int index = -1);
-	void setTabAlert(int index, bool alert);
+	bool hasTabAlert( int index = -1 );
+	void setTabAlert( int index, bool alert );
 
-	bool hasTabHighlight(int index = -1) const;
-	void setTabHighlight(int index, bool highlight);
+	bool hasTabHighlight( int index = -1 ) const;
+	void setTabHighlight( int index, bool highlight );
 
 public slots:
 	void moveToNextTab();
@@ -52,22 +52,23 @@ public slots:
 
 signals:
 	void newTabRequested();
-	void tabMenuRequested(int index, const QPoint& pos);
-	void alertStatusChanged(bool alerted);
-	void highlightStatusChanged(bool highlighted);
+	void tabMenuRequested( int index, const QPoint& pos );
+	void alertStatusChanged( bool alerted );
+	void highlightStatusChanged( bool highlighted );
 
 protected:
-	void tabInserted(int index);
-	void tabRemoved(int index);
+	void tabInserted( int index );
+	void tabRemoved( int index );
 
 private slots:
-	void tabChanged(int index);
+	void tabChanged( int index );
 	void alertTimeout();
-	void colorizeTab(int index);
+	void colorizeTab( int index );
 	void updateTabColors();
 
 private:
-	struct TabWidgetData {
+	struct TabWidgetData
+	{
 		int previous;
 		bool updatingColors;
 		QColor currentAlertColor;

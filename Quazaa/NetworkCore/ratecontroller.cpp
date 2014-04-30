@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -34,7 +34,7 @@
 
 #include "debug_new.h"
 
-RateController::RateController(QMutex* pMutex, QObject* parent): QObject(parent)
+RateController::RateController( QMutex* pMutex, QObject* parent ): QObject( parent )
 {
 	m_bTransferSheduled = false;
 	m_nUploadLimit = std::numeric_limits<qint32>::max() / 2;
@@ -44,68 +44,69 @@ RateController::RateController(QMutex* pMutex, QObject* parent): QObject(parent)
 	m_pMutex = pMutex;
 }
 
-void RateController::addSocket(NetworkConnection* pSock)
+void RateController::addSocket( NetworkConnection* pSock )
 {
-	ASSUME_LOCK(*m_pMutex);
+	ASSUME_LOCK( *m_pMutex );
 
-	connect(pSock, SIGNAL(readyToTransfer()), this, SLOT(sheduleTransfer()));
-	pSock->setReadBufferSize(8192);
-	m_lSockets.insert(pSock);
+	connect( pSock, SIGNAL( readyToTransfer() ), this, SLOT( sheduleTransfer() ) );
+	pSock->setReadBufferSize( 8192 );
+	m_lSockets.insert( pSock );
 
-	QMetaObject::invokeMethod(this, "sheduleTransfer", Qt::QueuedConnection);
+	QMetaObject::invokeMethod( this, "sheduleTransfer", Qt::QueuedConnection );
 }
-void RateController::removeSocket(NetworkConnection* pSock)
+void RateController::removeSocket( NetworkConnection* pSock )
 {
-	ASSUME_LOCK(*m_pMutex);
+	ASSUME_LOCK( *m_pMutex );
 
-	if(m_lSockets.remove(pSock))
+	if ( m_lSockets.remove( pSock ) )
 	{
-		disconnect(pSock, SIGNAL(readyToTransfer()), this, SLOT(sheduleTransfer()));
-		pSock->setReadBufferSize(0);
+		disconnect( pSock, SIGNAL( readyToTransfer() ), this, SLOT( sheduleTransfer() ) );
+		pSock->setReadBufferSize( 0 );
 	}
 }
 void RateController::sheduleTransfer()
 {
-	if(m_bTransferSheduled)
+	if ( m_bTransferSheduled )
 	{
 		return;
 	}
 
 	m_bTransferSheduled = true;
-	QTimer::singleShot(50, this, SLOT(transfer()));
+	QTimer::singleShot( 50, this, SLOT( transfer() ) );
 }
 void RateController::transfer()
 {
 	m_bTransferSheduled = false;
 
-	QMutexLocker l(m_pMutex);
+	QMutexLocker l( m_pMutex );
 
 	qint64 nMsecs = 1000;
-	if(m_tStopWatch.isValid())
+	if ( m_tStopWatch.isValid() )
 	{
-		nMsecs = qMin(nMsecs, m_tStopWatch.elapsed());
+		nMsecs = qMin( nMsecs, m_tStopWatch.elapsed() );
 	}
 
-	qint64 nToRead = (m_nDownloadLimit * nMsecs) / 1000;
-	qint64 nToWrite = (m_nUploadLimit * nMsecs) / 1000;
+	qint64 nToRead = ( m_nDownloadLimit * nMsecs ) / 1000;
+	qint64 nToWrite = ( m_nUploadLimit * nMsecs ) / 1000;
 
-	if(nToRead == 0 && nToWrite == 0)
+	if ( nToRead == 0 && nToWrite == 0 )
 	{
 		sheduleTransfer();
 		return;
 	}
 
 	QSet<NetworkConnection*> lSockets;
-	for(QSet<NetworkConnection*>::const_iterator itSocket = m_lSockets.constBegin(); itSocket != m_lSockets.constEnd(); ++itSocket)
+	for ( QSet<NetworkConnection*>::const_iterator itSocket = m_lSockets.constBegin(); itSocket != m_lSockets.constEnd();
+		  ++itSocket )
 	{
 		NetworkConnection* pSock = *itSocket;
-		if(pSock->hasData())
+		if ( pSock->hasData() )
 		{
-			lSockets.insert(pSock);
+			lSockets.insert( pSock );
 		}
 	}
 
-	if(lSockets.isEmpty())
+	if ( lSockets.isEmpty() )
 	{
 		return;
 	}
@@ -119,42 +120,43 @@ void RateController::transfer()
 	{
 		bCanTransferMore = false;
 		bRestart = false;
-		qint64 nWriteChunk = qMax(qint64(1), nToWrite / lSockets.size());
-		qint64 nReadChunk = qMax(qint64(1), nToRead / lSockets.size());
+		qint64 nWriteChunk = qMax( qint64( 1 ), nToWrite / lSockets.size() );
+		qint64 nReadChunk = qMax( qint64( 1 ), nToRead / lSockets.size() );
 
 		quint32 nDownloaded = 0, nUploaded = 0;
 
-		for(QSet<NetworkConnection*>::iterator itSocket = lSockets.begin(); itSocket != lSockets.end() && (nToRead > 0 || nToWrite > 0);)
+		for ( QSet<NetworkConnection*>::iterator itSocket = lSockets.begin(); itSocket != lSockets.end() && ( nToRead > 0
+				|| nToWrite > 0 ); )
 		{
 			NetworkConnection* pConn = *itSocket;
 
 			bool bDataTransferred = false;
 
-			if(m_nUploadLimit * 2 > pConn->bytesToWrite())
+			if ( m_nUploadLimit * 2 > pConn->bytesToWrite() )
 			{
-				qint64 nChunkSize = qMin(qMin(nWriteChunk, nToWrite), m_nUploadLimit * 2 - pConn->bytesToWrite());
+				qint64 nChunkSize = qMin( qMin( nWriteChunk, nToWrite ), m_nUploadLimit * 2 - pConn->bytesToWrite() );
 
-				if(nChunkSize > 0)
+				if ( nChunkSize > 0 )
 				{
-					qint64 nBytesWritten = pConn->writeToNetwork(nChunkSize);
-					if(nBytesWritten > 0)
+					qint64 nBytesWritten = pConn->writeToNetwork( nChunkSize );
+					if ( nBytesWritten > 0 )
 					{
 						nToWrite -= nBytesWritten;
 						nUploaded += nBytesWritten;
 						bDataTransferred = true;
 					}
-					else if( nBytesWritten == 0 )
+					else if ( nBytesWritten == 0 )
 					{
 						bRestart = true;
 					}
 				}
 			}
 
-			qint64 nAvailable = qMin(nReadChunk, pConn->networkBytesAvailable());
-			if(nAvailable > 0)
+			qint64 nAvailable = qMin( nReadChunk, pConn->networkBytesAvailable() );
+			if ( nAvailable > 0 )
 			{
-				qint64 nReadBytes = pConn->readFromNetwork(qMin(nAvailable, nToRead));
-				if(nReadBytes > 0)
+				qint64 nReadBytes = pConn->readFromNetwork( qMin( nAvailable, nToRead ) );
+				if ( nReadBytes > 0 )
 				{
 					nToRead -= nReadBytes;
 					nDownloaded += nReadBytes;
@@ -162,25 +164,25 @@ void RateController::transfer()
 				}
 			}
 
-			if(bDataTransferred && pConn->hasData())
+			if ( bDataTransferred && pConn->hasData() )
 			{
 				bCanTransferMore = true;
 			}
 			else
 			{
-				itSocket = lSockets.erase(itSocket);
+				itSocket = lSockets.erase( itSocket );
 				continue;
 			}
 
 			++itSocket;
 		}
 
-		m_mDownload.add(nDownloaded);
-		m_mUpload.add(nUploaded);
+		m_mDownload.add( nDownloaded );
+		m_mUpload.add( nUploaded );
 	}
-	while(bCanTransferMore && (nToRead > 0 || nToWrite > 0) && !lSockets.isEmpty());
+	while ( bCanTransferMore && ( nToRead > 0 || nToWrite > 0 ) && !lSockets.isEmpty() );
 
-	if(bCanTransferMore || bRestart || nToRead == 0 || nToWrite == 0)
+	if ( bCanTransferMore || bRestart || nToRead == 0 || nToWrite == 0 )
 	{
 		sheduleTransfer();
 	}

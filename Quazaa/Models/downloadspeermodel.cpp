@@ -24,63 +24,63 @@
 
 #include "downloadstreemodel.h"
 
-CDownloadsPeerModel::CDownloadsPeerModel(QObject *parent) :
-	QSortFilterProxyModel(parent)
+CDownloadsPeerModel::CDownloadsPeerModel( QObject* parent ) :
+	QSortFilterProxyModel( parent )
 {
 }
 
-QVariant CDownloadsPeerModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant CDownloadsPeerModel::headerData( int section, Qt::Orientation orientation, int role ) const
 {
-	if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
+	if ( orientation == Qt::Horizontal && role == Qt::DisplayRole )
 	{
-		switch(section)
+		switch ( section )
 		{
 		case CDownloadsTreeModel::NAME:
-				return tr("IP");
+			return tr( "IP" );
 			break;
 		case CDownloadsTreeModel::SIZE:
-				return tr("Size");
+			return tr( "Size" );
 			break;
 		case CDownloadsTreeModel::PROGRESS:
-				return tr("Progress");
+			return tr( "Progress" );
 			break;
 		case CDownloadsTreeModel::BANDWIDTH:
-				return tr("Bandwidth");
+			return tr( "Bandwidth" );
 			break;
 		case CDownloadsTreeModel::STATUS:
-				return tr("Status");
+			return tr( "Status" );
 			break;
 		case CDownloadsTreeModel::PRIORITY:
-				return tr("Priority");
+			return tr( "Priority" );
 			break;
 		case CDownloadsTreeModel::CLIENT:
-				return tr("Client");
+			return tr( "Client" );
 			break;
 		case CDownloadsTreeModel::COMPLETED:
-				return tr("Completed");
+			return tr( "Completed" );
 			break;
 		case CDownloadsTreeModel::COUNTRY:
-				return tr("Country");
+			return tr( "Country" );
 			break;
 		default:
-				return QVariant();
+			return QVariant();
 		}
 	}
 
 	return QVariant();
 }
 
-void CDownloadsPeerModel::setCurrentRoot(const QModelIndex &index)
+void CDownloadsPeerModel::setCurrentRoot( const QModelIndex& index )
 {
-	Q_ASSERT(index.model() == sourceModel());
+	Q_ASSERT( index.model() == sourceModel() );
 
 	m_oCurrentRoot = index;
 	invalidate();
 }
 
-bool CDownloadsPeerModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+bool CDownloadsPeerModel::filterAcceptsRow( int sourceRow, const QModelIndex& sourceParent ) const
 {
-	QModelIndex index1 = sourceModel()->index(sourceRow, 0, sourceParent);
+	QModelIndex index1 = sourceModel()->index( sourceRow, 0, sourceParent );
 
-	return (m_oCurrentRoot.isValid() && (index1 == m_oCurrentRoot || index1.parent() == m_oCurrentRoot));
+	return ( m_oCurrentRoot.isValid() && ( index1 == m_oCurrentRoot || index1.parent() == m_oCurrentRoot ) );
 }

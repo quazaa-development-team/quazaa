@@ -5,7 +5,8 @@
 #include <QTimer>
 #include <QToolButton>
 
-namespace Ui {
+namespace Ui
+{
 class MediaControls;
 }
 
@@ -14,15 +15,15 @@ class MediaControls : public QWidget
 	Q_OBJECT
 
 public:
-	explicit MediaControls(QWidget *parent = 0);
+	explicit MediaControls( QWidget* parent = 0 );
 	~MediaControls();
 
 private:
-	Ui::MediaControls *ui;
+	Ui::MediaControls* ui;
 	QTimer* m_tVolumeControl;
 
 protected:
-	void mouseMoveEvent(QMouseEvent *e);
+	void mouseMoveEvent( QMouseEvent* e );
 
 public slots:
 	QToolButton* playPauseButton();

@@ -29,21 +29,21 @@
 
 namespace Ui
 {
-	class CDialogTransferProgressTooltip;
+class CDialogTransferProgressTooltip;
 }
 
 class CDialogTransferProgressTooltip : public QDialog
 {
 	Q_OBJECT
 public:
-	CDialogTransferProgressTooltip(QWidget* parent = 0);
+	CDialogTransferProgressTooltip( QWidget* parent = 0 );
 	~CDialogTransferProgressTooltip();
-	void updateProgress(int percent, QString transferSpeed, QString timeRemaining, QString volumeDownloaded,
-						QString numberSources, QPixmap icon, QString file, QString size, QString type,
-						QStringList hashes);
+	void updateProgress( int percent, QString transferSpeed, QString timeRemaining, QString volumeDownloaded,
+						 QString numberSources, QPixmap icon, QString file, QString size, QString type,
+						 QStringList hashes );
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CDialogTransferProgressTooltip* ui;

@@ -32,49 +32,54 @@
 
 #include "debug_new.h"
 
-NeighboursRouting::NeighboursRouting(QObject* parent) :
-	NeighboursBase(parent)
+NeighboursRouting::NeighboursRouting( QObject* parent ) :
+	NeighboursBase( parent )
 {
 }
 NeighboursRouting::~NeighboursRouting()
 {
 }
 
-void NeighboursRouting::routeQuery(QuerySharedPtr pQuery, G2Packet *pPacket, Neighbour* pFrom, bool bToHubs)
+void NeighboursRouting::routeQuery( QuerySharedPtr pQuery, G2Packet* pPacket, Neighbour* pFrom, bool bToHubs )
 {
-	quint32 tNow = time(0);
+	quint32 tNow = time( 0 );
 	quint32 nCount = 0, nHubs = 0, nLeaves = 0;
 
-	foreach ( Neighbour* pNode, m_lNodes )
+	foreach ( Neighbour * pNode, m_lNodes )
 	{
-		if( pNode != pFrom && pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2 && tNow - pNode->m_tConnected > 30 )
+		if ( pNode != pFrom && pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2
+			 && tNow - pNode->m_tConnected > 30 )
 		{
-			G2Node* pG2 = static_cast<G2Node*>(pNode);
+			G2Node* pG2 = static_cast<G2Node*>( pNode );
 
-			if( !bToHubs && pG2->m_nType == G2_HUB )
+			if ( !bToHubs && pG2->m_nType == G2_HUB )
 			{
 				continue;
 			}
 
-			if( pG2->m_pRemoteTable != 0 && pG2->m_pRemoteTable->m_bLive )
+			if ( pG2->m_pRemoteTable != 0 && pG2->m_pRemoteTable->m_bLive )
 			{
-				if( !pG2->m_pRemoteTable->checkQuery(pQuery) )
+				if ( !pG2->m_pRemoteTable->checkQuery( pQuery ) )
 				{
 					continue;
 				}
 			}
-			else if( pG2->m_nType == G2_LEAF )
+			else if ( pG2->m_nType == G2_LEAF )
 			{
 				continue;
 			}
 
-			pG2->sendPacket(pPacket, true, false);
+			pG2->sendPacket( pPacket, true, false );
 			nCount++;
 
-			if( pG2->m_nType == G2_HUB )
+			if ( pG2->m_nType == G2_HUB )
+			{
 				nHubs++;
+			}
 			else
+			{
 				nLeaves++;
+			}
 		}
 	}
 

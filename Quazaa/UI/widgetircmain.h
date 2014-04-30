@@ -38,33 +38,33 @@ class CWidgetIrcMain : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit CWidgetIrcMain(QWidget* parent = 0);
+	explicit CWidgetIrcMain( QWidget* parent = 0 );
 	~CWidgetIrcMain();
 
 	QSize sizeHint() const;
 	void saveWidget();
 
 public slots:
-	void connectTo(const QString& host = QString(), quint16 port = 6667,
-				   const QString& nick = QString(), const QString& password = QString());
-	void connectTo(const ConnectionInfo& connection);
-	void connectToImpl(const ConnectionInfo& connection);
+	void connectTo( const QString& host = QString(), quint16 port = 6667,
+					const QString& nick = QString(), const QString& password = QString() );
+	void connectTo( const ConnectionInfo& connection );
+	void connectToImpl( const ConnectionInfo& connection );
 
 protected:
-	void closeEvent(QCloseEvent* event);
-	void changeEvent(QEvent* event);
+	void closeEvent( QCloseEvent* event );
+	void changeEvent( QEvent* event );
 
 private slots:
 	void initialize();
-	void editConnection(IrcConnection* connection);
+	void editConnection( IrcConnection* connection );
 	void applySettings();
-	void highlighted(IrcMessage* message);
-	void missed(IrcMessage* message);
-	void viewAdded(MessageView* view);
-	void viewActivated(MessageView* view);
-	void closeTreeItem(SessionTreeItem* item);
-	void currentTreeItemChanged(IrcConnection* connection, const QString& view);
-	void splitterChanged(const QByteArray& state);
+	void highlighted( IrcMessage* message );
+	void missed( IrcMessage* message );
+	void viewAdded( MessageView* view );
+	void viewActivated( MessageView* view );
+	void closeTreeItem( SessionTreeItem* item );
+	void currentTreeItemChanged( IrcConnection* connection, const QString& view );
+	void splitterChanged( const QByteArray& state );
 	void updateOverlay();
 	void reconnect();
 	void addView();
@@ -76,7 +76,7 @@ private slots:
 private:
 	void createTree();
 	void createHome();
-	QString generateStyleSheet(bool dark);
+	QString generateStyleSheet( bool dark );
 
 	QSplitter* splitterIrcMain;
 	SessionTreeWidget* treeWidget;
@@ -85,7 +85,7 @@ private:
 	QShortcut* searchShortcut;
 	QPointer<Overlay> overlay;
 	SoundNotification* sound;
-	HomePage *homePage;
+	HomePage* homePage;
 };
 
 #endif // WIDGETIRCMAIN_H

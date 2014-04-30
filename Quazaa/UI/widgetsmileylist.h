@@ -28,27 +28,29 @@
 #include <QMenu>
 #include <QListWidgetItem>
 
-namespace Ui {
-	class CWidgetSmileyList;
+namespace Ui
+{
+class CWidgetSmileyList;
 }
 
-class CWidgetSmileyList : public QMenu {
+class CWidgetSmileyList : public QMenu
+{
 	Q_OBJECT
 public:
-	CWidgetSmileyList(QWidget *parent = 0);
+	CWidgetSmileyList( QWidget* parent = 0 );
 	~CWidgetSmileyList();
 
 protected:
-	void changeEvent(QEvent *e);
+	void changeEvent( QEvent* e );
 
 private:
-	Ui::CWidgetSmileyList *ui;
+	Ui::CWidgetSmileyList* ui;
 
 signals:
-	void smileyClicked(QString smiley);
+	void smileyClicked( QString smiley );
 
 private slots:
-	void on_listWidget_itemClicked(QListWidgetItem* item);
+	void on_listWidget_itemClicked( QListWidgetItem* item );
 	void setSkin();
 };
 

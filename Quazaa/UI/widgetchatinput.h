@@ -35,46 +35,48 @@
 
 #include "network.h"
 
-namespace Ui {
-	class CWidgetChatInput;
+namespace Ui
+{
+class CWidgetChatInput;
 }
 
-class CWidgetChatInput : public QMainWindow {
+class CWidgetChatInput : public QMainWindow
+{
 	Q_OBJECT
 public:
-	CWidgetChatInput(QWidget *parent = 0, bool isIrc = false);
+	CWidgetChatInput( QWidget* parent = 0, bool isIrc = false );
 	~CWidgetChatInput();
 	CWidgetReturnEmitTextEdit* textEdit();
 	QLabel* helpLabel();
 	QLabel* lagLabel();
 
 signals:
-	void messageSent(QTextDocument *text);
-	void messageSent(QString text);
+	void messageSent( QTextDocument* text );
+	void messageSent( QString text );
 	void closing();
 
 protected:
-	void changeEvent(QEvent *e);
+	void changeEvent( QEvent* e );
 
 private:
-	Ui::CWidgetChatInput *ui;
-	QToolButton *toolButtonSmilies;
-	CWidgetSmileyList *widgetSmileyList;
+	Ui::CWidgetChatInput* ui;
+	QToolButton* toolButtonSmilies;
+	CWidgetSmileyList* widgetSmileyList;
 	QColor defaultColor;
-	QToolButton *toolButtonPickColor;
-	QLabel *labelLag;
+	QToolButton* toolButtonPickColor;
+	QLabel* labelLag;
 	bool bIsIrc;
 
 public slots:
-	void setText(QString text);
-	void setLag(qint64 lag);
+	void setText( QString text );
+	void setLag( qint64 lag );
 
 private slots:
-	void on_actionUnderline_toggled(bool checked);
-	void on_actionItalic_toggled(bool checked);
-	void on_actionBold_toggled(bool checked);
+	void on_actionUnderline_toggled( bool checked );
+	void on_actionItalic_toggled( bool checked );
+	void on_actionBold_toggled( bool checked );
 	void on_toolButtonSend_clicked();
-	void onTextFormatChange(QTextCharFormat newFormat);
+	void onTextFormatChange( QTextCharFormat newFormat );
 	void pickColor();
 	void updateToolbar();
 	void applySettings();

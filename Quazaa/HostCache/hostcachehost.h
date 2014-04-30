@@ -57,38 +57,77 @@ protected:
 	static bool                 m_bShutDownFlag;
 
 public:
-	HostCacheHost(const EndPoint& oAddress, const quint8 nFailures,
-				  const quint32 tTimestamp,  const quint32 tLastConnect);
+	HostCacheHost( const EndPoint& oAddress, const quint8 nFailures,
+				   const quint32 tTimestamp,  const quint32 tLastConnect );
 	virtual ~HostCacheHost();
 
 private:
-	HostCacheHost(const HostCacheHost&) { Q_ASSERT( false ); } // avoid unintentional copies
+	HostCacheHost( const HostCacheHost& )
+	{
+		Q_ASSERT( false );    // avoid unintentional copies
+	}
 
 public:
-	virtual bool canQuery(const quint32) const { return true; }
+	virtual bool canQuery( const quint32 ) const
+	{
+		return true;
+	}
 
-	static HostCacheHost* load(QDataStream& fsFile, quint32 tNow);
-	virtual void save(QDataStream& fsFile);
+	static HostCacheHost* load( QDataStream& fsFile, quint32 tNow );
+	virtual void save( QDataStream& fsFile );
 
-	inline DiscoveryProtocol::Protocol type() const { return m_nType; }
+	inline DiscoveryProtocol::Protocol type() const
+	{
+		return m_nType;
+	}
 
-	inline EndPoint address()       const { return m_oAddress;       }
-	inline quint32   timestamp()     const { return m_tTimeStamp;     }
-	inline quint32   id()            const { return m_nID;            }
-	inline quint32   lastConnect()   const { return m_tLastConnect;   }
-	inline quint8    failures()      const { return m_nFailures;      }
-	inline bool      connectable()   const { return m_bConnectable;   }
+	inline EndPoint address()       const
+	{
+		return m_oAddress;
+	}
+	inline quint32   timestamp()     const
+	{
+		return m_tTimeStamp;
+	}
+	inline quint32   id()            const
+	{
+		return m_nID;
+	}
+	inline quint32   lastConnect()   const
+	{
+		return m_tLastConnect;
+	}
+	inline quint8    failures()      const
+	{
+		return m_nFailures;
+	}
+	inline bool      connectable()   const
+	{
+		return m_bConnectable;
+	}
 
 	// There is no setTimestamp() as the timestamp needs to be maintained by the Host Cache.
 	// The same goes for failures and the GUI ID.
-	inline void      setAddress(     EndPoint oAddress     ) { m_oAddress     = oAddress;     }
-	inline void      setLastConnect( quint32   tLastConnect ) { m_tLastConnect = tLastConnect; }
+	inline void      setAddress(     EndPoint oAddress     )
+	{
+		m_oAddress     = oAddress;
+	}
+	inline void      setLastConnect( quint32   tLastConnect )
+	{
+		m_tLastConnect = tLastConnect;
+	}
 
 	// Important: setConnectable() is only to be used by maintain(), else the connectables counter
 	// is messed up.
-	inline void      setConnectable( bool      bConnectable ) { m_bConnectable = bConnectable; }
+	inline void      setConnectable( bool      bConnectable )
+	{
+		m_bConnectable = bConnectable;
+	}
 
-	inline static void setShutDownFlag() { m_bShutDownFlag = true; }
+	inline static void setShutDownFlag()
+	{
+		m_bShutDownFlag = true;
+	}
 };
 
 typedef QSharedPointer<HostCacheHost> SharedHostPtr;
@@ -119,10 +158,10 @@ public:
 	//QString         m_sUserAgent;
 	//QIcon           m_iNetwork;
 
-	HostData(SharedHostPtr pHost);
-	bool update(int row, int col, QModelIndexList& to_update, HostCacheTableModel* model);
-	QVariant data(int col) const;
-	bool lessThan(int col, HostData* pOther) const;
+	HostData( SharedHostPtr pHost );
+	bool update( int row, int col, QModelIndexList& to_update, HostCacheTableModel* model );
+	QVariant data( int col ) const;
+	bool lessThan( int col, HostData* pOther ) const;
 };
 
 #endif // HOSTCACHEHOST_H

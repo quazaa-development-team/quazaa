@@ -25,14 +25,14 @@
 #include "searchsortfilterproxymodel.h"
 #include "searchtreemodel.h"
 
-SearchSortFilterProxyModel::SearchSortFilterProxyModel(QObject *parent) :
+SearchSortFilterProxyModel::SearchSortFilterProxyModel( QObject* parent ) :
 	QSortFilterProxyModel( parent )
 {
 	setDynamicSortFilter( false );
 }
 
-bool SearchSortFilterProxyModel::filterAcceptsRow(int sourceRow,
-												  const QModelIndex& sourceParent) const
+bool SearchSortFilterProxyModel::filterAcceptsRow( int sourceRow,
+												   const QModelIndex& sourceParent ) const
 {
 	if ( sourceParent.isValid() )
 	{
@@ -43,7 +43,7 @@ bool SearchSortFilterProxyModel::filterAcceptsRow(int sourceRow,
 	}
 	else // parent is top level/root item
 	{
-		return ((SearchTreeModel*)sourceModel())->fileVisible( sourceRow );
+		return ( ( SearchTreeModel* )sourceModel() )->fileVisible( sourceRow );
 	}
 }
 

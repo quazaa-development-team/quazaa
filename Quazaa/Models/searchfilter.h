@@ -62,10 +62,10 @@ struct FilterControlData
 	bool m_bUnstableAllowed;        // unstable hits/sources
 
 	FilterControlData();
-	FilterControlData(const FilterControlData& other);
+	FilterControlData( const FilterControlData& other );
 
-	bool operator==(const FilterControlData& rOther);
-	bool operator!=(const FilterControlData& rOther);
+	bool operator==( const FilterControlData& rOther );
+	bool operator!=( const FilterControlData& rOther );
 };
 
 class FilterControl
@@ -97,32 +97,32 @@ public:
 	bool operator<(const FilterControl& rOther);
 	bool operator>(const FilterControl& rOther);*/
 
-	void add(SearchTreeItem* pItem);
-	void remove(SearchTreeItem* pItem);
+	void add( SearchTreeItem* pItem );
+	void remove( SearchTreeItem* pItem );
 
 	void clear();
 
-	void update(const FilterControlData& rControlData);
+	void update( const FilterControlData& rControlData );
 
 	FilterControlData* getDataCopy() const;
 
 private:
-	void filterHits(const FilterControlData& rControlData);
+	void filterHits( const FilterControlData& rControlData );
 
-	void analyseFilter(const QString& sNewMatchString,
-					   QStringList& lNewWords, QStringList& lRemovedWords) const;
-	void separateFilter(const QStringList& lWords, QStringList& lMustHaveWords,
-						QStringList& lMustNotHaveWords) const;
+	void analyseFilter( const QString& sNewMatchString,
+						QStringList& lNewWords, QStringList& lRemovedWords ) const;
+	void separateFilter( const QStringList& lWords, QStringList& lMustHaveWords,
+						 QStringList& lMustNotHaveWords ) const;
 
-	void applyStringFilter(HitList& lHits, const QStringList& lMustHaveWords,
-						   const QStringList& lMustNotHaveWords) const;
+	void applyStringFilter( HitList& lHits, const QStringList& lMustHaveWords,
+							const QStringList& lMustNotHaveWords ) const;
 
-	bool matchStringFilter(SearchHit* pHit, const QStringList& lMustHaveWords,
-								  const QStringList& lMustNotHaveWords) const;
+	bool matchStringFilter( SearchHit* pHit, const QStringList& lMustHaveWords,
+							const QStringList& lMustNotHaveWords ) const;
 
-	void applyRegExpFilter(const QString& sRegExp);
+	void applyRegExpFilter( const QString& sRegExp );
 
-	void filterFiles(const FilterControlData& rControlData);
+	void filterFiles( const FilterControlData& rControlData );
 
 	friend class HitFilter;
 	friend class FileFilter;
@@ -145,10 +145,10 @@ struct FileFilterData
 	bool m_bSuspicious      : 1; // There is a suspicious hit
 	bool m_bUnstable        : 1; // All sources are unstable
 
-	FileFilterData(const SearchHit* const pHit);
-	void initialize(const SearchHit* const pHit);
-	void addDataSet(const HitFilterData& hitData);
-	void refresh(const SearchFile* const pThisFile);
+	FileFilterData( const SearchHit* const pHit );
+	void initialize( const SearchHit* const pHit );
+	void addDataSet( const HitFilterData& hitData );
+	void refresh( const SearchFile* const pThisFile );
 };
 
 struct HitFilterData
@@ -163,7 +163,7 @@ struct HitFilterData
 	bool m_bSuspicious      : 1; // Hit is flagged as being suspicious
 	bool m_bUnstable        : 1; // Source is unstable
 
-	HitFilterData(const QueryHit* const pHit);
+	HitFilterData( const QueryHit* const pHit );
 };
 
 struct FileFilterState
@@ -214,10 +214,10 @@ public:
 	FileFilterData  m_oFileFilterData;
 	FileFilterState m_oFileFilterState;
 
-	FileFilter(SearchHit* pHit);
-	void initializeFilterState(const FilterControl& rControl);
+	FileFilter( SearchHit* pHit );
+	void initializeFilterState( const FilterControl& rControl );
 
-	void updateBoolState(const FilterControlData& rControlData);
+	void updateBoolState( const FilterControlData& rControlData );
 
 	bool updateVisible();
 };
@@ -230,10 +230,10 @@ public:
 	HitFilterData   m_oHitFilterData;
 	HitFilterState  m_oHitFilterState;
 
-	HitFilter(const QueryHit* const pHit);
-	void initializeFilterState(const FilterControl& rControl);
+	HitFilter( const QueryHit* const pHit );
+	void initializeFilterState( const FilterControl& rControl );
 
-	bool updateBoolState(const FilterControlData& rControlData);
+	bool updateBoolState( const FilterControlData& rControlData );
 };
 
 }

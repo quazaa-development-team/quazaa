@@ -42,8 +42,8 @@
 #include <QUrl>
 #include <QInputDialog>
 
-WidgetSearchTemplate::WidgetSearchTemplate(QString searchString, QWidget* parent) :
-	QWidget(parent),
+WidgetSearchTemplate::WidgetSearchTemplate( QString searchString, QWidget* parent ) :
+	QWidget( parent ),
 	ui( new Ui::WidgetSearchTemplate )
 {
 	ui->setupUi( this );
@@ -82,7 +82,7 @@ WidgetSearchTemplate::WidgetSearchTemplate(QString searchString, QWidget* parent
 	loadHeaderState();
 	connect( ui->treeViewSearchResults->header(), SIGNAL( sectionMoved( int, int, int ) ),
 			 this, SLOT( saveHeaderState() ) );
-	connect( ui->treeViewSearchResults->header(), SIGNAL( sectionResized( int,int,int) ),
+	connect( ui->treeViewSearchResults->header(), SIGNAL( sectionResized( int, int, int ) ),
 			 this, SLOT( saveHeaderState() ) );
 	connect( ui->treeViewSearchResults->header(), SIGNAL( sectionClicked( int ) ),
 			 this, SLOT( saveHeaderState() ) );
@@ -101,18 +101,18 @@ WidgetSearchTemplate::~WidgetSearchTemplate()
 	delete ui;
 }
 
-void WidgetSearchTemplate::changeEvent(QEvent* e)
+void WidgetSearchTemplate::changeEvent( QEvent* e )
 {
 	QWidget::changeEvent( e );
 
-	switch( e->type() )
+	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi( this );
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
 
-		default:
-			break;
+	default:
+		break;
 	}
 }
 
@@ -131,7 +131,7 @@ CHash* WidgetSearchTemplate::getHash()
 	{
 		if ( itemSearch->type() == SearchTreeItem::SearchFileType )
 		{
-			SearchFile* pFile = (SearchFile*)itemSearch;
+			SearchFile* pFile = ( SearchFile* )itemSearch;
 
 			Q_ASSERT( pFile->m_lHashes.size() );
 
@@ -144,7 +144,7 @@ CHash* WidgetSearchTemplate::getHash()
 		{
 			Q_ASSERT( false ); // top level node should be a SearchFile
 
-			SearchHit* pHit = (SearchHit*)itemSearch;
+			SearchHit* pHit = ( SearchHit* )itemSearch;
 
 			Q_ASSERT( pHit->m_oHitData.pQueryHit->m_lHashes.size() );
 
@@ -158,7 +158,7 @@ CHash* WidgetSearchTemplate::getHash()
 	return pReturnValue;
 }
 
-void WidgetSearchTemplate::startSearch(Query* pQuery)
+void WidgetSearchTemplate::startSearch( Query* pQuery )
 {
 	if ( m_pSearch && m_pSearch->m_pQuery != pQuery )
 	{
@@ -233,7 +233,7 @@ QModelIndex WidgetSearchTemplate::currentItem()
  * results.
  * @param rData The new search filter data.
  */
-void WidgetSearchTemplate::filter(const SearchFilter::FilterControlData& rData)
+void WidgetSearchTemplate::filter( const SearchFilter::FilterControlData& rData )
 {
 	m_pSearchModel->updateFilter( rData );
 }
@@ -262,7 +262,7 @@ void WidgetSearchTemplate::onStateChanged()
 	}
 	else
 	{
-				m_eSearchState = SearchState::Stopped;
+		m_eSearchState = SearchState::Stopped;
 	}
 
 	emit stateChanged();
@@ -284,7 +284,7 @@ void WidgetSearchTemplate::loadHeaderState()
 }
 
 
-void WidgetSearchTemplate::on_treeViewSearchResults_doubleClicked(const QModelIndex &index)
+void WidgetSearchTemplate::on_treeViewSearchResults_doubleClicked( const QModelIndex& index )
 {
 	Q_UNUSED( index );
 	SearchTreeItem* itemSearch = m_pSearchModel->topLevelItemFromIndex( currentItem() );
@@ -298,12 +298,12 @@ void WidgetSearchTemplate::on_treeViewSearchResults_doubleClicked(const QModelIn
 		{
 			if ( pLast )
 			{
-				pLast->m_pNext = new QueryHit( itemSearch->child(i)->m_oHitData.pQueryHit.data() );
+				pLast->m_pNext = new QueryHit( itemSearch->child( i )->m_oHitData.pQueryHit.data() );
 				pLast = pLast->m_pNext;
 			}
 			else
 			{
-				pHits = new QueryHit(itemSearch->child(i)->m_oHitData.pQueryHit.data());
+				pHits = new QueryHit( itemSearch->child( i )->m_oHitData.pQueryHit.data() );
 				pLast = pHits;
 			}
 		}
@@ -316,7 +316,7 @@ void WidgetSearchTemplate::on_treeViewSearchResults_doubleClicked(const QModelIn
 	}
 }
 
-void WidgetSearchTemplate::on_treeViewSearchResults_customContextMenuRequested(const QPoint &pos)
+void WidgetSearchTemplate::on_treeViewSearchResults_customContextMenuRequested( const QPoint& pos )
 {
 	QModelIndex currIndex = ui->treeViewSearchResults->indexAt( pos );
 	if ( currIndex.isValid() )
@@ -352,7 +352,7 @@ void WidgetSearchTemplate::on_actionViewReviews_triggered()
 	{
 		QString hashString = pHash->toString();
 		QString sURL = QString( "http://bitzi.com/lookup/%1?v=detail&ref=quazaa"
-								).arg( hashString );
+							  ).arg( hashString );
 		QDesktopServices::openUrl( QUrl( sURL, QUrl::TolerantMode ) );
 	}
 }
@@ -365,7 +365,7 @@ void WidgetSearchTemplate::on_actionVirusTotalCheck_triggered()
 	{
 		QString hashString = QString( getHash()->rawValue().toHex() );
 		QString sURL =  QString( "www.virustotal.com/latest-report.html?resource=%1"
-								 ).arg( hashString );
+							   ).arg( hashString );
 		QDesktopServices::openUrl( QUrl( sURL , QUrl::TolerantMode ) );
 	}
 }
@@ -388,10 +388,10 @@ void WidgetSearchTemplate::on_actionBanNode_triggered()
 		if ( ok && !reason.isEmpty() )
 		{
 			EndPoint address =
-					itemSearch->m_oHitData.pQueryHit.data()->m_pHitInfo.data()->m_oNodeAddress;
+				itemSearch->m_oHitData.pQueryHit.data()->m_pHitInfo.data()->m_oNodeAddress;
 			securityManager.ban( address, Security::RuleTime::SixMonths, true, reason, false );
 			m_pSearchModel->removeQueryHit( currentItem().row(),
-											m_pSearchModel->parent(currentItem() ) );
+											m_pSearchModel->parent( currentItem() ) );
 		}
 	}
 }

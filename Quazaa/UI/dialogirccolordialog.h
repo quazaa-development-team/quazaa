@@ -27,8 +27,9 @@
 
 #include <QDialog>
 
-namespace Ui {
-	class CDialogIrcColorDialog;
+namespace Ui
+{
+class CDialogIrcColorDialog;
 }
 
 class CDialogIrcColorDialog : public QDialog
@@ -36,7 +37,7 @@ class CDialogIrcColorDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit CDialogIrcColorDialog(QColor initialColor, QWidget *parent = 0);
+	explicit CDialogIrcColorDialog( QColor initialColor, QWidget* parent = 0 );
 	~CDialogIrcColorDialog();
 	QColor color();
 	bool isDefaultColor();
@@ -61,7 +62,7 @@ private slots:
 	void on_toolButtonGray_clicked();
 
 private:
-	Ui::CDialogIrcColorDialog *ui;
+	Ui::CDialogIrcColorDialog* ui;
 	QColor m_oIrcColor;
 	bool m_bDefault;
 };

@@ -3,15 +3,15 @@
 
 #include <QDebug>
 
-MediaControls::MediaControls(QWidget *parent) :
-	QWidget(parent),
-	ui(new Ui::MediaControls)
+MediaControls::MediaControls( QWidget* parent ) :
+	QWidget( parent ),
+	ui( new Ui::MediaControls )
 {
-	ui->setupUi(this);
+	ui->setupUi( this );
 
-	m_tVolumeControl = new QTimer(this);
-	m_tVolumeControl->setSingleShot(true);
-	connect(m_tVolumeControl, SIGNAL(timeout()), ui->horizontalSliderVolume, SLOT(hide()));
+	m_tVolumeControl = new QTimer( this );
+	m_tVolumeControl->setSingleShot( true );
+	connect( m_tVolumeControl, SIGNAL( timeout() ), ui->horizontalSliderVolume, SLOT( hide() ) );
 
 	ui->horizontalSliderVolume->hide();
 }
@@ -21,64 +21,67 @@ MediaControls::~MediaControls()
 	delete ui;
 }
 
-void MediaControls::mouseMoveEvent(QMouseEvent *e)
+void MediaControls::mouseMoveEvent( QMouseEvent* e )
 {
-	if(ui->toolButtonMute->underMouse()) {
-		if(!ui->horizontalSliderVolume->isVisible())
+	if ( ui->toolButtonMute->underMouse() )
+	{
+		if ( !ui->horizontalSliderVolume->isVisible() )
+		{
 			ui->horizontalSliderVolume->show();
+		}
 
-		m_tVolumeControl->start(5000);
+		m_tVolumeControl->start( 5000 );
 	}
 
-	QWidget::mouseMoveEvent(e);
+	QWidget::mouseMoveEvent( e );
 }
 
-QToolButton *MediaControls::playPauseButton()
+QToolButton* MediaControls::playPauseButton()
 {
 	return ui->toolButtonPlayPause;
 }
 
-QToolButton *MediaControls::previousButton()
+QToolButton* MediaControls::previousButton()
 {
 	return ui->toolButtonPrevious;
 }
 
-QToolButton *MediaControls::stopButton()
+QToolButton* MediaControls::stopButton()
 {
 	return ui->toolButtonStop;
 }
 
-QToolButton *MediaControls::nextButton()
+QToolButton* MediaControls::nextButton()
 {
 	return ui->toolButtonNext;
 }
 
-QToolButton *MediaControls::openButton()
+QToolButton* MediaControls::openButton()
 {
 	return ui->toolButtonOpen;
 }
 
-QToolButton *MediaControls::replayButton()
+QToolButton* MediaControls::replayButton()
 {
 	return ui->toolButtonReplay;
 }
 
-QToolButton *MediaControls::shuffleButton()
+QToolButton* MediaControls::shuffleButton()
 {
 	return ui->toolButtonShuffle;
 }
 
-QToolButton *MediaControls::fullScreenButton()
+QToolButton* MediaControls::fullScreenButton()
 {
 	return ui->toolButtonFullScreen;
 }
 
-QToolButton *MediaControls::settingsButton()
+QToolButton* MediaControls::settingsButton()
 {
 	return ui->toolButtonSettings;
 }
 
-QToolButton *MediaControls::muteButton()
+QToolButton* MediaControls::muteButton()
 {
 	return ui->toolButtonMute;
 }

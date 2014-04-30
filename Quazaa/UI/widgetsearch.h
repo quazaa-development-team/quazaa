@@ -30,37 +30,37 @@
 
 namespace Ui
 {
-	class WidgetSearch;
+class WidgetSearch;
 }
 
 class WidgetSearch : public QWidget
 {
 	Q_OBJECT
 public:
-	WidgetSearch(QWidget* parent = 0);
+	WidgetSearch( QWidget* parent = 0 );
 	~WidgetSearch();
 	WidgetSearchResults* panelSearchResults;
 	WidgetSearchTemplate* currentPage;
 	void saveWidget();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::WidgetSearch* ui;
 
 public slots:
-	void startNewSearch(QString* searchString);
+	void startNewSearch( QString* searchString );
 	void focusSearchInput();
 
 private slots:
-	void on_splitterSearch_customContextMenuRequested(QPoint pos);
+	void on_splitterSearch_customContextMenuRequested( QPoint pos );
 	void on_toolButtonNewSearch_clicked();
 	void on_toolButtonSearchClear_clicked();
 	void on_toolButtonSearch_clicked();
-	void onSearchTabChanged(WidgetSearchTemplate* searchPage);
-	void updateStats(WidgetSearchTemplate* searchWidget);
-	void updateButtons(bool bInitial = false);
+	void onSearchTabChanged( WidgetSearchTemplate* searchPage );
+	void updateStats( WidgetSearchTemplate* searchWidget );
+	void updateButtons( bool bInitial = false );
 	void setSkin();
 };
 

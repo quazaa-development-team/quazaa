@@ -36,37 +36,37 @@ protected:
 
 public:
 	EndPoint();
-	explicit EndPoint(quint32 ip4Addr, quint16 nPort = 0);
-	explicit EndPoint(quint8* ip6Addr, quint16 nPort = 0);
-	explicit EndPoint(const Q_IPV6ADDR& ip6Addr, quint16 nPort = 0);
-	explicit EndPoint(const sockaddr* sockaddr, quint16 nPort = 0);
-	explicit EndPoint(const QString& address, quint16 nPort);
-	explicit EndPoint(const QString& address);
-	explicit EndPoint(const QHostAddress& address, quint16 nPort);
-	EndPoint(const EndPoint& copy);
-	EndPoint(SpecialAddress address, quint16 nPort = 0);
+	explicit EndPoint( quint32 ip4Addr, quint16 nPort = 0 );
+	explicit EndPoint( quint8* ip6Addr, quint16 nPort = 0 );
+	explicit EndPoint( const Q_IPV6ADDR& ip6Addr, quint16 nPort = 0 );
+	explicit EndPoint( const sockaddr* sockaddr, quint16 nPort = 0 );
+	explicit EndPoint( const QString& address, quint16 nPort );
+	explicit EndPoint( const QString& address );
+	explicit EndPoint( const QHostAddress& address, quint16 nPort );
+	EndPoint( const EndPoint& copy );
+	EndPoint( SpecialAddress address, quint16 nPort = 0 );
 
-	EndPoint& operator=(const EndPoint& rhs);
+	EndPoint& operator=( const EndPoint& rhs );
 	EndPoint& operator++();
 	EndPoint& operator--();
-	EndPoint operator++(int);
-	EndPoint operator--(int);
+	EndPoint operator++( int );
+	EndPoint operator--( int );
 
-	bool operator==(const EndPoint& rhs) const;
-	bool operator!=(const EndPoint& rhs) const;
-	bool operator<(const EndPoint& rhs) const;
-	bool operator>(const EndPoint& rhs) const;
-	bool operator<=(const EndPoint& rhs) const;
-	bool operator>=(const EndPoint& rhs) const;
+	bool operator==( const EndPoint& rhs ) const;
+	bool operator!=( const EndPoint& rhs ) const;
+	bool operator<( const EndPoint& rhs ) const;
+	bool operator>( const EndPoint& rhs ) const;
+	bool operator<=( const EndPoint& rhs ) const;
+	bool operator>=( const EndPoint& rhs ) const;
 
-	bool operator==(const QHostAddress& rhs) const;
-	bool operator!=(const QHostAddress& rhs) const;
+	bool operator==( const QHostAddress& rhs ) const;
+	bool operator!=( const QHostAddress& rhs ) const;
 
-	void setAddressWithPort(const QString& address);
+	void setAddressWithPort( const QString& address );
 	QString toStringWithPort() const;
 
 	quint16 port() const;
-	void setPort(const quint16 nPort);
+	void setPort( const quint16 nPort );
 
 	bool isFirewalled() const;
 	bool isValid() const;
@@ -76,11 +76,11 @@ public:
 
 	void clear();
 
-	friend QDataStream &operator<<(QDataStream &, const EndPoint &);
-	friend QDataStream &operator>>(QDataStream &, EndPoint &);
+	friend QDataStream& operator<<( QDataStream&, const EndPoint& );
+	friend QDataStream& operator>>( QDataStream&, EndPoint& );
 };
 
-QDataStream &operator<<(QDataStream &s, const EndPoint &rhs);
-QDataStream &operator>>(QDataStream &s, EndPoint &rhs);
+QDataStream& operator<<( QDataStream& s, const EndPoint& rhs );
+QDataStream& operator>>( QDataStream& s, EndPoint& rhs );
 
 #endif // ENDPOINT_H

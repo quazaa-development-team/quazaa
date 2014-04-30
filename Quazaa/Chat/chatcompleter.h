@@ -28,39 +28,40 @@ class ChatCompleter : public QCompleter
 	Q_OBJECT
 
 public:
-	ChatCompleter(QObject* parent = 0);
+	ChatCompleter( QObject* parent = 0 );
 
 	HistoryLineEdit* lineEdit() const;
-	void setLineEdit(HistoryLineEdit* lineEdit);
+	void setLineEdit( HistoryLineEdit* lineEdit );
 
 	CWidgetReturnEmitTextEdit* textEdit() const;
-	void setTextEdit(CWidgetReturnEmitTextEdit* textEdit);
+	void setTextEdit( CWidgetReturnEmitTextEdit* textEdit );
 
-	IrcUserModel *userModel() const;
-	void setUserModel(IrcUserModel* model);
+	IrcUserModel* userModel() const;
+	void setUserModel( IrcUserModel* model );
 
 	QAbstractItemModel* channelModel() const;
-	void setChannelModel(QAbstractItemModel* model);
+	void setChannelModel( QAbstractItemModel* model );
 
 	QAbstractItemModel* commandModel() const;
-	void setCommandModel(QAbstractItemModel* model);
+	void setCommandModel( QAbstractItemModel* model );
 
 	QString channelPrefixes() const;
-	void setChannelPrefixes(const QString& prefixes);
+	void setChannelPrefixes( const QString& prefixes );
 
 	QString commandPrefixes() const;
-	void setCommandPrefixes(const QString& prefixes);
+	void setCommandPrefixes( const QString& prefixes );
 
 signals:
-	void commandCompletion(const QString& command);
+	void commandCompletion( const QString& command );
 
 private slots:
 	void onTabPressed();
 	void onTextEdited();
-	void insertCompletion(const QString& completion);
+	void insertCompletion( const QString& completion );
 
 private:
-	struct CompleterData {
+	struct CompleterData
+	{
 		CWidgetReturnEmitTextEdit* textEdit;
 		HistoryLineEdit* lineEdit;
 		IrcUserModel* userModel;

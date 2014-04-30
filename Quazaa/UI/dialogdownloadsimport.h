@@ -29,21 +29,21 @@
 
 namespace Ui
 {
-	class CDialogDownloadsImport;
+class CDialogDownloadsImport;
 }
 
 class CDialogDownloadsImport : public QDialog
 {
 	Q_OBJECT
 public:
-	CDialogDownloadsImport(QWidget* parent = 0);
+	CDialogDownloadsImport( QWidget* parent = 0 );
 	~CDialogDownloadsImport();
 
 signals:
 	void closed();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CDialogDownloadsImport* ui;

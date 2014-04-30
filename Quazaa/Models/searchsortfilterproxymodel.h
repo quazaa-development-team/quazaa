@@ -31,10 +31,10 @@ class SearchSortFilterProxyModel : public QSortFilterProxyModel
 {
 	Q_OBJECT
 public:
-	explicit SearchSortFilterProxyModel(QObject *parent = 0);
+	explicit SearchSortFilterProxyModel( QObject* parent = 0 );
 
 protected:
-	bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const;
+	bool filterAcceptsRow( int sourceRow, const QModelIndex& sourceParent ) const;
 
 signals:
 

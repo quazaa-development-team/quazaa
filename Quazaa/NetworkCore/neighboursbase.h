@@ -47,18 +47,18 @@ protected:
 	QHash<QHostAddress, Neighbour*> m_lNodesByAddr;  // lookups by ip address
 	QSet<Neighbour*>				 m_lNodesByPtr;	// lookups by pointer
 public:
-	NeighboursBase(QObject* parent = 0);
+	NeighboursBase( QObject* parent = 0 );
 	virtual ~NeighboursBase();
 
 	virtual void connectNode();
 	virtual void disconnectNode();
 
-	virtual void addNode(Neighbour* pNode);
-	virtual void removeNode(Neighbour* pNode);
+	virtual void addNode( Neighbour* pNode );
+	virtual void removeNode( Neighbour* pNode );
 
-	Neighbour* find(const QHostAddress& oAddress,
-					 DiscoveryProtocol::Protocol nProtocol = DiscoveryProtocol::None);
-	bool neighbourExists(const Neighbour* pNode);
+	Neighbour* find( const QHostAddress& oAddress,
+					 DiscoveryProtocol::Protocol nProtocol = DiscoveryProtocol::None );
+	bool neighbourExists( const Neighbour* pNode );
 
 	virtual quint32 downloadSpeed()
 	{
@@ -84,16 +84,16 @@ public:
 	{
 		return m_lNodes.size();
 	}
-	inline Neighbour* getAt(int nIndex)
+	inline Neighbour* getAt( int nIndex )
 	{
-		Q_ASSERT(nIndex >= 0 && nIndex < m_lNodes.size());
+		Q_ASSERT( nIndex >= 0 && nIndex < m_lNodes.size() );
 
-		return m_lNodes.at(nIndex);
+		return m_lNodes.at( nIndex );
 	}
 signals:
 	void sanityCheckPerformed();
-	void neighbourAdded(Neighbour*);
-	void neighbourRemoved(Neighbour*);
+	void neighbourAdded( Neighbour* );
+	void neighbourRemoved( Neighbour* );
 
 public slots:
 	virtual void maintain();

@@ -22,9 +22,9 @@
 #include <Irc>
 
 QString CApplication::ApplicationData::slogan;
-QByteArray CApplication::ApplicationData::encoding("ISO-8859-15");
+QByteArray CApplication::ApplicationData::encoding( "ISO-8859-15" );
 
-CApplication::CApplication(int& argc, char* argv[]) : QApplication(argc, argv)
+CApplication::CApplication( int& argc, char* argv[] ) : QApplication( argc, argv )
 {
 }
 
@@ -37,7 +37,7 @@ QString CApplication::applicationSlogan()
 	return ApplicationData::slogan;
 }
 
-void CApplication::setApplicationSlogan(const QString &slogan)
+void CApplication::setApplicationSlogan( const QString& slogan )
 {
 	ApplicationData::slogan = slogan;
 }
@@ -47,7 +47,7 @@ QByteArray CApplication::encoding()
 	return ApplicationData::encoding;
 }
 
-void CApplication::setEncoding(const QByteArray& encoding)
+void CApplication::setEncoding( const QByteArray& encoding )
 {
 	ApplicationData::encoding = encoding;
 }

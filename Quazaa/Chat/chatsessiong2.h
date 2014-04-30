@@ -35,22 +35,22 @@ class CChatSessionG2 : public ChatSession
 protected:
 	EndPoint m_oRemoteHost;
 public:
-	CChatSessionG2(EndPoint oRemoteHost, QObject *parent = 0);
+	CChatSessionG2( EndPoint oRemoteHost, QObject* parent = 0 );
 
 	void connectNode();
 
 protected:
 	void parseOutgoingHandshake();
 
-	void send_ChatOK(bool bReply);
-	void send_ChatError(QString sReason);
+	void send_ChatOK( bool bReply );
+	void send_ChatError( QString sReason );
 	void sendStartups();
-	void sendPacket(G2Packet* pPacket, bool bRelease = true);
-	void onPacket(G2Packet* pPacket);
-	void onUPROC(G2Packet* pPacket);
-	void onUPROD(G2Packet* pPacket);
-	void onCHATANS(G2Packet* pPacket);
-	void onCMSG(G2Packet* pPacket);
+	void sendPacket( G2Packet* pPacket, bool bRelease = true );
+	void onPacket( G2Packet* pPacket );
+	void onUPROC( G2Packet* pPacket );
+	void onUPROD( G2Packet* pPacket );
+	void onCHATANS( G2Packet* pPacket );
+	void onCMSG( G2Packet* pPacket );
 
 signals:
 
@@ -59,8 +59,8 @@ public slots:
 	void onDisconnectNode();
 	void onRead();
 
-	void sendMessage(QString sMessage, bool bAction = false);
-	void sendMessage(QTextDocument* pMessage, bool bAction = false);
+	void sendMessage( QString sMessage, bool bAction = false );
+	void sendMessage( QTextDocument* pMessage, bool bAction = false );
 
 };
 

@@ -28,64 +28,66 @@
 #include "debug_new.h"
 
 QMutex ZLibUtils::m_oMutex;
-Buffer ZLibUtils::m_oCompressBuffer(262144); // 256KB
+Buffer ZLibUtils::m_oCompressBuffer( 262144 ); // 256KB
 
-bool ZLibUtils::compressBuffer(Buffer& pSrc, bool bIfSmaller)
+bool ZLibUtils::compressBuffer( Buffer& pSrc, bool bIfSmaller )
 {
-	QMutexLocker l(&ZLibUtils::m_oMutex);
+	QMutexLocker l( &ZLibUtils::m_oMutex );
 
-	if(bIfSmaller && pSrc.size() < 64)
+	if ( bIfSmaller && pSrc.size() < 64 )
 	{
 		return false;
 	}
 
-	ulong nCompress = qMax(ZLibUtils::m_oCompressBuffer.size(), pSrc.size() * 2);
+	ulong nCompress = qMax( ZLibUtils::m_oCompressBuffer.size(), pSrc.size() * 2 );
 
-	ZLibUtils::m_oCompressBuffer.resize(nCompress);
+	ZLibUtils::m_oCompressBuffer.resize( nCompress );
 
-	int nRet = ::compress((Bytef*)ZLibUtils::m_oCompressBuffer.data(), &nCompress, (const Bytef*)pSrc.data(), pSrc.size());
+	int nRet = ::compress( ( Bytef* )ZLibUtils::m_oCompressBuffer.data(), &nCompress, ( const Bytef* )pSrc.data(),
+						   pSrc.size() );
 
-	if(nRet != Z_OK)
+	if ( nRet != Z_OK )
 	{
-		Q_ASSERT(nRet != Z_BUF_ERROR);
+		Q_ASSERT( nRet != Z_BUF_ERROR );
 		return false;
 	}
 
-	ZLibUtils::m_oCompressBuffer.resize(nCompress);
+	ZLibUtils::m_oCompressBuffer.resize( nCompress );
 
-	if(bIfSmaller && ZLibUtils::m_oCompressBuffer.size() > pSrc.size())
+	if ( bIfSmaller && ZLibUtils::m_oCompressBuffer.size() > pSrc.size() )
 	{
 		return false;
 	}
 
 	pSrc.clear();
-	pSrc.append(ZLibUtils::m_oCompressBuffer);
+	pSrc.append( ZLibUtils::m_oCompressBuffer );
 
 	return true;
 }
 
-bool ZLibUtils::uncompressBuffer(Buffer& pSrc)
+bool ZLibUtils::uncompressBuffer( Buffer& pSrc )
 {
-	QMutexLocker l(&ZLibUtils::m_oMutex);
+	QMutexLocker l( &ZLibUtils::m_oMutex );
 
-	for(ulong nSize = qMax(pSrc.size() * 6u, 1024u); ; nSize *= 2)
+	for ( ulong nSize = qMax( pSrc.size() * 6u, 1024u ); ; nSize *= 2 )
 	{
-		ZLibUtils::m_oCompressBuffer.resize(nSize);
+		ZLibUtils::m_oCompressBuffer.resize( nSize );
 
 		ulong nCompress = ZLibUtils::m_oCompressBuffer.size();
 
-		int nRet = ::uncompress((Bytef*)ZLibUtils::m_oCompressBuffer.data(), &nCompress, (Bytef*)pSrc.data(), pSrc.size());
+		int nRet = ::uncompress( ( Bytef* )ZLibUtils::m_oCompressBuffer.data(), &nCompress, ( Bytef* )pSrc.data(),
+								 pSrc.size() );
 
-		if(nRet == Z_OK)
+		if ( nRet == Z_OK )
 		{
-			ZLibUtils::m_oCompressBuffer.resize(nCompress);
+			ZLibUtils::m_oCompressBuffer.resize( nCompress );
 			pSrc.clear();
-			pSrc.append(ZLibUtils::m_oCompressBuffer);
+			pSrc.append( ZLibUtils::m_oCompressBuffer );
 
 			break;
 		}
 
-		if(nRet != Z_BUF_ERROR)
+		if ( nRet != Z_BUF_ERROR )
 		{
 			return false;
 		}

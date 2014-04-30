@@ -38,28 +38,28 @@
 
 // The Media Tab's Base Widget
 
-CWidgetMedia::CWidgetMedia(QWidget* parent) :
-	QWidget(parent),
-	ui(new Ui::CWidgetMedia)
+CWidgetMedia::CWidgetMedia( QWidget* parent ) :
+	QWidget( parent ),
+	ui( new Ui::CWidgetMedia )
 {
-	ui->setupUi(this);
+	ui->setupUi( this );
 
-	ui->splitterMedia->restoreState(quazaaSettings.WinMain.MediaSplitter);
+	ui->splitterMedia->restoreState( quazaaSettings.WinMain.MediaSplitter );
 
-	player = new QMediaPlayer(this);
+	player = new QMediaPlayer( this );
 	// owned by PlaylistModel
 	playlist = new QMediaPlaylist();
-	player->setPlaylist(playlist);
-	videoContainer = new VideoContainer(this);
+	player->setPlaylist( playlist );
+	videoContainer = new VideoContainer( this );
 
-	player->setVideoOutput(videoContainer->videoWidget());
+	player->setVideoOutput( videoContainer->videoWidget() );
 
-	connect(videoContainer, SIGNAL(doubleClicked()), SLOT(toggleFullScreen()));
-	connect(videoContainer->mediaControls()->fullScreenButton(), SIGNAL(clicked()), SLOT(toggleFullScreen()));
+	connect( videoContainer, SIGNAL( doubleClicked() ), SLOT( toggleFullScreen() ) );
+	connect( videoContainer->mediaControls()->fullScreenButton(), SIGNAL( clicked() ), SLOT( toggleFullScreen() ) );
 
-	ui->verticalLayoutMedia->addWidget(videoContainer);
+	ui->verticalLayoutMedia->addWidget( videoContainer );
 
-	connect(videoContainer->mediaControls()->openButton(), SIGNAL(clicked()), SLOT(openMedia()));
+	connect( videoContainer->mediaControls()->openButton(), SIGNAL( clicked() ), SLOT( openMedia() ) );
 
 	setSkin();
 }
@@ -69,16 +69,16 @@ CWidgetMedia::~CWidgetMedia()
 	delete ui;
 }
 
-void CWidgetMedia::changeEvent(QEvent* e)
+void CWidgetMedia::changeEvent( QEvent* e )
 {
-	QWidget::changeEvent(e);
-	switch(e->type())
+	QWidget::changeEvent( e );
+	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 
@@ -87,78 +87,81 @@ void CWidgetMedia::saveWidget()
 	quazaaSettings.WinMain.MediaSplitter = ui->splitterMedia->saveState();
 }
 
-void CWidgetMedia::on_splitterMedia_customContextMenuRequested(QPoint pos)
+void CWidgetMedia::on_splitterMedia_customContextMenuRequested( QPoint pos )
 {
-	Q_UNUSED(pos);
+	Q_UNUSED( pos );
 
-	if(ui->splitterMedia->handle(1)->underMouse())
+	if ( ui->splitterMedia->handle( 1 )->underMouse() )
 	{
-		if(ui->splitterMedia->sizes()[1] > 0)
+		if ( ui->splitterMedia->sizes()[1] > 0 )
 		{
 			quazaaSettings.WinMain.MediaSplitterRestoreLeft = ui->splitterMedia->sizes()[0];
 			quazaaSettings.WinMain.MediaSplitterRestoreRight = ui->splitterMedia->sizes()[1];
 			QList<int> newSizes;
-			newSizes.append(ui->splitterMedia->sizes()[0] + ui->splitterMedia->sizes()[1]);
-			newSizes.append(0);
-			ui->splitterMedia->setSizes(newSizes);
+			newSizes.append( ui->splitterMedia->sizes()[0] + ui->splitterMedia->sizes()[1] );
+			newSizes.append( 0 );
+			ui->splitterMedia->setSizes( newSizes );
 		}
 		else
 		{
 			QList<int> sizesList;
-			sizesList.append(quazaaSettings.WinMain.MediaSplitterRestoreLeft);
-			sizesList.append(quazaaSettings.WinMain.MediaSplitterRestoreRight);
-			ui->splitterMedia->setSizes(sizesList);
+			sizesList.append( quazaaSettings.WinMain.MediaSplitterRestoreLeft );
+			sizesList.append( quazaaSettings.WinMain.MediaSplitterRestoreRight );
+			ui->splitterMedia->setSizes( sizesList );
 		}
 	}
 }
 
 void CWidgetMedia::on_toolButtonMediaPlaylistTaskHeader_clicked()
 {
-	if(ui->splitterMedia->sizes()[0] > 0)
+	if ( ui->splitterMedia->sizes()[0] > 0 )
 	{
 		quazaaSettings.WinMain.MediaSplitterRestoreLeft = ui->splitterMedia->sizes()[0];
 		quazaaSettings.WinMain.MediaSplitterRestoreRight = ui->splitterMedia->sizes()[1];
 		QList<int> newSizes;
-		newSizes.append(0);
-		newSizes.append(ui->splitterMedia->sizes()[0] + ui->splitterMedia->sizes()[1]);
-		ui->splitterMedia->setSizes(newSizes);
+		newSizes.append( 0 );
+		newSizes.append( ui->splitterMedia->sizes()[0] + ui->splitterMedia->sizes()[1] );
+		ui->splitterMedia->setSizes( newSizes );
 	}
 	else
 	{
 		QList<int> sizesList;
-		sizesList.append(quazaaSettings.WinMain.MediaSplitterRestoreLeft);
-		sizesList.append(quazaaSettings.WinMain.MediaSplitterRestoreRight);
-		ui->splitterMedia->setSizes(sizesList);
+		sizesList.append( quazaaSettings.WinMain.MediaSplitterRestoreLeft );
+		sizesList.append( quazaaSettings.WinMain.MediaSplitterRestoreRight );
+		ui->splitterMedia->setSizes( sizesList );
 	}
 }
 
 void CWidgetMedia::setSkin()
 {
-	ui->toolButtonMediaPlaylistTaskHeader->setStyleSheet(skinSettings.taskHeader);
-	ui->frameMediaPlaylistTask->setStyleSheet(skinSettings.sidebarBackground);
-	ui->listViewMediaPlaylist->setStyleSheet(skinSettings.listViews);
+	ui->toolButtonMediaPlaylistTaskHeader->setStyleSheet( skinSettings.taskHeader );
+	ui->frameMediaPlaylistTask->setStyleSheet( skinSettings.sidebarBackground );
+	ui->listViewMediaPlaylist->setStyleSheet( skinSettings.listViews );
 }
 
 void CWidgetMedia::openMedia()
 {
-	QString file = QFileDialog::getOpenFileName(this, tr("Open File"));
+	QString file = QFileDialog::getOpenFileName( this, tr( "Open File" ) );
 
-	QUrl url = QUrl::fromLocalFile(file);
+	QUrl url = QUrl::fromLocalFile( file );
 
-	playlist->addMedia(url);
+	playlist->addMedia( url );
 
 	player->play();
 }
 
 void CWidgetMedia::toggleFullScreen()
 {
-	if(!ui->videoContainerWidget->isFullScreen()) {
-		ui->videoContainerWidget->setParent(0);
+	if ( !ui->videoContainerWidget->isFullScreen() )
+	{
+		ui->videoContainerWidget->setParent( 0 );
 		ui->videoContainerWidget->showFullScreen();
-		videoContainer->mediaControls()->fullScreenButton()->setIcon(QIcon(":/Resource/Media/NoFullScreen.png"));
-	} else {
-		ui->videoContainerWidget->setParent(this);
-		ui->splitterMedia->insertWidget(0,ui->videoContainerWidget);
-		videoContainer->mediaControls()->fullScreenButton()->setIcon(QIcon(":/Resource/Media/FullScreen.png"));
+		videoContainer->mediaControls()->fullScreenButton()->setIcon( QIcon( ":/Resource/Media/NoFullScreen.png" ) );
+	}
+	else
+	{
+		ui->videoContainerWidget->setParent( this );
+		ui->splitterMedia->insertWidget( 0, ui->videoContainerWidget );
+		videoContainer->mediaControls()->fullScreenButton()->setIcon( QIcon( ":/Resource/Media/FullScreen.png" ) );
 	}
 }

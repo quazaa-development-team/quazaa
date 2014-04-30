@@ -35,20 +35,21 @@ class QTextFragment;
 
 namespace IrcFormatCodes
 {
-	/**
-	* \enum Control
-	* \brief Contains mIRC control codes
-	*/
-	enum Control {
-		Bold			= 0x02,   /**< Bold */
-		Color			= 0x03,   /**< Color */
-		Italic			= 0x09,   /**< Italic */
-		StrikeThrough	= 0x13, /**< Strike-Through */
-		Reset			= 0x0f,   /**< Reset */
-		Underline		= 0x15,   /**< Underline */
-		Underline2		= 0x1f,    /**< Underline */
-		Reverse			= 0x16   /**< Reverse */
-	};
+/**
+* \enum Control
+* \brief Contains mIRC control codes
+*/
+enum Control
+{
+	Bold			= 0x02,   /**< Bold */
+	Color			= 0x03,   /**< Color */
+	Italic			= 0x09,   /**< Italic */
+	StrikeThrough	= 0x13, /**< Strike-Through */
+	Reset			= 0x0f,   /**< Reset */
+	Underline		= 0x15,   /**< Underline */
+	Underline2		= 0x1f,    /**< Underline */
+	Reverse			= 0x16   /**< Reverse */
+};
 }
 
 class CChatConverter
@@ -69,17 +70,17 @@ class CChatConverter
 	OutputFormats	m_nOutputFormat;
 
 public:
-	CChatConverter(QTextDocument* pDoc);
+	CChatConverter( QTextDocument* pDoc );
 	virtual ~CChatConverter();
 
 	QString toHtml();
 	QString toBBCode();
 	QString toIrc();
 private:
-	void processBlock(QTextBlock* pBlock);
-	void processFragment(QTextFragment* pFrag);
-	void processFragmentBB(QTextFragment* pFrag);
-	void processFragmentIRC(QTextFragment* pFrag);
+	void processBlock( QTextBlock* pBlock );
+	void processFragment( QTextFragment* pFrag );
+	void processFragmentBB( QTextFragment* pFrag );
+	void processFragmentIRC( QTextFragment* pFrag );
 };
 
 #endif // CHATCONVERTER_H

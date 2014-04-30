@@ -42,7 +42,7 @@ class CThread: public QThread
 	QObject*        m_pTargetObject;
 	QString			m_sThreadName;
 public:
-	CThread(QObject* parent = 0);
+	CThread( QObject* parent = 0 );
 
 	/**
 	 * @brief start      Starts this thread.
@@ -51,8 +51,8 @@ public:
 	 * @param pTargetObj A QQbject* that has a setupThread() and cleanupThread() slot.
 	 * @param p          The thread execution priority.
 	 */
-	void start(QString sName, QMutex* pMutex, QObject* pTargetObj = NULL,
-			   Priority p = InheritPriority)
+	void start( QString sName, QMutex* pMutex, QObject* pTargetObj = NULL,
+				Priority p = InheritPriority )
 	{
 		Q_ASSERT( !pMutex->tryLock() );
 
@@ -72,7 +72,7 @@ public:
 
 		QThread::start( p );
 		systemLog.postLog( LogSeverity::Debug, QString( "%1 Waiting for thread to start..."
-														).arg( sName ) );
+													  ).arg( sName ) );
 
 		if ( !isRunning() )
 		{
@@ -89,7 +89,7 @@ public:
 	 * @param bNeedLock If this is true, the thread mutex is locked (and released) within this
 	 *                  method; else the mutex is expected to be locked on entering this method.
 	 */
-	void exit(int retcode, bool bNeedLock = false)
+	void exit( int retcode, bool bNeedLock = false )
 	{
 		// Note: we cannot use the system log here as the thread in question might finish after the
 		// systemLog object has already been destroyed.

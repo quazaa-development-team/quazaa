@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -28,11 +28,11 @@
 
 #include "debug_new.h"
 
-CDialogDownloadMonitor::CDialogDownloadMonitor(QWidget* parent) :
-	QDialog(parent),
-	ui(new Ui::CDialogDownloadMonitor)
+CDialogDownloadMonitor::CDialogDownloadMonitor( QWidget* parent ) :
+	QDialog( parent ),
+	ui( new Ui::CDialogDownloadMonitor )
 {
-	ui->setupUi(this);
+	ui->setupUi( this );
 	setSkin();
 }
 
@@ -41,16 +41,16 @@ CDialogDownloadMonitor::~CDialogDownloadMonitor()
 	delete ui;
 }
 
-void CDialogDownloadMonitor::changeEvent(QEvent* e)
+void CDialogDownloadMonitor::changeEvent( QEvent* e )
 {
-	QDialog::changeEvent(e);
-	switch(e->type())
+	QDialog::changeEvent( e );
+	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 
@@ -66,18 +66,18 @@ void CDialogDownloadMonitor::on_pushButton_clicked()
 	close();
 }
 
-void CDialogDownloadMonitor::updateProgress(int percent, QString transferSpeed, QString timeRemaining,
-        QString volumeDownloaded, QString numberSources, QPixmap icon,
-        QString status, QString file)
+void CDialogDownloadMonitor::updateProgress( int percent, QString transferSpeed, QString timeRemaining,
+											 QString volumeDownloaded, QString numberSources, QPixmap icon,
+											 QString status, QString file )
 {
-	ui->progressBarStatus->setValue(percent);
-	ui->labelEstimatedTimeRemaining->setText(timeRemaining);
-	ui->labelTransferSpeed->setText(transferSpeed);
-	ui->labelVolumeDownloaded->setText(volumeDownloaded);
-	ui->labelNumberSources->setText(numberSources);
-	ui->labelFileIcon->setPixmap(icon);
-	ui->labelStatus->setText(status);
-	ui->labelFileName->setText(file);
+	ui->progressBarStatus->setValue( percent );
+	ui->labelEstimatedTimeRemaining->setText( timeRemaining );
+	ui->labelTransferSpeed->setText( transferSpeed );
+	ui->labelVolumeDownloaded->setText( volumeDownloaded );
+	ui->labelNumberSources->setText( numberSources );
+	ui->labelFileIcon->setPixmap( icon );
+	ui->labelStatus->setText( status );
+	ui->labelFileName->setText( file );
 }
 
 void CDialogDownloadMonitor::setSkin()

@@ -35,7 +35,7 @@ class DiscoveryTableModel;
 
 namespace Ui
 {
-	class CWidgetDiscovery;
+class CWidgetDiscovery;
 }
 
 class CWidgetDiscovery : public QMainWindow
@@ -52,24 +52,24 @@ private:
 	CTableView* tableViewDiscovery;
 
 public:
-	CWidgetDiscovery(QWidget* parent = 0);
+	CWidgetDiscovery( QWidget* parent = 0 );
 	~CWidgetDiscovery();
 
-	void		setModel(QAbstractItemModel* model);
+	void		setModel( QAbstractItemModel* model );
 	QWidget*	tableView();
 	void		saveWidget();
 
 protected:
-	virtual void changeEvent(QEvent* e);
-	virtual void keyPressEvent(QKeyEvent *event);
+	virtual void changeEvent( QEvent* e );
+	virtual void keyPressEvent( QKeyEvent* event );
 
 public slots:
 	//void update();
 
 private slots:
-	void tableViewDiscovery_customContextMenuRequested(const QPoint &pos);
-	void tableViewDiscovery_doubleClicked(const QModelIndex &index);
-	void tableViewDiscovery_clicked(const QModelIndex &index);
+	void tableViewDiscovery_customContextMenuRequested( const QPoint& pos );
+	void tableViewDiscovery_doubleClicked( const QModelIndex& index );
+	void tableViewDiscovery_clicked( const QModelIndex& index );
 
 	void setSkin();
 

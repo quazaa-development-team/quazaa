@@ -39,9 +39,9 @@
 
 #include "debug_new.h"
 
-NeighboursTableModel::NeighbourData::NeighbourData(Neighbour* pNeighbour) : pNode( pNeighbour )
+NeighboursTableModel::NeighbourData::NeighbourData( Neighbour* pNeighbour ) : pNode( pNeighbour )
 {
-	quint32 tNow = time(0);
+	quint32 tNow = time( 0 );
 
 	sHandshake      = pNode->m_sHandshake;
 	oAddress        = pNode->address();
@@ -60,17 +60,17 @@ NeighboursTableModel::NeighbourData::NeighbourData(Neighbour* pNeighbour) : pNod
 	nState          = pNode->m_nState;
 	nType           = G2_UNKNOWN;
 	sUserAgent      = pNode->m_sUserAgent;
-	sCountryCode    = geoIP.findCountryCode(oAddress);
+	sCountryCode    = geoIP.findCountryCode( oAddress );
 	sCountry        = geoIP.countryNameFromCode( sCountryCode );
-	iCountry        = QIcon(":/Resource/Flags/" + sCountryCode.toLower() + ".png");
+	iCountry        = QIcon( ":/Resource/Flags/" + sCountryCode.toLower() + ".png" );
 
-	switch( pNode->m_nProtocol )
+	switch ( pNode->m_nProtocol )
 	{
 	case DiscoveryProtocol::G2:
 		nDiscoveryProtocol = DiscoveryProtocol::G2;
-		nLeafCount = ((G2Node*)pNode)->m_nLeafCount;
-		nLeafMax   = ((G2Node*)pNode)->m_nLeafMax;
-		nType      = ((G2Node*)pNode)->m_nType;
+		nLeafCount = ( ( G2Node* )pNode )->m_nLeafCount;
+		nLeafMax   = ( ( G2Node* )pNode )->m_nLeafMax;
+		nType      = ( ( G2Node* )pNode )->m_nType;
 		break;
 
 	default:
@@ -80,8 +80,8 @@ NeighboursTableModel::NeighbourData::NeighbourData(Neighbour* pNeighbour) : pNod
 	iNetwork = CNetworkIconProvider::icon( pNode->m_nProtocol );
 }
 
-bool NeighboursTableModel::NeighbourData::update(int row, int col, QModelIndexList& to_update,
-											  NeighboursTableModel* model)
+bool NeighboursTableModel::NeighbourData::update( int row, int col, QModelIndexList& to_update,
+												  NeighboursTableModel* model )
 {
 	if ( !neighbours.neighbourExists( pNode ) )
 	{
@@ -90,7 +90,7 @@ bool NeighboursTableModel::NeighbourData::update(int row, int col, QModelIndexLi
 
 	bool bRet = false;
 
-	quint32 tNow = time(0);
+	quint32 tNow = time( 0 );
 
 	sHandshake = pNode->m_sHandshake;
 
@@ -139,7 +139,7 @@ bool NeighboursTableModel::NeighbourData::update(int row, int col, QModelIndexLi
 	nBytesSent      = pNode->m_mOutput.m_nTotal;
 	nCompressionIn  = pNode->getTotalInDecompressed();
 	nCompressionOut = pNode->getTotalOutCompressed();
-	to_update.append( model->index(row, BYTES));
+	to_update.append( model->index( row, BYTES ) );
 
 	if ( col == BYTES )
 	{
@@ -158,7 +158,7 @@ bool NeighboursTableModel::NeighbourData::update(int row, int col, QModelIndexLi
 		}
 	}
 
-	if( nRTT != pNode->m_tRTT )
+	if ( nRTT != pNode->m_tRTT )
 	{
 		nRTT = pNode->m_tRTT;
 		to_update.append( model->index( row, PING ) );
@@ -182,11 +182,11 @@ bool NeighboursTableModel::NeighbourData::update(int row, int col, QModelIndexLi
 	switch ( pNode->m_nProtocol )
 	{
 	case DiscoveryProtocol::G2:
-		if ( nLeafCount != ((G2Node*)pNode)->m_nLeafCount ||
-			 nLeafMax   != ((G2Node*)pNode)->m_nLeafMax )
+		if ( nLeafCount != ( ( G2Node* )pNode )->m_nLeafCount ||
+			 nLeafMax   != ( ( G2Node* )pNode )->m_nLeafMax )
 		{
-			nLeafCount = ((G2Node*)pNode)->m_nLeafCount;
-			nLeafMax   = ((G2Node*)pNode)->m_nLeafMax;
+			nLeafCount = ( ( G2Node* )pNode )->m_nLeafCount;
+			nLeafMax   = ( ( G2Node* )pNode )->m_nLeafMax;
 			to_update.append( model->index( row, LEAVES ) );
 
 			if ( col == LEAVES )
@@ -195,9 +195,9 @@ bool NeighboursTableModel::NeighbourData::update(int row, int col, QModelIndexLi
 			}
 		}
 
-		if ( nType != ((G2Node*)pNode)->m_nType )
+		if ( nType != ( ( G2Node* )pNode )->m_nType )
 		{
-			nType = ((G2Node*)pNode)->m_nType;
+			nType = ( ( G2Node* )pNode )->m_nType;
 			to_update.append( model->index( row, MODE ) );
 
 			if ( col == MODE )
@@ -214,83 +214,95 @@ bool NeighboursTableModel::NeighbourData::update(int row, int col, QModelIndexLi
 	return bRet;
 }
 
-QVariant NeighboursTableModel::NeighbourData::data(int col) const
+QVariant NeighboursTableModel::NeighbourData::data( int col ) const
 {
-	switch( col )
+	switch ( col )
 	{
-		case ADDRESS:
-			return const_cast<EndPoint*>(&oAddress)->toStringWithPort();
-		case TIME:
-			if( nState == nsConnected )
-				return QString().sprintf( "%.2u:%.2u:%.2u", tConnected / 3600,
-										  tConnected % 3600 / 60, ( tConnected % 3600 ) % 60 );
-			else
-				return stateToString(nState);
+	case ADDRESS:
+		return const_cast<EndPoint*>( &oAddress )->toStringWithPort();
+	case TIME:
+		if ( nState == nsConnected )
+			return QString().sprintf( "%.2u:%.2u:%.2u", tConnected / 3600,
+									  tConnected % 3600 / 60, ( tConnected % 3600 ) % 60 );
+		else
+		{
+			return stateToString( nState );
+		}
 
-		case BANDWIDTH:
-			return QString().sprintf( "%1.3f / %1.3f", nBandwidthIn / 1024.0f,
-									  nBandwidthOut / 1024.0f );
+	case BANDWIDTH:
+		return QString().sprintf( "%1.3f / %1.3f", nBandwidthIn / 1024.0f,
+								  nBandwidthOut / 1024.0f );
 
-		case BYTES:
-			return QString().sprintf( "%1.3f / %1.3f KB (%1.2f / %1.2f %%)",
-									  nBytesReceived / 1024.0f,
-									  nBytesSent / 1024.0f, 100.0f * nCompressionIn,
-									  100.0f * nCompressionOut );
+	case BYTES:
+		return QString().sprintf( "%1.3f / %1.3f KB (%1.2f / %1.2f %%)",
+								  nBytesReceived / 1024.0f,
+								  nBytesSent / 1024.0f, 100.0f * nCompressionIn,
+								  100.0f * nCompressionOut );
 
-		case PACKETS:
-			return QString().sprintf( "%u - %u", nPacketsIn, nPacketsOut );
+	case PACKETS:
+		return QString().sprintf( "%u - %u", nPacketsIn, nPacketsOut );
 
-		case MODE:
-			return typeToString( nType );
+	case MODE:
+		return typeToString( nType );
 
-		case LEAVES:
-			if ( nType == G2_HUB )
-			{
-				return QString().sprintf( "%u / %u", nLeafCount, nLeafMax );
-			}
-			else
-			{
-				return QString();
-			}
+	case LEAVES:
+		if ( nType == G2_HUB )
+		{
+			return QString().sprintf( "%u / %u", nLeafCount, nLeafMax );
+		}
+		else
+		{
+			return QString();
+		}
 
-		case PING:
-			if( nRTT > 0 )
-				return QString( "%1 ms" ).arg( nRTT );
-			else
-				return QVariant();
+	case PING:
+		if ( nRTT > 0 )
+		{
+			return QString( "%1 ms" ).arg( nRTT );
+		}
+		else
+		{
+			return QVariant();
+		}
 
-		case USER_AGENT:
-			return sUserAgent;
+	case USER_AGENT:
+		return sUserAgent;
 
-		case COUNTRY:
-			return sCountry;
+	case COUNTRY:
+		return sCountry;
 	}
 
 	return QVariant();
 }
 
-bool NeighboursTableModel::NeighbourData::lessThan(int col, NeighbourData* pOther ) const
+bool NeighboursTableModel::NeighbourData::lessThan( int col, NeighbourData* pOther ) const
 {
-	switch( col )
+	switch ( col )
 	{
 	case ADDRESS:
 		if ( oAddress.protocol() == QAbstractSocket::IPv4Protocol )
+		{
 			return oAddress < pOther->oAddress;
+		}
 		else
+		{
 			return oAddress < pOther->oAddress;
+		}
 
 	case TIME:
 		if ( nState != nsConnected )
+		{
 			return true;
+		}
 		return tConnected < pOther->tConnected;
 
 	case BANDWIDTH:
 		return ( nBandwidthIn + nBandwidthOut ) <
-				( pOther->nBandwidthIn + pOther->nBandwidthOut );
+			   ( pOther->nBandwidthIn + pOther->nBandwidthOut );
 
 	case BYTES:
 		return ( nBytesReceived + nBytesSent ) <
-				( pOther->nBytesReceived + pOther->nBytesSent );
+			   ( pOther->nBytesReceived + pOther->nBytesSent );
 
 	case PACKETS:
 		return ( nPacketsIn + nPacketsOut ) < ( pOther->nPacketsIn + pOther->nPacketsOut );
@@ -299,8 +311,10 @@ bool NeighboursTableModel::NeighbourData::lessThan(int col, NeighbourData* pOthe
 		return typeToString( nType ) < typeToString( pOther->nType );
 
 	case LEAVES:
-		if(nLeafCount == pOther->nLeafCount)
+		if ( nLeafCount == pOther->nLeafCount )
+		{
 			return nLeafMax < pOther->nLeafMax;
+		}
 
 		return nLeafCount < pOther->nLeafCount;
 
@@ -321,13 +335,13 @@ bool NeighboursTableModel::NeighbourData::lessThan(int col, NeighbourData* pOthe
 
 	case COUNTRY:
 		return geoIP.countryNameFromCode( sCountry ) <
-				geoIP.countryNameFromCode( pOther->sCountry );
+			   geoIP.countryNameFromCode( pOther->sCountry );
 	default:
 		return false;
 	}
 
 }
-QString NeighboursTableModel::NeighbourData::stateToString(int s) const
+QString NeighboursTableModel::NeighbourData::stateToString( int s ) const
 {
 	switch ( s )
 	{
@@ -347,7 +361,7 @@ QString NeighboursTableModel::NeighbourData::stateToString(int s) const
 		return QString();
 	}
 }
-QString NeighboursTableModel::NeighbourData::typeToString(G2NodeType t) const
+QString NeighboursTableModel::NeighbourData::typeToString( G2NodeType t ) const
 {
 	if ( t == G2_HUB )
 	{
@@ -363,17 +377,17 @@ QString NeighboursTableModel::NeighbourData::typeToString(G2NodeType t) const
 	}
 }
 
-NeighboursTableModel::NeighboursTableModel(QObject* parent, QWidget* container) :
-	QAbstractTableModel(parent)
+NeighboursTableModel::NeighboursTableModel( QObject* parent, QWidget* container ) :
+	QAbstractTableModel( parent )
 {
 	m_oContainer   = container;
 	m_nSortColumn  = -1;
 	m_bNeedSorting = false;
 
-	connect( &neighbours, SIGNAL( neighbourAdded(Neighbour*) ),
-			 this, SLOT( addNode(Neighbour*) ), Qt::QueuedConnection );
-	connect( &neighbours, SIGNAL(neighbourRemoved(Neighbour*) ),
-			 this, SLOT( removeNode(Neighbour*) ), Qt::QueuedConnection );
+	connect( &neighbours, SIGNAL( neighbourAdded( Neighbour* ) ),
+			 this, SLOT( addNode( Neighbour* ) ), Qt::QueuedConnection );
+	connect( &neighbours, SIGNAL( neighbourRemoved( Neighbour* ) ),
+			 this, SLOT( removeNode( Neighbour* ) ), Qt::QueuedConnection );
 }
 
 NeighboursTableModel::~NeighboursTableModel()
@@ -382,7 +396,7 @@ NeighboursTableModel::~NeighboursTableModel()
 	m_lNodes.clear();
 }
 
-int NeighboursTableModel::rowCount(const QModelIndex& parent) const
+int NeighboursTableModel::rowCount( const QModelIndex& parent ) const
 {
 	if ( parent.isValid() )
 	{
@@ -394,7 +408,7 @@ int NeighboursTableModel::rowCount(const QModelIndex& parent) const
 	}
 }
 
-int NeighboursTableModel::columnCount(const QModelIndex& parent) const
+int NeighboursTableModel::columnCount( const QModelIndex& parent ) const
 {
 	if ( parent.isValid() )
 	{
@@ -406,7 +420,7 @@ int NeighboursTableModel::columnCount(const QModelIndex& parent) const
 	}
 }
 
-QVariant NeighboursTableModel::data(const QModelIndex& index, int role) const
+QVariant NeighboursTableModel::data( const QModelIndex& index, int role ) const
 {
 	if ( !index.isValid() )
 	{
@@ -440,41 +454,41 @@ QVariant NeighboursTableModel::data(const QModelIndex& index, int role) const
 	{
 		switch ( nbr->nState )
 		{
-			case nsConnected:
-				//return skinSettings.listsColorSpecial;
-				break;
-			case nsConnecting:
-				//return skinSettings.listsColorActive;
-				break;
-			default:
-				//return skinSettings.listsColorNormal;
-				break;
+		case nsConnected:
+			//return skinSettings.listsColorSpecial;
+			break;
+		case nsConnecting:
+			//return skinSettings.listsColorActive;
+			break;
+		default:
+			//return skinSettings.listsColorNormal;
+			break;
 		}
 	}
 	else if ( role == Qt::FontRole )
 	{
 		QFont font = qApp->font( m_oContainer );
-		switch( nbr->nState )
+		switch ( nbr->nState )
 		{
-			case nsConnected:
-				//font.setWeight(skinSettings.listsWeightSpecial);
-				return font;
-				break;
-			case nsConnecting:
-				//font.setWeight(skinSettings.listsWeightActive);
-				return font;
-				break;
-			default:
-				//font.setWeight(skinSettings.listsWeightNormal);
-				return font;
-				break;
+		case nsConnected:
+			//font.setWeight(skinSettings.listsWeightSpecial);
+			return font;
+			break;
+		case nsConnecting:
+			//font.setWeight(skinSettings.listsWeightActive);
+			return font;
+			break;
+		default:
+			//font.setWeight(skinSettings.listsWeightNormal);
+			return font;
+			break;
 		}
 	}
 
 	return QVariant();
 }
 
-QVariant NeighboursTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant NeighboursTableModel::headerData( int section, Qt::Orientation orientation, int role ) const
 {
 	if ( orientation != Qt::Horizontal )
 	{
@@ -485,58 +499,58 @@ QVariant NeighboursTableModel::headerData(int section, Qt::Orientation orientati
 	{
 		switch ( section )
 		{
-			case ADDRESS:
-				return tr( "Address" );
-			case TIME:
-				return tr( "Time" );
-			case BANDWIDTH:
-				return tr( "Bandwidth" );
-			case BYTES:
-				return tr( "Bytes" );
-			case PACKETS:
-				return tr( "Packets" );
-			case MODE:
-				return tr( "Mode" );
-			case LEAVES:
-				return tr( "Leaves" );
-			case PING:
-				return tr( "Ping" );
-			case USER_AGENT:
-				return tr( "User Agent" );
-			case COUNTRY:
-				return tr( "Country" );
+		case ADDRESS:
+			return tr( "Address" );
+		case TIME:
+			return tr( "Time" );
+		case BANDWIDTH:
+			return tr( "Bandwidth" );
+		case BYTES:
+			return tr( "Bytes" );
+		case PACKETS:
+			return tr( "Packets" );
+		case MODE:
+			return tr( "Mode" );
+		case LEAVES:
+			return tr( "Leaves" );
+		case PING:
+			return tr( "Ping" );
+		case USER_AGENT:
+			return tr( "User Agent" );
+		case COUNTRY:
+			return tr( "Country" );
 		}
 	}
 	else if ( role == Qt::ToolTipRole )
 	{
 		switch ( section )
 		{
-			case ADDRESS:
-				return tr( "The address of remote host" );
-			case TIME:
-				return tr( "When this host was connected" );
-			case BANDWIDTH:
-				return tr( "Current download/upload bandwidth (and dl/ul compression)" );
-			case BYTES:
-				return tr( "How much data we downloaded/uploaded" );
-			case PACKETS:
-				return tr( "Number of received/sent packets" );
-			case MODE:
-				return tr( "Type of connection" );
-			case LEAVES:
-				return tr( "Number of nodes connected to the host" );
-			case PING:
-				return tr( "How fast remote host can reply" );
-			case USER_AGENT:
-				return tr( "Software operating on remote host" );
-			case COUNTRY:
-				return tr( "Country" );
+		case ADDRESS:
+			return tr( "The address of remote host" );
+		case TIME:
+			return tr( "When this host was connected" );
+		case BANDWIDTH:
+			return tr( "Current download/upload bandwidth (and dl/ul compression)" );
+		case BYTES:
+			return tr( "How much data we downloaded/uploaded" );
+		case PACKETS:
+			return tr( "Number of received/sent packets" );
+		case MODE:
+			return tr( "Type of connection" );
+		case LEAVES:
+			return tr( "Number of nodes connected to the host" );
+		case PING:
+			return tr( "How fast remote host can reply" );
+		case USER_AGENT:
+			return tr( "Software operating on remote host" );
+		case COUNTRY:
+			return tr( "Country" );
 		}
 	}
 
 	return QVariant();
 }
-QModelIndex NeighboursTableModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex NeighboursTableModel::index( int row, int column, const QModelIndex& parent ) const
 {
 	if ( parent.isValid() )
 	{
@@ -559,12 +573,12 @@ public:
 	int           column;
 	Qt::SortOrder order;
 
-	CNeighboursTableModelCmp(int col, Qt::SortOrder o) :
+	CNeighboursTableModelCmp( int col, Qt::SortOrder o ) :
 		column( col ),
 		order( o )
 	{}
 
-	bool operator()(NeighboursTableModel::NeighbourData* a, NeighboursTableModel::NeighbourData* b)
+	bool operator()( NeighboursTableModel::NeighbourData* a, NeighboursTableModel::NeighbourData* b )
 	{
 		if ( order == Qt::AscendingOrder )
 		{
@@ -577,7 +591,7 @@ public:
 	}
 };
 
-void NeighboursTableModel::sort(int column, Qt::SortOrder order)
+void NeighboursTableModel::sort( int column, Qt::SortOrder order )
 {
 	m_nSortColumn = column;
 	m_nSortOrder  = order;
@@ -592,20 +606,20 @@ void NeighboursTableModel::sort(int column, Qt::SortOrder order)
 
 	for ( int i = 0; i < oldIdx.size(); ++i ) // For each persistent index
 	{
-		int oldRow = oldIdx.at(i).row();
+		int oldRow = oldIdx.at( i ).row();
 
 		// if oldRow is outside range
 		if ( oldRow > m_lNodes.size()
-				// or the index points to another item
-				|| oldIdx.at(i).internalPointer() != m_lNodes.at(oldRow) )
+			 // or the index points to another item
+			 || oldIdx.at( i ).internalPointer() != m_lNodes.at( oldRow ) )
 		{
 			// find the correct item and update persistent index
 			for ( int j = 0; j < m_lNodes.size(); ++j )
 			{
-				if ( oldIdx.at(i).internalPointer() == m_lNodes.at(j) )
+				if ( oldIdx.at( i ).internalPointer() == m_lNodes.at( j ) )
 				{
-					newIdx[i] = createIndex( j, oldIdx.at(i).column(),
-											 oldIdx.at(i).internalPointer() );
+					newIdx[i] = createIndex( j, oldIdx.at( i ).column(),
+											 oldIdx.at( i ).internalPointer() );
 					break;
 				}
 			}
@@ -616,7 +630,7 @@ void NeighboursTableModel::sort(int column, Qt::SortOrder order)
 	emit layoutChanged();
 }
 
-Neighbour* NeighboursTableModel::nodeFromIndex(const QModelIndex& index)
+Neighbour* NeighboursTableModel::nodeFromIndex( const QModelIndex& index )
 {
 	if ( index.isValid() && index.row() < m_lNodes.count() && index.row() >= 0 )
 	{
@@ -628,7 +642,7 @@ Neighbour* NeighboursTableModel::nodeFromIndex(const QModelIndex& index)
 	}
 }
 
-void NeighboursTableModel::addNode(Neighbour* pNode)
+void NeighboursTableModel::addNode( Neighbour* pNode )
 {
 	neighbours.m_pSection.lock();
 	if ( neighbours.neighbourExists( pNode ) )
@@ -641,7 +655,7 @@ void NeighboursTableModel::addNode(Neighbour* pNode)
 	neighbours.m_pSection.unlock();
 }
 
-void NeighboursTableModel::removeNode(Neighbour* pNode)
+void NeighboursTableModel::removeNode( Neighbour* pNode )
 {
 	for ( int i = 0, nMax = m_lNodes.size(); i < nMax; ++i )
 	{
@@ -654,7 +668,7 @@ void NeighboursTableModel::removeNode(Neighbour* pNode)
 
 			for ( int j = 0; j < currIdx.size(); ++j )
 			{
-				if ( currIdx.at(j).internalPointer() == m_lNodes.at(i) )
+				if ( currIdx.at( j ).internalPointer() == m_lNodes.at( i ) )
 				{
 					newIdx[j] = QModelIndex();
 					bChanged = true;
@@ -686,7 +700,7 @@ void NeighboursTableModel::updateAll()
 	{
 		for ( int i = 0, max = m_lNodes.count(); i < max; ++i )
 		{
-			if ( m_lNodes[i]->update(i, m_nSortColumn, uplist, this) )
+			if ( m_lNodes[i]->update( i, m_nSortColumn, uplist, this ) )
 			{
 				bSort = true;
 			}
@@ -704,11 +718,11 @@ void NeighboursTableModel::updateAll()
 	{
 		if ( !uplist.isEmpty() )
 		{
-			QAbstractItemView* pView = qobject_cast<QAbstractItemView*>(m_oContainer);
+			QAbstractItemView* pView = qobject_cast<QAbstractItemView*>( m_oContainer );
 
 			if ( pView )
 			{
-				foreach ( const QModelIndex& index, uplist )
+				foreach ( const QModelIndex & index, uplist )
 				{
 					pView->update( index );
 				}

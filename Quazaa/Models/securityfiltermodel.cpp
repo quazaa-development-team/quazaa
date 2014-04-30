@@ -5,7 +5,7 @@
  * @param pTarget : the target model
  * @param bShowAutomatic : whether to show auto generated rules or not
  */
-SecurityFilterModel::SecurityFilterModel(SecurityTableModel* pTarget, bool bShowAutomatic)
+SecurityFilterModel::SecurityFilterModel( SecurityTableModel* pTarget, bool bShowAutomatic )
 {
 	m_lSecurity = pTarget;
 	setSourceModel( m_lSecurity );
@@ -18,7 +18,7 @@ SecurityFilterModel::SecurityFilterModel(SecurityTableModel* pTarget, bool bShow
  * @param nColumn : the column used as a basis for sorting
  * @param eOrder : the sort order
  */
-void SecurityFilterModel::sort(int nColumn, Qt::SortOrder eOrder)
+void SecurityFilterModel::sort( int nColumn, Qt::SortOrder eOrder )
 {
 	m_lSecurity->sort( nColumn, eOrder );
 }
@@ -29,10 +29,12 @@ void SecurityFilterModel::sort(int nColumn, Qt::SortOrder eOrder)
  * @param sourceParent : parent
  * @return true if source row should be included in view; false otherwise
  */
-bool SecurityFilterModel::filterAcceptsRow(int nSourceRow, const QModelIndex& sourceParent) const
+bool SecurityFilterModel::filterAcceptsRow( int nSourceRow, const QModelIndex& sourceParent ) const
 {
 	if ( sourceParent.isValid() )
+	{
 		return false;
+	}
 
 	Q_ASSERT( nSourceRow >= 0 && nSourceRow < m_lSecurity->rowCount() );
 

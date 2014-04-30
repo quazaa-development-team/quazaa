@@ -54,7 +54,7 @@ protected:
 #endif
 
 public:
-	Buffer(quint32 nMinimum = 1024u);
+	Buffer( quint32 nMinimum = 1024u );
 	~Buffer();
 
 	inline char*        data();
@@ -62,7 +62,7 @@ public:
 	inline quint32      size() const;
 	inline quint32      capacity() const;
 	inline bool         isEmpty() const;
-	inline void         setMinimumAllocationSize(quint32 nSize);
+	inline void         setMinimumAllocationSize( quint32 nSize );
 	inline Buffer&      clear();
 
 	/**
@@ -72,11 +72,11 @@ public:
 	 * @param nLength : the amount of bytes to copy
 	 * @return *this
 	 */
-	Buffer& append(const void* pData, const quint32 nLength);
-	Buffer& append(const char* pCStr);
-	Buffer& append(const QByteArray& baData);
-	Buffer& append(const Buffer& pOther);
-	Buffer& append(const Buffer* pOther);
+	Buffer& append( const void* pData, const quint32 nLength );
+	Buffer& append( const char* pCStr );
+	Buffer& append( const QByteArray& baData );
+	Buffer& append( const Buffer& pOther );
+	Buffer& append( const Buffer* pOther );
 
 	/**
 	 * @brief prepend writes nLength bytes of data to the beginning of this buffer. A deep copy of
@@ -86,8 +86,8 @@ public:
 	 * @param nLength : the number of bytes to prepend
 	 * @return *this
 	 */
-	Buffer& prepend(const void* pData, const quint32 nLength);
-	Buffer& prepend(const char* pCStr);
+	Buffer& prepend( const void* pData, const quint32 nLength );
+	Buffer& prepend( const char* pCStr );
 
 	/**
 	 * @brief insert inserts nLength amount of data bytes at nOffset into the buffer.
@@ -96,8 +96,8 @@ public:
 	 * @param nLength : number of bytes to insert
 	 * @return *this
 	 */
-	Buffer& insert(const quint32 nOffset, const void* pData, const quint32 nLength);
-	Buffer& insert(const quint32 nOffset, const char* pCStr);
+	Buffer& insert( const quint32 nOffset, const void* pData, const quint32 nLength );
+	Buffer& insert( const quint32 nOffset, const char* pCStr );
 
 	/**
 	 * @brief remove removes nLength bytes starting at nPos from the buffer.
@@ -105,43 +105,43 @@ public:
 	 * @param nLength : the number of bytes to remove
 	 * @return the buffer after the requested operation
 	 */
-	Buffer& remove(const quint32 nLength, const quint32 nPos = 0);
+	Buffer& remove( const quint32 nLength, const quint32 nPos = 0 );
 
 	/**
 	 * @brief ensure makes sure the buffer is able to append at least nLength more bytes.
 	 * @param nLength : the number of bytes
 	 */
-	void ensure(const quint32 nLength);
+	void ensure( const quint32 nLength );
 
 	/**
 	 * @brief ensureFront makes sure the buffer is able to prepend at least nLength more bytes.
 	 * @param nLength : the number of bytes
 	 */
-	void ensureFront(const quint32 nLength);
+	void ensureFront( const quint32 nLength );
 
 	/**
 	 * @brief resize resizes the buffer to hold nLength bytes of data. Note that the actual capacity
 	 * might be larger than nLength after this operation.
 	 * @param nLength : the new size of the buffer
 	 */
-	void resize(const quint32 nLength);
+	void resize( const quint32 nLength );
 
 	QString toHex() const;
 	QString toAscii() const;
 	QString dump() const;
 
 private:
-	void reallocate(quint32 nNewSize);
+	void reallocate( quint32 nNewSize );
 
 	/**
 	 * @brief moveDataTo moves all data to position nOffset in the allocated space. Make sure to
 	 * ensure() enough space before calling this method.
 	 * @param nOffset : the offset position
 	 */
-	void moveDataTo(const quint32 nOffset);
+	void moveDataTo( const quint32 nOffset );
 
 #if DEBUG_BUFFER
-	void writeMessage(QString& sMessage);
+	void writeMessage( QString& sMessage );
 #endif
 };
 
@@ -170,7 +170,7 @@ bool Buffer::isEmpty() const
 	return !m_nCurrentSize;
 }
 
-void Buffer::setMinimumAllocationSize(quint32 nSize)
+void Buffer::setMinimumAllocationSize( quint32 nSize )
 {
 	m_nMinimumAllocationSize = nSize;
 }

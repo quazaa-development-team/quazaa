@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -31,12 +31,12 @@
 
 #include "debug_new.h"
 
-CWidgetScheduler::CWidgetScheduler(QWidget* parent) :
-	QMainWindow(parent),
-	ui(new Ui::CWidgetScheduler)
+CWidgetScheduler::CWidgetScheduler( QWidget* parent ) :
+	QMainWindow( parent ),
+	ui( new Ui::CWidgetScheduler )
 {
-	ui->setupUi(this);
-	restoreState(quazaaSettings.WinMain.SchedulerToolbar);
+	ui->setupUi( this );
+	restoreState( quazaaSettings.WinMain.SchedulerToolbar );
 	setSkin();
 }
 
@@ -45,16 +45,16 @@ CWidgetScheduler::~CWidgetScheduler()
 	delete ui;
 }
 
-void CWidgetScheduler::changeEvent(QEvent* e)
+void CWidgetScheduler::changeEvent( QEvent* e )
 {
-	QMainWindow::changeEvent(e);
-	switch(e->type())
+	QMainWindow::changeEvent( e );
+	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 
@@ -65,13 +65,13 @@ void CWidgetScheduler::saveWidget()
 
 void CWidgetScheduler::on_actionAddScheduledTask_triggered()
 {
-	CDialogScheduler* dlgScheduler = new CDialogScheduler(this);
+	CDialogScheduler* dlgScheduler = new CDialogScheduler( this );
 	dlgScheduler->show();
 }
 
 void CWidgetScheduler::on_actionScheduleProperties_triggered()
 {
-	CDialogScheduler* dlgScheduler = new CDialogScheduler(this);
+	CDialogScheduler* dlgScheduler = new CDialogScheduler( this );
 	dlgScheduler->show();
 }
 

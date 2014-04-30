@@ -29,14 +29,14 @@
 
 #include "debug_new.h"
 
-NeighboursBase::NeighboursBase(QObject* parent) :
-	QObject(parent),
-	m_bActive(false)
+NeighboursBase::NeighboursBase( QObject* parent ) :
+	QObject( parent ),
+	m_bActive( false )
 {
 }
 NeighboursBase::~NeighboursBase()
 {
-	if(m_bActive)
+	if ( m_bActive )
 	{
 		disconnectNode();
 	}
@@ -44,7 +44,7 @@ NeighboursBase::~NeighboursBase()
 
 void NeighboursBase::connectNode()
 {
-	ASSUME_LOCK(m_pSection);
+	ASSUME_LOCK( m_pSection );
 
 	connect( &securityManager.m_oSanity, SIGNAL( beginSanityCheck() ),
 			 this, SLOT( sanityCheck() ), Qt::UniqueConnection );
@@ -56,39 +56,39 @@ void NeighboursBase::connectNode()
 }
 void NeighboursBase::disconnectNode()
 {
-	ASSUME_LOCK(m_pSection);
+	ASSUME_LOCK( m_pSection );
 
 	m_bActive = false;
 }
 
-void NeighboursBase::addNode(Neighbour* pNode)
+void NeighboursBase::addNode( Neighbour* pNode )
 {
-	ASSUME_LOCK(m_pSection);
+	ASSUME_LOCK( m_pSection );
 
-	m_lNodes.append(pNode);
-	m_lNodesByAddr.insert(pNode->m_oAddress, pNode);
-	m_lNodesByPtr.insert(pNode);
+	m_lNodes.append( pNode );
+	m_lNodesByAddr.insert( pNode->m_oAddress, pNode );
+	m_lNodesByPtr.insert( pNode );
 
-	emit neighbourAdded(pNode);
+	emit neighbourAdded( pNode );
 }
-void NeighboursBase::removeNode(Neighbour* pNode)
+void NeighboursBase::removeNode( Neighbour* pNode )
 {
-	ASSUME_LOCK(m_pSection);
+	ASSUME_LOCK( m_pSection );
 
-	m_lNodes.removeAll(pNode);
-	m_lNodesByAddr.remove(pNode->m_oAddress);
-	m_lNodesByPtr.remove(pNode);
+	m_lNodes.removeAll( pNode );
+	m_lNodesByAddr.remove( pNode->m_oAddress );
+	m_lNodesByPtr.remove( pNode );
 
-	emit neighbourRemoved(pNode);
+	emit neighbourRemoved( pNode );
 }
 
-Neighbour* NeighboursBase::find(const QHostAddress& oAddress, DiscoveryProtocol::Protocol nProtocol)
+Neighbour* NeighboursBase::find( const QHostAddress& oAddress, DiscoveryProtocol::Protocol nProtocol )
 {
-	ASSUME_LOCK(m_pSection);
+	ASSUME_LOCK( m_pSection );
 
 	if ( m_lNodesByAddr.contains( oAddress ) )
 	{
-		foreach ( Neighbour* pRet, m_lNodesByAddr.values( oAddress ) )
+		foreach ( Neighbour * pRet, m_lNodesByAddr.values( oAddress ) )
 		{
 			if ( pRet->m_nProtocol == nProtocol || nProtocol == DiscoveryProtocol::None )
 			{
@@ -98,11 +98,11 @@ Neighbour* NeighboursBase::find(const QHostAddress& oAddress, DiscoveryProtocol:
 	}
 	return 0;
 }
-bool NeighboursBase::neighbourExists(const Neighbour* pNode)
+bool NeighboursBase::neighbourExists( const Neighbour* pNode )
 {
-	ASSUME_LOCK(m_pSection);
+	ASSUME_LOCK( m_pSection );
 
-	return m_lNodesByPtr.contains(const_cast<Neighbour * const&>(pNode));
+	return m_lNodesByPtr.contains( const_cast<Neighbour* const&>( pNode ) );
 }
 
 void NeighboursBase::maintain()
@@ -111,7 +111,7 @@ void NeighboursBase::maintain()
 
 	quint32 tNow = time( NULL );
 
-	foreach ( Neighbour* pNode, m_lNodes )
+	foreach ( Neighbour * pNode, m_lNodes )
 	{
 		pNode->onTimer( tNow );
 	}

@@ -27,23 +27,25 @@ CMagnet::CMagnet() :
 	m_bNull( true )
 {}
 
-CMagnet::CMagnet(QString sMagnet) :
+CMagnet::CMagnet( QString sMagnet ) :
 	m_bNull( false )
 {
 	parseMagnet( sMagnet );
 }
 
-CMagnet::MagnetFile CMagnet::operator[](const quint16 nID) const
+CMagnet::MagnetFile CMagnet::operator[]( const quint16 nID ) const
 {
 	return m_lFiles[nID];
 }
 
-bool CMagnet::parseMagnet(QString sMagnet)
+bool CMagnet::parseMagnet( QString sMagnet )
 {
 	m_bNull = false;
 
 	if ( !sMagnet.startsWith( "magnet:?" ) )
+	{
 		return false;
+	}
 
 	m_sMagnet = sMagnet;
 	m_lFiles.clear();
@@ -70,7 +72,7 @@ bool CMagnet::parseMagnet(QString sMagnet)
 		if ( pos2 == -1 )
 		{
 			QString sub = QObject::tr( "Subsection: %1" ).arg( sSubsection );
-			systemLog.postLog( LogSeverity::Error, QObject::tr("Error while parsing subsection of Magnet Link:") );
+			systemLog.postLog( LogSeverity::Error, QObject::tr( "Error while parsing subsection of Magnet Link:" ) );
 			systemLog.postLog( LogSeverity::Error, m_sMagnet );
 			systemLog.postLog( LogSeverity::Error, sub );
 			continue;
@@ -135,7 +137,7 @@ bool CMagnet::parseMagnet(QString sMagnet)
 				else
 				{
 					QString sub = QObject::tr( "Hash URN: %1" ).arg( sSubsection );
-					systemLog.postLog( LogSeverity::Error, QObject::tr("Detected unknown hash type within Magnet Link:") );
+					systemLog.postLog( LogSeverity::Error, QObject::tr( "Detected unknown hash type within Magnet Link:" ) );
 					systemLog.postLog( LogSeverity::Error, m_sMagnet );
 					systemLog.postLog( LogSeverity::Error, sub );
 
@@ -165,7 +167,8 @@ bool CMagnet::parseMagnet(QString sMagnet)
 			else if ( sParam.startsWith( "mt" ) )
 			{
 				QString sub = QObject::tr( "Manifest Topic: %1=%2" ).arg( sParam, sSubsection );
-				systemLog.postLog( LogSeverity::Error, QObject::tr("Detected unsupported \"Manifest Topic\" section in Magnet Link:") );
+				systemLog.postLog( LogSeverity::Error,
+								   QObject::tr( "Detected unsupported \"Manifest Topic\" section in Magnet Link:" ) );
 				systemLog.postLog( LogSeverity::Error, m_sMagnet );
 				systemLog.postLog( LogSeverity::Error, sub );
 			}
@@ -186,14 +189,14 @@ bool CMagnet::parseMagnet(QString sMagnet)
 			else if ( sParam.startsWith( "x." ) ) // Experimental stuff
 			{
 				QString sub = QObject::tr( "Experimental Subsection: %1=%2" ).arg( sParam, sSubsection );
-				systemLog.postLog( LogSeverity::Error, QObject::tr("Detected unsupported experimental subsection in Magnet Link:") );
+				systemLog.postLog( LogSeverity::Error, QObject::tr( "Detected unsupported experimental subsection in Magnet Link:" ) );
 				systemLog.postLog( LogSeverity::Error, m_sMagnet );
 				systemLog.postLog( LogSeverity::Error, sub );
 			}
 			else
 			{
 				QString sub = QObject::tr( "Subsection: %1=%2" ).arg( sParam, sSubsection );
-				systemLog.postLog( LogSeverity::Error, QObject::tr("Detected unknown type of subsection within Magnet Link:") );
+				systemLog.postLog( LogSeverity::Error, QObject::tr( "Detected unknown type of subsection within Magnet Link:" ) );
 				systemLog.postLog( LogSeverity::Error, m_sMagnet );
 				systemLog.postLog( LogSeverity::Error, sub );
 			}
@@ -213,7 +216,7 @@ bool CMagnet::parseMagnet(QString sMagnet)
 		}
 	}
 
-	foreach ( const QString& sSearch, mSearches )
+	foreach ( const QString & sSearch, mSearches )
 	{
 		if ( !sSearch.trimmed().isEmpty() )
 		{
@@ -224,7 +227,7 @@ bool CMagnet::parseMagnet(QString sMagnet)
 	return m_lFiles.size() + m_lSearches.size();
 }
 
-bool CMagnet::file(const quint16 nID, Download* pDownload) const
+bool CMagnet::file( const quint16 nID, Download* pDownload ) const
 {
 	if ( nID >= m_lFiles.size() )
 	{
@@ -247,7 +250,7 @@ bool CMagnet::file(const quint16 nID, Download* pDownload) const
 	return true;
 }
 
-QString CMagnet::search(const quint16 nID) const
+QString CMagnet::search( const quint16 nID ) const
 {
 	if ( nID >= m_lSearches.size() )
 	{
@@ -261,10 +264,10 @@ QString CMagnet::search(const quint16 nID) const
 }
 
 
-void CMagnet::subsectionError(QString sParam, QString sSubsection)
+void CMagnet::subsectionError( QString sParam, QString sSubsection )
 {
 	QString sub = QObject::tr( "Subsection: %1=%2" ).arg( sParam, sSubsection );
-	systemLog.postLog( LogSeverity::Error, QObject::tr("Error while parsing subsection of Magnet Link:") );
+	systemLog.postLog( LogSeverity::Error, QObject::tr( "Error while parsing subsection of Magnet Link:" ) );
 	systemLog.postLog( LogSeverity::Error, m_sMagnet );
 	systemLog.postLog( LogSeverity::Error, sub );
 }

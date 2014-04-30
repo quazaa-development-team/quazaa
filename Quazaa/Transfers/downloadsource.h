@@ -30,8 +30,8 @@ public:
 	Fragments::List		m_lAvailableFrags;
 	Fragments::List		m_lDownloadedFrags;
 public:
-	CDownloadSource(Download* pDownload, QObject* parent = 0);
-	CDownloadSource(Download* pDownload, QueryHit* pHit, QObject* parent = 0);
+	CDownloadSource( Download* pDownload, QObject* parent = 0 );
+	CDownloadSource( Download* pDownload, QueryHit* pHit, QObject* parent = 0 );
 	virtual ~CDownloadSource();
 
 public slots:
@@ -45,21 +45,21 @@ public:
 signals:
 	void transferCreated();
 	void transferClosed();
-	void bytesReceived(quint64, quint64); // offset, length
+	void bytesReceived( quint64, quint64 ); // offset, length
 };
 
-Q_DECLARE_METATYPE(CDownloadSource*)
+Q_DECLARE_METATYPE( CDownloadSource* )
 
 bool CDownloadSource::canAccess()
 {
-	return time(0) > m_tNextAccess;
+	return time( 0 ) > m_tNextAccess;
 }
 bool CDownloadSource::hasTransfer()
 {
-	return (m_pTransfer != 0);
+	return ( m_pTransfer != 0 );
 }
 
-QDataStream& operator<<(QDataStream& s, const CDownloadSource& rhs);
-QDataStream& operator>>(QDataStream& s, CDownloadSource& rhs);
+QDataStream& operator<<( QDataStream& s, const CDownloadSource& rhs );
+QDataStream& operator>>( QDataStream& s, CDownloadSource& rhs );
 
 #endif // DOWNLOADSOURCE_H

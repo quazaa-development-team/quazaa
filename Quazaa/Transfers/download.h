@@ -56,27 +56,27 @@ public:
 	QDateTime				m_tStarted;
 public:
 	Download()
-		: m_lCompleted(0),
-		  m_lVerified(0),
-		  m_lActive(0),
-		  m_bSignalSources(false), m_bModified(false),m_nTransfers(0)
+		: m_lCompleted( 0 ),
+		  m_lVerified( 0 ),
+		  m_lActive( 0 ),
+		  m_bSignalSources( false ), m_bModified( false ), m_nTransfers( 0 )
 	{}
-	Download(QueryHit* pHit, QObject *parent = 0);
+	Download( QueryHit* pHit, QObject* parent = 0 );
 	~Download();
 
 	void start();
 	void pause();
 	void cancelDownload();
-	bool addSource(CDownloadSource* pSource);
-	int  addSource(QueryHit* pHit);
-	void removeSource(CDownloadSource* pSource);
-	int  startTransfers(int nMaxTransfers = -1);
+	bool addSource( CDownloadSource* pSource );
+	int  addSource( QueryHit* pHit );
+	void removeSource( CDownloadSource* pSource );
+	int  startTransfers( int nMaxTransfers = -1 );
 	void stopTransfers();
-	bool sourceExists(CDownloadSource* pSource);
+	bool sourceExists( CDownloadSource* pSource );
 
 	QList<CTransfer*> getTransfers();
 
-	Fragments::List getPossibleFragments(const Fragments::List& oAvailable, Fragments::Fragment& oLargest);
+	Fragments::List getPossibleFragments( const Fragments::List& oAvailable, Fragments::Fragment& oLargest );
 	Fragments::List getWantedFragments();
 
 	void saveState();
@@ -88,19 +88,19 @@ public:
 	inline int  transfersCount();
 	inline bool canDownload();
 protected:
-	void setState(Download::DownloadState state);
+	void setState( Download::DownloadState state );
 signals:
-	void sourceAdded(CDownloadSource*);
-	void stateChanged(int);
+	void sourceAdded( CDownloadSource* );
+	void stateChanged( int );
 public slots:
 	void emitSources();
 };
 
-Q_DECLARE_METATYPE(Download*);
-Q_DECLARE_METATYPE(Download::DownloadState);
+Q_DECLARE_METATYPE( Download* );
+Q_DECLARE_METATYPE( Download::DownloadState );
 
-QDataStream& operator<<(QDataStream& s, const Download& rhs);
-QDataStream& operator>>(QDataStream& s, Download& rhs);
+QDataStream& operator<<( QDataStream& s, const Download& rhs );
+QDataStream& operator>>( QDataStream& s, Download& rhs );
 
 bool Download::isModified()
 {
@@ -108,11 +108,11 @@ bool Download::isModified()
 }
 bool Download::isCompleted()
 {
-	return (m_nState == dsCompleted);
+	return ( m_nState == dsCompleted );
 }
 bool Download::isDownloading()
 {
-	return (m_nState == dsDownloading);
+	return ( m_nState == dsDownloading );
 }
 
 int Download::sourceCount()
@@ -125,9 +125,9 @@ int Download::transfersCount()
 }
 bool Download::canDownload()
 {
-	return (m_nState != dsPaused && m_nState != dsCompleted
-			&& m_nState != dsMoving && m_nState != dsVerifying
-			&& m_nState != dsFileError && m_nState != dsQueued);
+	return ( m_nState != dsPaused && m_nState != dsCompleted
+			 && m_nState != dsMoving && m_nState != dsVerifying
+			 && m_nState != dsFileError && m_nState != dsQueued );
 }
 
 #endif // DOWNLOAD_H

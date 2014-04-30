@@ -55,10 +55,10 @@ public:
 
 
 public:
-	Neighbour(QObject* parent = NULL);
+	Neighbour( QObject* parent = NULL );
 	virtual ~Neighbour();
 
-	virtual void connectTo(EndPoint oAddress)
+	virtual void connectTo( EndPoint oAddress )
 	{
 		systemLog.postLog( LogSeverity::Information, Component::Network,
 						   "Initiating neighbour connection to %s...",
@@ -66,20 +66,20 @@ public:
 		m_nState = nsConnecting;
 		NetworkConnection::connectTo( oAddress );
 	}
-	void attachTo(NetworkConnection* pOther)
+	void attachTo( NetworkConnection* pOther )
 	{
 		m_nState = nsHandshaking;
 		CCompressedConnection::attachTo( pOther );
 	}
 
-	virtual void onTimer(quint32 tNow);
-	void close(bool bDelayed = false);
+	virtual void onTimer( quint32 tNow );
+	void close( bool bDelayed = false );
 
 signals:
 
 public slots:
 	void onDisconnectNode();
-	void onError(QAbstractSocket::SocketError e);
+	void onError( QAbstractSocket::SocketError e );
 
 };
 

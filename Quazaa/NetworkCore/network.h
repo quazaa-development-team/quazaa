@@ -60,7 +60,7 @@ public:
 	bool             m_bSharesReady;
 
 public:
-	NetworkG2(QObject* parent = 0);
+	NetworkG2( QObject* parent = 0 );
 	~NetworkG2();
 
 	/**
@@ -80,21 +80,21 @@ public:
 	 * @param sHeader : String representation of the IP without port
 	 * @return true if IP could be parsed; false otherwise
 	 */
-	bool acquireLocalAddress(const QString& sHeader);
+	bool acquireLocalAddress( const QString& sHeader );
 
 	bool isListening();
 	bool isFirewalled();
 
-	bool routePacket(QUuid& pTargetGUID, G2Packet* pPacket, bool bLockNeighbours = false,
-					 bool bBuffered = true);
-	bool routePacket(G2Packet* pPacket, G2Node* pNbr = 0);
+	bool routePacket( QUuid& pTargetGUID, G2Packet* pPacket, bool bLockNeighbours = false,
+					  bool bBuffered = true );
+	bool routePacket( G2Packet* pPacket, G2Node* pNbr = 0 );
 
 	inline EndPoint getLocalAddress()
 	{
 		return m_oAddress;
 	}
 
-	bool isConnectedTo(EndPoint addr);
+	bool isConnectedTo( EndPoint addr );
 
 public slots:
 	void onSecondTimer();
@@ -102,7 +102,7 @@ public slots:
 	void setupThread();
 	void cleanupThread();
 
-	void connectToNode(EndPoint& addr);
+	void connectToNode( EndPoint& addr );
 
 	void onSharesReady();
 

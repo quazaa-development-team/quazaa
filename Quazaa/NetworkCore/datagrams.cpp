@@ -212,27 +212,27 @@ void Datagrams::onDatagram()
 
 		if ( nReadSize < 8 )
 		{
-		//	continue;
+			//	continue;
 			return;
 		}
 
 		// TODO: Ask brov about this. Should we reply with something like: "You are banned!"?
-		EndPoint addr(*m_pHostAddress, m_nPort);
+		EndPoint addr( *m_pHostAddress, m_nPort );
 		// Don't continue processing packets from hosts that are banned.
-		if ( securityManager.isDenied(addr) )
+		if ( securityManager.isDenied( addr ) )
 		{
 			systemLog.postLog( LogSeverity::Security, Component::Network,
 							   tr( "Dropped packet from banned host: %1."
-								   ).arg( m_pHostAddress->toString() ) );
-		//	continue;
+								 ).arg( m_pHostAddress->toString() ) );
+			//	continue;
 			return;
 		}
 
 		++m_nInFrags;
 
-		GND_HEADER* pHeader = (GND_HEADER*)m_pRecvBuffer->data();
+		GND_HEADER* pHeader = ( GND_HEADER* )m_pRecvBuffer->data();
 		// else packet is not a GNutella Datagram and we can't handle it here
-		if ( strncmp( (char*)&pHeader->szTag, "GND", 3 ) == 0 )
+		if ( strncmp( ( char* )&pHeader->szTag, "GND", 3 ) == 0 )
 		{
 			// check if nPart and nCount are valid
 			if ( pHeader->nPart > 0 && ( !pHeader->nCount || pHeader->nPart <= pHeader->nCount ) )
@@ -265,12 +265,13 @@ void Datagrams::onDatagram()
 
 void Datagrams::onReceiveGND()
 {
-	GND_HEADER* pHeader = (GND_HEADER*)m_pRecvBuffer->data();
+	GND_HEADER* pHeader = ( GND_HEADER* )m_pRecvBuffer->data();
 	QHostAddress nIp = *m_pHostAddress;
-	quint32 nSeq = ((pHeader->nSequence << 16) & 0xFFFF0000) + (m_nPort & 0x0000FFFF);
+	quint32 nSeq = ( ( pHeader->nSequence << 16 ) & 0xFFFF0000 ) + ( m_nPort & 0x0000FFFF );
 
 #ifdef DEBUG_UDP
-	systemLog.postLog(LogSeverity::Debug, "Received GND from %s:%u nSequence = %u nPart = %u nCount = %u", m_pHostAddress->toString().toLocal8Bit().constData(), m_nPort, pHeader->nSequence, pHeader->nPart, pHeader->nCount);
+	systemLog.postLog( LogSeverity::Debug, "Received GND from %s:%u nSequence = %u nPart = %u nCount = %u",
+					   m_pHostAddress->toString().toLocal8Bit().constData(), m_nPort, pHeader->nSequence, pHeader->nPart, pHeader->nCount );
 #endif
 
 	DatagramIn* pDatagramIn = 0;
@@ -287,21 +288,21 @@ void Datagrams::onReceiveGND()
 	}
 	else
 	{
-		QMutexLocker l(&m_pSection);
+		QMutexLocker l( &m_pSection );
 
-		if(!m_FreeDatagramIn.isEmpty())
+		if ( !m_FreeDatagramIn.isEmpty() )
 		{
 			pDatagramIn = m_FreeDatagramIn.takeFirst();
 		}
 		else
 		{
-			if(m_FreeDatagramIn.isEmpty())
+			if ( m_FreeDatagramIn.isEmpty() )
 			{
-				removeOldIn(true);
-				if(m_FreeDatagramIn.isEmpty())
+				removeOldIn( true );
+				if ( m_FreeDatagramIn.isEmpty() )
 				{
 #ifdef DEBUG_UDP
-					systemLog.postLog(LogSeverity::Debug, QString("UDP in frames exhausted"));
+					systemLog.postLog( LogSeverity::Debug, QString( "UDP in frames exhausted" ) );
 #endif
 					m_nDiscarded++;
 					return;
@@ -311,190 +312,198 @@ void Datagrams::onReceiveGND()
 			pDatagramIn = m_FreeDatagramIn.takeFirst();
 		}
 
-		if(m_FreeBuffer.size() < pHeader->nCount)
+		if ( m_FreeBuffer.size() < pHeader->nCount )
 		{
 			m_nDiscarded++;
-			m_FreeDatagramIn.append(pDatagramIn);
-			removeOldIn(false);
+			m_FreeDatagramIn.append( pDatagramIn );
+			removeOldIn( false );
 			return;
 		}
 
-		pDatagramIn->create(EndPoint(*m_pHostAddress, m_nPort), pHeader->nFlags, pHeader->nSequence, pHeader->nCount);
+		pDatagramIn->create( EndPoint( *m_pHostAddress, m_nPort ), pHeader->nFlags, pHeader->nSequence, pHeader->nCount );
 
-		for(int i = 0; i < pHeader->nCount; i++)
+		for ( int i = 0; i < pHeader->nCount; i++ )
 		{
-			Q_ASSERT(pDatagramIn->m_pBuffer[i] == 0);
+			Q_ASSERT( pDatagramIn->m_pBuffer[i] == 0 );
 			pDatagramIn->m_pBuffer[i] = m_FreeBuffer.takeFirst();
 		}
 
 		m_RecvCache[nIp][nSeq] = pDatagramIn;
-		m_RecvCacheTime.prepend(pDatagramIn);
+		m_RecvCacheTime.prepend( pDatagramIn );
 	}
 
 	// It is here, in case if we did not have free datagrams
 	// ACK = I've received a datagram, and if you have received and rejected it, do not send ACK-a
-	if(pHeader->nFlags & 0x02)
+	if ( pHeader->nFlags & 0x02 )
 	{
 		GND_HEADER* pAck = new GND_HEADER;
 
-		memcpy(pAck, pHeader, sizeof(GND_HEADER));
+		memcpy( pAck, pHeader, sizeof( GND_HEADER ) );
 		pAck->nCount = 0;
 		pAck->nFlags = 0;
 
 #ifdef DEBUG_UDP
-		systemLog.postLog(LogSeverity::Debug, "Sending UDP ACK to %s:%u", m_pHostAddress->toString().toLocal8Bit().constData(), m_nPort);
+		systemLog.postLog( LogSeverity::Debug, "Sending UDP ACK to %s:%u", m_pHostAddress->toString().toLocal8Bit().constData(),
+						   m_nPort );
 #endif
 
 		//m_pSocket->writeDatagram((char*)&oAck, sizeof(GND_HEADER), *m_pHostAddress, m_nPort);
 		//m_mOutput.Add(sizeof(GND_HEADER));
-		m_AckCache.append(qMakePair(EndPoint(*m_pHostAddress, m_nPort), reinterpret_cast<char*>(pAck)));
-		if( m_AckCache.count() == 1 )
-			QMetaObject::invokeMethod(this, "flushSendCache", Qt::QueuedConnection);
+		m_AckCache.append( qMakePair( EndPoint( *m_pHostAddress, m_nPort ), reinterpret_cast<char*>( pAck ) ) );
+		if ( m_AckCache.count() == 1 )
+		{
+			QMetaObject::invokeMethod( this, "flushSendCache", Qt::QueuedConnection );
+		}
 	}
 
-	if(pDatagramIn->add(pHeader->nPart, m_pRecvBuffer->data() + sizeof(GND_HEADER), m_pRecvBuffer->size() - sizeof(GND_HEADER)))
+	if ( pDatagramIn->add( pHeader->nPart, m_pRecvBuffer->data() + sizeof( GND_HEADER ),
+						   m_pRecvBuffer->size() - sizeof( GND_HEADER ) ) )
 	{
 
 		G2Packet* pPacket = 0;
 		try
 		{
-			EndPoint addr(*m_pHostAddress, m_nPort);
+			EndPoint addr( *m_pHostAddress, m_nPort );
 			pPacket = pDatagramIn->toG2Packet();
-			if(pPacket)
+			if ( pPacket )
 			{
 				onPacket( pPacket, addr );
 			}
 		}
-		catch(...)
+		catch ( ... )
 		{
 
 		}
-		if(pPacket)
+		if ( pPacket )
 		{
 			pPacket->release();
 		}
 
 		m_pSection.lock();
-		remove(pDatagramIn, true);
+		remove( pDatagramIn, true );
 		m_pSection.unlock();
 	}
 }
 
 void Datagrams::onAcknowledgeGND()
 {
-	GND_HEADER* pHeader = (GND_HEADER*)m_pRecvBuffer->data();
+	GND_HEADER* pHeader = ( GND_HEADER* )m_pRecvBuffer->data();
 
 #ifdef DEBUG_UDP
-	systemLog.postLog(LogSeverity::Debug, "UDP received GND ACK from %s seq %u part %u", m_pHostAddress->toString().toLocal8Bit().constData(), pHeader->nSequence, pHeader->nPart);
+	systemLog.postLog( LogSeverity::Debug, "UDP received GND ACK from %s seq %u part %u",
+					   m_pHostAddress->toString().toLocal8Bit().constData(), pHeader->nSequence, pHeader->nPart );
 #endif
 
-	if(!m_SendCacheMap.contains(pHeader->nSequence))
+	if ( !m_SendCacheMap.contains( pHeader->nSequence ) )
 	{
 		return;
 	}
 
-	DatagramOut* pDatagramOut = m_SendCacheMap.value(pHeader->nSequence);
+	DatagramOut* pDatagramOut = m_SendCacheMap.value( pHeader->nSequence );
 
-	if(pDatagramOut->acknowledge(pHeader->nPart))
+	if ( pDatagramOut->acknowledge( pHeader->nPart ) )
 	{
 		m_pSection.lock();
-		remove(pDatagramOut);
+		remove( pDatagramOut );
 		m_pSection.unlock();
 	}
 }
 
-void Datagrams::remove(DatagramIn* pDatagramIn, bool bReclaim)
+void Datagrams::remove( DatagramIn* pDatagramIn, bool bReclaim )
 {
-	ASSUME_LOCK(m_pSection);
-	for(int i = 0; i < pDatagramIn->m_nCount; i++)
+	ASSUME_LOCK( m_pSection );
+	for ( int i = 0; i < pDatagramIn->m_nCount; i++ )
 	{
-		if(pDatagramIn->m_pBuffer[i])
+		if ( pDatagramIn->m_pBuffer[i] )
 		{
-			m_FreeBuffer.append(pDatagramIn->m_pBuffer[i]);
+			m_FreeBuffer.append( pDatagramIn->m_pBuffer[i] );
 			pDatagramIn->m_pBuffer[i]->clear();
 			pDatagramIn->m_pBuffer[i] = 0;
 		}
 	}
 
-	if(bReclaim)
+	if ( bReclaim )
 	{
 		return;
 	}
 
-	if(m_RecvCache.contains(pDatagramIn->m_oAddress))
+	if ( m_RecvCache.contains( pDatagramIn->m_oAddress ) )
 	{
-		quint32 nSeq = ((pDatagramIn->m_nSequence << 16) & 0xFFFF0000) + (pDatagramIn->m_oAddress.port() & 0x0000FFFF);
-		Q_ASSERT(pDatagramIn == m_RecvCache[pDatagramIn->m_oAddress][nSeq]);
-		m_RecvCache[pDatagramIn->m_oAddress].remove(nSeq);
-		if(m_RecvCache[pDatagramIn->m_oAddress].isEmpty())
+		quint32 nSeq = ( ( pDatagramIn->m_nSequence << 16 ) & 0xFFFF0000 ) + ( pDatagramIn->m_oAddress.port() & 0x0000FFFF );
+		Q_ASSERT( pDatagramIn == m_RecvCache[pDatagramIn->m_oAddress][nSeq] );
+		m_RecvCache[pDatagramIn->m_oAddress].remove( nSeq );
+		if ( m_RecvCache[pDatagramIn->m_oAddress].isEmpty() )
 		{
-			m_RecvCache.remove(pDatagramIn->m_oAddress);
+			m_RecvCache.remove( pDatagramIn->m_oAddress );
 		}
 
 		QLinkedList<DatagramIn*>::iterator itFrame = m_RecvCacheTime.end();
-		while( itFrame != m_RecvCacheTime.begin() )
+		while ( itFrame != m_RecvCacheTime.begin() )
 		{
 			--itFrame;
 
-			if( *itFrame == pDatagramIn )
+			if ( *itFrame == pDatagramIn )
 			{
-				m_RecvCacheTime.erase(itFrame);
+				m_RecvCacheTime.erase( itFrame );
 				break;
 			}
 		}
 
-		m_FreeDatagramIn.append(pDatagramIn);
+		m_FreeDatagramIn.append( pDatagramIn );
 	}
 }
 
 // Removes a package from the cache collection.
-void Datagrams::removeOldIn(bool bForce)
+void Datagrams::removeOldIn( bool bForce )
 {
-	quint32 tNow = time(0);
+	quint32 tNow = time( 0 );
 	bool bRemoved = false;
 
-	while(!m_RecvCacheTime.isEmpty() && (tNow - m_RecvCacheTime.back()->m_tStarted > quazaaSettings.Gnutella2.UdpInExpire || m_RecvCacheTime.back()->m_nLeft == 0))
+	while ( !m_RecvCacheTime.isEmpty()
+			&& ( tNow - m_RecvCacheTime.back()->m_tStarted > quazaaSettings.Gnutella2.UdpInExpire
+				 || m_RecvCacheTime.back()->m_nLeft == 0 ) )
 	{
-		remove(m_RecvCacheTime.back());
+		remove( m_RecvCacheTime.back() );
 		bRemoved = true;
 	}
 
-	if(bForce && !bRemoved && !m_RecvCacheTime.isEmpty())
+	if ( bForce && !bRemoved && !m_RecvCacheTime.isEmpty() )
 	{
-		for(QLinkedList<DatagramIn*>::iterator itPacket = m_RecvCacheTime.begin(); itPacket != m_RecvCacheTime.end(); ++itPacket)
+		for ( QLinkedList<DatagramIn*>::iterator itPacket = m_RecvCacheTime.begin(); itPacket != m_RecvCacheTime.end();
+			  ++itPacket )
 		{
-			if((*itPacket)->m_nLeft == 0)
+			if ( ( *itPacket )->m_nLeft == 0 )
 			{
-				remove(*itPacket);
+				remove( *itPacket );
 				break;
 			}
 		}
 	}
 }
 
-void Datagrams::remove(DatagramOut* pDatagramOut)
+void Datagrams::remove( DatagramOut* pDatagramOut )
 {
-	ASSUME_LOCK(m_pSection);
+	ASSUME_LOCK( m_pSection );
 
-	m_SendCacheMap.remove(pDatagramOut->m_nSequence);
+	m_SendCacheMap.remove( pDatagramOut->m_nSequence );
 
 	QLinkedList<DatagramOut*>::iterator itFrame = m_SendCache.end();
-	while( itFrame != m_SendCache.begin() )
+	while ( itFrame != m_SendCache.begin() )
 	{
 		--itFrame;
 
-		if( *itFrame == pDatagramOut )
+		if ( *itFrame == pDatagramOut )
 		{
-			m_SendCache.erase(itFrame);
+			m_SendCache.erase( itFrame );
 			break;
 		}
 	}
 
-	m_FreeDatagramOut.append(pDatagramOut);
+	m_FreeDatagramOut.append( pDatagramOut );
 
-	if(pDatagramOut->m_pBuffer)
+	if ( pDatagramOut->m_pBuffer )
 	{
-		m_FreeBuffer.append(pDatagramOut->m_pBuffer);
+		m_FreeBuffer.append( pDatagramOut->m_pBuffer );
 		pDatagramOut->m_pBuffer->clear();
 		pDatagramOut->m_pBuffer = 0;
 	}
@@ -502,31 +511,31 @@ void Datagrams::remove(DatagramOut* pDatagramOut)
 
 void Datagrams::flushSendCache()
 {
-	QMutexLocker l(&m_pSection);
+	QMutexLocker l( &m_pSection );
 
 	__FlushSendCache();
 }
 
 void Datagrams::__FlushSendCache()
 {
-	if(!m_bActive)
+	if ( !m_bActive )
 	{
 		return;
 	}
 
 	//QMutexLocker l(&m_pSection);
-	ASSUME_LOCK(datagrams.m_pSection);
+	ASSUME_LOCK( datagrams.m_pSection );
 
-	quint32 tNow = time(0);
+	quint32 tNow = time( 0 );
 
-	qint64 nToWrite = qint64(m_nUploadLimit) - qint64(m_mOutput.usage());
+	qint64 nToWrite = qint64( m_nUploadLimit ) - qint64( m_mOutput.usage() );
 
 	static TCPBandwidthMeter meter;
 
 	// TODO: Maybe make it dynamic? So bad routers are automatically detected and settings adjusted?
 	qint64 nMaxPPS = quazaaSettings.Connection.UDPOutLimitPPS - meter.usage();
 
-	if( nMaxPPS <= 0 )
+	if ( nMaxPPS <= 0 )
 	{
 		systemLog.postLog( LogSeverity::Debug, Component::Network,
 						   "UDP: PPS limit reached, ACKS: %d, Packets: %d, Average PPS: %u / %u",
@@ -534,49 +543,51 @@ void Datagrams::__FlushSendCache()
 		return;
 	}
 
-	while( nToWrite > 0 && !m_AckCache.isEmpty() && nMaxPPS > 0)
+	while ( nToWrite > 0 && !m_AckCache.isEmpty() && nMaxPPS > 0 )
 	{
 		QPair< EndPoint, char* > oAck = m_AckCache.takeFirst();
-		m_pSocket->writeDatagram(oAck.second, sizeof(GND_HEADER), oAck.first, oAck.first.port());
-		m_mOutput.add(sizeof(GND_HEADER));
-		nToWrite -= sizeof(GND_HEADER);
-		delete (GND_HEADER*)oAck.second;
+		m_pSocket->writeDatagram( oAck.second, sizeof( GND_HEADER ), oAck.first, oAck.first.port() );
+		m_mOutput.add( sizeof( GND_HEADER ) );
+		nToWrite -= sizeof( GND_HEADER );
+		delete ( GND_HEADER* )oAck.second;
 		--nMaxPPS;
-		meter.add(1);
+		meter.add( 1 );
 	}
 
 	QHostAddress nLastHost;
 
 	// it can write slightly more than limit allows... that's ok
-	while(nToWrite > 0 && !m_SendCache.isEmpty() && nMaxPPS > 0)
+	while ( nToWrite > 0 && !m_SendCache.isEmpty() && nMaxPPS > 0 )
 	{
 		bool bSent = false;
 
 		char* pPacket;
 		quint32 nPacket;
 
-		for(QLinkedList<DatagramOut*>::iterator itPacket = m_SendCache.begin(); itPacket != m_SendCache.end(); ++itPacket)
+		for ( QLinkedList<DatagramOut*>::iterator itPacket = m_SendCache.begin(); itPacket != m_SendCache.end(); ++itPacket )
 		{
 			DatagramOut* pDatagramOut = *itPacket;
 
-			if(pDatagramOut->m_oAddress == nLastHost)
+			if ( pDatagramOut->m_oAddress == nLastHost )
 			{
 				continue;
 			}
 
 			// TODO: Check the firewall's UDP state. Could do 3 UDP states.
-			if(pDatagramOut->getPacket(tNow, &pPacket, &nPacket, pDatagramOut->m_bAck && m_nInFrags > 0))
+			if ( pDatagramOut->getPacket( tNow, &pPacket, &nPacket, pDatagramOut->m_bAck && m_nInFrags > 0 ) )
 			{
 #ifdef DEBUG_UDP
-				systemLog.postLog(LogSeverity::Debug, "UDP sending to %s seq %u part %u count %u", pDatagramOut->m_oAddress.toString().toLocal8Bit().constData(), pDatagramOut->m_nSequence, ((GND_HEADER*)pPacket)->nPart, pDatagramOut->m_nCount);
+				systemLog.postLog( LogSeverity::Debug, "UDP sending to %s seq %u part %u count %u",
+								   pDatagramOut->m_oAddress.toString().toLocal8Bit().constData(), pDatagramOut->m_nSequence,
+								   ( ( GND_HEADER* )pPacket )->nPart, pDatagramOut->m_nCount );
 #endif
 
-				m_pSocket->writeDatagram(pPacket, nPacket, pDatagramOut->m_oAddress, pDatagramOut->m_oAddress.port());
+				m_pSocket->writeDatagram( pPacket, nPacket, pDatagramOut->m_oAddress, pDatagramOut->m_oAddress.port() );
 				m_nOutFrags++;
 
 				nLastHost = pDatagramOut->m_oAddress;
 
-				if(nToWrite >= nPacket)
+				if ( nToWrite >= nPacket )
 				{
 					nToWrite -= nPacket;
 				}
@@ -585,15 +596,15 @@ void Datagrams::__FlushSendCache()
 					nToWrite = 0;
 				}
 
-				m_mOutput.add(nPacket);
+				m_mOutput.add( nPacket );
 
-				if(!pDatagramOut->m_bAck)
+				if ( !pDatagramOut->m_bAck )
 				{
-					remove(pDatagramOut);
+					remove( pDatagramOut );
 				}
 
 				nMaxPPS--;
-				meter.add(1);
+				meter.add( 1 );
 
 				bSent = true;
 
@@ -601,30 +612,30 @@ void Datagrams::__FlushSendCache()
 			}
 		}
 
-		if(m_SendCache.isEmpty() || !bSent)
+		if ( m_SendCache.isEmpty() || !bSent )
 		{
 			break;
 		}
 	}
 
-	while(!m_SendCache.isEmpty() && tNow - m_SendCache.back()->m_tSent > quazaaSettings.Gnutella2.UdpOutExpire)
+	while ( !m_SendCache.isEmpty() && tNow - m_SendCache.back()->m_tSent > quazaaSettings.Gnutella2.UdpOutExpire )
 	{
-		remove(m_SendCache.back());
+		remove( m_SendCache.back() );
 	}
 }
 
-void Datagrams::sendPacket(G2Packet* pPacket, const EndPoint& oAddr, bool bAck,
-						   DatagramWatcher* pWatcher, void* pParam)
+void Datagrams::sendPacket( G2Packet* pPacket, const EndPoint& oAddr, bool bAck,
+							DatagramWatcher* pWatcher, void* pParam )
 {
 	if ( !m_bActive )
 	{
 		return;
 	}
 
-	QMutexLocker l(&m_pSection);
+	QMutexLocker l( &m_pSection );
 
-	Q_UNUSED(pWatcher);
-	Q_UNUSED(pParam);
+	Q_UNUSED( pWatcher );
+	Q_UNUSED( pParam );
 
 	if ( m_FreeDatagramOut.isEmpty() )
 	{
@@ -632,40 +643,44 @@ void Datagrams::sendPacket(G2Packet* pPacket, const EndPoint& oAddr, bool bAck,
 						   QString( "UDP out frames exhausted" ) );
 
 		if ( !bAck ) // if caller does not want ACK, drop the packet here
-			return; // TODO: needs more testing
+		{
+			return;    // TODO: needs more testing
+		}
 
 		remove ( m_SendCache.last() );
 
 	}
 
-	if(m_FreeBuffer.isEmpty())
+	if ( m_FreeBuffer.isEmpty() )
 	{
-		removeOldIn(false);
+		removeOldIn( false );
 
-		if(m_FreeBuffer.isEmpty())
+		if ( m_FreeBuffer.isEmpty() )
 		{
-			systemLog.postLog(LogSeverity::Debug, Component::Network, QString("UDP out discarded, out of buffers"));
+			systemLog.postLog( LogSeverity::Debug, Component::Network, QString( "UDP out discarded, out of buffers" ) );
 			return;
 		}
 	}
 
 	DatagramOut* pDatagramOut = m_FreeDatagramOut.takeFirst();
-	pDatagramOut->create(oAddr, pPacket, m_nSequence++, m_FreeBuffer.takeFirst(), (bAck && (m_nInFrags > 0))); // to prevent net spam when unable to receive datagrams
+	pDatagramOut->create( oAddr, pPacket, m_nSequence++, m_FreeBuffer.takeFirst(), ( bAck
+																					 && ( m_nInFrags > 0 ) ) ); // to prevent net spam when unable to receive datagrams
 
-	m_SendCache.prepend(pDatagramOut);
+	m_SendCache.prepend( pDatagramOut );
 	m_SendCacheMap[pDatagramOut->m_nSequence] = pDatagramOut;
 
 	// TODO: Notify the listener if we have one.
 
 #ifdef DEBUG_UDP
-	systemLog.postLog(LogSeverity::Debug, "UDP queued for %s seq %u parts %u", oAddr.toString().toLocal8Bit().constData(), pDatagramOut->m_nSequence, pDatagramOut->m_nCount);
+	systemLog.postLog( LogSeverity::Debug, "UDP queued for %s seq %u parts %u", oAddr.toString().toLocal8Bit().constData(),
+					   pDatagramOut->m_nSequence, pDatagramOut->m_nCount );
 #endif
 
 	//emit SendQueueUpdated();
 	__FlushSendCache();
 }
 
-void Datagrams::onPacket(G2Packet* pPacket, const EndPoint& addr)
+void Datagrams::onPacket( G2Packet* pPacket, const EndPoint& addr )
 {
 	try
 	{
@@ -714,29 +729,29 @@ void Datagrams::onPacket(G2Packet* pPacket, const EndPoint& addr)
 	}
 }
 
-void Datagrams::onPing(G2Packet* pPacket, const EndPoint& addr)
+void Datagrams::onPing( G2Packet* pPacket, const EndPoint& addr )
 {
-	Q_UNUSED(pPacket);
+	Q_UNUSED( pPacket );
 
-	G2Packet* pNew = G2Packet::newPacket("PO", false);
+	G2Packet* pNew = G2Packet::newPacket( "PO", false );
 	sendPacket( pNew, addr, false );
 	pNew->release();
 }
 
-void Datagrams::onPong(G2Packet* pPacket, const EndPoint& addr)
+void Datagrams::onPong( G2Packet* pPacket, const EndPoint& addr )
 {
-	if(pPacket->m_bCompound)
+	if ( pPacket->m_bCompound )
 	{
 		char szType[9];
 		quint32 nLength = 0, nNext = 0;
 
-		while(pPacket->readPacket(&szType[0], nLength))
+		while ( pPacket->readPacket( &szType[0], nLength ) )
 		{
 			nNext = pPacket->m_nPosition + nLength;
 
-			if(strcmp("RELAY", szType) == 0)
+			if ( strcmp( "RELAY", szType ) == 0 )
 			{
-				if(!networkG2.isConnectedTo(addr))
+				if ( !networkG2.isConnectedTo( addr ) )
 				{
 					m_bFirewalled = false;
 				}
@@ -747,16 +762,16 @@ void Datagrams::onPong(G2Packet* pPacket, const EndPoint& addr)
 	}
 }
 
-void Datagrams::onCRAWLR(G2Packet* pPacket, const EndPoint& addr)
+void Datagrams::onCRAWLR( G2Packet* pPacket, const EndPoint& addr )
 {
-	QMutexLocker l2(&neighbours.m_pSection);
+	QMutexLocker l2( &neighbours.m_pSection );
 
 //	bool bRLeaf = false;
 //	bool bRNick = false;
 //	bool bRGPS = false;
 //	bool bRExt = false;
 
-	if(!pPacket->m_bCompound)
+	if ( !pPacket->m_bCompound )
 	{
 		return;
 	}
@@ -764,23 +779,23 @@ void Datagrams::onCRAWLR(G2Packet* pPacket, const EndPoint& addr)
 	char szType[9];
 	quint32 nLength = 0, nNext = 0;
 
-	while(pPacket->readPacket(&szType[0], nLength))
+	while ( pPacket->readPacket( &szType[0], nLength ) )
 	{
 		nNext = pPacket->m_nPosition + nLength;
 
-		if(strcmp("RLEAF", szType) == 0)
+		if ( strcmp( "RLEAF", szType ) == 0 )
 		{
 //			bRLeaf = true;
 		}
-		else if(strcmp("RNAME", szType) == 0)
+		else if ( strcmp( "RNAME", szType ) == 0 )
 		{
 //			bRNick = true;
 		}
-		else if(strcmp("RGPS", szType) == 0)
+		else if ( strcmp( "RGPS", szType ) == 0 )
 		{
 //			bRGPS = true;
 		}
-		else if(strcmp("REXT", szType) == 0)
+		else if ( strcmp( "REXT", szType ) == 0 )
 		{
 //			bRExt = true;
 		}
@@ -788,53 +803,56 @@ void Datagrams::onCRAWLR(G2Packet* pPacket, const EndPoint& addr)
 		pPacket->m_nPosition = nNext;
 	}
 
-	G2Packet* pCA = G2Packet::newPacket("CRAWLA", true);
+	G2Packet* pCA = G2Packet::newPacket( "CRAWLA", true );
 
-	G2Packet* pTmp = G2Packet::newPacket("SELF", true);
-	if(neighbours.isG2Hub())
+	G2Packet* pTmp = G2Packet::newPacket( "SELF", true );
+	if ( neighbours.isG2Hub() )
 	{
-		pTmp->writePacket("HUB", 0);
+		pTmp->writePacket( "HUB", 0 );
 	}
 	else
 	{
-		pTmp->writePacket("LEAF", 0);
+		pTmp->writePacket( "LEAF", 0 );
 	}
-	pTmp->writePacket("NA", ((networkG2.m_oAddress.protocol() == 0) ? 6 : 18))->writeHostAddress(networkG2.m_oAddress);
-	pTmp->writePacket("CV", QuazaaGlobals::USER_AGENT_STRING().toUtf8().size())->writeString(QuazaaGlobals::USER_AGENT_STRING(), false);
-	pTmp->writePacket("V", 4)->writeString(QuazaaGlobals::VENDOR_CODE(), false);;
+	pTmp->writePacket( "NA", ( ( networkG2.m_oAddress.protocol() == 0 ) ? 6 : 18 ) )->writeHostAddress(
+		networkG2.m_oAddress );
+	pTmp->writePacket( "CV", QuazaaGlobals::USER_AGENT_STRING().toUtf8().size() )->writeString(
+		QuazaaGlobals::USER_AGENT_STRING(), false );
+	pTmp->writePacket( "V", 4 )->writeString( QuazaaGlobals::VENDOR_CODE(), false );;
 	quint16 nLeaves = neighbours.m_nLeavesConnectedG2;
-	pTmp->writePacket("HS", 2)->writeIntLE(nLeaves);
-	if(!quazaaSettings.Profile.GnutellaScreenName.isEmpty())
+	pTmp->writePacket( "HS", 2 )->writeIntLE( nLeaves );
+	if ( !quazaaSettings.Profile.GnutellaScreenName.isEmpty() )
 	{
-		pTmp->writePacket("NAME", quazaaSettings.Profile.GnutellaScreenName.left(255).toUtf8().size())->writeString(quazaaSettings.Profile.GnutellaScreenName.left(255));
+		pTmp->writePacket( "NAME", quazaaSettings.Profile.GnutellaScreenName.left( 255 ).toUtf8().size() )->writeString(
+			quazaaSettings.Profile.GnutellaScreenName.left( 255 ) );
 	}
 
-	pCA->writePacket(pTmp);
+	pCA->writePacket( pTmp );
 	pTmp->release();
 
-	for(QList<Neighbour*>::iterator itNode = neighbours.begin(); itNode != neighbours.end(); ++itNode)
+	for ( QList<Neighbour*>::iterator itNode = neighbours.begin(); itNode != neighbours.end(); ++itNode )
 	{
-		if((*itNode)->m_nProtocol != DiscoveryProtocol::G2)
+		if ( ( *itNode )->m_nProtocol != DiscoveryProtocol::G2 )
 		{
 			continue;
 		}
 
-		G2Node* pNode = (G2Node*) * itNode;
-		if(pNode->m_nState == nsConnected)
+		G2Node* pNode = ( G2Node* ) * itNode;
+		if ( pNode->m_nState == nsConnected )
 		{
-			if(pNode->m_nType == G2_HUB)
+			if ( pNode->m_nType == G2_HUB )
 			{
-				G2Packet* pNH = G2Packet::newPacket("NH");
-				pNH->writePacket("NA", ((pNode->m_oAddress.protocol() == 0) ? 6 : 18))->writeHostAddress(pNode->m_oAddress);
-				pNH->writePacket("HS", 2)->writeIntLE(pNode->m_nLeafCount);
-				pCA->writePacket(pNH);
+				G2Packet* pNH = G2Packet::newPacket( "NH" );
+				pNH->writePacket( "NA", ( ( pNode->m_oAddress.protocol() == 0 ) ? 6 : 18 ) )->writeHostAddress( pNode->m_oAddress );
+				pNH->writePacket( "HS", 2 )->writeIntLE( pNode->m_nLeafCount );
+				pCA->writePacket( pNH );
 				pNH->release();
 			}
-			else if(pNode->m_nType == G2_LEAF)
+			else if ( pNode->m_nType == G2_LEAF )
 			{
-				G2Packet* pNL = G2Packet::newPacket("NL");
-				pNL->writePacket("NA", ((pNode->m_oAddress.protocol() == 0) ? 6 : 18))->writeHostAddress(pNode->m_oAddress);
-				pCA->writePacket(pNL);
+				G2Packet* pNL = G2Packet::newPacket( "NL" );
+				pNL->writePacket( "NA", ( ( pNode->m_oAddress.protocol() == 0 ) ? 6 : 18 ) )->writeHostAddress( pNode->m_oAddress );
+				pCA->writePacket( pNL );
 				pNL->release();
 			}
 		}
@@ -845,9 +863,9 @@ void Datagrams::onCRAWLR(G2Packet* pPacket, const EndPoint& addr)
 	pCA->release();
 }
 
-void Datagrams::onQKR(G2Packet* pPacket, const EndPoint& addr)
+void Datagrams::onQKR( G2Packet* pPacket, const EndPoint& addr )
 {
-	if(!neighbours.isG2Hub())
+	if ( !neighbours.isG2Hub() )
 	{
 		return;
 	}
@@ -855,67 +873,68 @@ void Datagrams::onQKR(G2Packet* pPacket, const EndPoint& addr)
 	EndPoint oRequestedAddress = addr;
 	EndPoint oSendingAddress = addr;
 
-	if(pPacket->m_bCompound)
+	if ( pPacket->m_bCompound )
 	{
 		char szType[9];
 		quint32 nLength = 0, nNext = 0;
 
-		while(pPacket->readPacket(&szType[0], nLength))
+		while ( pPacket->readPacket( &szType[0], nLength ) )
 		{
 			nNext = pPacket->m_nPosition + nLength;
 
-			if(strcmp("SNA", szType) == 0 && nLength >= 4)
+			if ( strcmp( "SNA", szType ) == 0 && nLength >= 4 )
 			{
-				if(nLength >= 16)
+				if ( nLength >= 16 )
 				{
 					Q_IPV6ADDR ip;
-					pPacket->read(&ip, 16);
-					oSendingAddress.setAddress(ip);
+					pPacket->read( &ip, 16 );
+					oSendingAddress.setAddress( ip );
 				}
 				else
 				{
 					quint32	nIp = pPacket->readIntBE<quint32>();
-					oSendingAddress.setAddress(nIp);
+					oSendingAddress.setAddress( nIp );
 				}
 			}
-			else if(strcmp("RNA", szType) == 0 && nLength >= 6)
+			else if ( strcmp( "RNA", szType ) == 0 && nLength >= 6 )
 			{
-				if(nLength >= 18)
+				if ( nLength >= 18 )
 				{
-					pPacket->readHostAddress(&oRequestedAddress, false);
+					pPacket->readHostAddress( &oRequestedAddress, false );
 				}
 				else
 				{
-					pPacket->readHostAddress(&oRequestedAddress);
+					pPacket->readHostAddress( &oRequestedAddress );
 				}
 			}
 			pPacket->m_nPosition = nNext;
 		}
 	}
 
-	if(!oRequestedAddress.port() || oRequestedAddress.isFirewalled())
+	if ( !oRequestedAddress.port() || oRequestedAddress.isFirewalled() )
 	{
 		return;
 	}
 
-	G2Packet* pAns = G2Packet::newPacket("QKA", true);
-	quint32 nKey = QueryKeys.create(oRequestedAddress);
-	pAns->writePacket("QK", 4);
-	pAns->writeIntLE<quint32>(nKey);
-	G2Packet* pSNA = G2Packet::newPacket("SNA");
-	pSNA->writeHostAddress(oSendingAddress);
-	pAns->writePacket(pSNA);
+	G2Packet* pAns = G2Packet::newPacket( "QKA", true );
+	quint32 nKey = QueryKeys.create( oRequestedAddress );
+	pAns->writePacket( "QK", 4 );
+	pAns->writeIntLE<quint32>( nKey );
+	G2Packet* pSNA = G2Packet::newPacket( "SNA" );
+	pSNA->writeHostAddress( oSendingAddress );
+	pAns->writePacket( pSNA );
 	pSNA->release();
 
 	sendPacket( pAns, oRequestedAddress, false );
 	pAns->release();
 
 #if LOG_QUERY_HANDLING
-	systemLog.postLog(LogSeverity::Debug, Component::G2, "Node %s asked for a query key (0x%08x) for node %s", qPrintable(addr.toStringWithPort()), nKey, qPrintable(oRequestedAddress.toStringWithPort()));
+	systemLog.postLog( LogSeverity::Debug, Component::G2, "Node %s asked for a query key (0x%08x) for node %s",
+					   qPrintable( addr.toStringWithPort() ), nKey, qPrintable( oRequestedAddress.toStringWithPort() ) );
 #endif // LOG_QUERY_HANDLING
 }
 
-void Datagrams::onQKA(G2Packet* pPacket, const EndPoint& addr)
+void Datagrams::onQKA( G2Packet* pPacket, const EndPoint& addr )
 {
 	if ( !pPacket->m_bCompound )
 	{
@@ -928,26 +947,26 @@ void Datagrams::onQKA(G2Packet* pPacket, const EndPoint& addr)
 	char szType[9];
 	quint32 nLength = 0, nNext = 0;
 
-	while(pPacket->readPacket(&szType[0], nLength))
+	while ( pPacket->readPacket( &szType[0], nLength ) )
 	{
 		nNext = pPacket->m_nPosition + nLength;
 
-		if(strcmp("QK", szType) == 0 && nLength >= 4)
+		if ( strcmp( "QK", szType ) == 0 && nLength >= 4 )
 		{
 			nKey = pPacket->readIntLE<quint32>();
 		}
-		else if(strcmp("SNA", szType) == 0 && nLength >= 4)
+		else if ( strcmp( "SNA", szType ) == 0 && nLength >= 4 )
 		{
-			if(nLength >= 16)
+			if ( nLength >= 16 )
 			{
 				Q_IPV6ADDR ip;
-				pPacket->read(&ip, 16);
-				nKeyHost.setAddress(ip);
+				pPacket->read( &ip, 16 );
+				nKeyHost.setAddress( ip );
 			}
 			else
 			{
 				quint32 nIp = pPacket->readIntBE<quint32>();
-				nKeyHost.setAddress(nIp);
+				nKeyHost.setAddress( nIp );
 			}
 		}
 		pPacket->m_nPosition = nNext;
@@ -959,27 +978,28 @@ void Datagrams::onQKA(G2Packet* pPacket, const EndPoint& addr)
 	}
 
 #if LOG_QUERY_HANDLING
-	systemLog.postLog(LogSeverity::Debug, QString("Got a query key for %1 = 0x%2").arg(addr.toString().toLocal8Bit().constData()).arg(nKey));
+	systemLog.postLog( LogSeverity::Debug,
+					   QString( "Got a query key for %1 = 0x%2" ).arg( addr.toString().toLocal8Bit().constData() ).arg( nKey ) );
 	//qDebug("Got a query key for %s = 0x%x", addr.toString().toLocal8Bit().constData(), nKey);
 #endif // LOG_QUERY_HANDLING
 
-	if(neighbours.isG2Hub() && !nKeyHost.isNull() && nKeyHost != ((QHostAddress)networkG2.m_oAddress))
+	if ( neighbours.isG2Hub() && !nKeyHost.isNull() && nKeyHost != ( ( QHostAddress )networkG2.m_oAddress ) )
 	{
-		G2Packet* pQNA = G2Packet::newPacket("QNA");
-		pQNA->writeHostAddress(addr);
-		pPacket->prependPacket(pQNA);
+		G2Packet* pQNA = G2Packet::newPacket( "QNA" );
+		pQNA->writeHostAddress( addr );
+		pPacket->prependPacket( pQNA );
 
 		neighbours.m_pSection.lock();
-		Neighbour* pNode = neighbours.find(nKeyHost, DiscoveryProtocol::G2);
-		if( pNode )
+		Neighbour* pNode = neighbours.find( nKeyHost, DiscoveryProtocol::G2 );
+		if ( pNode )
 		{
-			((G2Node*)pNode)->sendPacket(pPacket, true, false);
+			( ( G2Node* )pNode )->sendPacket( pPacket, true, false );
 		}
 		neighbours.m_pSection.unlock();
 	}
 }
 
-void Datagrams::onQA(G2Packet* pPacket, const EndPoint& addr)
+void Datagrams::onQA( G2Packet* pPacket, const EndPoint& addr )
 {
 	const quint32 tAck = 0;
 	const quint32 tNow = common::getTNowUTC();
@@ -1001,7 +1021,7 @@ void Datagrams::onQA(G2Packet* pPacket, const EndPoint& addr)
 	}
 }
 
-void Datagrams::onQH2(G2Packet* pPacket, const EndPoint& addr)
+void Datagrams::onQH2( G2Packet* pPacket, const EndPoint& addr )
 {
 	if ( !pPacket->m_bCompound )
 	{
@@ -1012,7 +1032,8 @@ void Datagrams::onQH2(G2Packet* pPacket, const EndPoint& addr)
 
 	if ( pInfo )
 	{
-		if ( securityManager.isVendorBlocked( pInfo->m_sVendor ) ) // Block foxy client search results. We can't download from them any way.
+		if ( securityManager.isVendorBlocked(
+				 pInfo->m_sVendor ) ) // Block foxy client search results. We can't download from them any way.
 		{
 			securityManager.ban( pInfo->m_oNodeAddress, Security::RuleTime::SixHours, true,
 								 QString( "[AUTO] Vendor blocked (%1)" ).arg( pInfo->m_sVendor ),
@@ -1020,7 +1041,7 @@ void Datagrams::onQH2(G2Packet* pPacket, const EndPoint& addr)
 #if SECURITY_LOG_BAN_SOURCES
 								 , QString( "datagrams.cpp line 982" )
 #endif // SECURITY_LOG_BAN_SOURCES
-								 );
+							   );
 		}
 		else
 		{
@@ -1051,34 +1072,36 @@ void Datagrams::onQH2(G2Packet* pPacket, const EndPoint& addr)
 	}
 }
 
-void Datagrams::onQuery(G2Packet *pPacket, const EndPoint& addr)
+void Datagrams::onQuery( G2Packet* pPacket, const EndPoint& addr )
 {
 	QuerySharedPtr pQuery = Query::fromPacket( pPacket, &addr );
 
-	if(pQuery.isNull())
+	if ( pQuery.isNull() )
 	{
 #if LOG_QUERY_HANDLING
-		qDebug() << "Received malformed query from" << qPrintable(addr.toStringWithPort());
+		qDebug() << "Received malformed query from" << qPrintable( addr.toStringWithPort() );
 #endif // LOG_QUERY_HANDLING
 		return;
 	}
 
-	if( !neighbours.isG2Hub() )
+	if ( !neighbours.isG2Hub() )
 	{
 		// Stop receiving queries from others
 		// We are here because we just downgraded to leaf mode
 		// Shareaza should not retry with QK == 0
 		// TODO: test this
 #if LOG_QUERY_HANDLING
-		systemLog.postLog(LogSeverity::Debug, Component::G2, "Sending null query key to %s because we're not a hub.", qPrintable(addr.toStringWithPort()));
+		systemLog.postLog( LogSeverity::Debug, Component::G2, "Sending null query key to %s because we're not a hub.",
+						   qPrintable( addr.toStringWithPort() ) );
 #endif // LOG_QUERY_HANDLING
 
-		G2Packet* pQKA = G2Packet::newPacket("QKA", true);
-		pQKA->writePacket("QK", 4)->writeIntLE<quint32>(0);
+		G2Packet* pQKA = G2Packet::newPacket( "QKA", true );
+		pQKA->writePacket( "QK", 4 )->writeIntLE<quint32>( 0 );
 
-		if( addr != pQuery->m_oEndpoint )
+		if ( addr != pQuery->m_oEndpoint )
 		{
-			pQKA->writePacket("SNA", (pQuery->m_oEndpoint.protocol() == QAbstractSocket::IPv6Protocol ? 18 : 6))->writeHostAddress(pQuery->m_oEndpoint);
+			pQKA->writePacket( "SNA", ( pQuery->m_oEndpoint.protocol() == QAbstractSocket::IPv6Protocol ? 18 :
+										6 ) )->writeHostAddress( pQuery->m_oEndpoint );
 		}
 
 		sendPacket( pQKA, pQuery->m_oEndpoint );
@@ -1087,18 +1110,20 @@ void Datagrams::onQuery(G2Packet *pPacket, const EndPoint& addr)
 		return;
 	}
 
-	if(!QueryKeys.check(pQuery->m_oEndpoint, pQuery->m_nQueryKey))
+	if ( !QueryKeys.check( pQuery->m_oEndpoint, pQuery->m_nQueryKey ) )
 	{
 #if LOG_QUERY_HANDLING
-		systemLog.postLog(LogSeverity::Debug, Component::G2, "Issuing query key correction for %s.", qPrintable(addr.toStringWithPort()));
+		systemLog.postLog( LogSeverity::Debug, Component::G2, "Issuing query key correction for %s.",
+						   qPrintable( addr.toStringWithPort() ) );
 #endif // LOG_QUERY_HANDLING
 
-		G2Packet* pQKA = G2Packet::newPacket("QKA", true);
-		pQKA->writePacket("QK", 4)->writeIntLE<quint32>(QueryKeys.create(pQuery->m_oEndpoint));
+		G2Packet* pQKA = G2Packet::newPacket( "QKA", true );
+		pQKA->writePacket( "QK", 4 )->writeIntLE<quint32>( QueryKeys.create( pQuery->m_oEndpoint ) );
 
-		if( addr != pQuery->m_oEndpoint )
+		if ( addr != pQuery->m_oEndpoint )
 		{
-			pQKA->writePacket("SNA", (pQuery->m_oEndpoint.protocol() == QAbstractSocket::IPv6Protocol ? 18 : 6))->writeHostAddress(pQuery->m_oEndpoint);
+			pQKA->writePacket( "SNA", ( pQuery->m_oEndpoint.protocol() == QAbstractSocket::IPv6Protocol ? 18 :
+										6 ) )->writeHostAddress( pQuery->m_oEndpoint );
 		}
 		sendPacket( pPacket, addr );
 		pQKA->release();
@@ -1106,39 +1131,39 @@ void Datagrams::onQuery(G2Packet *pPacket, const EndPoint& addr)
 		return;
 	}
 
-	if( !networkG2.m_oRoutingTable.add(pQuery->m_oGUID, pQuery->m_oEndpoint) )
+	if ( !networkG2.m_oRoutingTable.add( pQuery->m_oGUID, pQuery->m_oEndpoint ) )
 	{
 #if LOG_QUERY_HANDLING
 		qDebug() << "Query already processed, ignoring";
 #endif // LOG_QUERY_HANDLING
-		G2Packet* pQA = neighbours.createQueryAck(pQuery->m_oGUID, false, 0, false);
+		G2Packet* pQA = neighbours.createQueryAck( pQuery->m_oGUID, false, 0, false );
 		sendPacket( pQA, pQuery->m_oEndpoint, true );
 		pQA->release();
 		return;
 	}
 
 #if LOG_QUERY_HANDLING
-	qDebug() << "[datagrams.cpp line 1076] Processing query from: " << qPrintable(addr.toStringWithPort());
+	qDebug() << "[datagrams.cpp line 1076] Processing query from: " << qPrintable( addr.toStringWithPort() );
 #endif // LOG_QUERY_HANDLING
 
 	// just in case
-	if( pQuery->m_oEndpoint == networkG2.m_oAddress )
+	if ( pQuery->m_oEndpoint == networkG2.m_oAddress )
 	{
 		systemLog.postLog( LogSeverity::Error, Component::Network,
 						   "Q2 received via UDP and return address points to us, changing return address to source %s",
 						   qPrintable( addr.toStringWithPort() ) );
-		G2Packet* pUDP = G2Packet::newPacket("UDP");
-		pUDP->writeHostAddress(addr);
-		pUDP->writeIntLE<quint32>(0);
-		pPacket->addOrReplaceChild("UDP", pUDP);
+		G2Packet* pUDP = G2Packet::newPacket( "UDP" );
+		pUDP->writeHostAddress( addr );
+		pUDP->writeIntLE<quint32>( 0 );
+		pPacket->addOrReplaceChild( "UDP", pUDP );
 	}
 
 	neighbours.m_pSection.lock();
-	G2Packet* pQA = neighbours.createQueryAck(pQuery->m_oGUID);
+	G2Packet* pQA = neighbours.createQueryAck( pQuery->m_oGUID );
 	sendPacket( pQA, pQuery->m_oEndpoint, true );
 	pQA->release();
 
-	neighbours.routeQuery(pQuery, pPacket);
+	neighbours.routeQuery( pQuery, pPacket );
 	neighbours.m_pSection.unlock();
 
 	// local search

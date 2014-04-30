@@ -31,79 +31,83 @@ CNetworkIconProvider::CNetworkIconProvider()
 {
 }
 
-QIcon CNetworkIconProvider::icon(DiscoveryProtocol::Protocol protocol)
+QIcon CNetworkIconProvider::icon( DiscoveryProtocol::Protocol protocol )
 {
 	QIcon icon;
-	QString key = QLatin1String("nip_dp_") + QString::number(protocol);
+	QString key = QLatin1String( "nip_dp_" ) + QString::number( protocol );
 
 	QPixmap pixIcon;
-	if( QPixmapCache::find(key, pixIcon) )
+	if ( QPixmapCache::find( key, pixIcon ) )
 	{
 		// pixIcon internally uses shared data to avoid needless copying.
-		icon.addPixmap(pixIcon);
+		icon.addPixmap( pixIcon );
 		return icon;
 	}
 
-	switch( protocol )
+	switch ( protocol )
 	{
 	case DiscoveryProtocol::None:
 		break;
 	case DiscoveryProtocol::G2:
-		pixIcon.load(":/Resource/Networks/Gnutella2.png");
+		pixIcon.load( ":/Resource/Networks/Gnutella2.png" );
 		break;
 	case DiscoveryProtocol::Gnutella:
-		pixIcon.load(":/Resource/Networks/Gnutella2.png");
+		pixIcon.load( ":/Resource/Networks/Gnutella2.png" );
 		break;
 	case DiscoveryProtocol::Ares:
-		pixIcon.load(":/Resource/Networks/Ares.png");
+		pixIcon.load( ":/Resource/Networks/Ares.png" );
 		break;
 	case DiscoveryProtocol::eDonkey2000:
-		pixIcon.load(":/Resource/Networks/EDonkey.png");
+		pixIcon.load( ":/Resource/Networks/EDonkey.png" );
 		break;
 	}
 
-	if(pixIcon.isNull())
+	if ( pixIcon.isNull() )
+	{
 		return QIcon();
+	}
 
-	icon.addPixmap(pixIcon);
+	icon.addPixmap( pixIcon );
 
 	// Default cache size: 2048 KB on embedded platforms, 10240 KB on desktop platforms
-	QPixmapCache::insert(key, pixIcon);
+	QPixmapCache::insert( key, pixIcon );
 
 	return icon;
 }
 
-QIcon CNetworkIconProvider::icon(TransferProtocol protocol)
+QIcon CNetworkIconProvider::icon( TransferProtocol protocol )
 {
 	QIcon icon;
-	QString key = QLatin1String("nip_tp_") + QString::number(protocol);
+	QString key = QLatin1String( "nip_tp_" ) + QString::number( protocol );
 
 	QPixmap pixIcon;
-	if( QPixmapCache::find(key, pixIcon) )
+	if ( QPixmapCache::find( key, pixIcon ) )
 	{
 		// pixIcon internally uses shared data to avoid needless copying.
-		icon.addPixmap(pixIcon);
+		icon.addPixmap( pixIcon );
 		return icon;
 	}
 
-	switch(protocol)
+	switch ( protocol )
 	{
 	case tpNull:
 		break;
 	case tpHTTP:
-		pixIcon.load(":/Resource/Networks/http.png");
+		pixIcon.load( ":/Resource/Networks/http.png" );
 		break;
 	case tpBitTorrent:
-		pixIcon.load(":/Resource/Networks/BitTorrent.png");
+		pixIcon.load( ":/Resource/Networks/BitTorrent.png" );
 	}
 
-	if(pixIcon.isNull())
+	if ( pixIcon.isNull() )
+	{
 		return QIcon();
+	}
 
-	icon.addPixmap(pixIcon);
+	icon.addPixmap( pixIcon );
 
 	// Default cache size: 2048 KB on embedded platforms, 10240 KB on desktop platforms
-	QPixmapCache::insert(key, pixIcon);
+	QPixmapCache::insert( key, pixIcon );
 
 	return icon;
 }

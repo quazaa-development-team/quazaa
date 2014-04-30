@@ -69,22 +69,22 @@ private:
 	quint8          m_nProbaMult;   // probability multiplicator: [0-5] based on rating
 
 	bool            m_bZero;        // service probability has just been increased from zero or
-									// service is new. On access failure, this service will be set
-									// to 0 probability no matter its previous proba. For banned
-									// hosts, this indicates the host has been banned because of too
-									// many failures.
+	// service is new. On access failure, this service will be set
+	// to 0 probability no matter its previous proba. For banned
+	// hosts, this indicates the host has been banned because of too
+	// many failures.
 	ServiceID       m_nID;          // ID used by the manager to identify the service; 0:invalid
 
 	quint16         m_nLastHosts;   // number of hosts returned by the service on last query
 	quint32         m_nTotalHosts;  // all hosts we ever got from the service
 	quint16         m_nAltServices; // alternate services known to the service passed on to us when
-									// last we queried
+	// last we queried
 	quint32         m_tLastAccessed;// last time we queried/updated the service
-									// Note: for banned services, this holds the ban time
+	// Note: for banned services, this holds the ban time
 	quint32         m_tLastSuccess; // last time we accessed the service successfully
 	quint8          m_nFailures;    // query failures in a row
 	quint8          m_nZeroRevivals;// counts number of times this service has been revived from a
-									// 0 rating.
+	// 0 rating.
 
 	quint8          m_nRedirectCount;
 
@@ -102,14 +102,14 @@ public:
 	 * @param oNType
 	 * @param nRating
 	 */
-	DiscoveryService(const QUrl& oURL, const CNetworkType& oNType,
-					  quint8 nRating = DISCOVERY_MAX_PROBABILITY);
+	DiscoveryService( const QUrl& oURL, const CNetworkType& oNType,
+					  quint8 nRating = DISCOVERY_MAX_PROBABILITY );
 
 	/**
 	 * @brief CDiscoveryService: Copy constructor. Copies all but the list of registered pointers.
 	 * @param pService
 	 */
-	DiscoveryService(const DiscoveryService& pService);
+	DiscoveryService( const DiscoveryService& pService );
 
 	/**
 	 * @brief ~CDiscoveryService
@@ -127,7 +127,7 @@ private:
 	 * @param pService
 	 * @return
 	 */
-	virtual bool	operator==(const DiscoveryService& pService) const;
+	virtual bool	operator==( const DiscoveryService& pService ) const;
 
 	/**
 	 * @brief operator !=: Allows to compare two services. Services are considered to be equal if
@@ -136,7 +136,7 @@ private:
 	 * @param pService
 	 * @return
 	 */
-	bool			operator!=(const DiscoveryService& pService) const;
+	bool			operator!=( const DiscoveryService& pService ) const;
 
 	/* ========================================================================================== */
 	/* ===================================== Static Methods ===================================== */
@@ -149,7 +149,7 @@ private:
 	 * @param fsStream
 	 * @param nVersion
 	 */
-	static void load(DiscoveryService*& pService, QDataStream& fsFile, const int nVersion);
+	static void load( DiscoveryService*& pService, QDataStream& fsFile, const int nVersion );
 
 	/**
 	 * @brief save writes pService to given QDataStream.
@@ -157,7 +157,7 @@ private:
 	 * @param pService
 	 * @param fsFile
 	 */
-	static void save(const DiscoveryService* const pService, QDataStream& fsFile);
+	static void save( const DiscoveryService* const pService, QDataStream& fsFile );
 
 	/**
 	 * @brief createService allows to create valid services. Note that new services are marked as
@@ -170,8 +170,8 @@ private:
 	 * @return
 	 */
 	/** Must be modified when writing subclasses. */
-	static DiscoveryService* createService(const QString &sURL, ServiceType::Type eSType,
-											const CNetworkType& oNType, quint8 nRating);
+	static DiscoveryService* createService( const QString& sURL, ServiceType::Type eSType,
+											const CNetworkType& oNType, quint8 nRating );
 
 	/* ========================================================================================== */
 	/* ======================================= Operations ======================================= */
@@ -197,13 +197,13 @@ private slots:
 	 * Locking: RW
 	 */
 	void cancelRequest();
-	void cancelRequest(bool);
+	void cancelRequest( bool );
 
 signals:
 	/**
 	 * @brief updated informs the GUI about a noticable change in this service.
 	 */
-	void updated(ServiceID nID);
+	void updated( ServiceID nID );
 
 	/* ========================================================================================== */
 	/* ==================================== Attribute Access ==================================== */
@@ -322,7 +322,7 @@ protected:
 	 * Requires locking: RW
 	 * @param tNow
 	 */
-	inline void setLastAccessed(quint32 tNow);
+	inline void setLastAccessed( quint32 tNow );
 
 public:
 	/**
@@ -366,8 +366,8 @@ protected:
 	 * @param nURLs
 	 * @param bUpdateOK
 	 */
-	void updateStatistics(bool bCanceled, quint16 nHosts = 0, quint16 nURLs = 0,
-						  bool bUpdateOK = false);
+	void updateStatistics( bool bCanceled, quint16 nHosts = 0, quint16 nURLs = 0,
+						   bool bUpdateOK = false );
 
 private:
 	/**
@@ -375,7 +375,7 @@ private:
 	 * Requires locking: RW
 	 * @param nRating
 	 */
-	void setRating(quint8 nRating);
+	void setRating( quint8 nRating );
 
 	/* ========================================================================================== */
 	/* =================================== Protected Helpers  =================================== */
@@ -389,7 +389,7 @@ protected:
 	 * @param bDebug Defaults to false. If set to true, the message is send  to qDebug() instead of
 	 * to the system log.
 	 */
-	void postLog(LogSeverity severity, QString message, bool bDebug = false);
+	void postLog( LogSeverity severity, QString message, bool bDebug = false );
 
 	/**
 	 * @brief handleRedirect detects redirects on network requests and follows them.
@@ -397,7 +397,7 @@ protected:
 	 * @param pRequest : the old request - will be changed if redirection is detected
 	 * @return true on redirect; false otherwise
 	 */
-	bool handleRedirect(QNAMPtr pNAMgr, QNetworkReply* pReply, QNetworkRequest*& pRequest);
+	bool handleRedirect( QNAMPtr pNAMgr, QNetworkReply* pReply, QNetworkRequest*& pRequest );
 
 	/* ========================================================================================== */
 	/* ==================================== Private Virtuals ==================================== */
@@ -491,7 +491,7 @@ quint32 DiscoveryService::lastAccessed() const
 	return m_tLastAccessed;
 }
 
-void DiscoveryService::setLastAccessed(quint32 tNow)
+void DiscoveryService::setLastAccessed( quint32 tNow )
 {
 	m_tLastAccessed = tNow;
 }

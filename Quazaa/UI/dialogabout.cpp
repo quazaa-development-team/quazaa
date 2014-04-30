@@ -32,12 +32,13 @@
 
 #include "debug_new.h"
 
-CDialogAbout::CDialogAbout(QWidget* parent) :
-	QDialog(parent),
-	ui(new Ui::CDialogAbout)
+CDialogAbout::CDialogAbout( QWidget* parent ) :
+	QDialog( parent ),
+	ui( new Ui::CDialogAbout )
 {
-	ui->setupUi(this);
-	ui->labelVersion->setText(ui->labelVersion->text().replace("&lt;version&gt;", QuazaaGlobals::APPLICATION_VERSION_STRING()));
+	ui->setupUi( this );
+	ui->labelVersion->setText( ui->labelVersion->text().replace( "&lt;version&gt;",
+																 QuazaaGlobals::APPLICATION_VERSION_STRING() ) );
 	setSkin();
 }
 
@@ -46,15 +47,15 @@ CDialogAbout::~CDialogAbout()
 	delete ui;
 }
 
-void CDialogAbout::changeEvent(QEvent* e)
+void CDialogAbout::changeEvent( QEvent* e )
 {
-	switch(e->type())
+	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 
@@ -64,17 +65,17 @@ void CDialogAbout::on_pushButtonOK_clicked()
 	close();
 }
 
-void CDialogAbout::on_labelCopyright_linkActivated(QString link)
+void CDialogAbout::on_labelCopyright_linkActivated( QString link )
 {
-	QDesktopServices::openUrl(QUrl(link, QUrl::TolerantMode));
+	QDesktopServices::openUrl( QUrl( link, QUrl::TolerantMode ) );
 }
 
-void CDialogAbout::on_textBrowserCredits_anchorClicked(QUrl link)
+void CDialogAbout::on_textBrowserCredits_anchorClicked( QUrl link )
 {
-	QDesktopServices::openUrl(link);
+	QDesktopServices::openUrl( link );
 }
 
 void CDialogAbout::setSkin()
 {
-	ui->frameCommonHeader->setStyleSheet(skinSettings.dialogHeader);
+	ui->frameCommonHeader->setStyleSheet( skinSettings.dialogHeader );
 }

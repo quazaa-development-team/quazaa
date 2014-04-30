@@ -31,7 +31,7 @@
 
 #include "debug_new.h"
 
-CDialogModifyRule::CDialogModifyRule(CWidgetSecurity* parent, RuleDataPtr pRule) :
+CDialogModifyRule::CDialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule ) :
 	QDialog( parent ),
 	m_pParent( parent ),
 	ui( new Ui::CDialogModifyRule )
@@ -70,7 +70,7 @@ CDialogModifyRule::CDialogModifyRule(CWidgetSecurity* parent, RuleDataPtr pRule)
 			ui->lineEditEndIP->setText(   lAddressRange.at( 1 ) );
 			break;
 		}
-			// TODO: country rules
+		// TODO: country rules
 		case RuleType::Hash:
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::Hash );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::Hash );
@@ -105,15 +105,15 @@ CDialogModifyRule::CDialogModifyRule(CWidgetSecurity* parent, RuleDataPtr pRule)
 
 		switch ( m_pRule->m_nAction )
 		{
-			case RuleAction::Accept:
-				ui->comboBoxAction->setCurrentIndex( 1 );
-				break;
-			case RuleAction::Deny:
-				ui->comboBoxAction->setCurrentIndex( 2 );
-				break;
-			default:
-				ui->comboBoxAction->setCurrentIndex( 0 );
-				break;
+		case RuleAction::Accept:
+			ui->comboBoxAction->setCurrentIndex( 1 );
+			break;
+		case RuleAction::Deny:
+			ui->comboBoxAction->setCurrentIndex( 2 );
+			break;
+		default:
+			ui->comboBoxAction->setCurrentIndex( 0 );
+			break;
 		}
 
 		quint32 tExpire = m_pRule->m_tExpire;
@@ -157,7 +157,7 @@ CDialogModifyRule::CDialogModifyRule(CWidgetSecurity* parent, RuleDataPtr pRule)
 
 		ui->comboBoxRuleType->setCurrentIndex( 0 );
 		ui->stackedWidgetType->setCurrentIndex( 0 );
-		ui->comboBoxAction->setCurrentIndex(0);
+		ui->comboBoxAction->setCurrentIndex( 0 );
 		ui->comboBoxExpire->setCurrentIndex( 0 );
 	}
 
@@ -169,16 +169,16 @@ CDialogModifyRule::~CDialogModifyRule()
 	delete ui;
 }
 
-void CDialogModifyRule::changeEvent(QEvent* e)
+void CDialogModifyRule::changeEvent( QEvent* e )
 {
 	QDialog::changeEvent( e );
 	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi( this );
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 
@@ -207,7 +207,7 @@ void CDialogModifyRule::on_pushButtonOK_clicked()
 		pRule = new IPRangeRule();
 
 		if ( !pRule->parseContent( ui->lineEditStartIP->text() + "-" +
-									 ui->lineEditEndIP->text() ) )
+								   ui->lineEditEndIP->text() ) )
 		{
 			QMessageBox::warning( this, tr( "IP Address Range Rule Invalid" ),
 								  tr( "The ip address range rule is invalid. Please see the example for correct usage." ),
@@ -217,7 +217,7 @@ void CDialogModifyRule::on_pushButtonOK_clicked()
 		}
 		break;
 
-		// TODO: country rule
+	// TODO: country rule
 
 	case RuleIndex::Hash:
 		pRule = new HashRule();
@@ -243,7 +243,7 @@ void CDialogModifyRule::on_pushButtonOK_clicked()
 			delete pRule;
 			return;
 		}
-		((ContentRule*)pRule)->setAll( ui->radioButtonMatchAll->isChecked() );
+		( ( ContentRule* )pRule )->setAll( ui->radioButtonMatchAll->isChecked() );
 		break;
 
 	case RuleIndex::RegularExpression:
@@ -270,7 +270,7 @@ void CDialogModifyRule::on_pushButtonOK_clicked()
 			delete pRule;
 			return;
 		}
-		((UserAgentRule*)pRule)->setRegExp( ui->checkBoxUserAgentRegularExpression->isChecked() );
+		( ( UserAgentRule* )pRule )->setRegExp( ui->checkBoxUserAgentRegularExpression->isChecked() );
 		break;
 
 	default:
@@ -351,7 +351,7 @@ void CDialogModifyRule::on_pushButtonCancel_clicked()
 	reject();
 }
 
-void CDialogModifyRule::on_comboBoxExpire_currentIndexChanged(int index)
+void CDialogModifyRule::on_comboBoxExpire_currentIndexChanged( int index )
 {
 	if ( index == 2 )
 	{

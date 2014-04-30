@@ -23,19 +23,20 @@ class CApplication : public QApplication
 	Q_OBJECT
 
 public:
-	CApplication(int& argc, char* argv[]);
+	CApplication( int& argc, char* argv[] );
 	~CApplication();
 
 	static QString applicationSlogan();
-	static void setApplicationSlogan(const QString& slogan);
+	static void setApplicationSlogan( const QString& slogan );
 
 	static QByteArray encoding();
-	static void setEncoding(const QByteArray& encoding);
+	static void setEncoding( const QByteArray& encoding );
 
 public slots:
 
 private:
-	struct ApplicationData {
+	struct ApplicationData
+	{
 		static QString slogan;
 		static QByteArray encoding;
 	};

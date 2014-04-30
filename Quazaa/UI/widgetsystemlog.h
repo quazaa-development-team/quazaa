@@ -31,19 +31,19 @@
 
 namespace Ui
 {
-	class WidgetSystemLog;
+class WidgetSystemLog;
 }
 
 class WidgetSystemLog : public QMainWindow
 {
 	Q_OBJECT
 public:
-	WidgetSystemLog(QWidget* parent = 0);
+	WidgetSystemLog( QWidget* parent = 0 );
 	~WidgetSystemLog();
 	void saveWidget();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::WidgetSystemLog* ui;
@@ -52,13 +52,13 @@ private:
 
 private slots:
 	void on_actionCopy_triggered();
-	void on_textEditSystemLog_customContextMenuRequested(QPoint pos);
+	void on_textEditSystemLog_customContextMenuRequested( QPoint pos );
 	void on_actionClearBuffer_triggered();
 
-	void appendLog(QString message, LogSeverity severity = LogSeverity::Information);
-	void writeLine(const QString& sLine, LogSeverity severity);
-	void appendText(const QString& sFontArgs, const QColor& color,
-					const QString& sLine, bool bAddTimeStamp);
+	void appendLog( QString message, LogSeverity severity = LogSeverity::Information );
+	void writeLine( const QString& sLine, LogSeverity severity );
+	void appendText( const QString& sFontArgs, const QColor& color,
+					 const QString& sLine, bool bAddTimeStamp );
 
 	void setSkin();
 };

@@ -30,26 +30,26 @@
 
 namespace Ui
 {
-	class CWidgetLibraryView;
+class CWidgetLibraryView;
 }
 
 class CWidgetLibraryView : public QMainWindow
 {
 	Q_OBJECT
 public:
-	CWidgetLibraryView(QWidget* parent = 0);
+	CWidgetLibraryView( QWidget* parent = 0 );
 	~CWidgetLibraryView();
 	QLineEdit* lineEditFind;
 	void saveWidget();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CWidgetLibraryView* ui;
 
 private slots:
-	void on_splitterLibraryView_customContextMenuRequested(QPoint pos);
+	void on_splitterLibraryView_customContextMenuRequested( QPoint pos );
 	void on_actionFind_triggered();
 	void setSkin();
 };

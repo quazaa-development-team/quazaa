@@ -42,33 +42,33 @@ SearchManager searchManager;
 
 const quint32 PacketsPerSec = 8;
 
-SearchManager::SearchManager(QObject* parent) :
-	QObject(parent)
+SearchManager::SearchManager( QObject* parent ) :
+	QObject( parent )
 {
 	m_nPruneCounter = 0;
 	m_nCookie = 0;
 
-	qRegisterMetaType<QueryHitSharedPtr>("QueryHitSharedPtr");
+	qRegisterMetaType<QueryHitSharedPtr>( "QueryHitSharedPtr" );
 }
 
-void SearchManager::add(ManagedSearch* pSearch)
+void SearchManager::add( ManagedSearch* pSearch )
 {
-	QMutexLocker l(&m_pSection);
+	QMutexLocker l( &m_pSection );
 
-	Q_ASSERT(!m_lSearches.contains(pSearch->m_oGUID));
-	m_lSearches.insert(pSearch->m_oGUID, pSearch);
-	if(pSearch->thread() != searchManager.thread())
+	Q_ASSERT( !m_lSearches.contains( pSearch->m_oGUID ) );
+	m_lSearches.insert( pSearch->m_oGUID, pSearch );
+	if ( pSearch->thread() != searchManager.thread() )
 	{
-		pSearch->moveToThread(searchManager.thread());
+		pSearch->moveToThread( searchManager.thread() );
 	}
 }
 
-void SearchManager::remove(ManagedSearch* pSearch)
+void SearchManager::remove( ManagedSearch* pSearch )
 {
-	QMutexLocker l(&m_pSection);
+	QMutexLocker l( &m_pSection );
 
-	Q_ASSERT(m_lSearches.contains(pSearch->m_oGUID));
-	m_lSearches.remove(pSearch->m_oGUID);
+	Q_ASSERT( m_lSearches.contains( pSearch->m_oGUID ) );
+	m_lSearches.remove( pSearch->m_oGUID );
 }
 
 /**
@@ -76,7 +76,7 @@ void SearchManager::remove(ManagedSearch* pSearch)
  * @param oGUID
  * @return A ptr to the ManagedSearch; NULL if the search could not be found.
  */
-ManagedSearch* SearchManager::find(QUuid& oGUID)
+ManagedSearch* SearchManager::find( QUuid& oGUID )
 {
 	return m_lSearches.value( oGUID, NULL );
 }
@@ -87,20 +87,24 @@ void SearchManager::onTimer()
 
 	quint32 nSearches = m_lSearches.size();
 
-	foreach ( ManagedSearch* pSearch, m_lSearches )
+	foreach ( ManagedSearch * pSearch, m_lSearches )
 	{
 		pSearch->sendHits();
 		if ( pSearch->m_bPaused )
+		{
 			--nSearches;
+		}
 	}
 
 	if ( !nSearches )
+	{
 		return;
+	}
 
 	const QDateTime tNowDT = common::getDateTimeUTC();
 
 	++m_nPruneCounter;
-	if ( !(m_nPruneCounter % 30) )
+	if ( !( m_nPruneCounter % 30 ) )
 	{
 		hostCache.pruneByQueryAck( tNowDT.toTime_t() );
 	}
@@ -111,22 +115,26 @@ void SearchManager::onTimer()
 
 	quint32 nExecuted = 0;
 
-	foreach ( ManagedSearch* pSearch, m_lSearches )
+	foreach ( ManagedSearch * pSearch, m_lSearches )
 	{
 		if ( pSearch->m_bPaused )
+		{
 			continue;
+		}
 
 		if ( pSearch->m_nCookie != m_nCookie )
 		{
 			quint32 nPacket = qMin( nPacketsPerSearch, nPacketsLeft );
 			pSearch->execute( tNowDT, &nPacket );
 			pSearch->m_nCookie = m_nCookie;
-			nPacketsLeft -= ( (nPacketsLeft < nPacketsPerSearch) ?
-							  (nPacketsLeft - nPacket) : (nPacketsPerSearch - nPacket) );
+			nPacketsLeft -= ( ( nPacketsLeft < nPacketsPerSearch ) ?
+							  ( nPacketsLeft - nPacket ) : ( nPacketsPerSearch - nPacket ) );
 			++nExecuted;
 
 			if ( !nPacketsLeft )
+			{
 				break;
+			}
 		}
 	}
 
@@ -143,7 +151,7 @@ void SearchManager::onTimer()
  * @param oGUID will be overwritten with the search GUID contained in the packet.
  * @return true: the caller must route the packet; false otherwise
  */
-bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const EndPoint& oSender, QUuid& oGUID)
+bool SearchManager::onQueryAcknowledge( G2Packet* pPacket, const EndPoint& oSender, QUuid& oGUID )
 {
 	// Note: The query acknowledgement packet is used to inform a search client that a target hub
 	// has received its query and is processing it. It also provides information for the search
@@ -203,7 +211,7 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const EndPoint& oSende
 			// Extensions defined by Quazaa:
 			// /QA/V  - 4 letter vendor code
 
-			if ( strcmp( "D", szType) == 0 && nLength >= 4 )
+			if ( strcmp( "D", szType ) == 0 && nLength >= 4 )
 			{
 				// hub that has now been searched
 
@@ -218,7 +226,7 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const EndPoint& oSende
 					if ( nLength >= 18 )
 					{
 						quint16 nPort = pPacket->readIntLE<quint16>();
-						oSearchedHub.setPort(nPort);
+						oSearchedHub.setPort( nPort );
 					}
 
 					if ( nLength >= 20 )
@@ -235,7 +243,7 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const EndPoint& oSende
 					if ( nLength >= 6 )
 					{
 						quint16 nPort = pPacket->readIntLE<quint16>();
-						oSearchedHub.setPort(nPort);
+						oSearchedHub.setPort( nPort );
 					}
 
 					if ( nLength >= 8 )
@@ -254,21 +262,21 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const EndPoint& oSende
 
 				EndPoint suggestion;
 				pPacket->readHostAddress( &suggestion, !( nLength >= 18 ) );
-				const quint32 tTimeStamp = ( nLength >= (suggestion.protocol() == 0 ? 10u : 22u) ) ?
-											 pPacket->readIntLE<quint32>() + tAdjust : tNow - 60;
+				const quint32 tTimeStamp = ( nLength >= ( suggestion.protocol() == 0 ? 10u : 22u ) ) ?
+										   pPacket->readIntLE<quint32>() + tAdjust : tNow - 60;
 
-				lSuggestedHubs.insert(suggestion, tTimeStamp);
+				lSuggestedHubs.insert( suggestion, tTimeStamp );
 
 				++nSuggestedHubs;
 			}
-			else if ( strcmp("TS", szType) == 0 && nLength >= 4 )
+			else if ( strcmp( "TS", szType ) == 0 && nLength >= 4 )
 			{
 				// UTC timestamp of the packet generation time
 
 				// TODO: this child packet should be read before parsing the other packets
 				tAdjust = tNow - pPacket->readIntLE<quint32>();
 			}
-			else if ( strcmp("RA", szType) == 0 && nLength >= 2 )
+			else if ( strcmp( "RA", szType ) == 0 && nLength >= 2 )
 			{
 				// the amount of time that needs to pass at least before retrying the sender
 				// TODO: make sure the packet order of the children does not matter anymore
@@ -291,7 +299,7 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const EndPoint& oSende
 				}
 				hostCache.m_pSection.unlock();
 			}
-			else if ( strcmp("FR", szType) == 0 && nLength >= 4 )
+			else if ( strcmp( "FR", szType ) == 0 && nLength >= 4 )
 			{
 				// for forwarded queries only: original sender of the packet
 
@@ -307,7 +315,7 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const EndPoint& oSende
 					oQAOrigin.setAddress( nFromIp );
 				}
 			}
-			else if ( strcmp("V", szType) == 0 && nLength >= 4 )
+			else if ( strcmp( "V", szType ) == 0 && nLength >= 4 )
 			{
 				sVendor = pPacket->readString( 4 );
 			}
@@ -323,26 +331,30 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const EndPoint& oSende
 
 		// we already know QA GUID
 
-		bLikelyFoxy = (nSearchedHubs > 20 && nSuggestedHubs < 6 && tRetryAfter == 300);
+		bLikelyFoxy = ( nSearchedHubs > 20 && nSuggestedHubs < 6 && tRetryAfter == 300 );
 		systemLog.postLog( LogSeverity::Debug, Component::G2,
 						   "Processing query acknowledge from %s (time adjust %+d seconds): %d hubs, %d leaves, %d suggested hubs, retry after %d seconds, %s, likely foxy: %s).",
 						   oQAOrigin.toString().toLocal8Bit().constData(), int( tAdjust ), nSearchedHubs,
 						   nSearchedLeaves, nSuggestedHubs, tRetryAfter,
-						   ( sVendor.isEmpty() ? "unknown" : qPrintable( sVendor ) ), (bLikelyFoxy ? "yes" : "no") );
+						   ( sVendor.isEmpty() ? "unknown" : qPrintable( sVendor ) ), ( bLikelyFoxy ? "yes" : "no" ) );
 
 		// Add Hubs to the cache
-		if ( Q_LIKELY(!bLikelyFoxy) )
+		if ( Q_LIKELY( !bLikelyFoxy ) )
 		{
 			for ( QList<EndPoint>::iterator itHub = lDoneHubs.begin(); itHub != lDoneHubs.end(); ++itHub )
 			{
-				if ( (*itHub).port() )
-					hostCache.add(*itHub, tNow);
+				if ( ( *itHub ).port() )
+				{
+					hostCache.add( *itHub, tNow );
+				}
 			}
 
 			for ( QHash<EndPoint, quint32>::iterator itHub = lSuggestedHubs.begin(); itHub != lSuggestedHubs.end(); ++itHub )
 			{
 				if ( itHub.key().port() )
-					hostCache.add(itHub.key(), itHub.value());
+				{
+					hostCache.add( itHub.key(), itHub.value() );
+				}
 			}
 		}
 		else
@@ -359,7 +371,7 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const EndPoint& oSende
 #if SECURITY_LOG_BAN_SOURCES
 								 , QString( "searchmanager.cpp line 307" )
 #endif // SECURITY_LOG_BAN_SOURCES
-								 );
+							   );
 
 			// remove suggested Hubs from host cache
 			for ( QList<EndPoint>::iterator itHub = lDoneHubs.begin(); itHub != lDoneHubs.end(); ++itHub )
@@ -394,12 +406,12 @@ bool SearchManager::onQueryAcknowledge(G2Packet* pPacket, const EndPoint& oSende
  * @param pHitInfo
  * @return true if the packet is to be routed; false otherwise (e.g. own search)
  */
-bool SearchManager::onQueryHit(G2Packet* pPacket, QueryHitInfo* pHitInfo)
+bool SearchManager::onQueryHit( G2Packet* pPacket, QueryHitInfo* pHitInfo )
 {
 	Q_ASSERT( pPacket );
 	Q_ASSERT( pHitInfo );
 
-	QMutexLocker l(&m_pSection);
+	QMutexLocker l( &m_pSection );
 
 	if ( ManagedSearch* pSearch = find( pHitInfo->m_oGUID ) )
 	{

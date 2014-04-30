@@ -29,30 +29,30 @@
 
 using namespace URI;
 
-CMetalink4Handler::CMetalink4Handler(QFile& oFile) :
+CMetalink4Handler::CMetalink4Handler( QFile& oFile ) :
 	CMetalinkHandler( oFile )
 {
-/*
+	/*
 
- <?xml version="1.0" encoding="UTF-8"?>
- <metalink xmlns="urn:ietf:params:xml:ns:metalink">
-   <published>2009-05-15T12:23:23Z</published>
-   <file name="example.ext">
-	 <size>14471447</size>
-	 <identity>Example</identity>
-	 <version>1.0</version>
-	 <language>en</language>
-	 <description>
-	 A description of the example file for download.
-	 </description>
-	 <hash type="sha-256">3d6fece8033d146d8611eab4f032df738c8c1283620fd02a1f2bfec6e27d590d</hash>
-	 <url location="de" priority="1">ftp://ftp.example.com/example.ext</url>
-	 <url location="fr" priority="1">http://example.com/example.ext</url>
-	 <metaurl mediatype="torrent" priority="2">http://example.com/example.ext.torrent</metaurl>
-   </file>
- </metalink>
+	 <?xml version="1.0" encoding="UTF-8"?>
+	 <metalink xmlns="urn:ietf:params:xml:ns:metalink">
+	   <published>2009-05-15T12:23:23Z</published>
+	   <file name="example.ext">
+		 <size>14471447</size>
+		 <identity>Example</identity>
+		 <version>1.0</version>
+		 <language>en</language>
+		 <description>
+		 A description of the example file for download.
+		 </description>
+		 <hash type="sha-256">3d6fece8033d146d8611eab4f032df738c8c1283620fd02a1f2bfec6e27d590d</hash>
+		 <url location="de" priority="1">ftp://ftp.example.com/example.ext</url>
+		 <url location="fr" priority="1">http://example.com/example.ext</url>
+		 <metaurl mediatype="torrent" priority="2">http://example.com/example.ext.torrent</metaurl>
+	   </file>
+	 </metalink>
 
-*/
+	*/
 
 	quint16 fileID = 0;
 	QList<MetaFile> lFiles;
@@ -91,7 +91,7 @@ CMetalink4Handler::CMetalink4Handler(QFile& oFile) :
 	//TODO: Parse more data within the metalink
 }
 
-Download* CMetalink4Handler::file(const unsigned int& ID) const
+Download* CMetalink4Handler::file( const unsigned int& ID ) const
 {
 	MetaFile oFile = m_vFiles[ ID ];
 
@@ -102,7 +102,7 @@ Download* CMetalink4Handler::file(const unsigned int& ID) const
 	return new Download();
 }
 
-bool CMetalink4Handler::parseFile(QList<MetaFile> &lFiles, quint16 ID)
+bool CMetalink4Handler::parseFile( QList<MetaFile>& lFiles, quint16 ID )
 {
 	MetaFile oCurrentFile( ID );
 
@@ -116,7 +116,7 @@ bool CMetalink4Handler::parseFile(QList<MetaFile> &lFiles, quint16 ID)
 			if ( vAttributes.hasAttribute( "type" ) )
 			{
 				QString urn = "urn:" + vAttributes.value( "type" ).toString().trimmed() + ":" +
-								  m_oMetaLink.readElementText();
+							  m_oMetaLink.readElementText();
 				CHash* pHash = CHash::fromURN( urn );
 
 				if ( pHash )

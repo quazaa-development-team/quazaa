@@ -30,18 +30,18 @@
 
 namespace Ui
 {
-	class CDialogLanguage;
+class CDialogLanguage;
 }
 
 class CDialogLanguage : public QDialog
 {
 	Q_OBJECT
 public:
-	CDialogLanguage(QWidget* parent = 0);
+	CDialogLanguage( QWidget* parent = 0 );
 	~CDialogLanguage();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CDialogLanguage* ui;
@@ -50,7 +50,7 @@ signals:
 	void closed();
 
 private slots:
-	void on_listWidgetLanguages_itemClicked(QListWidgetItem* item);
+	void on_listWidgetLanguages_itemClicked( QListWidgetItem* item );
 	void on_pushButtonOK_clicked();
 	void on_pushButtonCancel_clicked();
 	void setSkin();

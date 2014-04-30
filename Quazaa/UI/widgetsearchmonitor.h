@@ -29,19 +29,19 @@
 
 namespace Ui
 {
-	class CWidgetSearchMonitor;
+class CWidgetSearchMonitor;
 }
 
 class CWidgetSearchMonitor : public QMainWindow
 {
 	Q_OBJECT
 public:
-	CWidgetSearchMonitor(QWidget* parent = 0);
+	CWidgetSearchMonitor( QWidget* parent = 0 );
 	~CWidgetSearchMonitor();
 	void saveWidget();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CWidgetSearchMonitor* ui;

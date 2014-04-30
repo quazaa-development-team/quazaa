@@ -28,11 +28,11 @@
 
 #include "debug_new.h"
 
-QueryHashGroup::QueryHashGroup(quint32 nHash)
+QueryHashGroup::QueryHashGroup( quint32 nHash )
 {
 	m_nHash = nHash ? nHash : 1u << quazaaSettings.Library.QueryRouteSize;
 	m_pHash = new uchar[ m_nHash ];
-	memset(m_pHash, 0, m_nHash);
+	memset( m_pHash, 0, m_nHash );
 	m_nCount = 0;
 }
 
@@ -41,116 +41,116 @@ QueryHashGroup::~QueryHashGroup()
 #ifdef _DEBUG
 	uchar* pTest = m_pHash;
 
-	for(quint32 nHash = m_nHash ; nHash ; --nHash)
+	for ( quint32 nHash = m_nHash ; nHash ; --nHash )
 	{
-		Q_ASSERT(*pTest++ == 0);
+		Q_ASSERT( *pTest++ == 0 );
 	}
 #endif
 
 	delete [] m_pHash;
 }
 
-void QueryHashGroup::add(QueryHashTable* pTable)
+void QueryHashGroup::add( QueryHashTable* pTable )
 {
-	Q_ASSERT(pTable != 0);
-	Q_ASSERT(pTable->m_pGroup == 0);
-	Q_ASSERT(m_pTables.indexOf(pTable) == -1);
+	Q_ASSERT( pTable != 0 );
+	Q_ASSERT( pTable->m_pGroup == 0 );
+	Q_ASSERT( m_pTables.indexOf( pTable ) == -1 );
 
 	pTable->m_pGroup = this;
-	m_pTables.append(pTable);
+	m_pTables.append( pTable );
 
-	operate(pTable, true);
+	operate( pTable, true );
 	queryHashMaster.invalidate();
 }
 
-void QueryHashGroup::remove(QueryHashTable* pTable)
+void QueryHashGroup::remove( QueryHashTable* pTable )
 {
-	Q_ASSERT(pTable != 0);
-	Q_ASSERT(pTable->m_pGroup == this);
+	Q_ASSERT( pTable != 0 );
+	Q_ASSERT( pTable->m_pGroup == this );
 
-	int pos = m_pTables.indexOf(pTable);
-	Q_ASSERT(pos != -1);
+	int pos = m_pTables.indexOf( pTable );
+	Q_ASSERT( pos != -1 );
 
-	m_pTables.removeAt(pos);
+	m_pTables.removeAt( pos );
 	pTable->m_pGroup = 0;
 
-	operate(pTable, false);
+	operate( pTable, false );
 	queryHashMaster.invalidate();
 }
 
-void QueryHashGroup::operate(QueryHashTable* pTable, bool bAdd)
+void QueryHashGroup::operate( QueryHashTable* pTable, bool bAdd )
 {
-	Q_ASSERT(m_pHash != 0);
-	Q_ASSERT(pTable->m_nHash == m_nHash);
+	Q_ASSERT( m_pHash != 0 );
+	Q_ASSERT( pTable->m_nHash == m_nHash );
 
 	uchar* pSource = pTable->m_pHash;
 	uchar* pTarget = m_pHash;
 
-	if(bAdd)
+	if ( bAdd )
 	{
-		for(quint32 nHash = m_nHash >> 3 ; nHash ; --nHash)
+		for ( quint32 nHash = m_nHash >> 3 ; nHash ; --nHash )
 		{
 			register uchar nSource = *pSource++;
 
-			if((nSource & 0x01) == 0)
+			if ( ( nSource & 0x01 ) == 0 )
 			{
-				(*pTarget++) ++;
+				( *pTarget++ ) ++;
 			}
 			else
 			{
 				pTarget++;
 			}
-			if((nSource & 0x02) == 0)
+			if ( ( nSource & 0x02 ) == 0 )
 			{
-				(*pTarget++) ++;
+				( *pTarget++ ) ++;
 			}
 			else
 			{
 				pTarget++;
 			}
-			if((nSource & 0x04) == 0)
+			if ( ( nSource & 0x04 ) == 0 )
 			{
-				(*pTarget++) ++;
+				( *pTarget++ ) ++;
 			}
 			else
 			{
 				pTarget++;
 			}
-			if((nSource & 0x08) == 0)
+			if ( ( nSource & 0x08 ) == 0 )
 			{
-				(*pTarget++) ++;
+				( *pTarget++ ) ++;
 			}
 			else
 			{
 				pTarget++;
 			}
-			if((nSource & 0x10) == 0)
+			if ( ( nSource & 0x10 ) == 0 )
 			{
-				(*pTarget++) ++;
+				( *pTarget++ ) ++;
 			}
 			else
 			{
 				pTarget++;
 			}
-			if((nSource & 0x20) == 0)
+			if ( ( nSource & 0x20 ) == 0 )
 			{
-				(*pTarget++) ++;
+				( *pTarget++ ) ++;
 			}
 			else
 			{
 				pTarget++;
 			}
-			if((nSource & 0x40) == 0)
+			if ( ( nSource & 0x40 ) == 0 )
 			{
-				(*pTarget++) ++;
+				( *pTarget++ ) ++;
 			}
 			else
 			{
 				pTarget++;
 			}
-			if((nSource & 0x80) == 0)
+			if ( ( nSource & 0x80 ) == 0 )
 			{
-				(*pTarget++) ++;
+				( *pTarget++ ) ++;
 			}
 			else
 			{
@@ -160,69 +160,69 @@ void QueryHashGroup::operate(QueryHashTable* pTable, bool bAdd)
 	}
 	else
 	{
-		for(quint32 nHash = m_nHash >> 3 ; nHash ; --nHash)
+		for ( quint32 nHash = m_nHash >> 3 ; nHash ; --nHash )
 		{
 			register uchar nSource = *pSource++;
 
-			if((nSource & 0x01) == 0)
+			if ( ( nSource & 0x01 ) == 0 )
 			{
-				(*pTarget++) --;
+				( *pTarget++ ) --;
 			}
 			else
 			{
 				pTarget++;
 			}
-			if((nSource & 0x02) == 0)
+			if ( ( nSource & 0x02 ) == 0 )
 			{
-				(*pTarget++) --;
+				( *pTarget++ ) --;
 			}
 			else
 			{
 				pTarget++;
 			}
-			if((nSource & 0x04) == 0)
+			if ( ( nSource & 0x04 ) == 0 )
 			{
-				(*pTarget++) --;
+				( *pTarget++ ) --;
 			}
 			else
 			{
 				pTarget++;
 			}
-			if((nSource & 0x08) == 0)
+			if ( ( nSource & 0x08 ) == 0 )
 			{
-				(*pTarget++) --;
+				( *pTarget++ ) --;
 			}
 			else
 			{
 				pTarget++;
 			}
-			if((nSource & 0x10) == 0)
+			if ( ( nSource & 0x10 ) == 0 )
 			{
-				(*pTarget++) --;
+				( *pTarget++ ) --;
 			}
 			else
 			{
 				pTarget++;
 			}
-			if((nSource & 0x20) == 0)
+			if ( ( nSource & 0x20 ) == 0 )
 			{
-				(*pTarget++) --;
+				( *pTarget++ ) --;
 			}
 			else
 			{
 				pTarget++;
 			}
-			if((nSource & 0x40) == 0)
+			if ( ( nSource & 0x40 ) == 0 )
 			{
-				(*pTarget++) --;
+				( *pTarget++ ) --;
 			}
 			else
 			{
 				pTarget++;
 			}
-			if((nSource & 0x80) == 0)
+			if ( ( nSource & 0x80 ) == 0 )
 			{
-				(*pTarget++) --;
+				( *pTarget++ ) --;
 			}
 			else
 			{

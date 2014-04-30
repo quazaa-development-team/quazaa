@@ -10,10 +10,10 @@ class CTransfer : public NetworkConnection
 public:
 	void* m_pOwner;
 public:
-	CTransfer(void* pOwner, QObject *parent = 0);
+	CTransfer( void* pOwner, QObject* parent = 0 );
 	virtual ~CTransfer();
 
-	virtual void onTimer(quint32 tNow = 0);
+	virtual void onTimer( quint32 tNow = 0 );
 signals:
 
 public slots:

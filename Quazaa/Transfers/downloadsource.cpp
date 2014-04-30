@@ -31,24 +31,24 @@
 
 #include "debug_new.h"
 
-CDownloadSource::CDownloadSource(Download *pDownload, QObject *parent)
-	: QObject(parent),
-	  m_bPush(false),
-	  m_nFailures(0),
-	  m_pDownload(pDownload),
-	  m_pTransfer(0),
-	  m_lAvailableFrags(pDownload->m_nSize),
-	  m_lDownloadedFrags(pDownload->m_nSize)
+CDownloadSource::CDownloadSource( Download* pDownload, QObject* parent )
+	: QObject( parent ),
+	  m_bPush( false ),
+	  m_nFailures( 0 ),
+	  m_pDownload( pDownload ),
+	  m_pTransfer( 0 ),
+	  m_lAvailableFrags( pDownload->m_nSize ),
+	  m_lDownloadedFrags( pDownload->m_nSize )
 {
-	m_tNextAccess = time(0);
+	m_tNextAccess = time( 0 );
 }
 
-CDownloadSource::CDownloadSource(Download *pDownload, QueryHit *pHit, QObject *parent)
-	: QObject(parent),
-	  m_pDownload(pDownload),
-	  m_pTransfer(0),
-	  m_lAvailableFrags(pDownload->m_nSize),
-	  m_lDownloadedFrags(pDownload->m_nSize)
+CDownloadSource::CDownloadSource( Download* pDownload, QueryHit* pHit, QObject* parent )
+	: QObject( parent ),
+	  m_pDownload( pDownload ),
+	  m_pTransfer( 0 ),
+	  m_lAvailableFrags( pDownload->m_nSize ),
+	  m_lDownloadedFrags( pDownload->m_nSize )
 {
 	m_oAddress = pHit->m_pHitInfo->m_oNodeAddress;
 	m_bPush = false; // TODO: Push requests.
@@ -57,7 +57,7 @@ CDownloadSource::CDownloadSource(Download *pDownload, QueryHit *pHit, QObject *p
 	m_nNetwork = DiscoveryProtocol::G2;
 	m_oGUID = pHit->m_pHitInfo->m_oNodeGUID;
 	m_lHashes << pHit->m_lHashes;
-	m_tNextAccess = time(0);
+	m_tNextAccess = time( 0 );
 	m_nFailures = 0;
 	m_sURL = pHit->m_sURL;
 }
@@ -65,36 +65,38 @@ CDownloadSource::CDownloadSource(Download *pDownload, QueryHit *pHit, QObject *p
 CDownloadSource::~CDownloadSource()
 {
 	closeTransfer();
-	m_pDownload->removeSource(this);
+	m_pDownload->removeSource( this );
 }
 
-CTransfer *CDownloadSource::createTransfer()
+CTransfer* CDownloadSource::createTransfer()
 {
-	ASSUME_LOCK(downloads.m_pSection);
+	ASSUME_LOCK( downloads.m_pSection );
 
 	CTransfer* pTransfer = 0;
 
-	switch(m_nProtocol)
+	switch ( m_nProtocol )
 	{
-		case tpHTTP:
-			break;
-		case tpBitTorrent:
-			break;
-		default:
-			Q_ASSERT_X(0, "CDownloadSource::createTransfer()", "Invalid protocol id specified");
+	case tpHTTP:
+		break;
+	case tpBitTorrent:
+		break;
+	default:
+		Q_ASSERT_X( 0, "CDownloadSource::createTransfer()", "Invalid protocol id specified" );
 	}
 
-	if( pTransfer )
+	if ( pTransfer )
+	{
 		emit transferCreated();
+	}
 
 	return pTransfer;
 }
 
 void CDownloadSource::closeTransfer()
 {
-	ASSUME_LOCK(downloads.m_pSection);
+	ASSUME_LOCK( downloads.m_pSection );
 
-	if( m_pTransfer )
+	if ( m_pTransfer )
 	{
 		delete m_pTransfer;
 		m_pTransfer = 0;
@@ -102,11 +104,11 @@ void CDownloadSource::closeTransfer()
 	}
 }
 
-QDataStream& operator<<(QDataStream& s, const CDownloadSource& rhs)
+QDataStream& operator<<( QDataStream& s, const CDownloadSource& rhs )
 {
-	if( !rhs.m_bPush ) // do not store push sources (they may be useless after restart)
+	if ( !rhs.m_bPush ) // do not store push sources (they may be useless after restart)
 	{
-		s << "download-source" << quint32(1); // version
+		s << "download-source" << quint32( 1 ); // version
 		s << "address" << rhs.m_oAddress;
 		s << "protocol" << rhs.m_nProtocol;
 		s << "network" << rhs.m_nNetwork;
@@ -117,49 +119,49 @@ QDataStream& operator<<(QDataStream& s, const CDownloadSource& rhs)
 
 	return s;
 }
-QDataStream& operator>>(QDataStream& s, CDownloadSource& rhs)
+QDataStream& operator>>( QDataStream& s, CDownloadSource& rhs )
 {
 	// download-source tag is handled elsewhere
 
 	quint32 nVer = 0;
 	s >> nVer;
 
-	if( nVer == 1 )
+	if ( nVer == 1 )
 	{
 		QByteArray sTag;
 		s >> sTag;
-		sTag.chop(1);
+		sTag.chop( 1 );
 
-		while( sTag != "download-source-end" && s.status() == QDataStream::Ok )
+		while ( sTag != "download-source-end" && s.status() == QDataStream::Ok )
 		{
-			if( sTag == "address")
+			if ( sTag == "address" )
 			{
 				s >> rhs.m_oAddress;
 			}
-			else if( sTag == "protocol" )
+			else if ( sTag == "protocol" )
 			{
 				// TODO: sanity check...
 				int x;
 				s >> x;
-				rhs.m_nProtocol = static_cast<TransferProtocol>(x);
+				rhs.m_nProtocol = static_cast<TransferProtocol>( x );
 			}
-			else if( sTag == "network" )
+			else if ( sTag == "network" )
 			{
 				int x;
 				s >> x;
-				rhs.m_nNetwork = static_cast<DiscoveryProtocol::Protocol>(x);
+				rhs.m_nNetwork = static_cast<DiscoveryProtocol::Protocol>( x );
 			}
-			else if( sTag == "guid" )
+			else if ( sTag == "guid" )
 			{
 				s >> rhs.m_oGUID;
 			}
-			else if( sTag == "url" )
+			else if ( sTag == "url" )
 			{
 				s >> rhs.m_sURL;
 			}
 
 			s >> sTag;
-			sTag.chop(1);
+			sTag.chop( 1 );
 		}
 	}
 

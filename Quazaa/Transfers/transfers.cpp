@@ -34,11 +34,11 @@
 Transfers transfers;
 CThread transfersThread;
 
-Transfers::Transfers(QObject* parent)
-	: QObject(parent),
-	  m_bActive(false)
+Transfers::Transfers( QObject* parent )
+	: QObject( parent ),
+	  m_bActive( false )
 {
-	m_pController = new RateController(&m_pSection);
+	m_pController = new RateController( &m_pSection );
 }
 
 Transfers::~Transfers()
@@ -63,9 +63,9 @@ void Transfers::start()
 	downloads.start();
 	downloads.moveToThread( &transfersThread );
 
-	connect( &m_oTimer, SIGNAL(timeout()), this, SLOT(onTimer() ) );
-	connect( &m_oTimer, SIGNAL(timeout()), &downloads, SLOT(onTimer() ) );
-	m_oTimer.start(1000);
+	connect( &m_oTimer, SIGNAL( timeout() ), this, SLOT( onTimer() ) );
+	connect( &m_oTimer, SIGNAL( timeout() ), &downloads, SLOT( onTimer() ) );
+	m_oTimer.start( 1000 );
 
 	m_pSection.unlock();
 }
@@ -85,51 +85,53 @@ void Transfers::stop()
 	downloads.stop();
 }
 
-void Transfers::add(CTransfer *pTransfer)
+void Transfers::add( CTransfer* pTransfer )
 {
-	QMutexLocker l(&m_pSection);
+	QMutexLocker l( &m_pSection );
 
-	Q_ASSERT_X(m_bActive, "CTransfers::add()", "Adding transfer while thread is inactive");
+	Q_ASSERT_X( m_bActive, "CTransfers::add()", "Adding transfer while thread is inactive" );
 
-	if( m_lTransfers.contains(pTransfer->m_pOwner, pTransfer) )
+	if ( m_lTransfers.contains( pTransfer->m_pOwner, pTransfer ) )
 	{
 		// TODO: Add new sources if transfer already exists
-		systemLog.postLog(LogSeverity::Debug, "CTransfers::add(): transfer already added!");
+		systemLog.postLog( LogSeverity::Debug, "CTransfers::add(): transfer already added!" );
 		return;
 	}
 
-	m_lTransfers.insert(pTransfer->m_pOwner, pTransfer);
-	m_pController->addSocket(pTransfer);
+	m_lTransfers.insert( pTransfer->m_pOwner, pTransfer );
+	m_pController->addSocket( pTransfer );
 	// start
 }
 
-void Transfers::remove(CTransfer *pTransfer)
+void Transfers::remove( CTransfer* pTransfer )
 {
-	QMutexLocker l(&m_pSection);
+	QMutexLocker l( &m_pSection );
 
-	if(!m_lTransfers.contains(pTransfer->m_pOwner, pTransfer))
+	if ( !m_lTransfers.contains( pTransfer->m_pOwner, pTransfer ) )
 	{
-		systemLog.postLog(LogSeverity::Debug, "CTransfers::remove(): removing non-existing transfer!");
+		systemLog.postLog( LogSeverity::Debug, "CTransfers::remove(): removing non-existing transfer!" );
 		return;
 	}
 
-	m_pController->removeSocket(pTransfer);
-	m_lTransfers.remove(pTransfer->m_pOwner, pTransfer);
+	m_pController->removeSocket( pTransfer );
+	m_lTransfers.remove( pTransfer->m_pOwner, pTransfer );
 }
 
-QList<CTransfer *> Transfers::getByOwner(void *pOwner)
+QList<CTransfer*> Transfers::getByOwner( void* pOwner )
 {
-	return m_lTransfers.values(pOwner);
+	return m_lTransfers.values( pOwner );
 }
 
 void Transfers::onTimer()
 {
-	if(!m_bActive || m_lTransfers.isEmpty())
+	if ( !m_bActive || m_lTransfers.isEmpty() )
+	{
 		return;
+	}
 
-	QMutexLocker l(&m_pSection);
+	QMutexLocker l( &m_pSection );
 
-	foreach ( CTransfer* pTransfer, m_lTransfers )
+	foreach ( CTransfer * pTransfer, m_lTransfers )
 	{
 		pTransfer->onTimer();
 	}

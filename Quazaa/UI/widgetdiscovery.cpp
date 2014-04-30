@@ -34,11 +34,11 @@
 #include <QMenu>
 #include <QKeyEvent>
 
-CWidgetDiscovery::CWidgetDiscovery(QWidget* parent) :
-	QMainWindow(parent),
-	ui(new Ui::CWidgetDiscovery)
+CWidgetDiscovery::CWidgetDiscovery( QWidget* parent ) :
+	QMainWindow( parent ),
+	ui( new Ui::CWidgetDiscovery )
 {
-	ui->setupUi(this);
+	ui->setupUi( this );
 
 	m_pDiscoveryMenu = new QMenu( this );
 	m_pDiscoveryMenu->addAction( ui->actionDiscoveryAddService );
@@ -123,7 +123,7 @@ CWidgetDiscovery::~CWidgetDiscovery()
 	delete tableViewDiscovery; // TODO: check whether this is necessary...
 }
 
-void CWidgetDiscovery::setModel(QAbstractItemModel* model)
+void CWidgetDiscovery::setModel( QAbstractItemModel* model )
 {
 	tableViewDiscovery->setModel( model );
 }
@@ -139,7 +139,7 @@ void CWidgetDiscovery::saveWidget()
 	quazaaSettings.WinMain.DiscoveryHeader  = tableViewDiscovery->horizontalHeader()->saveState();
 }
 
-void CWidgetDiscovery::changeEvent(QEvent* e)
+void CWidgetDiscovery::changeEvent( QEvent* e )
 {
 	switch ( e->type() )
 	{
@@ -156,7 +156,7 @@ void CWidgetDiscovery::changeEvent(QEvent* e)
 	QMainWindow::changeEvent( e );
 }
 
-void CWidgetDiscovery::keyPressEvent(QKeyEvent *e)
+void CWidgetDiscovery::keyPressEvent( QKeyEvent* e )
 {
 	switch ( e->key() )
 	{
@@ -189,7 +189,7 @@ void CWidgetDiscovery::keyPressEvent(QKeyEvent *e)
 	m_pDiscoveryList->updateAll();
 }*/
 
-void CWidgetDiscovery::tableViewDiscovery_customContextMenuRequested(const QPoint& point)
+void CWidgetDiscovery::tableViewDiscovery_customContextMenuRequested( const QPoint& point )
 {
 	QModelIndex index = tableViewDiscovery->indexAt( point );
 
@@ -220,7 +220,7 @@ void CWidgetDiscovery::tableViewDiscovery_customContextMenuRequested(const QPoin
 	m_pDiscoveryMenu->popup( QCursor::pos() );
 }
 
-void CWidgetDiscovery::tableViewDiscovery_doubleClicked(const QModelIndex& index)
+void CWidgetDiscovery::tableViewDiscovery_doubleClicked( const QModelIndex& index )
 {
 	if ( index.isValid() )
 	{
@@ -235,7 +235,7 @@ void CWidgetDiscovery::tableViewDiscovery_doubleClicked(const QModelIndex& index
 	}
 }
 
-void CWidgetDiscovery::tableViewDiscovery_clicked(const QModelIndex& index)
+void CWidgetDiscovery::tableViewDiscovery_clicked( const QModelIndex& index )
 {
 	if ( index.isValid() )
 	{
@@ -281,7 +281,7 @@ void CWidgetDiscovery::on_actionDiscoveryRemoveService_triggered()
 {
 	QModelIndexList selection = tableViewDiscovery->selectionModel()->selectedRows();
 
-	foreach( const QModelIndex& i, selection )
+	foreach( const QModelIndex & i, selection )
 	{
 		if ( i.isValid() )
 		{
@@ -323,7 +323,7 @@ void CWidgetDiscovery::on_actionDiscoveryProperties_triggered()
 	if ( index.isValid() )
 	{
 
-	//see https://qt-project.org/wiki/New_Signal_Slot_Syntax
+		//see https://qt-project.org/wiki/New_Signal_Slot_Syntax
 
 // TODO: Pop up dialog to edit service
 	}

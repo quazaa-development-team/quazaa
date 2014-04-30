@@ -47,13 +47,13 @@ private:
 
 public:
 	CNetworkType();
-	CNetworkType(quint16 type);
-	CNetworkType(DiscoveryProtocol::Protocol type);
+	CNetworkType( quint16 type );
+	CNetworkType( DiscoveryProtocol::Protocol type );
 
 	inline void registerMetaType() const;
 
-	bool operator==(const CNetworkType& type) const;
-	bool operator!=(const CNetworkType& type) const;
+	bool operator==( const CNetworkType& type ) const;
+	bool operator!=( const CNetworkType& type ) const;
 
 	bool isNull() const;
 
@@ -69,8 +69,8 @@ public:
 	bool isEDonkey2000() const;
 	void setEDonkey2000( bool );
 
-	bool isNetwork(const CNetworkType& type) const;
-	void setNetwork(const CNetworkType& type);
+	bool isNetwork( const CNetworkType& type ) const;
+	void setNetwork( const CNetworkType& type );
 
 	bool isMulti() const;
 

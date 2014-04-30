@@ -38,37 +38,37 @@
 #include "queryhashtable.h"
 #include "debug_new.h"
 
-CSharedFile::CSharedFile(QObject* parent) :
+CSharedFile::CSharedFile( QObject* parent ) :
 	CFile( parent )
 {
 	setup();
 }
 
-CSharedFile::CSharedFile(const QString& file, QObject* parent) :
+CSharedFile::CSharedFile( const QString& file, QObject* parent ) :
 	CFile( file, parent )
 {
 	setup();
 }
 
-CSharedFile::CSharedFile(const QFile& file, QObject* parent) :
+CSharedFile::CSharedFile( const QFile& file, QObject* parent ) :
 	CFile( file, parent )
 {
 	setup();
 }
 
-CSharedFile::CSharedFile(const QDir& dir, const QString& file, QObject* parent) :
+CSharedFile::CSharedFile( const QDir& dir, const QString& file, QObject* parent ) :
 	CFile( dir, file, parent )
 {
 	setup();
 }
 
-CSharedFile::CSharedFile(const QFileInfo& fileinfo, QObject* parent) :
+CSharedFile::CSharedFile( const QFileInfo& fileinfo, QObject* parent ) :
 	CFile( fileinfo, parent )
 {
 	setup();
 }
 
-void CSharedFile::serialize(QSqlDatabase* pDatabase)
+void CSharedFile::serialize( QSqlDatabase* pDatabase )
 {
 	// get directory id if needed
 	if ( m_nDirectoryID == 0 )
@@ -91,7 +91,7 @@ void CSharedFile::serialize(QSqlDatabase* pDatabase)
 
 		query.next();
 
-		m_nDirectoryID = query.value(0).toLongLong();
+		m_nDirectoryID = query.value( 0 ).toLongLong();
 	}
 
 	// now insert or update file record
@@ -123,7 +123,7 @@ void CSharedFile::serialize(QSqlDatabase* pDatabase)
 		QMap<QString, QVariant> mapValues;
 		mapValues.insert( "file_id", QVariant( nFileID ) );
 
-		foreach ( const CHash& rHash, m_Hashes )
+		foreach ( const CHash & rHash, m_Hashes )
 		{
 			if ( pDatabase->record( "hashes" ).contains( rHash.getFamilyName() ) )
 			{
@@ -154,13 +154,14 @@ void CSharedFile::serialize(QSqlDatabase* pDatabase)
 			int nCurrPos = 0;
 			for ( QMap<QString, QVariant>::iterator itValues = mapValues.begin(); itValues != mapValues.end(); itValues++ )
 			{
-				qh.bindValue( nCurrPos, QVariant(itValues.value() ) );
+				qh.bindValue( nCurrPos, QVariant( itValues.value() ) );
 				nCurrPos++;
 			}
 
 			if ( !qh.exec() )
 			{
-				systemLog.postLog( LogSeverity::Debug, QString( "Cannot insert hashes: %1 %2" ).arg( qh.lastError().text() ).arg(qh.executedQuery() ) );
+				systemLog.postLog( LogSeverity::Debug,
+								   QString( "Cannot insert hashes: %1 %2" ).arg( qh.lastError().text() ).arg( qh.executedQuery() ) );
 			}
 		}
 
@@ -169,7 +170,7 @@ void CSharedFile::serialize(QSqlDatabase* pDatabase)
 
 		QSqlQuery qkw( *pDatabase );
 		qkw.prepare( "INSERT OR IGNORE INTO keywords (keyword) VALUES (?)" );
-		foreach ( const QString& sKey, lKeywords )
+		foreach ( const QString & sKey, lKeywords )
 		{
 			qkw.bindValue( 0, QVariant( sKey ) );
 			qkw.exec();
@@ -184,6 +185,6 @@ void CSharedFile::setup()
 	m_bShared = false;
 
 	static int dummy = qRegisterMetaType<CSharedFilePtr>( "CSharedFilePtr" );
-	Q_UNUSED(dummy);
+	Q_UNUSED( dummy );
 }
 

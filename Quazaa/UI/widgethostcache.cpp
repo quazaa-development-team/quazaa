@@ -33,9 +33,9 @@
 
 #include "debug_new.h"
 
-WidgetHostCache::WidgetHostCache(QWidget* parent) :
-	QMainWindow(parent),
-	ui(new Ui::WidgetHostCache)
+WidgetHostCache::WidgetHostCache( QWidget* parent ) :
+	QMainWindow( parent ),
+	ui( new Ui::WidgetHostCache )
 {
 	ui->setupUi( this );
 
@@ -49,9 +49,11 @@ WidgetHostCache::WidgetHostCache(QWidget* parent) :
 
 	ui->splitterHostCache->addWidget( m_pTableViewG2Cache );
 
-	connect(m_pTableViewG2Cache, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tableViewG2Cache_customContextMenuRequested(QPoint)));
-	connect(m_pTableViewG2Cache, SIGNAL(clicked(QModelIndex)), this, SLOT(tableViewG2Cache_clicked(QModelIndex)));
-	connect(m_pTableViewG2Cache, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(tableViewG2Cache_doubleClicked(QModelIndex)));
+	connect( m_pTableViewG2Cache, SIGNAL( customContextMenuRequested( QPoint ) ), this,
+			 SLOT( tableViewG2Cache_customContextMenuRequested( QPoint ) ) );
+	connect( m_pTableViewG2Cache, SIGNAL( clicked( QModelIndex ) ), this, SLOT( tableViewG2Cache_clicked( QModelIndex ) ) );
+	connect( m_pTableViewG2Cache, SIGNAL( doubleClicked( QModelIndex ) ), this,
+			 SLOT( tableViewG2Cache_doubleClicked( QModelIndex ) ) );
 
 	m_pHosts = new HostCacheTableModel( this );
 
@@ -70,22 +72,22 @@ WidgetHostCache::~WidgetHostCache()
 	delete ui;
 }
 
-void WidgetHostCache::changeEvent(QEvent* e)
+void WidgetHostCache::changeEvent( QEvent* e )
 {
 	QMainWindow::changeEvent( e );
 
 	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi( this );
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
 
-		default:
-			break;
+	default:
+		break;
 	}
 }
 
-void WidgetHostCache::keyPressEvent(QKeyEvent *e)
+void WidgetHostCache::keyPressEvent( QKeyEvent* e )
 {
 	switch ( e->key() )
 	{
@@ -124,27 +126,27 @@ void WidgetHostCache::saveWidget()
 	quazaaSettings.WinMain.HostCacheSplitter = ui->splitterHostCache->saveState();
 }
 
-void WidgetHostCache::on_splitterHostCache_customContextMenuRequested(QPoint pos)
+void WidgetHostCache::on_splitterHostCache_customContextMenuRequested( QPoint pos )
 {
-	Q_UNUSED(pos);
+	Q_UNUSED( pos );
 
-	if(ui->splitterHostCache->handle(1)->underMouse())
+	if ( ui->splitterHostCache->handle( 1 )->underMouse() )
 	{
-		if(ui->splitterHostCache->sizes()[0] > 0)
+		if ( ui->splitterHostCache->sizes()[0] > 0 )
 		{
 			quazaaSettings.WinMain.HostCacheSplitterRestoreLeft = ui->splitterHostCache->sizes()[0];
 			quazaaSettings.WinMain.HostCacheSplitterRestoreRight = ui->splitterHostCache->sizes()[1];
 			QList<int> newSizes;
-			newSizes.append(0);
-			newSizes.append(ui->splitterHostCache->sizes()[0] + ui->splitterHostCache->sizes()[1]);
-			ui->splitterHostCache->setSizes(newSizes);
+			newSizes.append( 0 );
+			newSizes.append( ui->splitterHostCache->sizes()[0] + ui->splitterHostCache->sizes()[1] );
+			ui->splitterHostCache->setSizes( newSizes );
 		}
 		else
 		{
 			QList<int> sizesList;
-			sizesList.append(quazaaSettings.WinMain.HostCacheSplitterRestoreLeft);
-			sizesList.append(quazaaSettings.WinMain.HostCacheSplitterRestoreRight);
-			ui->splitterHostCache->setSizes(sizesList);
+			sizesList.append( quazaaSettings.WinMain.HostCacheSplitterRestoreLeft );
+			sizesList.append( quazaaSettings.WinMain.HostCacheSplitterRestoreRight );
+			ui->splitterHostCache->setSizes( sizesList );
 		}
 	}
 }
@@ -155,7 +157,7 @@ void WidgetHostCache::setSkin()
 	m_pTableViewG2Cache->setStyleSheet( skinSettings.listViews );
 }
 
-void WidgetHostCache::tableViewG2Cache_doubleClicked(const QModelIndex& index)
+void WidgetHostCache::tableViewG2Cache_doubleClicked( const QModelIndex& index )
 {
 	if ( index.isValid() )
 	{
@@ -165,7 +167,7 @@ void WidgetHostCache::tableViewG2Cache_doubleClicked(const QModelIndex& index)
 	}
 }
 
-void WidgetHostCache::tableViewG2Cache_clicked(const QModelIndex& index)
+void WidgetHostCache::tableViewG2Cache_clicked( const QModelIndex& index )
 {
 	// TODO: enable/disable actions
 	if ( index.isValid() )
@@ -176,7 +178,7 @@ void WidgetHostCache::tableViewG2Cache_clicked(const QModelIndex& index)
 	}
 }
 
-void WidgetHostCache::tableViewG2Cache_customContextMenuRequested(const QPoint &pos)
+void WidgetHostCache::tableViewG2Cache_customContextMenuRequested( const QPoint& pos )
 {
 	QModelIndex index = m_pTableViewG2Cache->indexAt( pos );
 

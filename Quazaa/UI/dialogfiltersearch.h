@@ -41,11 +41,11 @@ class DialogFilterSearch : public QDialog
 {
 	Q_OBJECT
 public:
-	DialogFilterSearch(SearchFilter::FilterControlData*& pData, QWidget* parent = 0);
+	DialogFilterSearch( SearchFilter::FilterControlData*& pData, QWidget* parent = 0 );
 	~DialogFilterSearch();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::DialogFilterSearch* ui;

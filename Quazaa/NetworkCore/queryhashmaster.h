@@ -43,8 +43,8 @@ protected:
 
 public:
 	void		create();
-	void		add(QueryHashTable* pTable);
-	void		remove(QueryHashTable* pTable);
+	void		add( QueryHashTable* pTable );
+	void		remove( QueryHashTable* pTable );
 public slots:
 	void		build();
 

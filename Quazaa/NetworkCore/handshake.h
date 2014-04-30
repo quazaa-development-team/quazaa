@@ -33,10 +33,10 @@ class Handshake: public NetworkConnection
 	Q_OBJECT
 
 public:
-	Handshake(QObject* parent = 0);
+	Handshake( QObject* parent = 0 );
 	~Handshake();
 
-	void onTimer(quint32 tNow);
+	void onTimer( quint32 tNow );
 
 public slots:
 	/**
@@ -46,8 +46,8 @@ public slots:
 
 	void onConnectNode();
 	void onDisconnectNode() ;
-	void onError(QAbstractSocket::SocketError e);
-	void onStateChange(QAbstractSocket::SocketState s);
+	void onError( QAbstractSocket::SocketError e );
+	void onStateChange( QAbstractSocket::SocketState s );
 
 private:
 	void onWebRequest();

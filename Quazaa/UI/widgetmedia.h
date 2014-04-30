@@ -32,34 +32,34 @@
 
 namespace Ui
 {
-	class CWidgetMedia;
+class CWidgetMedia;
 }
 
 class CWidgetMedia : public QWidget
 {
 	Q_OBJECT
 public:
-	CWidgetMedia(QWidget* parent = 0);
+	CWidgetMedia( QWidget* parent = 0 );
 	~CWidgetMedia();
 	void saveWidget();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CWidgetMedia* ui;
 
 private slots:
 	void on_toolButtonMediaPlaylistTaskHeader_clicked();
-	void on_splitterMedia_customContextMenuRequested(QPoint pos);
+	void on_splitterMedia_customContextMenuRequested( QPoint pos );
 	void setSkin();
 	void openMedia();
 	void toggleFullScreen();
 
 private:
-	QMediaPlayer *player;
-	QMediaPlaylist *playlist;
-	VideoContainer *videoContainer;
+	QMediaPlayer* player;
+	QMediaPlaylist* playlist;
+	VideoContainer* videoContainer;
 };
 
 #endif // WIDGETMEDIA_H

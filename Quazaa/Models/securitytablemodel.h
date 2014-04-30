@@ -63,7 +63,7 @@ public:
 		const QIcon*    m_piAction;
 		bool            m_bAutomatic;
 
-		RuleData(Rule* pRule, SecurityTableModel* pModel);
+		RuleData( Rule* pRule, SecurityTableModel* pModel );
 		~RuleData();
 
 		/**
@@ -75,8 +75,8 @@ public:
 		 * @param pModel : the model
 		 * @return true if an entry within the column col has been modified
 		 */
-		bool update(int nRow, int nSortCol, QModelIndexList& lToUpdate, SecurityTableModel* pModel);
-		QVariant data(int col) const;
+		bool update( int nRow, int nSortCol, QModelIndexList& lToUpdate, SecurityTableModel* pModel );
+		QVariant data( int col ) const;
 
 		/**
 		 * @brief rule allows access to the rule pointer.
@@ -84,10 +84,10 @@ public:
 		 */
 		Rule* rule() const;
 
-		bool lessThan(int col, const RuleData* const pOther) const;
+		bool lessThan( int col, const RuleData* const pOther ) const;
 
-		QString actionToString(RuleAction::Action nAction) const;
-		QString expiryToString(quint32 tExpire) const;
+		QString actionToString( RuleAction::Action nAction ) const;
+		QString expiryToString( quint32 tExpire ) const;
 	};
 
 	typedef QSharedPointer<RuleData>    RuleDataPtr;
@@ -121,25 +121,25 @@ public:
 	const QIcon* m_pIcons[3];
 
 public:
-	explicit SecurityTableModel(QObject* parent = NULL, QWidget* container = NULL);
+	explicit SecurityTableModel( QObject* parent = NULL, QWidget* container = NULL );
 	~SecurityTableModel();
 
-	int rowCount(const QModelIndex& parent = QModelIndex()) const;
-	int columnCount(const QModelIndex& parent) const;
-	QVariant data(const QModelIndex& index, int nRole) const;
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+	int rowCount( const QModelIndex& parent = QModelIndex() ) const;
+	int columnCount( const QModelIndex& parent ) const;
+	QVariant data( const QModelIndex& index, int nRole ) const;
+	QVariant headerData( int section, Qt::Orientation orientation, int role ) const;
+	QModelIndex index( int row, int column, const QModelIndex& parent = QModelIndex() ) const;
 
-	void sort(int column, Qt::SortOrder order);
+	void sort( int column, Qt::SortOrder order );
 
-	int find(ID nRuleID);
+	int find( ID nRuleID );
 
-	RuleDataPtr dataFromRow(int nRow) const;
+	RuleDataPtr dataFromRow( int nRow ) const;
 	//Rule* ruleFromIndex(const QModelIndex& index) const;
 
 	void completeRefresh();
 
-	void triggerRuleRemoval(int nIndex);
+	void triggerRuleRemoval( int nIndex );
 
 	/**
 	 * @brief clear removes all information from the GUI.
@@ -156,26 +156,26 @@ public slots:
 	 * @brief recieveRuleInfo
 	 * @param pRule
 	 */
-	void recieveRuleInfo(Rule* pRule);
+	void recieveRuleInfo( Rule* pRule );
 
 	/**
 	 * @brief SecurityTableModel::addRule adds a rule to the GUI.
 	 * @param pRule : the rule
 	 */
-	void addRule(Rule* pRule);
+	void addRule( Rule* pRule );
 
 	/**
 	 * @brief SecurityTableModel::removeRule removes a rule from the table model.
 	 * This is to be triggered AFTER the rule has been removed from the manager by the manager.
 	 * @param pRule : the rule
 	 */
-	void removeRule(SharedRulePtr pRule);
+	void removeRule( SharedRulePtr pRule );
 
 	/**
 	 * @brief updateRule updates the GUI for a specified rule.
 	 * @param nRuleID : the ID of the rule
 	 */
-	void updateRule(ID nRuleID);
+	void updateRule( ID nRuleID );
 
 	/**
 	 * @brief updateAll updates all rules in the GUI.

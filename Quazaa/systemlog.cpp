@@ -63,23 +63,23 @@ void SystemLog::start()
 	m_pComponents[11] = tr( "[Downloads] "  );
 	m_pComponents[12] = tr( "[Uploads] "    );
 	m_pComponents[13] = tr( "[GUI] "        );
-	m_pComponents[14] = tr( "[SignalQueue] ");
+	m_pComponents[14] = tr( "[SignalQueue] " );
 	m_pComponents[15] = tr( "[HostCache] "  );
 }
 
-QString SystemLog::msgFromComponent(Component nComponent)
+QString SystemLog::msgFromComponent( Component nComponent )
 {
 	return m_pComponents[static_cast<quint8>( nComponent )];
 }
 
-void SystemLog::postLog(LogSeverity nSeverity, const QString& sMessage)
+void SystemLog::postLog( LogSeverity nSeverity, const QString& sMessage )
 {
 	postLog( nSeverity, Component::None, sMessage );
 }
 
 #ifndef QUAZAA_SETUP_UNIT_TESTS
-void SystemLog::postLog(LogSeverity nSeverity, Component nComponent,
-						const QString& sMessage)
+void SystemLog::postLog( LogSeverity nSeverity, Component nComponent,
+						 const QString& sMessage )
 {
 	QMutexLocker locker( &m_pSection );
 
@@ -131,8 +131,8 @@ void SystemLog::postLog(LogSeverity nSeverity, Component nComponent,
 	emit logPosted( sComponentMessage, nSeverity );
 }
 
-void SystemLog::postLog(LogSeverity nSeverity, Component nComponent,
-						 const char* format, ...)
+void SystemLog::postLog( LogSeverity nSeverity, Component nComponent,
+						 const char* format, ... )
 {
 	va_list argList;
 	va_start( argList, format );
@@ -152,13 +152,13 @@ SystemLog::~SystemLog()
 	delete[] m_pComponents;
 }
 
-void SystemLog::postLog(LogSeverity, Component nComponent,
-						 const QString& sMessage)
+void SystemLog::postLog( LogSeverity, Component nComponent,
+						 const QString& sMessage )
 {
 	qDebug() << ( msgFromComponent( nComponent ) + sMessage ).toLocal8Bit().data();
 }
 
-void SystemLog::postLog(LogSeverity, Component, const char*, ...)
+void SystemLog::postLog( LogSeverity, Component, const char*, ... )
 {
 }
 #endif

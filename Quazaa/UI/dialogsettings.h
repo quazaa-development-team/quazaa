@@ -30,16 +30,16 @@
 
 namespace SettingsPage
 {
-	enum settingsPage
-	{
-		System, Skins, Library, FileTypes, MediaPlayer, Search, Integration, Plugins, PrivateMessages, Chat, Security,
-		Parental, Connection, Transfers, Downloads, Uploads, Gnutella2, Ares, EDonkey, BitTorrent, Protocols
-	};
+enum settingsPage
+{
+	System, Skins, Library, FileTypes, MediaPlayer, Search, Integration, Plugins, PrivateMessages, Chat, Security,
+	Parental, Connection, Transfers, Downloads, Uploads, Gnutella2, Ares, EDonkey, BitTorrent, Protocols
+};
 }
 
 namespace Ui
 {
-	class CDialogSettings;
+class CDialogSettings;
 }
 
 class CDialogSettings : public QDialog
@@ -47,33 +47,33 @@ class CDialogSettings : public QDialog
 	Q_OBJECT
 
 public:
-	explicit CDialogSettings(QWidget* parent = 0, SettingsPage::settingsPage page = SettingsPage::System);
+	explicit CDialogSettings( QWidget* parent = 0, SettingsPage::settingsPage page = SettingsPage::System );
 	~CDialogSettings();
 
 public slots:
 	void enableApply();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private slots:
-	void switchSettingsPage(SettingsPage::settingsPage page);
-	void on_listWidgetGeneralTask_clicked(QModelIndex index);
-	void on_listWidgetCommunityTask_clicked(QModelIndex index);
-	void on_listWidgetSecurityTask_clicked(QModelIndex index);
-	void on_listWidgetNetworkTask_clicked(QModelIndex index);
-	void on_listWidgetProtocolsTask_clicked(QModelIndex index);
+	void switchSettingsPage( SettingsPage::settingsPage page );
+	void on_listWidgetGeneralTask_clicked( QModelIndex index );
+	void on_listWidgetCommunityTask_clicked( QModelIndex index );
+	void on_listWidgetSecurityTask_clicked( QModelIndex index );
+	void on_listWidgetNetworkTask_clicked( QModelIndex index );
+	void on_listWidgetProtocolsTask_clicked( QModelIndex index );
 	void on_pushButtonOk_clicked();
 	void on_pushButtonCancel_clicked();
 	void on_pushButtonApply_clicked();
 
 	void on_pushButtonProfileEdit_clicked();
 	void on_pushButtonShowParentalFilter_clicked();
-	void on_labelConfigureG2_linkActivated(QString link);
-	void on_labelConfigureAres_linkActivated(QString link);
-	void on_labelConfigureEDonkey_linkActivated(QString link);
-	void on_labelConfigureBitTorrent_linkActivated(QString link);
-	void on_listWidgetSkins_itemClicked(QListWidgetItem* item);
+	void on_labelConfigureG2_linkActivated( QString link );
+	void on_labelConfigureAres_linkActivated( QString link );
+	void on_labelConfigureEDonkey_linkActivated( QString link );
+	void on_labelConfigureBitTorrent_linkActivated( QString link );
+	void on_listWidgetSkins_itemClicked( QListWidgetItem* item );
 	void on_pushButtonSkinPreview_clicked();
 	void on_pushButtonFileTypesSafeOpenAdd_clicked();
 	void on_pushButtonFileTypesNeverShareAdd_clicked();

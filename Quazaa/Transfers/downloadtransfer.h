@@ -36,12 +36,12 @@ public:
 
 	Fragments::Queue	m_lRequested;
 public:
-	CDownloadTransfer(Download* pOwner, CDownloadSource* pSource, QObject *parent = 0);
+	CDownloadTransfer( Download* pOwner, CDownloadSource* pSource, QObject* parent = 0 );
 	virtual ~CDownloadTransfer();
 
-	virtual void onTimer(quint32 tNow = 0);
-	virtual void requestBlock(Fragments::Fragment oFragment);
-	virtual void subtractRequested(Fragments::List& oFragments);
+	virtual void onTimer( quint32 tNow = 0 );
+	virtual void requestBlock( Fragments::Fragment oFragment );
+	virtual void subtractRequested( Fragments::List& oFragments );
 public:
 	inline CDownloadSource* source() const;
 signals:

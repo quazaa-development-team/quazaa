@@ -29,25 +29,25 @@
 
 namespace Ui
 {
-	class CWidgetGraph;
+class CWidgetGraph;
 }
 
 class CWidgetGraph : public QMainWindow
 {
 	Q_OBJECT
 public:
-	CWidgetGraph(QWidget* parent = 0);
+	CWidgetGraph( QWidget* parent = 0 );
 	~CWidgetGraph();
 	void saveWidget();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CWidgetGraph* ui;
 
 private slots:
-	void on_splitterGraph_customContextMenuRequested(QPoint pos);
+	void on_splitterGraph_customContextMenuRequested( QPoint pos );
 	void setSkin();
 };
 

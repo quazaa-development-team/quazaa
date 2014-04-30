@@ -30,15 +30,15 @@
 
 class IrcUserListModel : public IrcUserModel
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit IrcUserListModel(QObject* parent = 0);
-    virtual ~IrcUserListModel();
+	explicit IrcUserListModel( QObject* parent = 0 );
+	virtual ~IrcUserListModel();
 
-    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
+	QVariant data( const QModelIndex& index, int role = Qt::DisplayRole ) const;
 
 private:
-    QIcon modeToIcon(const QString& mode) const;
+	QIcon modeToIcon( const QString& mode ) const;
 };
 
 #endif // CHATUSERLISTMODEL_H

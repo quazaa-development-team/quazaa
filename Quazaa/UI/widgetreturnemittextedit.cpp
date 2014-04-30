@@ -33,88 +33,117 @@
 
 #include "debug_new.h"
 
-CWidgetReturnEmitTextEdit::CWidgetReturnEmitTextEdit(QWidget *parent)
+CWidgetReturnEmitTextEdit::CWidgetReturnEmitTextEdit( QWidget* parent )
 {
-	Q_UNUSED(parent);
+	Q_UNUSED( parent );
 	resetHistoryIndex();
-	m_oCompleter = new ChatCompleter(this);
-	m_oCompleter->setWidget(this);
-	m_oCompleter->setTextEdit(this);
+	m_oCompleter = new ChatCompleter( this );
+	m_oCompleter->setWidget( this );
+	m_oCompleter->setTextEdit( this );
 
 	emitReturn = true;
-	connect(this, SIGNAL(textChanged()), this, SLOT(onTextChanged()));
+	connect( this, SIGNAL( textChanged() ), this, SLOT( onTextChanged() ) );
 
-	setAttribute(Qt::WA_MacShowFocusRect, false);
+	setAttribute( Qt::WA_MacShowFocusRect, false );
 
-	connect(this, SIGNAL(tabPressed()), m_oCompleter, SLOT(onTabPressed()));
+	connect( this, SIGNAL( tabPressed() ), m_oCompleter, SLOT( onTabPressed() ) );
 	setSkin();
 }
 
-bool CWidgetReturnEmitTextEdit::event(QEvent* event)
+bool CWidgetReturnEmitTextEdit::event( QEvent* event )
 {
-	if (event->type() == QEvent::ShortcutOverride) {
-		QKeyEvent* ke = static_cast<QKeyEvent*>(event);
-		if (ke == QKeySequence::MoveToStartOfDocument) {
+	if ( event->type() == QEvent::ShortcutOverride )
+	{
+		QKeyEvent* ke = static_cast<QKeyEvent*>( event );
+		if ( ke == QKeySequence::MoveToStartOfDocument )
+		{
 			emit scrollToTop();
 			event->accept();
 			return true;
-		} else if (ke == QKeySequence::MoveToEndOfDocument) {
+		}
+		else if ( ke == QKeySequence::MoveToEndOfDocument )
+		{
 			emit scrollToBottom();
 			event->accept();
 			return true;
-		} else if (ke == QKeySequence::MoveToNextPage) {
+		}
+		else if ( ke == QKeySequence::MoveToNextPage )
+		{
 			emit scrollToNextPage();
 			event->accept();
 			return true;
-		} else if (ke == QKeySequence::MoveToPreviousPage) {
+		}
+		else if ( ke == QKeySequence::MoveToPreviousPage )
+		{
 			emit scrollToPreviousPage();
 			event->accept();
 			return true;
 		}
 	}
-	return QTextEdit::event(event);
+	return QTextEdit::event( event );
 }
 
-void CWidgetReturnEmitTextEdit::keyPressEvent(QKeyEvent *event)
+void CWidgetReturnEmitTextEdit::keyPressEvent( QKeyEvent* event )
 {
-	if (event->key() == Qt::Key_Return)
+	if ( event->key() == Qt::Key_Return )
 	{
-		if (event->modifiers() & Qt::ShiftModifier) {
+		if ( event->modifiers() & Qt::ShiftModifier )
+		{
 			QTextCursor tc = textCursor();
-			tc.insertText(QChar(QChar::CarriageReturn));
-			setTextCursor(tc);
-		} else {
+			tc.insertText( QChar( QChar::CarriageReturn ) );
+			setTextCursor( tc );
+		}
+		else
+		{
 			emit returnPressed();
 		}
-	} else if (event->key() == Qt::Key_Up) {
-		if (!m_lHistory.isEmpty())
+	}
+	else if ( event->key() == Qt::Key_Up )
+	{
+		if ( !m_lHistory.isEmpty() )
 		{
-			if(m_iHistoryIndex < 1)
-				m_iHistoryIndex = (m_lHistory.size() - 1);
+			if ( m_iHistoryIndex < 1 )
+			{
+				m_iHistoryIndex = ( m_lHistory.size() - 1 );
+			}
 			else
+			{
 				--m_iHistoryIndex;
+			}
 			event->ignore();
-			setHtml(m_lHistory.at(m_iHistoryIndex));
-		} else {
-			event->ignore();
-			QTextEdit::keyPressEvent(event);
+			setHtml( m_lHistory.at( m_iHistoryIndex ) );
 		}
-	} else if (event->key() == Qt::Key_Down) {
-		if (!m_lHistory.isEmpty())
+		else
 		{
-			if(m_iHistoryIndex == -1 || m_iHistoryIndex == (m_lHistory.size() - 1))
-				m_iHistoryIndex = 0;
-			else
-				++m_iHistoryIndex;
 			event->ignore();
-			setHtml(m_lHistory.at(m_iHistoryIndex));
-		} else {
-			event->ignore();
-			QTextEdit::keyPressEvent(event);
+			QTextEdit::keyPressEvent( event );
 		}
-	} else {
+	}
+	else if ( event->key() == Qt::Key_Down )
+	{
+		if ( !m_lHistory.isEmpty() )
+		{
+			if ( m_iHistoryIndex == -1 || m_iHistoryIndex == ( m_lHistory.size() - 1 ) )
+			{
+				m_iHistoryIndex = 0;
+			}
+			else
+			{
+				++m_iHistoryIndex;
+			}
+			event->ignore();
+			setHtml( m_lHistory.at( m_iHistoryIndex ) );
+		}
+		else
+		{
+			event->ignore();
+			QTextEdit::keyPressEvent( event );
+		}
+	}
+	else
+	{
 		resetHistoryIndex();
-		QTextEdit::keyPressEvent(event);
+		QTextEdit::keyPressEvent( event );
 	}
 }
 
@@ -126,27 +155,32 @@ ChatCompleter* CWidgetReturnEmitTextEdit::completer() const
 QString CWidgetReturnEmitTextEdit::textUnderCursor() const
 {
 	QTextCursor tc = textCursor();
-	tc.select(QTextCursor::WordUnderCursor);
+	tc.select( QTextCursor::WordUnderCursor );
 
 	// Save selected positions of current word.
 	int selectionStart = tc.selectionStart();
 	int selectionEnd = tc.selectionEnd();
 
 	// If selection is at beginning of text edit then there can't be a slash to check for
-	if (selectionStart == 0)
+	if ( selectionStart == 0 )
+	{
 		return tc.selectedText();
+	}
 
 	// Modify selection to include previous character
-	tc.setPosition(selectionStart - 1, QTextCursor::MoveAnchor);
-	tc.setPosition(selectionEnd, QTextCursor::KeepAnchor);
+	tc.setPosition( selectionStart - 1, QTextCursor::MoveAnchor );
+	tc.setPosition( selectionEnd, QTextCursor::KeepAnchor );
 
 	// If previous character was / return current selection for command completion
-	if(tc.selectedText().startsWith('/'))
+	if ( tc.selectedText().startsWith( '/' ) )
+	{
 		return tc.selectedText();
-	else {
+	}
+	else
+	{
 		// Else restore original selection and return for nick completion
-		tc.setPosition(selectionStart, QTextCursor::MoveAnchor);
-		tc.setPosition(selectionEnd, QTextCursor::KeepAnchor);
+		tc.setPosition( selectionStart, QTextCursor::MoveAnchor );
+		tc.setPosition( selectionEnd, QTextCursor::KeepAnchor );
 		return tc.selectedText();
 	}
 }
@@ -154,7 +188,7 @@ QString CWidgetReturnEmitTextEdit::textUnderCursor() const
 int CWidgetReturnEmitTextEdit::currentWordStartIndex()
 {
 	QTextCursor tc = textCursor();
-	tc.select(QTextCursor::WordUnderCursor);
+	tc.select( QTextCursor::WordUnderCursor );
 
 	// Return start position of current word.
 	return tc.selectionStart();
@@ -162,7 +196,7 @@ int CWidgetReturnEmitTextEdit::currentWordStartIndex()
 
 void CWidgetReturnEmitTextEdit::onTextChanged()
 {
-	emit textChanged(toPlainText());
+	emit textChanged( toPlainText() );
 }
 
 void CWidgetReturnEmitTextEdit::setSkin()
@@ -170,42 +204,44 @@ void CWidgetReturnEmitTextEdit::setSkin()
 
 }
 
-bool CWidgetReturnEmitTextEdit::focusNextPrevChild(bool next)
+bool CWidgetReturnEmitTextEdit::focusNextPrevChild( bool next )
 {
-	if (!tabChangesFocus() && (textInteractionFlags() & Qt::TextEditable))
+	if ( !tabChangesFocus() && ( textInteractionFlags() & Qt::TextEditable ) )
 	{
 		emit tabPressed();
 		return true;
-	} else {
-		return QAbstractScrollArea::focusNextPrevChild(next);
+	}
+	else
+	{
+		return QAbstractScrollArea::focusNextPrevChild( next );
 	}
 }
 
-void CWidgetReturnEmitTextEdit::insertFromMimeData(const QMimeData *source)
+void CWidgetReturnEmitTextEdit::insertFromMimeData( const QMimeData* source )
 {
 	insertPlainText( source->text() );
 }
 
-void CWidgetReturnEmitTextEdit::addHistory(QTextDocument* document)
+void CWidgetReturnEmitTextEdit::addHistory( QTextDocument* document )
 {
-	if(m_lHistory.count() > 49 && !m_lHistory.isEmpty())
+	if ( m_lHistory.count() > 49 && !m_lHistory.isEmpty() )
 	{
-		m_lHistory.removeAt(0);
-		m_lPlainTextHistory.removeAt(0);
+		m_lHistory.removeAt( 0 );
+		m_lPlainTextHistory.removeAt( 0 );
 	}
-	if(!m_lPlainTextHistory.contains(document->toPlainText()))
+	if ( !m_lPlainTextHistory.contains( document->toPlainText() ) )
 	{
-		m_lHistory.append(document->toHtml());
-		m_lPlainTextHistory.append(document->toPlainText());
+		m_lHistory.append( document->toHtml() );
+		m_lPlainTextHistory.append( document->toPlainText() );
 	}
 	resetHistoryIndex();
 }
 
-void CWidgetReturnEmitTextEdit::addHistory(QString* text)
+void CWidgetReturnEmitTextEdit::addHistory( QString* text )
 {
 	QTextDocument* document = new QTextDocument();
-	document->setHtml(text->toHtmlEscaped());
-	addHistory(document);
+	document->setHtml( text->toHtmlEscaped() );
+	addHistory( document );
 }
 
 void CWidgetReturnEmitTextEdit::resetHistoryIndex()

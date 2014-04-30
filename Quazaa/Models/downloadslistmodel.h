@@ -7,12 +7,12 @@ class DownloadsListModel : public QObject
 {
 	Q_OBJECT
 public:
-	explicit DownloadsListModel(QObject *parent = 0);
-	
+	explicit DownloadsListModel( QObject* parent = 0 );
+
 signals:
-	
+
 public slots:
-	
+
 };
 
 #endif // DOWNLOADSLISTMODEL_H

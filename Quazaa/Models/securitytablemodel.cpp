@@ -28,7 +28,7 @@
 
 #include "debug_new.h"
 
-RuleData::RuleData(Rule* pRule, SecurityTableModel* pModel) :
+RuleData::RuleData( Rule* pRule, SecurityTableModel* pModel ) :
 	m_pRule(      pRule                     ),
 	m_nID(        pRule->m_nGUIID           ),
 	m_nType(      pRule->type()             ),
@@ -40,7 +40,7 @@ RuleData::RuleData(Rule* pRule, SecurityTableModel* pModel) :
 	m_sComment(   pRule->m_sComment         ),
 	m_bAutomatic( pRule->m_bAutomatic       )
 {
-	switch( m_nAction )
+	switch ( m_nAction )
 	{
 	case Security::RuleAction::None:
 		m_piAction = pModel->m_pIcons[0];
@@ -59,7 +59,9 @@ RuleData::RuleData(Rule* pRule, SecurityTableModel* pModel) :
 	}
 
 	if ( m_nType == RuleType::RegularExpression )
-		m_bContent = ((Security::UserAgentRule*)pRule)->getRegExp();
+	{
+		m_bContent = ( ( Security::UserAgentRule* )pRule )->getRegExp();
+	}
 }
 
 RuleData::~RuleData()
@@ -75,11 +77,13 @@ RuleData::~RuleData()
  * @param pModel : the model
  * @return true if an entry within the column col has been modified
  */
-bool RuleData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
-					  SecurityTableModel* pModel)
+bool RuleData::update( int nRow, int nSortCol, QModelIndexList& lToUpdate,
+					   SecurityTableModel* pModel )
 {
 	if ( m_bShutDown )
+	{
 		return false;
+	}
 
 	Q_ASSERT( m_pRule );
 
@@ -92,7 +96,7 @@ bool RuleData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
 		lToUpdate.append( pModel->index( nRow, ACTION ) );
 		m_nAction = m_pRule->m_nAction;
 
-		switch( m_nAction )
+		switch ( m_nAction )
 		{
 		case Security::RuleAction::None:
 			m_piAction = pModel->m_pIcons[0];
@@ -111,7 +115,9 @@ bool RuleData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
 		}
 
 		if ( nSortCol == ACTION )
+		{
 			bReturn = true;
+		}
 	}
 
 	if ( m_nToday != m_pRule->getTodayCount() )
@@ -121,7 +127,9 @@ bool RuleData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
 		m_nTotal = m_pRule->getTotalCount();
 
 		if ( nSortCol == HITS )
+		{
 			bReturn = true;
+		}
 	}
 
 	if ( m_tExpire != m_pRule->getExpiryTime() )
@@ -130,7 +138,9 @@ bool RuleData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
 		m_tExpire = m_pRule->getExpiryTime();
 
 		if ( nSortCol == EXPIRES )
+		{
 			bReturn = true;
+		}
 	}
 
 	if ( m_sContent != m_pRule->getContentString() )
@@ -139,7 +149,9 @@ bool RuleData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
 		m_sContent = m_pRule->getContentString();
 
 		if ( nSortCol == CONTENT )
+		{
 			bReturn = true;
+		}
 	}
 
 	if ( m_sComment != m_pRule->m_sComment )
@@ -148,11 +160,15 @@ bool RuleData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
 		m_sComment = m_pRule->m_sComment;
 
 		if ( nSortCol == COMMENT )
+		{
 			bReturn = true;
+		}
 	}
 
 	if ( m_nType == RuleType::RegularExpression )
-		m_bContent = ((Security::UserAgentRule*)m_pRule)->getRegExp();
+	{
+		m_bContent = ( ( Security::UserAgentRule* )m_pRule )->getRegExp();
+	}
 
 	m_bAutomatic = m_pRule->m_bAutomatic;
 
@@ -164,7 +180,7 @@ bool RuleData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
  * @param col
  * @return
  */
-QVariant RuleData::data(int col) const
+QVariant RuleData::data( int col ) const
 {
 	switch ( col )
 	{
@@ -223,10 +239,12 @@ Rule* RuleData::rule() const
 	return m_bShutDown ? NULL : m_pRule;
 }
 
-bool RuleData::lessThan(int col, const SecurityTableModel::RuleData* const pOther) const
+bool RuleData::lessThan( int col, const SecurityTableModel::RuleData* const pOther ) const
 {
 	if ( !pOther )
+	{
 		return false;
+	}
 
 	switch ( col )
 	{
@@ -240,18 +258,24 @@ bool RuleData::lessThan(int col, const SecurityTableModel::RuleData* const pOthe
 		return m_nAction  < pOther->m_nAction;
 
 	case EXPIRES:
-		if ( m_tExpire && !pOther->m_tExpire)
+		if ( m_tExpire && !pOther->m_tExpire )
+		{
 			return true;
+		}
 
 		if ( m_tExpire > 1 && pOther->m_tExpire <= 1 )
+		{
 			return true;
+		}
 
 		return m_tExpire  < pOther->m_tExpire;
 
 	case HITS:
 		// TODO: sort by m_nToday for second click
 		if ( m_nTotal == pOther->m_nTotal )
+		{
 			return m_nToday < pOther->m_nToday;
+		}
 		return m_nTotal < pOther->m_nTotal;
 
 	case COMMENT:
@@ -263,9 +287,9 @@ bool RuleData::lessThan(int col, const SecurityTableModel::RuleData* const pOthe
 
 }
 
-QString RuleData::actionToString(RuleAction::Action nAction) const
+QString RuleData::actionToString( RuleAction::Action nAction ) const
 {
-	switch( nAction )
+	switch ( nAction )
 	{
 	case RuleAction::None:
 		return tr( "None" );
@@ -281,9 +305,9 @@ QString RuleData::actionToString(RuleAction::Action nAction) const
 	}
 }
 
-QString RuleData::expiryToString(quint32 tExpire) const
+QString RuleData::expiryToString( quint32 tExpire ) const
 {
-	switch( tExpire )
+	switch ( tExpire )
 	{
 	case Security::RuleTime::Forever:
 		return tr( "Forever" );
@@ -298,7 +322,7 @@ QString RuleData::expiryToString(quint32 tExpire) const
 
 bool SecurityTableModel::m_bShutDown = false;
 
-SecurityTableModel::SecurityTableModel(QObject* parent, QWidget* container) :
+SecurityTableModel::SecurityTableModel( QObject* parent, QWidget* container ) :
 	QAbstractTableModel( parent ),
 	m_oContainer( container ),
 	m_nSortColumn( -1 ),
@@ -322,7 +346,7 @@ SecurityTableModel::~SecurityTableModel()
 	delete m_pIcons[2];
 }
 
-int SecurityTableModel::rowCount(const QModelIndex& parent) const
+int SecurityTableModel::rowCount( const QModelIndex& parent ) const
 {
 	if ( parent.isValid() )
 	{
@@ -334,7 +358,7 @@ int SecurityTableModel::rowCount(const QModelIndex& parent) const
 	}
 }
 
-int SecurityTableModel::columnCount(const QModelIndex& parent) const
+int SecurityTableModel::columnCount( const QModelIndex& parent ) const
 {
 	if ( parent.isValid() )
 	{
@@ -346,7 +370,7 @@ int SecurityTableModel::columnCount(const QModelIndex& parent) const
 	}
 }
 
-QVariant SecurityTableModel::data(const QModelIndex& index, int nRole) const
+QVariant SecurityTableModel::data( const QModelIndex& index, int nRole ) const
 {
 	if ( !index.isValid() || index.row() > m_lNodes.size() || index.row() < 0 )
 	{
@@ -408,10 +432,12 @@ QVariant SecurityTableModel::data(const QModelIndex& index, int nRole) const
 	return QVariant();
 }
 
-QVariant SecurityTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant SecurityTableModel::headerData( int section, Qt::Orientation orientation, int role ) const
 {
 	if ( orientation != Qt::Horizontal )
+	{
 		return QVariant();
+	}
 
 	if ( role == Qt::DisplayRole )
 	{
@@ -438,7 +464,7 @@ QVariant SecurityTableModel::headerData(int section, Qt::Orientation orientation
 	}
 	else if ( role == Qt::ToolTipRole )
 	{
-		switch(section)
+		switch ( section )
 		{
 		case CONTENT:
 			return tr( "The content of the Security Manager rule" );
@@ -463,12 +489,16 @@ QVariant SecurityTableModel::headerData(int section, Qt::Orientation orientation
 	return QVariant();
 }
 
-QModelIndex SecurityTableModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex SecurityTableModel::index( int row, int column, const QModelIndex& parent ) const
 {
 	if ( parent.isValid() || row < 0 || row >= m_lNodes.count() )
+	{
 		return QModelIndex();
+	}
 	else
+	{
 		return createIndex( row, column );
+	}
 }
 
 class SecurityTableModelCmp
@@ -496,7 +526,7 @@ public:
 	Qt::SortOrder order;
 };
 
-void SecurityTableModel::sort(int column, Qt::SortOrder order)
+void SecurityTableModel::sort( int column, Qt::SortOrder order )
 {
 	m_nSortColumn = column;
 	m_nSortOrder  = order;
@@ -511,20 +541,20 @@ void SecurityTableModel::sort(int column, Qt::SortOrder order)
 
 	for ( int i = 0; i < oldIdx.size(); ++i ) // For each persistent index
 	{
-		int oldRow = oldIdx.at(i).row();
+		int oldRow = oldIdx.at( i ).row();
 
 		// if oldRow is outside range
 		if ( oldRow > m_lNodes.size()
-				// or the index points to another item
-				|| oldIdx.at(i).internalPointer() != m_lNodes.at(oldRow) )
+			 // or the index points to another item
+			 || oldIdx.at( i ).internalPointer() != m_lNodes.at( oldRow ) )
 		{
 			// find the correct item and update persistent index
 			for ( int j = 0; j < m_lNodes.size(); ++j )
 			{
-				if ( oldIdx.at(i).internalPointer() == m_lNodes.at(j) )
+				if ( oldIdx.at( i ).internalPointer() == m_lNodes.at( j ) )
 				{
-					newIdx[i] = createIndex( j, oldIdx.at(i).column(),
-											 oldIdx.at(i).internalPointer() );
+					newIdx[i] = createIndex( j, oldIdx.at( i ).column(),
+											 oldIdx.at( i ).internalPointer() );
 					break;
 				}
 			}
@@ -535,25 +565,31 @@ void SecurityTableModel::sort(int column, Qt::SortOrder order)
 	emit layoutChanged();
 }
 
-int SecurityTableModel::find(ID nRuleID)
+int SecurityTableModel::find( ID nRuleID )
 {
 	int nSize = m_lNodes.size();
 
 	for ( int nPos = 0; nPos < nSize; ++nPos )
 	{
 		if ( m_lNodes[nPos]->m_nID == nRuleID )
+		{
 			return nPos;
+		}
 	}
 
 	return -1;
 }
 
-RuleDataPtr SecurityTableModel::dataFromRow(int nRow) const
+RuleDataPtr SecurityTableModel::dataFromRow( int nRow ) const
 {
 	if ( nRow < m_lNodes.count() && nRow >= 0 )
+	{
 		return m_lNodes[nRow];
+	}
 	else
+	{
 		return RuleDataPtr();
+	}
 }
 
 /*Rule* SecurityTableModel::ruleFromIndex(const QModelIndex &index) const
@@ -567,7 +603,9 @@ RuleDataPtr SecurityTableModel::dataFromRow(int nRow) const
 void SecurityTableModel::completeRefresh()
 {
 	if ( m_bShutDown )
+	{
 		return;
+	}
 
 	// Remove all rules.
 	clear();
@@ -584,7 +622,7 @@ void SecurityTableModel::completeRefresh()
  * @brief SecurityTableModel::triggerRuleRemoval
  * @param nIndex
  */
-void SecurityTableModel::triggerRuleRemoval(int nIndex)
+void SecurityTableModel::triggerRuleRemoval( int nIndex )
 {
 	Q_ASSERT( nIndex >= 0 && nIndex < m_lNodes.size() );
 
@@ -627,7 +665,7 @@ void SecurityTableModel::securityStartUpFinished()
 	completeRefresh();
 }
 
-void SecurityTableModel::recieveRuleInfo(Rule* pRule)
+void SecurityTableModel::recieveRuleInfo( Rule* pRule )
 {
 	--m_nRuleInfo;
 
@@ -645,10 +683,12 @@ void SecurityTableModel::recieveRuleInfo(Rule* pRule)
  * @brief SecurityTableModel::addRule adds a rule to the GUI.
  * @param pRule : the rule
  */
-void SecurityTableModel::addRule(Rule* pRule)
+void SecurityTableModel::addRule( Rule* pRule )
 {
 	if ( m_bShutDown )
+	{
 		return;
+	}
 
 	Q_ASSERT( pRule );
 	Q_ASSERT( securityManager.check( pRule ) );
@@ -670,10 +710,12 @@ void SecurityTableModel::addRule(Rule* pRule)
  * This is to be triggered AFTER the rule has been removed from the manager by the manager.
  * @param pRule : the rule
  */
-void SecurityTableModel::removeRule(SharedRulePtr pRule)
+void SecurityTableModel::removeRule( SharedRulePtr pRule )
 {
 	if ( m_bShutDown )
+	{
 		return;
+	}
 
 	//qDebug() << "SecurityTableModel::removeRule()";
 
@@ -706,10 +748,12 @@ void SecurityTableModel::removeRule(SharedRulePtr pRule)
  * @brief updateRule updates the GUI for a specified rule.
  * @param nRuleID : the ID of the rule
  */
-void SecurityTableModel::updateRule(ID nRuleID)
+void SecurityTableModel::updateRule( ID nRuleID )
 {
 	if ( m_bShutDown )
+	{
 		return;
+	}
 
 	QModelIndexList uplist;
 	bool bSort = m_bNeedSorting;
@@ -738,7 +782,7 @@ void SecurityTableModel::updateRule(ID nRuleID)
 
 		if ( pView )
 		{
-			foreach ( const QModelIndex& index, uplist )
+			foreach ( const QModelIndex & index, uplist )
 			{
 				pView->update( index );
 			}
@@ -752,7 +796,9 @@ void SecurityTableModel::updateRule(ID nRuleID)
 void SecurityTableModel::updateAll()
 {
 	if ( m_bShutDown )
+	{
 		return;
+	}
 
 	QModelIndexList uplist;
 	bool bSort = m_bNeedSorting;
@@ -761,7 +807,9 @@ void SecurityTableModel::updateAll()
 	for ( int i = 0, max = m_lNodes.count(); i < max; ++i )
 	{
 		if ( m_lNodes[i]->update( i, m_nSortColumn, uplist, this ) )
+		{
 			bSort = true;
+		}
 	}
 	securityManager.m_oRWLock.unlock();
 
@@ -776,9 +824,9 @@ void SecurityTableModel::updateAll()
 		{
 			QAbstractItemView* pView = qobject_cast< QAbstractItemView* >( m_oContainer );
 
-			if( pView )
+			if ( pView )
 			{
-				foreach ( const QModelIndex& index, uplist )
+				foreach ( const QModelIndex & index, uplist )
 				{
 					pView->update( index );
 				}

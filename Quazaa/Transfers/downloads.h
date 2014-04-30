@@ -15,16 +15,16 @@ public:
 
 	QList<Download*> m_lDownloads;
 public:
-	Downloads(QObject *parent = 0);
+	Downloads( QObject* parent = 0 );
 
 	void start();
 	void stop();
 
-	void add(QueryHit* pHit);
+	void add( QueryHit* pHit );
 
-	bool exists(Download* pDownload);
+	bool exists( Download* pDownload );
 signals:
-	void downloadAdded(Download*);
+	void downloadAdded( Download* );
 	void downloadRemoved();
 public slots:
 	void emitDownloads();

@@ -6,8 +6,9 @@
 
 #include "connectioninfo.h"
 
-namespace Ui {
-	class CWizardIrcConnection;
+namespace Ui
+{
+class CWizardIrcConnection;
 }
 
 class CWizardIrcConnection : public QWizard
@@ -15,7 +16,7 @@ class CWizardIrcConnection : public QWizard
 	Q_OBJECT
 
 public:
-	explicit CWizardIrcConnection(QWidget *parent = 0);
+	explicit CWizardIrcConnection( QWidget* parent = 0 );
 	~CWizardIrcConnection();
 
 	enum Page
@@ -26,36 +27,36 @@ public:
 	};
 
 	QString nickName() const;
-	void setNickName(const QString& nickName);
+	void setNickName( const QString& nickName );
 
 	QString realName() const;
-	void setRealName(const QString& realName);
+	void setRealName( const QString& realName );
 
 	ConnectionInfo connection() const;
-	void setConnection(const ConnectionInfo& connection);
+	void setConnection( const ConnectionInfo& connection );
 
 	QString hostName() const;
-	void setHostName(const QString& hostName);
+	void setHostName( const QString& hostName );
 
 	quint16 port() const;
-	void setPort(quint16 port);
+	void setPort( quint16 port );
 
 	bool isSecure() const;
-	void setSecure(bool secure);
+	void setSecure( bool secure );
 
 	QString userName() const;
-	void setUserName(const QString& userName);
+	void setUserName( const QString& userName );
 
 	QString password() const;
-	void setPassword(const QString& password);
+	void setPassword( const QString& password );
 
 	QString connectionName() const;
-	void setConnectionName(const QString& name);
+	void setConnectionName( const QString& name );
 
 	bool isComplete() const;
 
 private:
-	Ui::CWizardIrcConnection *ui;
+	Ui::CWizardIrcConnection* ui;
 	CCompleterLineEdit* lineEditNickName;
 	CCompleterLineEdit* lineEditRealName;
 	CCompleterLineEdit* lineEditHost;

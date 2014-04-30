@@ -32,7 +32,7 @@
 
 #include "debug_new.h"
 
-WidgetSystemLog::WidgetSystemLog(QWidget* parent) :
+WidgetSystemLog::WidgetSystemLog( QWidget* parent ) :
 	QMainWindow( parent ),
 	ui( new Ui::WidgetSystemLog )
 {
@@ -91,16 +91,16 @@ void WidgetSystemLog::saveWidget()
 	quazaaSettings.saveLogSettings();
 }
 
-void WidgetSystemLog::changeEvent(QEvent* e)
+void WidgetSystemLog::changeEvent( QEvent* e )
 {
 	QMainWindow::changeEvent( e );
 	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi( this );
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 
@@ -109,7 +109,7 @@ void WidgetSystemLog::on_actionCopy_triggered()
 	ui->textEditSystemLog->copy();
 }
 
-void WidgetSystemLog::on_textEditSystemLog_customContextMenuRequested(QPoint pos)
+void WidgetSystemLog::on_textEditSystemLog_customContextMenuRequested( QPoint pos )
 {
 	Q_UNUSED( pos );
 	m_pLogMenu->exec( QCursor::pos() );
@@ -120,20 +120,20 @@ void WidgetSystemLog::on_actionClearBuffer_triggered()
 	ui->textEditSystemLog->clear();
 }
 
-void WidgetSystemLog::appendLog(QString message, LogSeverity severity)
+void WidgetSystemLog::appendLog( QString message, LogSeverity severity )
 {
 	if ( !ui->actionPauseLogDisplay->isChecked() )
 	{
 		QStringList sLines = message.split( QRegularExpression( "\r\n|\n|\r" ) );
 
-		foreach ( const QString& sLine, sLines )
+		foreach ( const QString & sLine, sLines )
 		{
 			writeLine( sLine, severity );
 		}
 	}
 }
 
-void WidgetSystemLog::writeLine(const QString& sLine, LogSeverity severity)
+void WidgetSystemLog::writeLine( const QString& sLine, LogSeverity severity )
 {
 	bool bTimeStamp = ui->actionToggleTimestamp->isChecked();
 	m_oTimeStamp    = QTime::currentTime();
@@ -144,56 +144,56 @@ void WidgetSystemLog::writeLine(const QString& sLine, LogSeverity severity)
 		if ( ui->actionShowInformation->isChecked() )
 		{
 			appendText( QString( "font-weight:normal;" ),
-						QColor( qRgb(0, 0, 0) ), sLine, bTimeStamp );
+						QColor( qRgb( 0, 0, 0 ) ), sLine, bTimeStamp );
 		}
 		break;
 	case LogSeverity::Security:
 		if ( ui->actionShowSecurity->isChecked() )
 		{
 			appendText( QString( "font-weight:600;" ),
-						QColor( qRgb(170, 170, 0) ), sLine, bTimeStamp );
+						QColor( qRgb( 170, 170, 0 ) ), sLine, bTimeStamp );
 		}
 		break;
 	case LogSeverity::Notice:
 		if ( ui->actionShowNotice->isChecked() )
 		{
 			appendText( QString( "font-weight:600;" ),
-						QColor( qRgb(0, 170, 0) ), sLine, bTimeStamp );
+						QColor( qRgb( 0, 170, 0 ) ), sLine, bTimeStamp );
 		}
 		break;
 	case LogSeverity::Debug:
 		if ( ui->actionShowDebug->isChecked() )
 		{
 			appendText( QString( "font-weight:normal;" ),
-						QColor( qRgb(117, 117, 117) ), sLine, bTimeStamp );
+						QColor( qRgb( 117, 117, 117 ) ), sLine, bTimeStamp );
 		}
 		break;
 	case LogSeverity::Warning:
 		if ( ui->actionShowWarnings->isChecked() )
 		{
 			appendText( QString( "font-weight:normal;" ),
-						QColor( qRgb(255, 0, 0) ), sLine, bTimeStamp );
+						QColor( qRgb( 255, 0, 0 ) ), sLine, bTimeStamp );
 		}
 		break;
 	case LogSeverity::Error:
 		if ( ui->actionShowError->isChecked() )
 		{
 			appendText( QString( "font-weight:600;" ),
-						QColor( qRgb(170, 0, 0) ), sLine, bTimeStamp );
+						QColor( qRgb( 170, 0, 0 ) ), sLine, bTimeStamp );
 		}
 		break;
 	case LogSeverity::Critical:
 		if ( ui->actionShowCritical->isChecked() )
 		{
 			appendText( QString( "font-weight:600;" ),
-						QColor( qRgb(255, 0, 0) ), sLine, bTimeStamp );
+						QColor( qRgb( 255, 0, 0 ) ), sLine, bTimeStamp );
 		}
 		break;
 	}
 }
 
-void WidgetSystemLog::appendText(const QString& sFontArgs, const QColor& color,
-								 const QString& sLine, bool bAddTimeStamp)
+void WidgetSystemLog::appendText( const QString& sFontArgs, const QColor& color,
+								  const QString& sLine, bool bAddTimeStamp )
 {
 	QString sTimestamp = bAddTimeStamp ? m_oTimeStamp.toString( "hh:mm:ss.zzz" ) + ": " : QString();
 	QString sMessage   = QString( "<span style=\" font-size:8pt; %1 color:%2;\">%3</span>" );

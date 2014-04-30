@@ -56,14 +56,14 @@ class ChatSession;
 
 namespace Ui
 {
-	class CWinMain;
+class CWinMain;
 }
 
 class CWinMain : public QMainWindow
 {
 	Q_OBJECT
 public:
-	CWinMain(QWidget* parent = 0);
+	CWinMain( QWidget* parent = 0 );
 	~CWinMain();
 	void loadTrayIcon();
 
@@ -102,12 +102,12 @@ signals:
 	void shutDown();
 
 public slots:
-	void OpenChat(ChatSession* pSess);
+	void OpenChat( ChatSession* pSess );
 	void showOnTop();
 
 protected:
-	void changeEvent(QEvent* e);
-	bool event(QEvent* e);
+	void changeEvent( QEvent* e );
+	bool event( QEvent* e );
 
 private:
 	Ui::CWinMain* ui;
@@ -118,9 +118,9 @@ private:
 private slots:
 	void on_actionChatWith_triggered();
 	void on_actionConnectTo_triggered();
-	void on_actionAres_triggered(bool checked);
-	void on_actionGnutella2_triggered(bool checked);
-	void on_actionEDonkey_triggered(bool checked);
+	void on_actionAres_triggered( bool checked );
+	void on_actionGnutella2_triggered( bool checked );
+	void on_actionEDonkey_triggered( bool checked );
 	void on_actionDisconnect_triggered();
 	void on_actionConnect_triggered();
 	void on_actionNewSearch_triggered();
@@ -162,12 +162,12 @@ private slots:
 	void on_actionHome_triggered();
 	void quazaaShutdown();
 	void quazaaStartup();
-	void icon_activated(QSystemTrayIcon::ActivationReason reason);
-	void startNewSearch(QString* searchString);
+	void icon_activated( QSystemTrayIcon::ActivationReason reason );
+	void startNewSearch( QString* searchString );
 	void updateStatusBar();
 	void localAddressChanged();
 	void onCopyIP();
-	void onHasherStarted(int nId);
+	void onHasherStarted( int nId );
 	void on_actionAbout_Qt_triggered();
 	void setSkin();
 };

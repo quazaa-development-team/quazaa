@@ -37,21 +37,21 @@ class CWizardQuickStart : public QWizard
 	Q_OBJECT
 
 public:
-	explicit CWizardQuickStart(QWidget *parent = NULL);
+	explicit CWizardQuickStart( QWidget* parent = NULL );
 	~CWizardQuickStart();
 
 protected:
-	virtual void changeEvent(QEvent* e);
+	virtual void changeEvent( QEvent* e );
 
 private:
-	Ui::CWizardQuickStart *ui;
+	Ui::CWizardQuickStart* ui;
 
 private slots:
 	void accept();
 	void on_toolButtonSharesAdd_clicked();
 	void on_toolButtonSharesRemove_clicked();
 	void setSkin();
-	void on_checkBoxUPnP_stateChanged(int arg1);
+	void on_checkBoxUPnP_stateChanged( int arg1 );
 	void on_pushButtonRandomizePort_clicked();
 };
 

@@ -47,7 +47,7 @@ FilterControlData::FilterControlData() :
 {
 }
 
-FilterControlData::FilterControlData(const FilterControlData& other) :
+FilterControlData::FilterControlData( const FilterControlData& other ) :
 	m_sMatchString(   other.m_sMatchString     ),
 	m_bRegExp(        other.m_bRegExp          ),
 	m_nMinSize(       other.m_nMinSize         ),
@@ -65,7 +65,7 @@ FilterControlData::FilterControlData(const FilterControlData& other) :
 {
 }
 
-bool FilterControlData::operator==(const FilterControlData& rOther)
+bool FilterControlData::operator==( const FilterControlData& rOther )
 {
 	return m_sMatchString   == rOther.m_sMatchString     &&
 		   m_bRegExp        == rOther.m_bRegExp          &&
@@ -83,7 +83,7 @@ bool FilterControlData::operator==(const FilterControlData& rOther)
 		   m_bAdultAllowed           == rOther.m_bAdultAllowed;
 }
 
-bool FilterControlData::operator!=(const FilterControlData& rOther)
+bool FilterControlData::operator!=( const FilterControlData& rOther )
 {
 	return !operator==( rOther );
 }
@@ -138,14 +138,14 @@ bool FilterControl::operator>(const FilterControl& rOther)
 		   m_bAdult           && !rOther.m_bAdult;
 }*/
 
-void FilterControl::add(SearchTreeItem* pItem)
+void FilterControl::add( SearchTreeItem* pItem )
 {
 	Q_ASSERT( pItem->m_pFilter->dataInitialized() );
 
 	if ( pItem->type() == SearchTreeItem::SearchHitType )
 	{
-		SearchHit* pHitItem   = (SearchHit*)pItem;
-		HitFilter* pHitFilter = (HitFilter*)pItem->m_pFilter;
+		SearchHit* pHitItem   = ( SearchHit* )pItem;
+		HitFilter* pHitFilter = ( HitFilter* )pItem->m_pFilter;
 
 		pHitFilter->initializeFilterState( *this );
 
@@ -163,8 +163,8 @@ void FilterControl::add(SearchTreeItem* pItem)
 	}
 	else if ( pItem->type() == SearchTreeItem::SearchFileType )
 	{
-		SearchFile* pFileItem   = (SearchFile*)pItem;
-		FileFilter* pFileFilter = (FileFilter*)pItem->m_pFilter;
+		SearchFile* pFileItem   = ( SearchFile* )pItem;
+		FileFilter* pFileFilter = ( FileFilter* )pItem->m_pFilter;
 
 		pFileFilter->initializeFilterState( *this );
 
@@ -183,15 +183,15 @@ void FilterControl::add(SearchTreeItem* pItem)
 	}
 }
 
-void FilterControl::remove(SearchTreeItem* pItem)
+void FilterControl::remove( SearchTreeItem* pItem )
 {
 	// TODO: remove an alpha 1
 	Q_ASSERT( pItem->m_pFilter->dataInitialized() );
 
 	if ( pItem->type() == SearchTreeItem::SearchHitType )
 	{
-		SearchHit* pHitItem   = (SearchHit*)pItem;
-		HitFilter* pHitFilter = (HitFilter*)pItem->m_pFilter;
+		SearchHit* pHitItem   = ( SearchHit* )pItem;
+		HitFilter* pHitFilter = ( HitFilter* )pItem->m_pFilter;
 
 		if ( pHitFilter->visible() )
 		{
@@ -228,8 +228,8 @@ void FilterControl::remove(SearchTreeItem* pItem)
 	}
 	else if ( pItem->type() == SearchTreeItem::SearchFileType )
 	{
-		SearchFile* pFileItem   = (SearchFile*)pItem;
-		FileFilter* pFileFilter = (FileFilter*)pItem->m_pFilter;
+		SearchFile* pFileItem   = ( SearchFile* )pItem;
+		FileFilter* pFileFilter = ( FileFilter* )pItem->m_pFilter;
 
 		if ( pFileFilter->visible() )
 		{
@@ -289,7 +289,7 @@ void FilterControl::clear()
 #define MOVED_FROM_INVISIBLE_TO_VISIBLE 1
 #define MOVED_FROM_VISIBLE_TO_INVISIBLE 2
 
-void FilterControl::update(const FilterControlData& rControlData)
+void FilterControl::update( const FilterControlData& rControlData )
 {
 	m_bStringChanged      = m_oFilterControlData.m_bRegExp          != rControlData.m_bRegExp  ||
 							m_oFilterControlData.m_sMatchString     != rControlData.m_sMatchString;
@@ -330,7 +330,7 @@ FilterControlData* FilterControl::getDataCopy() const
  * @brief FilterControl::updateHitFilterStatus
  * @param rControlData
  */
-void FilterControl::filterHits(const FilterControlData& rControlData)
+void FilterControl::filterHits( const FilterControlData& rControlData )
 {
 	if ( m_bStringChanged )
 	{
@@ -435,7 +435,7 @@ void FilterControl::filterHits(const FilterControlData& rControlData)
 	// after i == 0, it overflows to MAX_VALUE, which is bigger than nCount1
 	for ( quint32 i = nCount1 - 1; i < nCount1; --i )
 	{
-		if ( !((HitFilter*)m_lVisibleHits[i]->m_pFilter)->updateBoolState( rControlData ) )
+		if ( !( ( HitFilter* )m_lVisibleHits[i]->m_pFilter )->updateBoolState( rControlData ) )
 		{
 			m_lVisibleHits[i]->parent()->removeVisibleChild();
 
@@ -450,7 +450,7 @@ void FilterControl::filterHits(const FilterControlData& rControlData)
 	const quint32 nCount2 = m_lFilteredHits.count();
 	for ( quint32 i = nCount2 - 1; i < nCount2; --i )
 	{
-		if ( ((HitFilter*)m_lFilteredHits[i]->m_pFilter)->updateBoolState( rControlData ) )
+		if ( ( ( HitFilter* )m_lFilteredHits[i]->m_pFilter )->updateBoolState( rControlData ) )
 		{
 			m_lFilteredHits[i]->parent()->addVisibleChild();
 
@@ -486,8 +486,8 @@ void FilterControl::filterHits(const FilterControlData& rControlData)
  * @param lNewWords contains all words added in the new filter (not present in old filter)
  * @param lRemovedWords contains all words removed from the filter (compared to the old filter)
  */
-void FilterControl::analyseFilter(const QString& sNewMatchString,
-								  QStringList& lNewWords, QStringList& lRemovedWords) const
+void FilterControl::analyseFilter( const QString& sNewMatchString,
+								   QStringList& lNewWords, QStringList& lRemovedWords ) const
 {
 	lRemovedWords = m_oFilterControlData.m_sMatchString.split( QRegularExpression( "\\s+" ) );
 	lNewWords     = sNewMatchString.split( QRegularExpression( "\\s+" ) );
@@ -520,10 +520,10 @@ void FilterControl::analyseFilter(const QString& sNewMatchString,
  * @param lMustHaveWords Output list for all words without preceeding '-'.
  * @param lMustNotHaveWords Output list for all words preceedded by '-'.
  */
-void FilterControl::separateFilter(const QStringList& lWords, QStringList& lMustHaveWords,
-								   QStringList& lMustNotHaveWords) const
+void FilterControl::separateFilter( const QStringList& lWords, QStringList& lMustHaveWords,
+									QStringList& lMustNotHaveWords ) const
 {
-	foreach ( const QString& s, lWords )
+	foreach ( const QString & s, lWords )
 	{
 		if ( s.startsWith( "-" ) )
 		{
@@ -543,13 +543,13 @@ void FilterControl::separateFilter(const QStringList& lWords, QStringList& lMust
  * @param lMustHaveWords
  * @param lMustNotHaveWords
  */
-void FilterControl::applyStringFilter(HitList& lHits, const QStringList& lMustHaveWords,
-									  const QStringList& lMustNotHaveWords) const
+void FilterControl::applyStringFilter( HitList& lHits, const QStringList& lMustHaveWords,
+									   const QStringList& lMustNotHaveWords ) const
 {
 	for ( quint32 i = 0, count = lHits.count(); i < count; ++i )
 	{
-		((HitFilter*)lHits[i]->m_pFilter)->m_oHitFilterState.m_bFileName =
-				matchStringFilter( lHits[i], lMustHaveWords, lMustNotHaveWords );
+		( ( HitFilter* )lHits[i]->m_pFilter )->m_oHitFilterState.m_bFileName =
+			matchStringFilter( lHits[i], lMustHaveWords, lMustNotHaveWords );
 	}
 }
 
@@ -560,17 +560,17 @@ void FilterControl::applyStringFilter(HitList& lHits, const QStringList& lMustHa
  * @param lMustNotHaveWords
  * @return
  */
-bool FilterControl::matchStringFilter(SearchHit* pHit, const QStringList& lMustHaveWords,
-									  const QStringList& lMustNotHaveWords) const
+bool FilterControl::matchStringFilter( SearchHit* pHit, const QStringList& lMustHaveWords,
+									   const QStringList& lMustNotHaveWords ) const
 {
-	foreach ( const QString& sMust, lMustHaveWords )
+	foreach ( const QString & sMust, lMustHaveWords )
 	{
 		if ( !pHit->m_oHitData.pQueryHit->m_sDescriptiveName.contains( sMust ) )
 		{
 			return false;
 		}
 	}
-	foreach ( const QString& sMustNot, lMustNotHaveWords )
+	foreach ( const QString & sMustNot, lMustNotHaveWords )
 	{
 		if ( pHit->m_oHitData.pQueryHit->m_sDescriptiveName.contains( sMustNot ) )
 		{
@@ -585,24 +585,24 @@ bool FilterControl::matchStringFilter(SearchHit* pHit, const QStringList& lMustH
  * @brief FilterControl::applyRegExpFilter refreshes the string filter state for both hit lists.
  * @param rRegExp String representation of the regular expression to be used for matching.
  */
-void FilterControl::applyRegExpFilter(const QString& sRegExp)
+void FilterControl::applyRegExpFilter( const QString& sRegExp )
 {
 	QRegularExpression oRegExp( sRegExp );
 
 	for ( quint32 i = 0, count = m_lVisibleHits.count(); i < count; ++i )
 	{
 		// false: filtered out; true: visible in GUI
-		((HitFilter*)m_lVisibleHits[i]->m_pFilter)->m_oHitFilterState.m_bFileName =
-				oRegExp.match( m_lVisibleHits[i]->m_oHitData.pQueryHit->m_sDescriptiveName
-							   ).hasMatch();
+		( ( HitFilter* )m_lVisibleHits[i]->m_pFilter )->m_oHitFilterState.m_bFileName =
+			oRegExp.match( m_lVisibleHits[i]->m_oHitData.pQueryHit->m_sDescriptiveName
+						 ).hasMatch();
 	}
 
 	for ( quint32 i = 0, count = m_lFilteredHits.count(); i < count; ++i )
 	{
 		// false: filtered out; true: visible in GUI
-		((HitFilter*)m_lFilteredHits[i]->m_pFilter)->m_oHitFilterState.m_bFileName =
-				oRegExp.match( m_lFilteredHits[i]->m_oHitData.pQueryHit->m_sDescriptiveName
-							   ).hasMatch();
+		( ( HitFilter* )m_lFilteredHits[i]->m_pFilter )->m_oHitFilterState.m_bFileName =
+			oRegExp.match( m_lFilteredHits[i]->m_oHitData.pQueryHit->m_sDescriptiveName
+						 ).hasMatch();
 	}
 }
 
@@ -611,24 +611,24 @@ void FilterControl::applyRegExpFilter(const QString& sRegExp)
  * Note: this requires the hit filtering to have been applied already.
  * @param rControlData
  */
-void FilterControl::filterFiles(const FilterControlData& rControlData)
+void FilterControl::filterFiles( const FilterControlData& rControlData )
 {
 	// Update all of these state bools only if there has actually been a change.
 	if ( m_bSizeChanged || m_bMinSourcesChanged || m_bFileBoolsChanged )
 	{
 		for ( quint32 i = 0, count = m_lVisibleFiles.count(); i < count; ++i )
 		{
-			FileFilter* pFilter = (FileFilter*)m_lVisibleFiles[i]->m_pFilter;
+			FileFilter* pFilter = ( FileFilter* )m_lVisibleFiles[i]->m_pFilter;
 			pFilter->updateBoolState( rControlData );
 			pFilter->m_oFileFilterState.m_bEnoughHits =
-					m_lVisibleFiles[i]->childCount() >= rControlData.m_nMinSources;
+				m_lVisibleFiles[i]->childCount() >= rControlData.m_nMinSources;
 		}
 		for ( quint32 i = 0, count = m_lFilteredFiles.count(); i < count; ++i )
 		{
-			FileFilter* pFilter = (FileFilter*)m_lFilteredFiles[i]->m_pFilter;
+			FileFilter* pFilter = ( FileFilter* )m_lFilteredFiles[i]->m_pFilter;
 			pFilter->updateBoolState( rControlData );
 			pFilter->m_oFileFilterState.m_bEnoughHits =
-					m_lFilteredFiles[i]->childCount() >= rControlData.m_nMinSources;
+				m_lFilteredFiles[i]->childCount() >= rControlData.m_nMinSources;
 		}
 
 		m_oFilterControlData.m_nMinSize    = rControlData.m_nMinSize;
@@ -648,10 +648,10 @@ void FilterControl::filterFiles(const FilterControlData& rControlData)
 	FileList::iterator it = m_lVisibleFiles.begin();
 	while ( it != m_lVisibleFiles.end() )
 	{
-		FileFilter* pFilter = (FileFilter*)(*it)->m_pFilter;
+		FileFilter* pFilter = ( FileFilter* )( *it )->m_pFilter;
 
 		// m_bVisibleHits always changes because of the applied hit filter, so it must be updated.
-		pFilter->m_oFileFilterState.m_bVisibleHits = (*it)->visibleChildCount();
+		pFilter->m_oFileFilterState.m_bVisibleHits = ( *it )->visibleChildCount();
 		if ( pFilter->updateVisible() )
 		{
 			++it;
@@ -669,10 +669,10 @@ void FilterControl::filterFiles(const FilterControlData& rControlData)
 	it = m_lFilteredFiles.begin();
 	while ( it != m_lFilteredFiles.end() )
 	{
-		FileFilter* pFilter = (FileFilter*)(*it)->m_pFilter;
+		FileFilter* pFilter = ( FileFilter* )( *it )->m_pFilter;
 
 		// m_bVisibleHits always changes because of the applied hit filter, so it must be updated.
-		pFilter->m_oFileFilterState.m_bVisibleHits = (*it)->visibleChildCount();
+		pFilter->m_oFileFilterState.m_bVisibleHits = ( *it )->visibleChildCount();
 		if ( pFilter->updateVisible() )
 		{
 			// if hit visible after filtering, move it to visible list
@@ -693,17 +693,17 @@ void FilterControl::filterFiles(const FilterControlData& rControlData)
 	}
 }
 
-FileFilterData::FileFilterData(const SearchHit* const pHit)
+FileFilterData::FileFilterData( const SearchHit* const pHit )
 {
 	initialize( pHit );
 }
 
-void FileFilterData::initialize(const SearchHit* const pHit)
+void FileFilterData::initialize( const SearchHit* const pHit )
 {
 	m_nSize = pHit->m_oHitData.pQueryHit->m_nObjectSize;
 	m_bExistsInLibrary = false;
 
-	const HitFilter* const pHitFilter  = (HitFilter*)pHit->getFilter();
+	const HitFilter* const pHitFilter  = ( HitFilter* )pHit->getFilter();
 
 	m_bAdult           = pHitFilter->m_oHitFilterData.m_bAdult;
 	m_bBogus           = pHitFilter->m_oHitFilterData.m_bBogus;
@@ -720,7 +720,7 @@ void FileFilterData::initialize(const SearchHit* const pHit)
  * @brief FileFilterData::update updates the filter data after a new hit has been added to the file.
  * @param hitData
  */
-void FileFilterData::addDataSet(const HitFilterData& hitData)
+void FileFilterData::addDataSet( const HitFilterData& hitData )
 {
 	m_bAdult          |= hitData.m_bAdult;
 	m_bBogus          |= hitData.m_bBogus;
@@ -738,19 +738,19 @@ void FileFilterData::addDataSet(const HitFilterData& hitData)
  * been removed from the file.
  * @param pThisFile
  */
-void FileFilterData::refresh(const SearchFile* const pThisFile)
+void FileFilterData::refresh( const SearchFile* const pThisFile )
 {
 	Q_ASSERT( pThisFile->childCount() > 0 );
 
-	initialize( (SearchHit*)pThisFile->child( 0 ) );
+	initialize( ( SearchHit* )pThisFile->child( 0 ) );
 
 	for ( int i = 1; i < pThisFile->childCount(); ++i )
 	{
-		addDataSet( ((HitFilter*)pThisFile->child( i )->getFilter())->m_oHitFilterData );
+		addDataSet( ( ( HitFilter* )pThisFile->child( i )->getFilter() )->m_oHitFilterData );
 	}
 }
 
-HitFilterData::HitFilterData(const QueryHit* const pHit) :
+HitFilterData::HitFilterData( const QueryHit* const pHit ) :
 	m_bAdult( false ),
 	m_bBogus( false ),
 	m_bBusy( false ),
@@ -811,14 +811,14 @@ bool Filter::dataInitialized() const
 	return m_bInitialized;
 }
 
-FileFilter::FileFilter(SearchHit* pHit) :
+FileFilter::FileFilter( SearchHit* pHit ) :
 	m_oFileFilterData( FileFilterData( pHit ) ),
 	m_oFileFilterState( FileFilterState() )
 {
 	m_bInitialized = true;
 }
 
-void FileFilter::initializeFilterState(const FilterControl& rControl)
+void FileFilter::initializeFilterState( const FilterControl& rControl )
 {
 	updateBoolState( rControl.m_oFilterControlData );
 	updateVisible();
@@ -830,17 +830,17 @@ void FileFilter::initializeFilterState(const FilterControl& rControl)
  * @param rControlData
  * @param pFile
  */
-void FileFilter::updateBoolState(const FilterControlData& rControlData)
+void FileFilter::updateBoolState( const FilterControlData& rControlData )
 {
 	// false: filtered out; true: visible in GUI
 	m_oFileFilterState.m_bAdult           = m_oFileFilterData.m_bAdult ?
-												rControlData.m_bAdultAllowed           : true;
+											rControlData.m_bAdultAllowed           : true;
 	m_oFileFilterState.m_bDRM             = m_oFileFilterData.m_bDRM   ?
-												rControlData.m_bDRMAllowed             : true;
+											rControlData.m_bDRMAllowed             : true;
 	m_oFileFilterState.m_bExistsInLibrary = m_oFileFilterData.m_bExistsInLibrary ?
-												rControlData.m_bExistsInLibraryAllowed : true;
+											rControlData.m_bExistsInLibraryAllowed : true;
 	m_oFileFilterState.m_bIncomplete      = m_oFileFilterData.m_bIncomplete ?
-												rControlData.m_bIncompleteAllowed      : true;
+											rControlData.m_bIncompleteAllowed      : true;
 	m_oFileFilterState.m_bSize            = m_oFileFilterData.m_nSize >= rControlData.m_nMinSize &&
 											m_oFileFilterData.m_nSize <= rControlData.m_nMaxSize;
 }
@@ -858,14 +858,14 @@ bool FileFilter::updateVisible()
 	return m_bVisible;
 }
 
-HitFilter::HitFilter(const QueryHit* const pHit) :
+HitFilter::HitFilter( const QueryHit* const pHit ) :
 	m_oHitFilterData( HitFilterData( pHit ) ),
 	m_oHitFilterState( HitFilterState() )
 {
 	m_bInitialized = true;
 }
 
-void HitFilter::initializeFilterState(const FilterControl& rControl)
+void HitFilter::initializeFilterState( const FilterControl& rControl )
 {
 	updateBoolState( rControl.m_oFilterControlData );
 }
@@ -876,21 +876,21 @@ void HitFilter::initializeFilterState(const FilterControl& rControl)
  * @param rControlData
  * @return true if hit is visible after update; false otherwise
  */
-bool HitFilter::updateBoolState(const FilterControlData& rControlData)
+bool HitFilter::updateBoolState( const FilterControlData& rControlData )
 {
 	// false: filtered out; true: visible in GUI
 	m_oHitFilterState.m_bBogus       = m_oHitFilterData.m_bBogus ?
-										   rControlData.m_bBogusAllowed       : true;
+									   rControlData.m_bBogusAllowed       : true;
 	m_oHitFilterState.m_bBusy        = m_oHitFilterData.m_bBusy ?
-										   rControlData.m_bBusyAllowed        : true;
+									   rControlData.m_bBusyAllowed        : true;
 	m_oHitFilterState.m_bFirewalled  = m_oHitFilterData.m_bFirewalled ?
-										   rControlData.m_bFirewalledAllowed  : true;
+									   rControlData.m_bFirewalledAllowed  : true;
 	m_oHitFilterState.m_bNonMatching = m_oHitFilterData.m_bNonMatching ?
-										   rControlData.m_bNonMatchingAllowed : true;
+									   rControlData.m_bNonMatchingAllowed : true;
 	m_oHitFilterState.m_bSuspicious  = m_oHitFilterData.m_bSuspicious ?
-										   rControlData.m_bSuspiciousAllowed  : true;
+									   rControlData.m_bSuspiciousAllowed  : true;
 	m_oHitFilterState.m_bUnstable    = m_oHitFilterData.m_bUnstable ?
-										   rControlData.m_bUnstableAllowed    : true;
+									   rControlData.m_bUnstableAllowed    : true;
 
 	m_bVisible = m_oHitFilterState.m_bBogus       &&
 				 m_oHitFilterState.m_bBusy        &&

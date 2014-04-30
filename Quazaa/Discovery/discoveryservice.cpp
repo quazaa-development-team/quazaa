@@ -36,7 +36,7 @@ using namespace Discovery;
  * @param oNType
  * @param nRating
  */
-DiscoveryService::DiscoveryService(const QUrl& oURL, const CNetworkType& oNType, quint8 nRating) :
+DiscoveryService::DiscoveryService( const QUrl& oURL, const CNetworkType& oNType, quint8 nRating ) :
 	m_nServiceType( ServiceType::Null ),
 	m_oNetworkType( oNType ),
 	m_oServiceURL( oURL ),
@@ -63,7 +63,7 @@ DiscoveryService::DiscoveryService(const QUrl& oURL, const CNetworkType& oNType,
  * @brief CDiscoveryService: Copy constructor. Copies all but the list of registered pointers.
  * @param pService
  */
-DiscoveryService::DiscoveryService(const DiscoveryService& pService) :
+DiscoveryService::DiscoveryService( const DiscoveryService& pService ) :
 	QObject(),
 	m_nRedirectCount( 0 ),
 	m_bRunning( false )
@@ -105,7 +105,7 @@ DiscoveryService::~DiscoveryService()
  * @param pService
  * @return
  */
-bool DiscoveryService::operator==(const DiscoveryService& pService) const
+bool DiscoveryService::operator==( const DiscoveryService& pService ) const
 {
 	return ( m_nServiceType == pService.m_nServiceType &&
 			 m_oNetworkType == pService.m_oNetworkType &&
@@ -119,7 +119,7 @@ bool DiscoveryService::operator==(const DiscoveryService& pService) const
  * @param pService
  * @return
  */
-bool DiscoveryService::operator!=(const DiscoveryService& pService) const
+bool DiscoveryService::operator!=( const DiscoveryService& pService ) const
 {
 	return !( *this == pService );
 }
@@ -132,7 +132,7 @@ bool DiscoveryService::operator!=(const DiscoveryService& pService) const
  * @param fsStream
  * @param nVersion
  */
-void DiscoveryService::load(DiscoveryService*& pService, QDataStream &fsFile, int)
+void DiscoveryService::load( DiscoveryService*& pService, QDataStream& fsFile, int )
 {
 	quint8     nServiceType;        // GWC, UKHL, ...
 	quint16    nNetworkType;        // could be several in case of GWC for instance
@@ -165,7 +165,7 @@ void DiscoveryService::load(DiscoveryService*& pService, QDataStream &fsFile, in
 	fsFile >> nFailures;
 	fsFile >> nZeroRatingFailures;
 
-	pService = createService( sURL, (ServiceType::Type)nServiceType,
+	pService = createService( sURL, ( ServiceType::Type )nServiceType,
 							  CNetworkType( nNetworkType ), nRating );
 
 	if ( pService )
@@ -197,14 +197,14 @@ void DiscoveryService::load(DiscoveryService*& pService, QDataStream &fsFile, in
  * @param pService
  * @param fsFile
  */
-void DiscoveryService::save(const DiscoveryService* const pService, QDataStream &fsFile)
+void DiscoveryService::save( const DiscoveryService* const pService, QDataStream& fsFile )
 {
-	fsFile << (quint8)(pService->m_nServiceType);
-	fsFile << (quint16)(pService->m_oNetworkType.toQuint16());
+	fsFile << ( quint8 )( pService->m_nServiceType );
+	fsFile << ( quint16 )( pService->m_oNetworkType.toQuint16() );
 	fsFile << pService->m_oServiceURL.toString();
 	fsFile << pService->m_oRedirectUrl.toString();
 	fsFile << pService->m_sPong;
-	fsFile << (quint8)(pService->m_nRating);
+	fsFile << ( quint8 )( pService->m_nRating );
 	fsFile << pService->m_bBanned;
 	fsFile << pService->m_bZero;
 	fsFile << pService->m_nLastHosts;
@@ -226,8 +226,8 @@ void DiscoveryService::save(const DiscoveryService* const pService, QDataStream 
  * @param nRating
  * @return
  */
-DiscoveryService* DiscoveryService::createService(const QString& sURL, ServiceType::Type eSType,
-													const CNetworkType& oNType,	quint8 nRating )
+DiscoveryService* DiscoveryService::createService( const QString& sURL, ServiceType::Type eSType,
+												   const CNetworkType& oNType,	quint8 nRating )
 {
 	DiscoveryService* pService = NULL;
 
@@ -262,7 +262,7 @@ DiscoveryService* DiscoveryService::createService(const QString& sURL, ServiceTy
 		qDebug() << "[Discovery] Service Type: Unknown";
 #endif
 		systemLog.postLog( LogSeverity::Error, Component::Discovery,
-				tr( "Internal error: Creation of service with unknown type requested: Type " )
+						   tr( "Internal error: Creation of service with unknown type requested: Type " )
 						   + QString( eSType ) );
 
 		Q_ASSERT( false ); // unsupported service type
@@ -344,7 +344,7 @@ void DiscoveryService::cancelRequest()
 {
 	cancelRequest( false );
 }
-void DiscoveryService::cancelRequest(bool bKeepLocked)
+void DiscoveryService::cancelRequest( bool bKeepLocked )
 {
 	m_oRWLock.lockForWrite();
 
@@ -355,7 +355,9 @@ void DiscoveryService::cancelRequest(bool bKeepLocked)
 	}
 
 	if ( !bKeepLocked )
+	{
 		m_oRWLock.unlock();
+	}
 }
 
 /**
@@ -382,14 +384,14 @@ void DiscoveryService::unlock() const
  * Requires locking: RW
  * @param nHosts
  */
-void DiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16 nURLs,
-										bool bUpdateOK)
+void DiscoveryService::updateStatistics( bool bCanceled, quint16 nHosts, quint16 nURLs,
+										 bool bUpdateOK )
 {
 #if ENABLE_DISCOVERY_DEBUGGING
 	postLog( LogSeverity::Debug,
 			 QString( "Updating Statistics: Query %1, Hosts %2, URLs %3, UpdateOK %4"
-					  ).arg( QString::number( m_bQuery ), QString::number( nHosts ),
-							 QString::number( nURLs ),    QString::number( bUpdateOK ) ), true );
+					).arg( QString::number( m_bQuery ), QString::number( nHosts ),
+						   QString::number( nURLs ),    QString::number( bUpdateOK ) ), true );
 #endif
 
 	postLog( LogSeverity::Debug, tr( "Updating statistics." ), true );
@@ -409,10 +411,14 @@ void DiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16 
 	m_oSQCancelRequestID = QUuid();
 
 	if ( m_bQuery || nHosts )//in case of an update, we still count hosts we got but did not request
+	{
 		m_nLastHosts = nHosts;
+	}
 
 	if ( m_bQuery || nURLs ) //same as above
+	{
 		m_nAltServices = nURLs;
+	}
 
 	m_nTotalHosts += nHosts;
 
@@ -438,7 +444,8 @@ void DiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16 
 			++m_nFailures;
 
 			if ( m_bZero ) // We're dealing with a newly revived service
-			{              // that has been known to fail in the past.
+			{
+				// that has been known to fail in the past.
 				// revival failed
 				setRating( 0 );
 
@@ -459,7 +466,7 @@ void DiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16 
 				else
 				{
 					// decrease rating by 1
-					setRating( (m_nRating > 0) ? m_nRating - 1 : 0 );
+					setRating( ( m_nRating > 0 ) ? m_nRating - 1 : 0 );
 				}
 
 				if ( !m_nRating && !quazaaSettings.Discovery.ZeroRatingRevivalTries )
@@ -480,10 +487,10 @@ void DiscoveryService::updateStatistics(bool bCanceled, quint16 nHosts, quint16 
  * Requires locking: RW
  * @param nRating
  */
-void DiscoveryService::setRating(quint8 nRating)
+void DiscoveryService::setRating( quint8 nRating )
 {
 	m_nRating    = ( nRating > quazaaSettings.Discovery.MaximumServiceRating ) ?
-					   quazaaSettings.Discovery.MaximumServiceRating : nRating;
+				   quazaaSettings.Discovery.MaximumServiceRating : nRating;
 	m_nProbaMult = ( nRating > DISCOVERY_MAX_PROBABILITY ) ? DISCOVERY_MAX_PROBABILITY : nRating;
 }
 
@@ -495,7 +502,7 @@ void DiscoveryService::setRating(quint8 nRating)
  * @param bDebug Defaults to false. If set to true, the message is send  to qDebug() instead of
  * to the system log.
  */
-void DiscoveryService::postLog(LogSeverity severity, QString message, bool bDebug)
+void DiscoveryService::postLog( LogSeverity severity, QString message, bool bDebug )
 {
 	Manager::postLog( severity, message, bDebug, m_nID );
 }
@@ -506,8 +513,8 @@ void DiscoveryService::postLog(LogSeverity severity, QString message, bool bDebu
  * @param pRequest : the old request - will be changed if redirection is detected
  * @return true on redirect; false otherwise
  */
-bool DiscoveryService::handleRedirect(QNAMPtr pNAMgr, QNetworkReply* pReply,
-									  QNetworkRequest*& pRequest)
+bool DiscoveryService::handleRedirect( QNAMPtr pNAMgr, QNetworkReply* pReply,
+									   QNetworkRequest*& pRequest )
 {
 	bool bURLUpdate = false;
 	bool bRedirect  = false;
@@ -562,7 +569,7 @@ bool DiscoveryService::handleRedirect(QNAMPtr pNAMgr, QNetworkReply* pReply,
 		{
 			postLog( LogSeverity::Information,
 					 tr( "Discovery Service %1 has been permanently moved to %2."
-						 ).arg( oOriginal.toString(), oRedirect.toString() ) );
+					   ).arg( oOriginal.toString(), oRedirect.toString() ) );
 
 			m_oServiceURL = oRedirect;
 			m_oRedirectUrl = oRedirect;

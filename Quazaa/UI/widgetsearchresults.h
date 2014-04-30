@@ -34,7 +34,7 @@ class WidgetSearch;
 
 namespace Ui
 {
-	class WidgetSearchResults;
+class WidgetSearchResults;
 }
 
 class WidgetSearchResults : public QMainWindow
@@ -49,34 +49,34 @@ private:
 	SearchFilter::FilterControlData* m_pFilterData;
 
 public:
-	WidgetSearchResults(QWidget* parent = 0);
+	WidgetSearchResults( QWidget* parent = 0 );
 	~WidgetSearchResults();
 	void saveWidget();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	void updateSearchFilter();
 
 signals:
-	void searchTabChanged(WidgetSearchTemplate* searchPage);
-	void statsUpdated(WidgetSearchTemplate* searchPage);
+	void searchTabChanged( WidgetSearchTemplate* searchPage );
+	void statsUpdated( WidgetSearchTemplate* searchPage );
 	void stateChanged();
 
 public slots:
-	void startSearch(QString searchString);
-	void startNewSearch(QString* searchString);
+	void startSearch( QString searchString );
+	void startNewSearch( QString* searchString );
 	void addSearchTab();
 	void stopSearch();
 	bool clearSearch();
-	void onStatsUpdated(WidgetSearchTemplate* searchWidget);
+	void onStatsUpdated( WidgetSearchTemplate* searchWidget );
 
 private slots:
-	void on_tabWidgetSearch_currentChanged(int index);
-	void on_splitterSearchDetails_customContextMenuRequested(QPoint pos);
+	void on_tabWidgetSearch_currentChanged( int index );
+	void on_splitterSearchDetails_customContextMenuRequested( QPoint pos );
 	void on_actionFilterMore_triggered();
-	void on_tabWidgetSearch_tabCloseRequested(int index);
+	void on_tabWidgetSearch_tabCloseRequested( int index );
 	void on_actionSearchDownload_triggered();
 	void setSkin();
 

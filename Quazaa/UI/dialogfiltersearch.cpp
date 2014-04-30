@@ -30,14 +30,14 @@
 
 #include "debug_new.h"
 
-DialogFilterSearch::DialogFilterSearch(SearchFilter::FilterControlData*& pData, QWidget* parent) :
-	QDialog(parent),
-	ui(new Ui::DialogFilterSearch),
+DialogFilterSearch::DialogFilterSearch( SearchFilter::FilterControlData*& pData, QWidget* parent ) :
+	QDialog( parent ),
+	ui( new Ui::DialogFilterSearch ),
 	m_pData( pData )
 {
 	Q_ASSERT( pData );
 
-	ui->setupUi(this);
+	ui->setupUi( this );
 	setSkin();
 
 	// TODO: replace with QRegularExpression oMatch( "\\A...\\z", QRegularExpression::
@@ -55,7 +55,7 @@ DialogFilterSearch::DialogFilterSearch(SearchFilter::FilterControlData*& pData, 
 	const quint64 MAX_VAL = 18446744073709551615; // max value of 64 bit int
 	QString sMinSize = m_pData->m_nMinSize ? QString::number( m_pData->m_nMinSize ) + "B" : "";
 	QString sMaxSize = m_pData->m_nMaxSize != MAX_VAL ?
-												  QString::number( m_pData->m_nMaxSize ) + "B" : "";
+					   QString::number( m_pData->m_nMaxSize ) + "B" : "";
 
 	ui->lineEditMinimumSize->setText( sMinSize );
 	ui->lineEditMaximumSize->setText( sMaxSize );
@@ -66,7 +66,7 @@ DialogFilterSearch::DialogFilterSearch(SearchFilter::FilterControlData*& pData, 
 	ui->checkBoxBogusResults       ->setChecked( m_pData->m_bBogusAllowed          );
 	ui->checkBoxBusyHosts          ->setChecked( m_pData->m_bBusyAllowed           );
 	ui->checkBoxDRMFiles           ->setChecked( m_pData->m_bDRMAllowed            );
-	ui->checkBoxFilesAlreadyHave   ->setChecked( m_pData->m_bExistsInLibraryAllowed);
+	ui->checkBoxFilesAlreadyHave   ->setChecked( m_pData->m_bExistsInLibraryAllowed );
 	ui->checkBoxFirewalledPushHosts->setChecked( m_pData->m_bFirewalledAllowed     );
 	ui->checkBoxIncompleteFiles    ->setChecked( m_pData->m_bIncompleteAllowed     );
 	ui->checkBoxNonMatchingFiles   ->setChecked( m_pData->m_bNonMatchingAllowed    );
@@ -79,16 +79,16 @@ DialogFilterSearch::~DialogFilterSearch()
 	delete ui;
 }
 
-void DialogFilterSearch::changeEvent(QEvent* e)
+void DialogFilterSearch::changeEvent( QEvent* e )
 {
-	QDialog::changeEvent(e);
-	switch(e->type())
+	QDialog::changeEvent( e );
+	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 

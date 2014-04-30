@@ -34,14 +34,14 @@ class CDownloadsPeerModel;
 
 namespace Ui
 {
-	class CWidgetTransfers;
+class CWidgetTransfers;
 }
 
 class CWidgetTransfers : public QWidget
 {
 	Q_OBJECT
 public:
-	CWidgetTransfers(QWidget* parent = 0);
+	CWidgetTransfers( QWidget* parent = 0 );
 	~CWidgetTransfers();
 	CWidgetDownloads* panelDownloads;
 	CWidgetUploads* panelUploads;
@@ -49,19 +49,19 @@ public:
 	void saveWidget();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CWidgetTransfers* ui;
 
 private slots:
-	void on_splitterTransfers_customContextMenuRequested(QPoint pos);
-	void on_splitterTransfersNavigation_customContextMenuRequested(const QPoint &pos);
-	void on_splitterDownloads_customContextMenuRequested(const QPoint &pos);
-	void on_treeWidgetTransfers_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+	void on_splitterTransfers_customContextMenuRequested( QPoint pos );
+	void on_splitterTransfersNavigation_customContextMenuRequested( const QPoint& pos );
+	void on_splitterDownloads_customContextMenuRequested( const QPoint& pos );
+	void on_treeWidgetTransfers_currentItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
 	void setSkin();
 
-	void onPanelDownloads_itemChanged(const QModelIndex index);
+	void onPanelDownloads_itemChanged( const QModelIndex index );
 };
 
 #endif // WIDGETTRANSFERS_H

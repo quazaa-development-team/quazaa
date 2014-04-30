@@ -33,7 +33,7 @@ MetaFile::MetaFile() :
 	m_nFileSize( 0 )
 {}
 
-MetaFile::MetaFile(quint16 ID) :
+MetaFile::MetaFile( quint16 ID ) :
 	m_nID( ID ),
 	m_nFileSize( 0 )
 {}
@@ -45,7 +45,7 @@ bool MetaFile::isValid() const
 
 QFile& CMetalinkHandler::m_oEmptyQFile = getEmptyStaticFile();
 
-CMetalinkHandler::CMetalinkHandler(QFile& oFile) :
+CMetalinkHandler::CMetalinkHandler( QFile& oFile ) :
 	m_bNull( true ),
 	m_bValid( false ),
 	m_nSize( 0 )

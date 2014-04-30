@@ -22,14 +22,14 @@ public:
 	 * @param pTarget : the target model
 	 * @param bShowAutomatic : whether to show auto generated rules or not
 	 */
-	SecurityFilterModel(SecurityTableModel* pTarget, bool bShowAutomatic);
+	SecurityFilterModel( SecurityTableModel* pTarget, bool bShowAutomatic );
 
 	/**
 	 * @brief sort sorts the underlying table model.
 	 * @param nColumn : the column used as a basis for sorting
 	 * @param eOrder : the sort order
 	 */
-	void sort(int nColumn, Qt::SortOrder eOrder);
+	void sort( int nColumn, Qt::SortOrder eOrder );
 
 protected:
 	/**
@@ -38,7 +38,7 @@ protected:
 	 * @param sourceParent : parent
 	 * @return true if source row should be included in view; false otherwise
 	 */
-	bool filterAcceptsRow(int nSourceRow, const QModelIndex& sourceParent) const;
+	bool filterAcceptsRow( int nSourceRow, const QModelIndex& sourceParent ) const;
 };
 
 #endif // SECURITYFILTERMODELAUTOMATIC_H

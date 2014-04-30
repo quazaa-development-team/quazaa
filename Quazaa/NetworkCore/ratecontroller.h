@@ -51,18 +51,18 @@ public:
 	TCPBandwidthMeter	m_mUpload;
 
 public:
-	RateController(QMutex* pMutex, QObject* parent = 0);
-	void addSocket(NetworkConnection* pSock);
-	void removeSocket(NetworkConnection* pSock);
+	RateController( QMutex* pMutex, QObject* parent = 0 );
+	void addSocket( NetworkConnection* pSock );
+	void removeSocket( NetworkConnection* pSock );
 
-	void setDownloadLimit(qint32 nLimit)
+	void setDownloadLimit( qint32 nLimit )
 	{
-		systemLog.postLog(LogSeverity::Debug, QString("New download limit: %1").arg(nLimit));
+		systemLog.postLog( LogSeverity::Debug, QString( "New download limit: %1" ).arg( nLimit ) );
 		m_nDownloadLimit = nLimit;
 	}
-	void setUploadLimit(qint32 nLimit)
+	void setUploadLimit( qint32 nLimit )
 	{
-		systemLog.postLog(LogSeverity::Debug, QString("New upload limit: %1").arg(nLimit));
+		systemLog.postLog( LogSeverity::Debug, QString( "New upload limit: %1" ).arg( nLimit ) );
 		m_nUploadLimit = nLimit;
 	}
 	qint32 uploadLimit() const

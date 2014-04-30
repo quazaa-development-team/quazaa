@@ -50,7 +50,7 @@ protected:
 	quint32         m_nBuffer;
 
 public:
-	void		add(EndPoint oAddress);
+	void		add( EndPoint oAddress );
 	void		clear();
 
 };
@@ -71,10 +71,10 @@ protected:
 public:
 	void				setup();
 	void				clear();
-	HubHorizonHub*		add(EndPoint oAddress);
-	void				remove(HubHorizonHub* pHub);
-	HubHorizonHub*		find(EndPoint oAddress);
-	int					addHorizonHubs(G2Packet* pPacket);
+	HubHorizonHub*		add( EndPoint oAddress );
+	void				remove( HubHorizonHub* pHub );
+	HubHorizonHub*		find( EndPoint oAddress );
+	int					addHorizonHubs( G2Packet* pPacket );
 
 };
 

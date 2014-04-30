@@ -30,20 +30,20 @@
 
 namespace Ui
 {
-	class CWidgetLibrary;
+class CWidgetLibrary;
 }
 
 class CWidgetLibrary : public QWidget
 {
 	Q_OBJECT
 public:
-	CWidgetLibrary(QWidget* parent = 0);
+	CWidgetLibrary( QWidget* parent = 0 );
 	~CWidgetLibrary();
 	CWidgetLibraryView* panelLibraryView;
 	void saveWidget();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CWidgetLibrary* ui;
@@ -52,7 +52,7 @@ public slots:
 	void initializeLibrary();
 
 private slots:
-	void on_splitterLibrary_customContextMenuRequested(QPoint pos);
+	void on_splitterLibrary_customContextMenuRequested( QPoint pos );
 	void on_toolButtonLibraryEditShares_clicked();
 	void setSkin();
 };

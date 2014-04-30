@@ -29,20 +29,20 @@
 
 namespace Ui
 {
-	class CDialogDownloadMonitor;
+class CDialogDownloadMonitor;
 }
 
 class CDialogDownloadMonitor : public QDialog
 {
 	Q_OBJECT
 public:
-	CDialogDownloadMonitor(QWidget* parent = 0);
+	CDialogDownloadMonitor( QWidget* parent = 0 );
 	~CDialogDownloadMonitor();
-	void updateProgress(int percent, QString transferSpeed, QString timeRemaining, QString volumeDownloaded,
-						QString numberSources, QPixmap icon, QString status, QString file);
+	void updateProgress( int percent, QString transferSpeed, QString timeRemaining, QString volumeDownloaded,
+						 QString numberSources, QPixmap icon, QString status, QString file );
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CDialogDownloadMonitor* ui;

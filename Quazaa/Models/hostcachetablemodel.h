@@ -55,41 +55,41 @@ public:
 	};
 
 public:
-	explicit HostCacheTableModel(QObject* parent = NULL, QWidget* container = NULL);
+	explicit HostCacheTableModel( QObject* parent = NULL, QWidget* container = NULL );
 	~HostCacheTableModel();
 
-	int rowCount(const QModelIndex& parent = QModelIndex()) const;
-	int columnCount(const QModelIndex& parent) const;
-	QVariant data(const QModelIndex& index, int nRole) const;
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+	int rowCount( const QModelIndex& parent = QModelIndex() ) const;
+	int columnCount( const QModelIndex& parent ) const;
+	QVariant data( const QModelIndex& index, int nRole ) const;
+	QVariant headerData( int section, Qt::Orientation orientation, int role ) const;
+	QModelIndex index( int row, int column, const QModelIndex& parent = QModelIndex() ) const;
 
-	void sort(int column, Qt::SortOrder order);
+	void sort( int column, Qt::SortOrder order );
 
-	int find(quint32 nHostID);
+	int find( quint32 nHostID );
 
-	HostData* dataFromRow(int nRow) const;
+	HostData* dataFromRow( int nRow ) const;
 	//Rule* ruleFromIndex(const QModelIndex& index) const;
 
 	void completeRefresh();
 
-	void triggerHostRemoval(int nIndex);
+	void triggerHostRemoval( int nIndex );
 
 public slots:
-	void recieveHostInfo(HostData* pHostData);
+	void recieveHostInfo( HostData* pHostData );
 
 	/**
 	 * @brief addHost adds a rule to the GUI.
 	 * @param pHost : the host
 	 */
-	void addHost(HostData* pHostData);
+	void addHost( HostData* pHostData );
 
 	/**
 	 * @brief removeHost removes a host from the table model.
 	 * This is to be triggered from the host cache AFTER the host has been removed.
 	 * @param pHost : the host
 	 */
-	void removeHost(QSharedPointer<HostCacheHost> pHost);
+	void removeHost( QSharedPointer<HostCacheHost> pHost );
 
 	/**
 	 * @brief updateHost updates the GUI for a specified host.
@@ -108,9 +108,9 @@ public slots:
 	void clear();
 
 private:
-	void updateView(QModelIndexList uplist = QModelIndexList());
-	void insert(HostData* pData);
-	void erase(int nPos);
+	void updateView( QModelIndexList uplist = QModelIndexList() );
+	void insert( HostData* pData );
+	void erase( int nPos );
 };
 
 #endif // G2CACHETABLEMODEL_H

@@ -30,8 +30,8 @@
 IDProvider<quint32> HostCacheHost::m_oIDProvider;
 bool                HostCacheHost::m_bShutDownFlag = false;
 
-HostCacheHost::HostCacheHost(const EndPoint& oAddress, const quint8 nFailures,
-							 const quint32 tTimestamp, const quint32 tLastConnect) :
+HostCacheHost::HostCacheHost( const EndPoint& oAddress, const quint8 nFailures,
+							  const quint32 tTimestamp, const quint32 tLastConnect ) :
 	m_nType( DiscoveryProtocol::None ),
 	m_oAddress(     oAddress     ),
 	m_tTimeStamp(   tTimestamp   ),
@@ -45,10 +45,12 @@ HostCacheHost::HostCacheHost(const EndPoint& oAddress, const quint8 nFailures,
 HostCacheHost::~HostCacheHost()
 {
 	if ( !m_bShutDownFlag )
+	{
 		m_oIDProvider.release( m_nID );
+	}
 }
 
-HostCacheHost* HostCacheHost::load(QDataStream& fsFile, quint32 tNow)
+HostCacheHost* HostCacheHost::load( QDataStream& fsFile, quint32 tNow )
 {
 	quint8    nType;
 	EndPoint oAddress;
@@ -63,10 +65,14 @@ HostCacheHost* HostCacheHost::load(QDataStream& fsFile, quint32 tNow)
 	fsFile >> tLastConnect;
 
 	if ( tTimeStamp > tNow )
+	{
 		tTimeStamp = tNow - 60;
+	}
 
 	if ( tLastConnect > tNow )
+	{
 		tLastConnect = tNow - 60;
+	}
 
 	HostCacheHost* pReturn = NULL;
 
@@ -84,29 +90,29 @@ HostCacheHost* HostCacheHost::load(QDataStream& fsFile, quint32 tNow)
 	return pReturn;
 }
 
-void HostCacheHost::save(QDataStream& fsFile)
+void HostCacheHost::save( QDataStream& fsFile )
 {
-	fsFile << (quint8)m_nType;
+	fsFile << ( quint8 )m_nType;
 	fsFile << m_oAddress;
 	fsFile << m_nFailures;
 	fsFile << m_tTimeStamp;
 	fsFile << m_tLastConnect;
 }
 
-HostData::HostData(SharedHostPtr pHost) :
+HostData::HostData( SharedHostPtr pHost ) :
 	m_pHost(        pHost                ),
 	m_oAddress(     pHost->address()     ),
 	m_sAddress(     m_oAddress.toStringWithPort() ),
 	m_sCountryCode( m_oAddress.country() ),
 	m_sCountry(     geoIP.countryNameFromCode( m_sCountryCode ) ),
-	m_iCountry(     QIcon(":/Resource/Flags/" + m_sCountryCode.toLower() + ".png") ),
+	m_iCountry(     QIcon( ":/Resource/Flags/" + m_sCountryCode.toLower() + ".png" ) ),
 	m_nID(          pHost->id()          ),
 	m_tLastConnect( pHost->lastConnect() ),
 	m_sLastConnect( m_tLastConnect ? QDateTime::fromTime_t( m_tLastConnect ).toString()
-								   : QObject::tr( "never" ) ),
-	m_nFailures(    pHost->failures()    ),
-	m_sFailures(    QString::number( m_nFailures ) ),
-	m_nType(        pHost->type() )
+					: QObject::tr( "never" ) ),
+					  m_nFailures(    pHost->failures()    ),
+					  m_sFailures(    QString::number( m_nFailures ) ),
+					  m_nType(        pHost->type() )
 {
 }
 
@@ -119,8 +125,8 @@ HostData::HostData(SharedHostPtr pHost) :
  * @param pModel : the model
  * @return true if an entry within the column col has been modified
  */
-bool HostData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
-					  HostCacheTableModel* pModel)
+bool HostData::update( int nRow, int nSortCol, QModelIndexList& lToUpdate,
+					   HostCacheTableModel* pModel )
 {
 	Q_ASSERT( !m_pHost.isNull() );
 
@@ -132,10 +138,12 @@ bool HostData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
 		lToUpdate.append( pModel->index( nRow, HostCacheTableModel::LASTCONNECT ) );
 		m_tLastConnect = m_pHost->lastConnect();
 		m_sLastConnect = m_tLastConnect ? QDateTime::fromTime_t( m_tLastConnect ).toString()
-										: QObject::tr( "never" );
+						 : QObject::tr( "never" );
 
 		if ( nSortCol == HostCacheTableModel::LASTCONNECT )
+		{
 			bReturn = true;
+		}
 	}
 
 	if ( m_nFailures != m_pHost->failures() )
@@ -145,7 +153,9 @@ bool HostData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
 		m_sFailures = QString::number( m_nFailures );
 
 		if ( nSortCol == HostCacheTableModel::FAILURES )
+		{
 			bReturn = true;
+		}
 	}
 
 	return bReturn;
@@ -156,7 +166,7 @@ bool HostData::update(int nRow, int nSortCol, QModelIndexList& lToUpdate,
  * @param col
  * @return
  */
-QVariant HostData::data(int col) const
+QVariant HostData::data( int col ) const
 {
 	switch ( col )
 	{
@@ -177,10 +187,12 @@ QVariant HostData::data(int col) const
 	}
 }
 
-bool HostData::lessThan(int col, HostData* pOther) const
+bool HostData::lessThan( int col, HostData* pOther ) const
 {
 	if ( !pOther )
+	{
 		return false;
+	}
 
 	switch ( col )
 	{

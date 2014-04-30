@@ -24,21 +24,21 @@ class CTabBar : public QTabBar
 	Q_OBJECT
 
 public:
-	CTabBar(QWidget* parent = 0);
+	CTabBar( QWidget* parent = 0 );
 
 	enum Navigation { Next, Previous, NextUnread, PreviousUnread };
-	QKeySequence navigationShortcut(Navigation navigation) const;
-	void setNavigationShortcut(Navigation navigation, const QKeySequence& shortcut);
+	QKeySequence navigationShortcut( Navigation navigation ) const;
+	void setNavigationShortcut( Navigation navigation, const QKeySequence& shortcut );
 
 	QSize minimumSizeHint() const;
 
 signals:
-	void menuRequested(int index, const QPoint& pos);
+	void menuRequested( int index, const QPoint& pos );
 
 protected:
-	void changeEvent(QEvent* event);
-	void contextMenuEvent(QContextMenuEvent* event);
-	void wheelEvent(QWheelEvent* event);
+	void changeEvent( QEvent* event );
+	void contextMenuEvent( QContextMenuEvent* event );
+	void wheelEvent( QWheelEvent* event );
 
 private:
 	QShortcut* prevShortcut;

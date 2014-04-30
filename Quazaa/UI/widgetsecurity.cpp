@@ -38,7 +38,7 @@
 
 #include "debug_new.h"
 
-CWidgetSecurity::CWidgetSecurity(QWidget* parent) :
+CWidgetSecurity::CWidgetSecurity( QWidget* parent ) :
 	QMainWindow( parent ),
 	ui( new Ui::CWidgetSecurity )
 {
@@ -52,33 +52,39 @@ CWidgetSecurity::CWidgetSecurity(QWidget* parent) :
 	restoreState( quazaaSettings.WinMain.SecurityToolbars );
 
 	m_pTableViewSecurity = new CTableView();
-	ui->verticalLayoutManual->addWidget(m_pTableViewSecurity);
+	ui->verticalLayoutManual->addWidget( m_pTableViewSecurity );
 
-	connect(m_pTableViewSecurity, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tableViewSecurity_customContextMenuRequested(QPoint)));
-	connect(m_pTableViewSecurity, SIGNAL(clicked(QModelIndex)), this, SLOT(tableViewSecurity_clicked(QModelIndex)));
-	connect(m_pTableViewSecurity, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(tableViewSecurity_doubleClicked(QModelIndex)));
+	connect( m_pTableViewSecurity, SIGNAL( customContextMenuRequested( QPoint ) ), this,
+			 SLOT( tableViewSecurity_customContextMenuRequested( QPoint ) ) );
+	connect( m_pTableViewSecurity, SIGNAL( clicked( QModelIndex ) ), this,
+			 SLOT( tableViewSecurity_clicked( QModelIndex ) ) );
+	connect( m_pTableViewSecurity, SIGNAL( doubleClicked( QModelIndex ) ), this,
+			 SLOT( tableViewSecurity_doubleClicked( QModelIndex ) ) );
 
 	m_pTableViewSecurityAuto = new CTableView();
-	ui->verticalLayoutAuto->addWidget(m_pTableViewSecurityAuto);
+	ui->verticalLayoutAuto->addWidget( m_pTableViewSecurityAuto );
 
-	connect(m_pTableViewSecurityAuto, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(tableViewSecurityAuto_customContextMenuRequested(QPoint)));
-	connect(m_pTableViewSecurityAuto, SIGNAL(clicked(QModelIndex)), this, SLOT(tableViewSecurity_clicked(QModelIndex)));
-	connect(m_pTableViewSecurityAuto, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(tableViewSecurity_doubleClicked(QModelIndex)));
+	connect( m_pTableViewSecurityAuto, SIGNAL( customContextMenuRequested( QPoint ) ), this,
+			 SLOT( tableViewSecurityAuto_customContextMenuRequested( QPoint ) ) );
+	connect( m_pTableViewSecurityAuto, SIGNAL( clicked( QModelIndex ) ), this,
+			 SLOT( tableViewSecurity_clicked( QModelIndex ) ) );
+	connect( m_pTableViewSecurityAuto, SIGNAL( doubleClicked( QModelIndex ) ), this,
+			 SLOT( tableViewSecurity_doubleClicked( QModelIndex ) ) );
 
-	m_pTableViewSecurity->horizontalHeader()->restoreState(quazaaSettings.WinMain.SecurityManualHeader);
-	m_pTableViewSecurityAuto->horizontalHeader()->restoreState(quazaaSettings.WinMain.SecurityAutomaticHeader);
+	m_pTableViewSecurity->horizontalHeader()->restoreState( quazaaSettings.WinMain.SecurityManualHeader );
+	m_pTableViewSecurityAuto->horizontalHeader()->restoreState( quazaaSettings.WinMain.SecurityAutomaticHeader );
 
 	m_lSecurity = new SecurityTableModel( this );
 
-	m_lManual = new SecurityFilterModel(m_lSecurity, false);
-	m_lAutomatic = new SecurityFilterModel(m_lSecurity, true);
+	m_lManual = new SecurityFilterModel( m_lSecurity, false );
+	m_lAutomatic = new SecurityFilterModel( m_lSecurity, true );
 
 	m_pTableViewSecurity->setModel( m_lManual );
 	m_pTableViewSecurityAuto->setModel( m_lAutomatic );
 	m_lManual->sort( m_pTableViewSecurity->horizontalHeader()->sortIndicatorSection(),
-						   m_pTableViewSecurity->horizontalHeader()->sortIndicatorOrder()    );
+					 m_pTableViewSecurity->horizontalHeader()->sortIndicatorOrder()    );
 	m_lAutomatic->sort( m_pTableViewSecurityAuto->horizontalHeader()->sortIndicatorSection(),
-							m_pTableViewSecurityAuto->horizontalHeader()->sortIndicatorOrder()    );
+						m_pTableViewSecurityAuto->horizontalHeader()->sortIndicatorOrder()    );
 	setSkin();
 }
 
@@ -94,7 +100,7 @@ void CWidgetSecurity::saveWidget()
 	quazaaSettings.WinMain.SecurityAutomaticHeader = m_pTableViewSecurityAuto->horizontalHeader()->saveState();
 }
 
-void CWidgetSecurity::changeEvent(QEvent* e)
+void CWidgetSecurity::changeEvent( QEvent* e )
 {
 	switch ( e->type() )
 	{
@@ -111,7 +117,7 @@ void CWidgetSecurity::changeEvent(QEvent* e)
 	QMainWindow::changeEvent( e );
 }
 
-void CWidgetSecurity::keyPressEvent(QKeyEvent *e)
+void CWidgetSecurity::keyPressEvent( QKeyEvent* e )
 {
 	switch ( e->key() )
 	{
@@ -156,7 +162,7 @@ void CWidgetSecurity::on_actionSecurityRemoveRule_triggered()
 	{
 		QModelIndexList lSelection = m_pTableViewSecurityAuto->selectionModel()->selectedRows();
 
-		foreach ( const QModelIndex& i, lSelection )
+		foreach ( const QModelIndex & i, lSelection )
 		{
 			if ( i.isValid() )
 			{
@@ -169,7 +175,7 @@ void CWidgetSecurity::on_actionSecurityRemoveRule_triggered()
 	{
 		QModelIndexList selection = m_pTableViewSecurity->selectionModel()->selectedRows();
 
-		foreach ( const QModelIndex& i, selection )
+		foreach ( const QModelIndex & i, selection )
 		{
 			if ( i.isValid() )
 			{
@@ -200,12 +206,14 @@ void CWidgetSecurity::on_actionSecurityModifyRule_triggered()
 	QModelIndex index = QModelIndex();
 
 	// Get the highest selected row.
-	foreach ( const QModelIndex& i, lSelection )
+	foreach ( const QModelIndex & i, lSelection )
 	{
 		if ( index.isValid() )
 		{
 			if ( index.row() > i.row() )
+			{
 				index = i;
+			}
 		}
 		else
 		{
@@ -248,7 +256,7 @@ void CWidgetSecurity::on_actionSubscribeSecurityList_triggered()
 	dlgSecuritySubscriptions->show();
 }
 
-void CWidgetSecurity::tableViewSecurity_doubleClicked(const QModelIndex& index)
+void CWidgetSecurity::tableViewSecurity_doubleClicked( const QModelIndex& index )
 {
 	if ( index.isValid() )
 	{
@@ -262,7 +270,7 @@ void CWidgetSecurity::tableViewSecurity_doubleClicked(const QModelIndex& index)
 	}
 }
 
-void CWidgetSecurity::tableViewSecurity_clicked(const QModelIndex& index)
+void CWidgetSecurity::tableViewSecurity_clicked( const QModelIndex& index )
 {
 	if ( index.isValid() )
 	{
@@ -284,7 +292,7 @@ void CWidgetSecurity::setSkin()
 	m_pTableViewSecurityAuto->setStyleSheet( skinSettings.listViews );
 }
 
-void CWidgetSecurity::tableViewSecurity_customContextMenuRequested(const QPoint &pos)
+void CWidgetSecurity::tableViewSecurity_customContextMenuRequested( const QPoint& pos )
 {
 	QModelIndex index = m_pTableViewSecurity->indexAt( pos );
 
@@ -304,7 +312,7 @@ void CWidgetSecurity::tableViewSecurity_customContextMenuRequested(const QPoint 
 	m_pSecurityMenu->popup( QCursor::pos() );
 }
 
-void CWidgetSecurity::tableViewSecurityAuto_customContextMenuRequested(const QPoint &pos)
+void CWidgetSecurity::tableViewSecurityAuto_customContextMenuRequested( const QPoint& pos )
 {
 	QModelIndex index = m_pTableViewSecurityAuto->indexAt( pos );
 

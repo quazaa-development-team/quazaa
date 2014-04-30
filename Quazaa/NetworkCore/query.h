@@ -56,22 +56,22 @@ public:
 		return m_sDescriptiveName;
 	}
 
-	void setGUID(QUuid& guid);
+	void setGUID( QUuid& guid );
 
-	void addURN(const CHash& pHash);
-	void setDescriptiveName(QString sDN);
-	void setSizeRestriction(quint64 nMin, quint64 nMax);
-	void setMetadata(QString sMeta);
+	void addURN( const CHash& pHash );
+	void setDescriptiveName( QString sDN );
+	void setSizeRestriction( quint64 nMin, quint64 nMax );
+	void setMetadata( QString sMeta );
 
 	bool checkValid();
 
-	G2Packet* toG2Packet(EndPoint* pAddr = 0, quint32 nKey = 0);
+	G2Packet* toG2Packet( EndPoint* pAddr = 0, quint32 nKey = 0 );
 
-	static QuerySharedPtr fromPacket(G2Packet* pPacket, const EndPoint* const pEndpoint = NULL);
+	static QuerySharedPtr fromPacket( G2Packet* pPacket, const EndPoint* const pEndpoint = NULL );
 
 private:
-	void buildG2Keywords(QString strPhrase);
-	bool fromG2Packet(G2Packet* pPacket, const EndPoint* const pEndpoint);
+	void buildG2Keywords( QString strPhrase );
+	bool fromG2Packet( G2Packet* pPacket, const EndPoint* const pEndpoint );
 };
 
 #endif // QUERY_H

@@ -29,18 +29,18 @@
 
 namespace Ui
 {
-	class CDialogScheduler;
+class CDialogScheduler;
 }
 
 class CDialogScheduler : public QDialog
 {
 	Q_OBJECT
 public:
-	CDialogScheduler(QWidget* parent = 0);
+	CDialogScheduler( QWidget* parent = 0 );
 	~CDialogScheduler();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CDialogScheduler* ui;
@@ -51,7 +51,7 @@ signals:
 private slots:
 	void on_pushButtonCancel_clicked();
 	void on_pushButtonOK_clicked();
-	void on_comboBoxAction_currentIndexChanged(int index);
+	void on_comboBoxAction_currentIndexChanged( int index );
 	void setSkin();
 };
 

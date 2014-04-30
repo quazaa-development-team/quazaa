@@ -32,34 +32,36 @@
 class CWidgetPrivateMessage;
 class QTextDocument;
 
-namespace Ui {
-	class CDialogPrivateMessages;
+namespace Ui
+{
+class CDialogPrivateMessages;
 }
 
-class CDialogPrivateMessages : public QDialog {
+class CDialogPrivateMessages : public QDialog
+{
 	Q_OBJECT
 public:
-	CDialogPrivateMessages(QWidget *parent = 0);
+	CDialogPrivateMessages( QWidget* parent = 0 );
 	~CDialogPrivateMessages();
 
-	CWidgetPrivateMessage* FindByGUID(QUuid oGUID);
+	CWidgetPrivateMessage* FindByGUID( QUuid oGUID );
 
-	void OpenChat(ChatSession* pSess);
+	void OpenChat( ChatSession* pSess );
 
 protected:
-	void changeEvent(QEvent *e);
+	void changeEvent( QEvent* e );
 	QList<CWidgetPrivateMessage*> m_lChatWindows;
 
 private:
-	Ui::CDialogPrivateMessages *ui;
-	CWidgetChatInput *widgetChatInput;
+	Ui::CDialogPrivateMessages* ui;
+	CWidgetChatInput* widgetChatInput;
 	CWidgetPrivateMessage* m_pCurrentWidget;
 
 public slots:
-	void onMessageSent(QTextDocument* pDoc);
+	void onMessageSent( QTextDocument* pDoc );
 private slots:
-	void on_tabWidgetPrivateMessages_tabCloseRequested(int index);
-	void on_tabWidgetPrivateMessages_currentChanged(int index);
+	void on_tabWidgetPrivateMessages_tabCloseRequested( int index );
+	void on_tabWidgetPrivateMessages_currentChanged( int index );
 	void setSkin();
 };
 

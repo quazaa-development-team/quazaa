@@ -39,21 +39,21 @@
 
 namespace Ui
 {
-	class CDialogModifyRule;
+class CDialogModifyRule;
 }
 
 // TODO: add country again
 namespace RuleIndex
 {
-	enum Rows
-	{
-		IPAddress           = 0,
-		IPAddressRange      = 1,
-		Hash                = 2,
-		Content             = 3,
-		RegularExpression   = 4,
-		UserAgent           = 5
-	};
+enum Rows
+{
+	IPAddress           = 0,
+	IPAddressRange      = 1,
+	Hash                = 2,
+	Content             = 3,
+	RegularExpression   = 4,
+	UserAgent           = 5
+};
 }
 
 class CDialogModifyRule : public QDialog
@@ -67,11 +67,11 @@ class CDialogModifyRule : public QDialog
 public:
 	// Creates a dialog window using the provided rule as basis.
 	// To create a new rule, don't provide a rule.
-	CDialogModifyRule(CWidgetSecurity* parent, RuleDataPtr pRule = RuleDataPtr());
+	CDialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule = RuleDataPtr() );
 	~CDialogModifyRule();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 signals:
 	void closed();
@@ -79,7 +79,7 @@ signals:
 private slots:
 	void on_pushButtonCancel_clicked();
 	void on_pushButtonOK_clicked();
-	void on_comboBoxExpire_currentIndexChanged(int index);
+	void on_comboBoxExpire_currentIndexChanged( int index );
 	void setSkin();
 	void on_lineEditDays_editingFinished();
 	void on_lineEditHours_editingFinished();

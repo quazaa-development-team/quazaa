@@ -29,20 +29,20 @@
 
 namespace Ui
 {
-	class CDialogSplash;
+class CDialogSplash;
 }
 
 class CDialogSplash : public QDialog
 {
 	Q_OBJECT
-	Q_DISABLE_COPY(CDialogSplash)
+	Q_DISABLE_COPY( CDialogSplash )
 public:
-	explicit CDialogSplash(QWidget* parent = 0);
+	explicit CDialogSplash( QWidget* parent = 0 );
 	virtual ~CDialogSplash();
-	void updateProgress(int percent, QString status);
+	void updateProgress( int percent, QString status );
 
 protected:
-	virtual void changeEvent(QEvent* e);
+	virtual void changeEvent( QEvent* e );
 
 private:
 	Ui::CDialogSplash* ui;

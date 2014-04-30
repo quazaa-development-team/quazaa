@@ -36,8 +36,8 @@
 Handshakes handshakes;
 CThread handshakesThread;
 
-Handshakes::Handshakes(QObject* parent) :
-	QTcpServer(parent)
+Handshakes::Handshakes( QObject* parent ) :
+	QTcpServer( parent )
 {
 	m_nAccepted = 0;
 	m_bActive = false;
@@ -45,7 +45,7 @@ Handshakes::Handshakes(QObject* parent) :
 
 Handshakes::~Handshakes()
 {
-	if(m_bActive)
+	if ( m_bActive )
 	{
 		stop();
 	}
@@ -53,9 +53,9 @@ Handshakes::~Handshakes()
 
 void Handshakes::listen()
 {
-	QMutexLocker l(&m_pSection);
+	QMutexLocker l( &m_pSection );
 
-	if(m_bActive)
+	if ( m_bActive )
 	{
 		return;
 	}
@@ -63,7 +63,7 @@ void Handshakes::listen()
 	m_nAccepted = 0;
 	m_bActive = true;
 
-	handshakesThread.start("Handshakes", &m_pSection, this);
+	handshakesThread.start( "Handshakes", &m_pSection, this );
 }
 void Handshakes::stop()
 {
@@ -77,18 +77,18 @@ void Handshakes::stop()
 	m_pSection.unlock();
 }
 
-void Handshakes::incomingConnection(qintptr handle)
+void Handshakes::incomingConnection( qintptr handle )
 {
-	QMutexLocker l(&m_pSection);
+	QMutexLocker l( &m_pSection );
 
 	Handshake* pNew = new Handshake();
-	m_lHandshakes.insert(pNew);
-	pNew->acceptFrom(handle);
-	pNew->moveToThread(&handshakesThread);
-	m_pController->addSocket(pNew);
+	m_lHandshakes.insert( pNew );
+	pNew->acceptFrom( handle );
+	pNew->moveToThread( &handshakesThread );
+	m_pController->addSocket( pNew );
 	m_nAccepted++;
 
-	if( securityManager.isDenied(pNew->m_oAddress) )
+	if ( securityManager.isDenied( pNew->m_oAddress ) )
 	{
 		pNew->close();
 		pNew->deleteLater();
@@ -101,24 +101,24 @@ void Handshakes::onTimer()
 
 	quint32 tNow = time( NULL );
 
-	foreach ( Handshake* pHs, m_lHandshakes )
+	foreach ( Handshake * pHs, m_lHandshakes )
 	{
 		pHs->onTimer( tNow );
 	}
 }
 
-void Handshakes::removeHandshake(Handshake* pHs)
+void Handshakes::removeHandshake( Handshake* pHs )
 {
-	ASSUME_LOCK(handshakes.m_pSection);
+	ASSUME_LOCK( handshakes.m_pSection );
 
-	m_lHandshakes.remove(pHs);
-	if(m_pController)
+	m_lHandshakes.remove( pHs );
+	if ( m_pController )
 	{
-		m_pController->removeSocket(pHs);
+		m_pController->removeSocket( pHs );
 	}
 }
 
-void Handshakes::processNeighbour(Handshake* pHs)
+void Handshakes::processNeighbour( Handshake* pHs )
 {
 	removeHandshake( pHs );
 	neighbours.onAccept( pHs );
@@ -139,7 +139,7 @@ void Handshakes::setupThread()
 	{
 		systemLog.postLog( LogSeverity::Notice, Component::G2,
 						   tr( "Handshakes: listening on port %1."
-							   ).arg( networkG2.getLocalAddress().port() ) );
+							 ).arg( networkG2.getLocalAddress().port() ) );
 	}
 	else
 	{
@@ -164,8 +164,8 @@ void Handshakes::cleanupThread()
 
 			pHs->close();
 
-			m_pController->removeSocket(pHs);
-			itHs = m_lHandshakes.erase(itHs);
+			m_pController->removeSocket( pHs );
+			itHs = m_lHandshakes.erase( itHs );
 
 			delete pHs;
 		}

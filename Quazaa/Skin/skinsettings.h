@@ -8,7 +8,7 @@ class CSkinSettings : public QObject
 {
 	Q_OBJECT
 public:
-	explicit CSkinSettings(QObject *parent = 0);
+	explicit CSkinSettings( QObject* parent = 0 );
 
 	// Standard Items
 	QString standardItems;

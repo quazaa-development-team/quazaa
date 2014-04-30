@@ -9,41 +9,47 @@
 
 
 #ifdef Q_OS_WIN
-namespace WindowsVersion {
-	enum WindowsVersion{ Windows, Windows32s, Windows95, Windows95OSR2, Windows98, Windows98SE, WindowsMillennium,
-						 WindowsNT351, WindowsNT40, WindowsNT40Server, Windows2000, WindowsXP,
-						 WindowsXPProfessionalx64, WindowsHomeServer, WindowsServer2003, WindowsServer2003R2,
-						 WindowsVista, WindowsServer2008, WindowsServer2008R2, Windows7, WindowsServer2012, Windows8};
+namespace WindowsVersion
+{
+enum WindowsVersion { Windows, Windows32s, Windows95, Windows95OSR2, Windows98, Windows98SE, WindowsMillennium,
+					  WindowsNT351, WindowsNT40, WindowsNT40Server, Windows2000, WindowsXP,
+					  WindowsXPProfessionalx64, WindowsHomeServer, WindowsServer2003, WindowsServer2003R2,
+					  WindowsVista, WindowsServer2008, WindowsServer2008R2, Windows7, WindowsServer2012, Windows8
+					};
 }
 
-namespace WindowsEdition {
-	enum WindowsEdition{ EditionUnknown, Workstation, Server, AdvancedServer, Home, Ultimate, HomeBasic,
-						 HomePremium, Enterprise, HomeBasicN, Business, StandardServer, DatacenterServer,
-						 SmallBusinessServer, EnterpriseServer, Starter, DatacenterServerCore, StandardServerCore,
-						 EnterpriseServerCore, EnterpriseServerIA64, BusinessN, WebServer, ClusterServer, HomeServer,
-						 StorageExpressServer, StorageStandardServer, StorageWorkgroupServer, StorageEnterpriseServer,
-						 ServerForSmallBusiness, SmallBusinessServerPremium, HomePremiumN, EnterpriseN, UltimateN,
-						 WebServerCore, MediumBusinessServerManagement, MediumBusinessServerSecurity,
-						 MediumBusinessServerMessaging, ServerFoundation, HomePremiumServer, ServerForSmallBusinessV,
-						 StandardServerV, DatacenterServerV, EnterpriseServerV, DatacenterServerCoreV,
-						 StandardServerCoreV, EnterpriseServerCoreV, HyperV, StorageExpressServerCore,
-						 StorageStandardServerCore, StorageWorkgroupServerCore, StorageEnterpriseServerCore,
-						 StarterN, Professional, ProfessionalN, SBSolutionServer, ServerForSBSolutions,
-						 StandardServerSolutions, StandardServerSolutionsCore, SBSolutionServerEM,
-						 ServerForSBSolutionsEM, SolutionEmbeddedServer, SolutionEmbeddedServerCore,
-						 EssentialBusinessServerMGMT, EssentialBusinessServerADDL, EssentialBusinessServerMGMTSVC,
-						 EssentialBusinessServerADDLSVC, SmallBusinessServerPremiumCore, ClusterServerV, Embedded,
-						 StarterE, HomeBasicE, HomePremiumE, ProfessionalE, EnterpriseE, UltimateE,
-						 EnterpriseEvaluation, MultipointStandardServer, MultipointPremiumServer,
-						 StandardEvaluationServer, DatacenterEvaluationServer, EnterpriseNEvaluation,
-						 StorageWorkgroupEvaluationServer, StorageStandardEvaluationServer, CoreN, CoreCountrySpecific,
-						 CoreSingleLanguage, Core, ProfessionalWindowsMediaCenter };
+namespace WindowsEdition
+{
+enum WindowsEdition { EditionUnknown, Workstation, Server, AdvancedServer, Home, Ultimate, HomeBasic,
+					  HomePremium, Enterprise, HomeBasicN, Business, StandardServer, DatacenterServer,
+					  SmallBusinessServer, EnterpriseServer, Starter, DatacenterServerCore, StandardServerCore,
+					  EnterpriseServerCore, EnterpriseServerIA64, BusinessN, WebServer, ClusterServer, HomeServer,
+					  StorageExpressServer, StorageStandardServer, StorageWorkgroupServer, StorageEnterpriseServer,
+					  ServerForSmallBusiness, SmallBusinessServerPremium, HomePremiumN, EnterpriseN, UltimateN,
+					  WebServerCore, MediumBusinessServerManagement, MediumBusinessServerSecurity,
+					  MediumBusinessServerMessaging, ServerFoundation, HomePremiumServer, ServerForSmallBusinessV,
+					  StandardServerV, DatacenterServerV, EnterpriseServerV, DatacenterServerCoreV,
+					  StandardServerCoreV, EnterpriseServerCoreV, HyperV, StorageExpressServerCore,
+					  StorageStandardServerCore, StorageWorkgroupServerCore, StorageEnterpriseServerCore,
+					  StarterN, Professional, ProfessionalN, SBSolutionServer, ServerForSBSolutions,
+					  StandardServerSolutions, StandardServerSolutionsCore, SBSolutionServerEM,
+					  ServerForSBSolutionsEM, SolutionEmbeddedServer, SolutionEmbeddedServerCore,
+					  EssentialBusinessServerMGMT, EssentialBusinessServerADDL, EssentialBusinessServerMGMTSVC,
+					  EssentialBusinessServerADDLSVC, SmallBusinessServerPremiumCore, ClusterServerV, Embedded,
+					  StarterE, HomeBasicE, HomePremiumE, ProfessionalE, EnterpriseE, UltimateE,
+					  EnterpriseEvaluation, MultipointStandardServer, MultipointPremiumServer,
+					  StandardEvaluationServer, DatacenterEvaluationServer, EnterpriseNEvaluation,
+					  StorageWorkgroupEvaluationServer, StorageStandardEvaluationServer, CoreN, CoreCountrySpecific,
+					  CoreSingleLanguage, Core, ProfessionalWindowsMediaCenter
+					};
 }
 #endif
 
-namespace OSVersion {
-	enum OSVersion{ Linux, Unix, BSD, MacCheetah, MacPuma, MacJaguar, MacPanther, MacTiger, MacLeopard,
-					MacSnowLeopard, Win2000, WinXP, Win2003, WinVista, Win7, Win8 };
+namespace OSVersion
+{
+enum OSVersion { Linux, Unix, BSD, MacCheetah, MacPuma, MacJaguar, MacPanther, MacTiger, MacLeopard,
+				 MacSnowLeopard, Win2000, WinXP, Win2003, WinVista, Win7, Win8
+			   };
 }
 
 class CQuazaaSysInfo : public QObject
@@ -65,7 +71,7 @@ private:
 #endif
 
 public:
-	explicit CQuazaaSysInfo(QObject *parent = 0);
+	explicit CQuazaaSysInfo( QObject* parent = 0 );
 	virtual ~CQuazaaSysInfo();
 
 	OSVersion::OSVersion osVersion();

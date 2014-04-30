@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -27,18 +27,18 @@
 
 #include "debug_new.h"
 
-CDialogIrcColorDialog::CDialogIrcColorDialog(QColor initialColor, QWidget *parent) :
-    QDialog(parent),
-	ui(new Ui::CDialogIrcColorDialog)
+CDialogIrcColorDialog::CDialogIrcColorDialog( QColor initialColor, QWidget* parent ) :
+	QDialog( parent ),
+	ui( new Ui::CDialogIrcColorDialog )
 {
-    ui->setupUi(this);
+	ui->setupUi( this );
 	m_oIrcColor = initialColor;
 	m_bDefault = false;
 }
 
 CDialogIrcColorDialog::~CDialogIrcColorDialog()
 {
-    delete ui;
+	delete ui;
 }
 
 void CDialogIrcColorDialog::on_toolButtonCancel_clicked()
@@ -64,84 +64,84 @@ void CDialogIrcColorDialog::on_toolButtonDefault_clicked()
 
 void CDialogIrcColorDialog::on_toolButtonDarkBlue_clicked()
 {
-	m_oIrcColor.setNamedColor("darkblue");
+	m_oIrcColor.setNamedColor( "darkblue" );
 	accept();
 }
 
 void CDialogIrcColorDialog::on_toolButtonDarkGreen_clicked()
 {
-	m_oIrcColor.setNamedColor("darkgreen");
+	m_oIrcColor.setNamedColor( "darkgreen" );
 	accept();
 }
 
 void CDialogIrcColorDialog::on_toolButtonRed_clicked()
 {
-	m_oIrcColor.setNamedColor("red");
+	m_oIrcColor.setNamedColor( "red" );
 	accept();
 }
 
 void CDialogIrcColorDialog::on_toolButtonDarkRed_clicked()
 {
-	m_oIrcColor.setNamedColor("darkred");
+	m_oIrcColor.setNamedColor( "darkred" );
 	accept();
 }
 
 void CDialogIrcColorDialog::on_toolButtonDarkViolet_clicked()
 {
-	m_oIrcColor.setNamedColor("darkviolet");
+	m_oIrcColor.setNamedColor( "darkviolet" );
 	accept();
 }
 
 void CDialogIrcColorDialog::on_toolButtonOrange_clicked()
 {
-	m_oIrcColor.setNamedColor("orange");
+	m_oIrcColor.setNamedColor( "orange" );
 	accept();
 }
 
 void CDialogIrcColorDialog::on_toolButtonYellow_clicked()
 {
-	m_oIrcColor.setNamedColor("yellow");
+	m_oIrcColor.setNamedColor( "yellow" );
 	accept();
 }
 
 void CDialogIrcColorDialog::on_toolButtonLightGreen_clicked()
 {
-	m_oIrcColor.setNamedColor("lightgreen");
+	m_oIrcColor.setNamedColor( "lightgreen" );
 	accept();
 }
 
 void CDialogIrcColorDialog::on_toolButtonCornFlowerBlue_clicked()
 {
-	m_oIrcColor.setNamedColor("cornflowerblue");
+	m_oIrcColor.setNamedColor( "cornflowerblue" );
 	accept();
 }
 
 void CDialogIrcColorDialog::on_toolButtonLightBlue_clicked()
 {
-	m_oIrcColor.setNamedColor("lightblue");
+	m_oIrcColor.setNamedColor( "lightblue" );
 	accept();
 }
 
 void CDialogIrcColorDialog::on_toolButtonBlue_clicked()
 {
-	m_oIrcColor.setNamedColor("blue");
+	m_oIrcColor.setNamedColor( "blue" );
 	accept();
 }
 
 void CDialogIrcColorDialog::on_toolButtonViolet_clicked()
 {
-	m_oIrcColor.setNamedColor("violet");
+	m_oIrcColor.setNamedColor( "violet" );
 	accept();
 }
 
 void CDialogIrcColorDialog::on_toolButtonDarkGray_clicked()
 {
-	m_oIrcColor.setNamedColor("gray");
+	m_oIrcColor.setNamedColor( "gray" );
 	accept();
 }
 
 void CDialogIrcColorDialog::on_toolButtonGray_clicked()
 {
-	m_oIrcColor.setNamedColor("darkgray");
+	m_oIrcColor.setNamedColor( "darkgray" );
 	accept();
 }

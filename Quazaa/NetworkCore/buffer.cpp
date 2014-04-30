@@ -28,7 +28,7 @@
 
 #include "debug_new.h"
 
-Buffer::Buffer(quint32 nMinimum) :
+Buffer::Buffer( quint32 nMinimum ) :
 	m_pBuffer( NULL ),
 	m_nAllocatedSize( 0 ),
 	m_nMinimumAllocationSize( nMinimum ),
@@ -44,7 +44,7 @@ Buffer::~Buffer()
 	}
 }
 
-Buffer& Buffer::append(const void* pData, const quint32 nLength)
+Buffer& Buffer::append( const void* pData, const quint32 nLength )
 {
 	if ( pData && nLength )
 	{
@@ -58,37 +58,37 @@ Buffer& Buffer::append(const void* pData, const quint32 nLength)
 	return *this;
 }
 
-Buffer& Buffer::append(const char* pCStr)
+Buffer& Buffer::append( const char* pCStr )
 {
 	return append( pCStr, qstrlen( pCStr ) );
 }
 
-Buffer& Buffer::append(const QByteArray& baData)
+Buffer& Buffer::append( const QByteArray& baData )
 {
 	return append( baData.data(), baData.size() );
 }
 
-Buffer& Buffer::append(const Buffer& pOther)
+Buffer& Buffer::append( const Buffer& pOther )
 {
 	return append( pOther.data(), pOther.size() );
 }
 
-Buffer &Buffer::append(const Buffer* pOther)
+Buffer& Buffer::append( const Buffer* pOther )
 {
 	return append( pOther->data(), pOther->size() );
 }
 
-Buffer& Buffer::prepend(const void* pData, const quint32 nLength)
+Buffer& Buffer::prepend( const void* pData, const quint32 nLength )
 {
 	return insert( 0, pData, nLength );
 }
 
-Buffer& Buffer::prepend(const char* pCStr)
+Buffer& Buffer::prepend( const char* pCStr )
 {
 	return insert( 0, pCStr, qstrlen( pCStr ) );
 }
 
-Buffer& Buffer::insert(const quint32 nOffset, const void* pData, const quint32 nLength)
+Buffer& Buffer::insert( const quint32 nOffset, const void* pData, const quint32 nLength )
 {
 	if ( pData )
 	{
@@ -103,12 +103,12 @@ Buffer& Buffer::insert(const quint32 nOffset, const void* pData, const quint32 n
 	return *this;
 }
 
-Buffer& Buffer::insert(const quint32 nOffset, const char* pCStr)
+Buffer& Buffer::insert( const quint32 nOffset, const char* pCStr )
 {
 	return insert( nOffset, pCStr, qstrlen( pCStr ) );
 }
 
-Buffer& Buffer::remove(const quint32 nLength, const quint32 nPos)
+Buffer& Buffer::remove( const quint32 nLength, const quint32 nPos )
 {
 	if ( !nPos && nLength >= m_nCurrentSize )
 	{
@@ -127,7 +127,7 @@ Buffer& Buffer::remove(const quint32 nLength, const quint32 nPos)
 	return *this;
 }
 
-void Buffer::ensure(const quint32 nLength)
+void Buffer::ensure( const quint32 nLength )
 {
 	if ( nLength > 0xffffffff - m_nAllocatedSize )
 	{
@@ -172,11 +172,11 @@ void Buffer::ensure(const quint32 nLength)
 	}
 }
 
-void Buffer::resize(const quint32 nLength)
+void Buffer::resize( const quint32 nLength )
 {
 	if ( nLength > m_nAllocatedSize )
 	{
-		reallocate( qMax( nLength * 2, m_nMinimumAllocationSize) );
+		reallocate( qMax( nLength * 2, m_nMinimumAllocationSize ) );
 	}
 
 	m_nCurrentSize = nLength;
@@ -240,16 +240,16 @@ QString Buffer::dump() const
 		QString sLine( "0x%1  %2  %3\n" );
 
 		sRet += sLine.arg( nOffset, 8, 16, QLatin1Char( '0' )
-						   ).arg( sHex.mid( nOffset * 3, 10 * 3 ), -30, QLatin1Char( ' ' )
-								  ).arg( sAscii.mid( nOffset, 10 ) );
+						 ).arg( sHex.mid( nOffset * 3, 10 * 3 ), -30, QLatin1Char( ' ' )
+							  ).arg( sAscii.mid( nOffset, 10 ) );
 	}
 
 	return sRet;
 }
 
-void Buffer::reallocate(quint32 nNewSize) throw(std::bad_alloc)
+void Buffer::reallocate( quint32 nNewSize ) throw( std::bad_alloc )
 {
-	char* pBuffer = (char*)realloc( m_pBuffer, nNewSize );
+	char* pBuffer = ( char* )realloc( m_pBuffer, nNewSize );
 	if ( !pBuffer )
 	{
 		qWarning() << "Out of memory in Buffer::reallocate()";

@@ -49,8 +49,8 @@ public:
 	DatagramIn();
 	~DatagramIn();
 
-	void create(EndPoint pHost, quint8 nFlags, quint16 nSequence, quint8 nCount);
-	bool add(quint8 nPart, const void* pData, qint32 nLength);
+	void create( EndPoint pHost, quint8 nFlags, quint16 nSequence, quint8 nCount );
+	bool add( quint8 nPart, const void* pData, qint32 nLength );
 	G2Packet* toG2Packet();
 
 	friend class Datagrams;
@@ -81,9 +81,9 @@ public:
 	DatagramOut();
 	~DatagramOut();
 
-	void create(EndPoint oAddr, G2Packet* pPacket, quint16 nSequence, Buffer* pBuffer, bool bAck = false);
-	bool getPacket(quint32 tNow, char** ppPacket, quint32* pnPacket, bool bResend = false);
-	bool acknowledge(quint8 nPart);
+	void create( EndPoint oAddr, G2Packet* pPacket, quint16 nSequence, Buffer* pBuffer, bool bAck = false );
+	bool getPacket( quint32 tNow, char** ppPacket, quint32* pnPacket, bool bResend = false );
+	bool acknowledge( quint8 nPart );
 
 	friend class Datagrams;
 };

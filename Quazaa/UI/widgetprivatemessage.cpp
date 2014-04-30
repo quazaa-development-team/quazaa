@@ -33,11 +33,11 @@
 
 #include "debug_new.h"
 
-CWidgetPrivateMessage::CWidgetPrivateMessage(QWidget *parent) :
-	QWidget(parent),
-	ui(new Ui::CWidgetPrivateMessage)
+CWidgetPrivateMessage::CWidgetPrivateMessage( QWidget* parent ) :
+	QWidget( parent ),
+	ui( new Ui::CWidgetPrivateMessage )
 {
-	ui->setupUi(this);
+	ui->setupUi( this );
 	m_pSession = 0;
 	setSkin();
 }
@@ -47,80 +47,81 @@ CWidgetPrivateMessage::~CWidgetPrivateMessage()
 	delete ui;
 }
 
-void CWidgetPrivateMessage::changeEvent(QEvent *e)
+void CWidgetPrivateMessage::changeEvent( QEvent* e )
 {
-	QWidget::changeEvent(e);
-	switch (e->type()) {
+	QWidget::changeEvent( e );
+	switch ( e->type() )
+	{
 	case QEvent::LanguageChange:
-		ui->retranslateUi(this);
+		ui->retranslateUi( this );
 		break;
 	default:
 		break;
 	}
 }
 
-void CWidgetPrivateMessage::on_textEdit_anchorClicked(QUrl link)
+void CWidgetPrivateMessage::on_textEdit_anchorClicked( QUrl link )
 {
-	QDesktopServices::openUrl(link);
+	QDesktopServices::openUrl( link );
 }
 
-void CWidgetPrivateMessage::OnIncomingMessage(QString sMessage, bool bAction)
+void CWidgetPrivateMessage::OnIncomingMessage( QString sMessage, bool bAction )
 {
 	qDebug() << "incoming message: " << sMessage;
-	if( bAction )
+	if ( bAction )
 	{
-		ui->textEdit->append("* " + m_sNick + " " + sMessage);
+		ui->textEdit->append( "* " + m_sNick + " " + sMessage );
 	}
 	else
 	{
-		ui->textEdit->append("&lt;" + m_sNick + "&gt;: " + sMessage);
+		ui->textEdit->append( "&lt;" + m_sNick + "&gt;: " + sMessage );
 	}
 }
-void CWidgetPrivateMessage::OnSystemMessage(QString sMessage)
+void CWidgetPrivateMessage::OnSystemMessage( QString sMessage )
 {
 	qDebug() << "system message: " << sMessage;
 
-	ui->textEdit->append("<font color=\"#FF0000\"><b>[SYSTEM]</b> " + sMessage + "</font>");
+	ui->textEdit->append( "<font color=\"#FF0000\"><b>[SYSTEM]</b> " + sMessage + "</font>" );
 }
-void CWidgetPrivateMessage::OnGUIDChanged(QUuid oGUID)
+void CWidgetPrivateMessage::OnGUIDChanged( QUuid oGUID )
 {
 	m_oGUID = oGUID;
 }
-void CWidgetPrivateMessage::OnNickChanged(QString sNick)
+void CWidgetPrivateMessage::OnNickChanged( QString sNick )
 {
-	OnSystemMessage(m_sNick + " is now known as " + sNick);
+	OnSystemMessage( m_sNick + " is now known as " + sNick );
 	m_sNick = sNick;
-	ui->labelName->setText(m_sNick);
+	ui->labelName->setText( m_sNick );
 }
 
-void CWidgetPrivateMessage::SendPrivateMessage(QString sMessage, bool bAction)
+void CWidgetPrivateMessage::SendPrivateMessage( QString sMessage, bool bAction )
 {
-	if( bAction )
+	if ( bAction )
 	{
-		ui->textEdit->append("* " + quazaaSettings.Profile.GnutellaScreenName + " " + sMessage);
+		ui->textEdit->append( "* " + quazaaSettings.Profile.GnutellaScreenName + " " + sMessage );
 	}
 	else
 	{
-		ui->textEdit->append("&lt;" + quazaaSettings.Profile.GnutellaScreenName + "&gt;: " + sMessage);
+		ui->textEdit->append( "&lt;" + quazaaSettings.Profile.GnutellaScreenName + "&gt;: " + sMessage );
 	}
 
-	emit SendMessageS(sMessage, bAction);
+	emit SendMessageS( sMessage, bAction );
 }
 
-void CWidgetPrivateMessage::SendPrivateMessage(QTextDocument *pMessage, bool bAction)
+void CWidgetPrivateMessage::SendPrivateMessage( QTextDocument* pMessage, bool bAction )
 {
-	CChatConverter oConv(pMessage);
+	CChatConverter oConv( pMessage );
 
-	if( bAction )
+	if ( bAction )
 	{
-		ui->textEdit->append("* " + quazaaSettings.Profile.GnutellaScreenName + " " + oConv.toHtml());
+		ui->textEdit->append( "* " + quazaaSettings.Profile.GnutellaScreenName + " " + oConv.toHtml() );
 	}
 	else
 	{
-		ui->textEdit->append("&lt;" + quazaaSettings.Profile.GnutellaScreenName + "&gt;: " + oConv.toHtml());
+		ui->textEdit->append( "&lt;" + quazaaSettings.Profile.GnutellaScreenName + "&gt;: " + oConv.toHtml() );
 	}
 
-	emit SendMessageS(pMessage->clone(), bAction);
+	emit SendMessageS( pMessage->clone(), bAction );
 }
 
 void CWidgetPrivateMessage::setSkin()

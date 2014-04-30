@@ -31,13 +31,13 @@
 
 #include "debug_new.h"
 
-CDialogEditShares::CDialogEditShares(QWidget* parent) :
-	QDialog(parent),
-	ui(new Ui::CDialogEditShares)
+CDialogEditShares::CDialogEditShares( QWidget* parent ) :
+	QDialog( parent ),
+	ui( new Ui::CDialogEditShares )
 {
-	ui->setupUi(this);
-	ui->listWidgetShares->addItems(quazaaSettings.Library.Shares);
-	ui->pushButtonOk->setEnabled(false);
+	ui->setupUi( this );
+	ui->listWidgetShares->addItems( quazaaSettings.Library.Shares );
+	ui->pushButtonOk->setEnabled( false );
 	setSkin();
 }
 
@@ -46,15 +46,15 @@ CDialogEditShares::~CDialogEditShares()
 	delete ui;
 }
 
-void CDialogEditShares::changeEvent(QEvent* e)
+void CDialogEditShares::changeEvent( QEvent* e )
 {
-	switch(e->type())
+	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 
@@ -67,10 +67,10 @@ void CDialogEditShares::on_pushButtonCancel_clicked()
 void CDialogEditShares::on_pushButtonOk_clicked()
 {
 	quazaaSettings.Library.Shares.clear();
-	for(int m_iSharesRow = 0; m_iSharesRow < ui->listWidgetShares->count(); ++m_iSharesRow)
+	for ( int m_iSharesRow = 0; m_iSharesRow < ui->listWidgetShares->count(); ++m_iSharesRow )
 	{
-		ui->listWidgetShares->setCurrentRow(m_iSharesRow);
-		quazaaSettings.Library.Shares.append(ui->listWidgetShares->currentItem()->text());
+		ui->listWidgetShares->setCurrentRow( m_iSharesRow );
+		quazaaSettings.Library.Shares.append( ui->listWidgetShares->currentItem()->text() );
 	}
 	quazaaSettings.Library.Shares.removeDuplicates();
 	emit closed();
@@ -80,23 +80,23 @@ void CDialogEditShares::on_pushButtonOk_clicked()
 void CDialogEditShares::on_pushButtonAdd_clicked()
 {
 	QFileDialog::Options options = QFileDialog::DontResolveSymlinks | QFileDialog::ShowDirsOnly;
-	QDir directory(QFileDialog::getExistingDirectory(this,
-													 tr("Select A Folder To Share"),
-													 quazaaSettings.Downloads.CompletePath,
-													 options));
-	if(directory.exists())
+	QDir directory( QFileDialog::getExistingDirectory( this,
+													   tr( "Select A Folder To Share" ),
+													   quazaaSettings.Downloads.CompletePath,
+													   options ) );
+	if ( directory.exists() )
 	{
-		ui->listWidgetShares->addItem(directory.canonicalPath());
-		ui->pushButtonOk->setEnabled(true);
+		ui->listWidgetShares->addItem( directory.canonicalPath() );
+		ui->pushButtonOk->setEnabled( true );
 	}
 }
 
 void CDialogEditShares::on_pushButtonRemove_clicked()
 {
-	if(ui->listWidgetShares->currentRow() != -1)
+	if ( ui->listWidgetShares->currentRow() != -1 )
 	{
-		ui->listWidgetShares->takeItem(ui->listWidgetShares->currentRow());
-		ui->pushButtonOk->setEnabled(true);
+		ui->listWidgetShares->takeItem( ui->listWidgetShares->currentRow() );
+		ui->pushButtonOk->setEnabled( true );
 	}
 }
 

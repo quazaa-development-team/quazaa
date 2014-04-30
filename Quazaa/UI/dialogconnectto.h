@@ -31,22 +31,22 @@
 
 namespace Ui
 {
-	class CDialogConnectTo;
+class CDialogConnectTo;
 }
 
 class CDialogConnectTo : public QDialog
 {
 	Q_OBJECT
 public:
-	CDialogConnectTo(QWidget* parent = 0);
+	CDialogConnectTo( QWidget* parent = 0 );
 	~CDialogConnectTo();
-	enum ConnectNetwork{G2 = 0, eDonkey, Ares};
+	enum ConnectNetwork {G2 = 0, eDonkey, Ares};
 
 signals:
 	void closed();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CDialogConnectTo* ui;
@@ -56,11 +56,11 @@ private:
 public slots:
 	QString getAddressAndPort();
 	ConnectNetwork getConnectNetwork();
-	void setAddressAndPort(QString newAddressAndPort);
-	void setConnectNetwork(ConnectNetwork network);
+	void setAddressAndPort( QString newAddressAndPort );
+	void setConnectNetwork( ConnectNetwork network );
 
 private slots:
-	void on_comboBoxNetwork_currentIndexChanged(int index);
+	void on_comboBoxNetwork_currentIndexChanged( int index );
 	void on_pushButtonConnect_clicked();
 	void on_pushButtonCancel_clicked();
 	void setSkin();

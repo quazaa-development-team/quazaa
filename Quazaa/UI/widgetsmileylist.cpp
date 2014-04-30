@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -29,38 +29,39 @@
 
 #include "debug_new.h"
 
-CWidgetSmileyList::CWidgetSmileyList(QWidget *parent) :
-    ui(new Ui::CWidgetSmileyList)
+CWidgetSmileyList::CWidgetSmileyList( QWidget* parent ) :
+	ui( new Ui::CWidgetSmileyList )
 {
-	Q_UNUSED(parent);
-	ui->setupUi(this);
-	setWindowFlags(windowFlags() |= Qt::FramelessWindowHint);
-	setAttribute(Qt::WA_TranslucentBackground);
-	ui->listWidget->setAutoFillBackground(true);
-	connect(this, SIGNAL(aboutToShow()), ui->listWidget, SLOT(clearSelection()));
+	Q_UNUSED( parent );
+	ui->setupUi( this );
+	setWindowFlags( windowFlags() |= Qt::FramelessWindowHint );
+	setAttribute( Qt::WA_TranslucentBackground );
+	ui->listWidget->setAutoFillBackground( true );
+	connect( this, SIGNAL( aboutToShow() ), ui->listWidget, SLOT( clearSelection() ) );
 	setSkin();
 }
 
 CWidgetSmileyList::~CWidgetSmileyList()
 {
-    delete ui;
+	delete ui;
 }
 
-void CWidgetSmileyList::changeEvent(QEvent *e)
+void CWidgetSmileyList::changeEvent( QEvent* e )
 {
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+	QWidget::changeEvent( e );
+	switch ( e->type() )
+	{
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
+	}
 }
 
-void CWidgetSmileyList::on_listWidget_itemClicked(QListWidgetItem* item)
+void CWidgetSmileyList::on_listWidget_itemClicked( QListWidgetItem* item )
 {
-	emit smileyClicked(item->toolTip());
+	emit smileyClicked( item->toolTip() );
 	close();
 }
 

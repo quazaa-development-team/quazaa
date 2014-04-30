@@ -52,7 +52,7 @@ private:
 	/* ====================================== Construction ====================================== */
 	/* ========================================================================================== */
 public:
-	GWC(const QUrl& oURL, const CNetworkType& oNType, quint8 nRating);
+	GWC( const QUrl& oURL, const CNetworkType& oNType, quint8 nRating );
 
 	~GWC();
 
@@ -60,8 +60,14 @@ public:
 	/* ======================================= Operations ======================================= */
 	/* ========================================================================================== */
 	QString     type()       const;
-	inline bool isGnutella() const { return m_bGnutella; }
-	inline bool isG2()       const { return m_bG2; }
+	inline bool isGnutella() const
+	{
+		return m_bGnutella;
+	}
+	inline bool isG2()       const
+	{
+		return m_bG2;
+	}
 
 private:
 	void doQuery()  throw();
@@ -69,7 +75,7 @@ private:
 	void doCancelRequest() throw();
 
 private slots:
-	void requestCompleted(QNetworkReply* pReply);
+	void requestCompleted( QNetworkReply* pReply );
 };
 
 }

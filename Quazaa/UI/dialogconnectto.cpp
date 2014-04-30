@@ -31,15 +31,15 @@
 
 #include "debug_new.h"
 
-CDialogConnectTo::CDialogConnectTo(QWidget* parent) :
-	QDialog(parent),
-	ui(new Ui::CDialogConnectTo)
+CDialogConnectTo::CDialogConnectTo( QWidget* parent ) :
+	QDialog( parent ),
+	ui( new Ui::CDialogConnectTo )
 {
-	ui->setupUi(this);
-	ui->pushButtonConnect->setDefault(true);
-	ui->comboBoxAddress->setView(new QListView());
-	ui->comboBoxNetwork->setView(new QListView());
-	setConnectNetwork(CDialogConnectTo::G2);
+	ui->setupUi( this );
+	ui->pushButtonConnect->setDefault( true );
+	ui->comboBoxAddress->setView( new QListView() );
+	ui->comboBoxNetwork->setView( new QListView() );
+	setConnectNetwork( CDialogConnectTo::G2 );
 	ui->comboBoxAddress->setFocus();
 	setSkin();
 }
@@ -49,16 +49,16 @@ CDialogConnectTo::~CDialogConnectTo()
 	delete ui;
 }
 
-void CDialogConnectTo::changeEvent(QEvent* e)
+void CDialogConnectTo::changeEvent( QEvent* e )
 {
-	QDialog::changeEvent(e);
-	switch(e->type())
+	QDialog::changeEvent( e );
+	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 
@@ -70,39 +70,44 @@ void CDialogConnectTo::on_pushButtonCancel_clicked()
 void CDialogConnectTo::on_pushButtonConnect_clicked()
 {
 	EndPoint tempAddress;
-	if(ui->comboBoxAddress->currentText().count(":") > 1) // ipv6 address, check if includes port
+	if ( ui->comboBoxAddress->currentText().count( ":" ) > 1 ) // ipv6 address, check if includes port
 	{
-		if(ui->comboBoxAddress->currentText().contains("[") && ui->comboBoxAddress->currentText().contains("]")
-			&& !ui->comboBoxAddress->currentText().endsWith("]")) // ipv6 address with port
+		if ( ui->comboBoxAddress->currentText().contains( "[" ) && ui->comboBoxAddress->currentText().contains( "]" )
+			 && !ui->comboBoxAddress->currentText().endsWith( "]" ) ) // ipv6 address with port
 		{
-			tempAddress.setAddressWithPort(ui->comboBoxAddress->currentText());
-		} else { // ipv6 address without port
-			tempAddress.setAddress(ui->comboBoxAddress->currentText());
-			tempAddress.setPort(ui->spinBoxPort->value());
+			tempAddress.setAddressWithPort( ui->comboBoxAddress->currentText() );
+		}
+		else     // ipv6 address without port
+		{
+			tempAddress.setAddress( ui->comboBoxAddress->currentText() );
+			tempAddress.setPort( ui->spinBoxPort->value() );
 
 		}
 	}
-	else if(ui->comboBoxAddress->currentText().contains(":") ) //ipv4 address with port
+	else if ( ui->comboBoxAddress->currentText().contains( ":" ) ) //ipv4 address with port
 	{
-		tempAddress.setAddressWithPort(ui->comboBoxAddress->currentText());
+		tempAddress.setAddressWithPort( ui->comboBoxAddress->currentText() );
 	}
 	else //ipv4 address
 	{
-		tempAddress.setAddress(ui->comboBoxAddress->currentText());
-		tempAddress.setPort(ui->spinBoxPort->value());
+		tempAddress.setAddress( ui->comboBoxAddress->currentText() );
+		tempAddress.setPort( ui->spinBoxPort->value() );
 	}
 
-	if ((QAbstractSocket::IPv4Protocol == tempAddress.protocol()) || (QAbstractSocket::IPv6Protocol == tempAddress.protocol()))
+	if ( ( QAbstractSocket::IPv4Protocol == tempAddress.protocol() )
+		 || ( QAbstractSocket::IPv6Protocol == tempAddress.protocol() ) )
 	{
 		addressAndPort = tempAddress.toStringWithPort();
 		accept();
-	} else {
+	}
+	else
+	{
 		QMessageBox msgBox;
-		 msgBox.setText(tr("Address is invalid."));
-		 msgBox.setInformativeText(tr("Please enter a valid IP Address."));
-		 msgBox.setStandardButtons(QMessageBox::Ok);
-		 msgBox.setDefaultButton(QMessageBox::Ok);
-		 msgBox.exec();
+		msgBox.setText( tr( "Address is invalid." ) );
+		msgBox.setInformativeText( tr( "Please enter a valid IP Address." ) );
+		msgBox.setStandardButtons( QMessageBox::Ok );
+		msgBox.setDefaultButton( QMessageBox::Ok );
+		msgBox.exec();
 	}
 }
 
@@ -116,23 +121,23 @@ CDialogConnectTo::ConnectNetwork CDialogConnectTo::getConnectNetwork()
 	return connectNetwork;
 }
 
-void CDialogConnectTo::setAddressAndPort(QString newAddressAndPort)
+void CDialogConnectTo::setAddressAndPort( QString newAddressAndPort )
 {
 	addressAndPort = newAddressAndPort;
-	EndPoint address(newAddressAndPort);
-	ui->comboBoxAddress->setEditText(address.toString());
-	ui->spinBoxPort->setValue(address.port());
+	EndPoint address( newAddressAndPort );
+	ui->comboBoxAddress->setEditText( address.toString() );
+	ui->spinBoxPort->setValue( address.port() );
 }
 
-void CDialogConnectTo::setConnectNetwork(ConnectNetwork network)
+void CDialogConnectTo::setConnectNetwork( ConnectNetwork network )
 {
 	connectNetwork = network;
-	ui->comboBoxNetwork->setCurrentIndex(network);
+	ui->comboBoxNetwork->setCurrentIndex( network );
 }
 
-void CDialogConnectTo::on_comboBoxNetwork_currentIndexChanged(int index)
+void CDialogConnectTo::on_comboBoxNetwork_currentIndexChanged( int index )
 {
-	switch (index)
+	switch ( index )
 	{
 	case 0:
 		connectNetwork = CDialogConnectTo::G2;

@@ -35,8 +35,8 @@ public:
 	}
 };*/
 
-G2HostCacheHost::G2HostCacheHost(const EndPoint& oAddress, const quint32 tTimestamp,
-								 const quint8 nFailures) :
+G2HostCacheHost::G2HostCacheHost( const EndPoint& oAddress, const quint32 tTimestamp,
+								  const quint8 nFailures ) :
 	HostCacheHost( oAddress, nFailures, tTimestamp, 0 ),
 	m_nQueryKey(    0           ),
 	m_oKeyHost(     EndPoint() ),
@@ -49,8 +49,8 @@ G2HostCacheHost::G2HostCacheHost(const EndPoint& oAddress, const quint32 tTimest
 	m_nType = DiscoveryProtocol::G2;
 }
 
-G2HostCacheHost::G2HostCacheHost(const G2HostCacheHost& oHost, const quint32 tTimestamp,
-								 const quint8 nFailures) :
+G2HostCacheHost::G2HostCacheHost( const G2HostCacheHost& oHost, const quint32 tTimestamp,
+								  const quint8 nFailures ) :
 	HostCacheHost( oHost.m_oAddress, nFailures, tTimestamp, oHost.m_tLastConnect ),
 	m_nQueryKey(    oHost.m_nQueryKey    ),
 	m_oKeyHost(     oHost.m_oKeyHost     ),
@@ -63,7 +63,7 @@ G2HostCacheHost::G2HostCacheHost(const G2HostCacheHost& oHost, const quint32 tTi
 	m_nType = DiscoveryProtocol::G2;
 }
 
-G2HostCacheHost::G2HostCacheHost(const G2HostCacheHost&) :
+G2HostCacheHost::G2HostCacheHost( const G2HostCacheHost& ) :
 	HostCacheHost( EndPoint(), 0, 0, 0 )
 {
 	Q_ASSERT( false );
@@ -73,12 +73,12 @@ G2HostCacheHost::~G2HostCacheHost()
 {
 }
 
-bool G2HostCacheHost::canQuery(const quint32 tNow) const
+bool G2HostCacheHost::canQuery( const quint32 tNow ) const
 {
 	// TODO: remove in alpha1
 	Q_ASSERT( m_bIteratorValid );
 	// iterator is supposed to point back to a shared pointer to this instance
-	Q_ASSERT( (*m_iHostCacheIterator).data() == this );
+	Q_ASSERT( ( *m_iHostCacheIterator ).data() == this );
 
 	if ( m_tAck && m_nQueryKey ) // if waiting for an ack, and we have a query key
 	{
@@ -105,12 +105,12 @@ bool G2HostCacheHost::canQuery(const quint32 tNow) const
 	return tNow - m_tLastQuery > quazaaSettings.Gnutella2.QueryHostThrottle;
 }
 
-void G2HostCacheHost::setKey(quint32 nKey, const quint32 tNow, EndPoint* pHost)
+void G2HostCacheHost::setKey( quint32 nKey, const quint32 tNow, EndPoint* pHost )
 {
 	// TODO: remove in alpha1
 	Q_ASSERT( m_bIteratorValid );
 	// iterator is supposed to point back to a shared pointer to this instance
-	Q_ASSERT( (*m_iHostCacheIterator).data() == this );
+	Q_ASSERT( ( *m_iHostCacheIterator ).data() == this );
 
 	m_tAck      = 0;
 	m_nFailures = 0;
@@ -118,9 +118,9 @@ void G2HostCacheHost::setKey(quint32 nKey, const quint32 tNow, EndPoint* pHost)
 	m_nKeyTime  = tNow;
 	m_oKeyHost  = pHost ? *pHost :
 #ifndef QUAZAA_SETUP_UNIT_TESTS
-						  networkG2.getLocalAddress();
+				  networkG2.getLocalAddress();
 #else
-						  EndPoint();
+				  EndPoint();
 #endif // QUAZAA_SETUP_UNIT_TESTS
 }
 
@@ -129,15 +129,15 @@ G2HostCacheIterator G2HostCacheHost::iterator() const
 	// TODO: remove in alpha1
 	Q_ASSERT( m_bIteratorValid );
 	// iterator is supposed to point back to a shared pointer to this instance
-	Q_ASSERT( (*m_iHostCacheIterator).data() == this );
+	Q_ASSERT( ( *m_iHostCacheIterator ).data() == this );
 
 	return m_iHostCacheIterator;
 }
 
-void G2HostCacheHost::setIterator(const G2HostCacheIterator& it)
+void G2HostCacheHost::setIterator( const G2HostCacheIterator& it )
 {
 	// iterator is supposed to point back to a shared pointer to this instance
-	Q_ASSERT( (*it).data() == this );
+	Q_ASSERT( ( *it ).data() == this );
 
 	m_iHostCacheIterator = it;
 	m_bIteratorValid = true;
@@ -146,7 +146,7 @@ void G2HostCacheHost::setIterator(const G2HostCacheIterator& it)
 void G2HostCacheHost::invalidateIterator()
 {
 	// iterator is supposed to point back to a shared pointer to this instance
-	Q_ASSERT( (*m_iHostCacheIterator).data() == this );
+	Q_ASSERT( ( *m_iHostCacheIterator ).data() == this );
 	Q_ASSERT( m_bIteratorValid );
 
 	m_bIteratorValid = false;

@@ -50,7 +50,7 @@ public:
 	QMutex	m_pSection;
 
 public:
-	Handshakes(QObject* parent = 0);
+	Handshakes( QObject* parent = 0 );
 	virtual ~Handshakes();
 
 	bool isFirewalled()
@@ -70,11 +70,11 @@ protected slots:
 signals:
 
 protected:
-	void incomingConnection(qintptr handle);
+	void incomingConnection( qintptr handle );
 
-	void removeHandshake(Handshake* pHs);
+	void removeHandshake( Handshake* pHs );
 
-	void processNeighbour(Handshake* pHs);
+	void processNeighbour( Handshake* pHs );
 
 	friend class Handshake;
 };

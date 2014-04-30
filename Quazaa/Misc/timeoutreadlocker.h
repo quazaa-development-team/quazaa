@@ -41,12 +41,12 @@ private:
 	QAtomicInt      m_nLockCount;
 
 public:
-	inline CTimeoutReadLocker(QReadWriteLock* lock, bool& success, int timeout = -1);
+	inline CTimeoutReadLocker( QReadWriteLock* lock, bool& success, int timeout = -1 );
 	inline ~CTimeoutReadLocker();
 
 	inline QReadWriteLock* readWriteLock() const;
 
-	inline bool relock(int timeout = -1);
+	inline bool relock( int timeout = -1 );
 	inline void unlock();
 };
 
@@ -56,12 +56,12 @@ public:
  * @param success
  * @param timeout in ms
  */
-CTimeoutReadLocker::CTimeoutReadLocker(QReadWriteLock* lock, bool& success, int timeout) :
+CTimeoutReadLocker::CTimeoutReadLocker( QReadWriteLock* lock, bool& success, int timeout ) :
 	m_pRWLock( lock ),
 	m_nLockCount( 0 )
 {
 	success = lock->tryLockForRead( timeout );
-	m_nLockCount.fetchAndAddOrdered( (quint8)success );
+	m_nLockCount.fetchAndAddOrdered( ( quint8 )success );
 }
 
 CTimeoutReadLocker::~CTimeoutReadLocker()
@@ -77,10 +77,10 @@ QReadWriteLock* CTimeoutReadLocker::readWriteLock() const
 	return m_pRWLock;
 }
 
-bool CTimeoutReadLocker::relock(int timeout)
+bool CTimeoutReadLocker::relock( int timeout )
 {
 	bool result = m_pRWLock->tryLockForRead( timeout );
-	m_nLockCount.fetchAndAddOrdered( (quint8)result );
+	m_nLockCount.fetchAndAddOrdered( ( quint8 )result );
 	return result;
 }
 

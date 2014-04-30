@@ -72,17 +72,17 @@ private:
 	bool m_bHandshaking;
 
 public:
-	G2Node(QObject* parent = NULL);
+	G2Node( QObject* parent = NULL );
 	virtual ~G2Node();
 
-	void sendPacket(G2Packet* pPacket, bool bBuffered = false, bool bRelease = false);
+	void sendPacket( G2Packet* pPacket, bool bBuffered = false, bool bRelease = false );
 
 	void sendLNI();
 	void sendHAW();
 
-	void onTimer(quint32 tNow);
+	void onTimer( quint32 tNow );
 
-	inline void attachTo(NetworkConnection* pOther);
+	inline void attachTo( NetworkConnection* pOther );
 
 protected:
 	/**
@@ -113,31 +113,31 @@ protected:
 	 * @brief readUserAgentSecurity reads and checks the user agent information from the Handshake
 	 * @return true if the connection has been terminated; false otherwise
 	 */
-	bool readUserAgentSecurity(const QString& sHandShake);
+	bool readUserAgentSecurity( const QString& sHandShake );
 
 	/**
 	 * @brief send_ConnectError closes the connection with sReason (Error).
 	 * @param sReason : the error code and message
 	 * @param bXTry : whether to append an X-Try header
 	 */
-	void send_ConnectError(QString sReason, bool bXTry);
-	void send_ConnectOK(bool bHandshakeStep2, bool bDeflated = false);
+	void send_ConnectError( QString sReason, bool bXTry );
+	void send_ConnectOK( bool bHandshakeStep2, bool bDeflated = false );
 	void sendStartups();
 
-	void onPacket(G2Packet* pPacket);
-	void onPing(G2Packet* pPacket);
-	void onPong(G2Packet* pPacket);
-	void onLNI(G2Packet* pPacket);
-	void onKHL(G2Packet* pPacket);
-	void onQHT(G2Packet* pPacket);
-	void onQKR(G2Packet* pPacket);
-	void onQKA(G2Packet* pPacket);
-	void onQA(G2Packet* pPacket);
-	void onQH2(G2Packet* pPacket);
-	void onHaw(G2Packet* pPacket);
-	void onQuery(G2Packet* pPacket);
+	void onPacket( G2Packet* pPacket );
+	void onPing( G2Packet* pPacket );
+	void onPong( G2Packet* pPacket );
+	void onLNI( G2Packet* pPacket );
+	void onKHL( G2Packet* pPacket );
+	void onQHT( G2Packet* pPacket );
+	void onQKR( G2Packet* pPacket );
+	void onQKA( G2Packet* pPacket );
+	void onQA( G2Packet* pPacket );
+	void onQH2( G2Packet* pPacket );
+	void onHaw( G2Packet* pPacket );
+	void onQuery( G2Packet* pPacket );
 
-	qint64 writeToNetwork(qint64 nBytes);
+	qint64 writeToNetwork( qint64 nBytes );
 
 	inline bool hasData();
 
@@ -155,9 +155,9 @@ public slots:
 	friend class CNetwork;
 };
 
-void G2Node::attachTo(NetworkConnection* pOther)
+void G2Node::attachTo( NetworkConnection* pOther )
 {
-	Neighbour::attachTo(pOther);
+	Neighbour::attachTo( pOther );
 }
 
 bool G2Node::hasData()

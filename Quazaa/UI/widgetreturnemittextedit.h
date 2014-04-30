@@ -35,9 +35,9 @@ class ChatCompleter;
 
 class CWidgetReturnEmitTextEdit : public QTextEdit
 {
-Q_OBJECT
+	Q_OBJECT
 public:
-	explicit CWidgetReturnEmitTextEdit(QWidget *parent = 0);
+	explicit CWidgetReturnEmitTextEdit( QWidget* parent = 0 );
 	ChatCompleter* completer() const;
 	QString textUnderCursor() const;
 	int currentWordStartIndex();
@@ -50,15 +50,15 @@ private:
 	int m_iHistoryIndex;
 
 protected:
-	bool event(QEvent* event);
-	void keyPressEvent(QKeyEvent* event);
-	virtual bool focusNextPrevChild(bool next);
-	void insertFromMimeData(const QMimeData * source);
+	bool event( QEvent* event );
+	void keyPressEvent( QKeyEvent* event );
+	virtual bool focusNextPrevChild( bool next );
+	void insertFromMimeData( const QMimeData* source );
 
 signals:
 	void returnPressed();
 	void tabPressed();
-	void textChanged(const QString &text);
+	void textChanged( const QString& text );
 	void scrollToTop();
 	void scrollToBottom();
 	void scrollToNextPage();
@@ -67,8 +67,8 @@ signals:
 public slots:
 	void onTextChanged();
 	void setSkin();
-	void addHistory(QTextDocument* document);
-	void addHistory(QString* text);
+	void addHistory( QTextDocument* document );
+	void addHistory( QString* text );
 	void resetHistoryIndex();
 };
 

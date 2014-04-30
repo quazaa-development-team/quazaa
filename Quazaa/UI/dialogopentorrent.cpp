@@ -13,12 +13,12 @@
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
 ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 **
-** Please review the following information to ensure the GNU General Public 
-** License version 3.0 requirements will be met: 
+** Please review the following information to ensure the GNU General Public
+** License version 3.0 requirements will be met:
 ** http://www.gnu.org/copyleft/gpl.html.
 **
-** You should have received a copy of the GNU General Public License version 
-** 3.0 along with Quazaa; if not, write to the Free Software Foundation, 
+** You should have received a copy of the GNU General Public License version
+** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
@@ -30,12 +30,12 @@
 
 #include "debug_new.h"
 
-CDialogOpenTorrent::CDialogOpenTorrent(QWidget* parent) :
-	QDialog(parent),
-	ui(new Ui::CDialogOpenTorrent)
+CDialogOpenTorrent::CDialogOpenTorrent( QWidget* parent ) :
+	QDialog( parent ),
+	ui( new Ui::CDialogOpenTorrent )
 {
-	ui->setupUi(this);
-	ui->comboBoxAllocationMode->setView(new QListView());
+	ui->setupUi( this );
+	ui->comboBoxAllocationMode->setView( new QListView() );
 	setSkin();
 }
 
@@ -44,15 +44,15 @@ CDialogOpenTorrent::~CDialogOpenTorrent()
 	delete ui;
 }
 
-void CDialogOpenTorrent::changeEvent(QEvent* e)
+void CDialogOpenTorrent::changeEvent( QEvent* e )
 {
-	switch(e->type())
+	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 

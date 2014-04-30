@@ -42,20 +42,20 @@ public:
 	quint32 m_nUnknownInitiated;
 	quint32 m_nUnknownIncoming;
 public:
-	NeighboursConnections(QObject* parent = 0);
+	NeighboursConnections( QObject* parent = 0 );
 	virtual ~NeighboursConnections();
 
 	virtual void connectNode();
 	virtual void disconnectNode();
 
-	void addNode(Neighbour* pNode);
-	void removeNode(Neighbour* pNode);
+	void addNode( Neighbour* pNode );
+	void removeNode( Neighbour* pNode );
 
-	Neighbour* randomNode(DiscoveryProtocol::Protocol nProtocol,
-						   int nType, Neighbour* pNodeExcept);
+	Neighbour* randomNode( DiscoveryProtocol::Protocol nProtocol,
+						   int nType, Neighbour* pNodeExcept );
 
-	void disconnectYoungest(DiscoveryProtocol::Protocol nProtocol,
-							int nType = 0, bool bCore = false);
+	void disconnectYoungest( DiscoveryProtocol::Protocol nProtocol,
+							 int nType = 0, bool bCore = false );
 
 	virtual quint32 downloadSpeed();
 	virtual quint32 uploadSpeed();
@@ -63,9 +63,9 @@ public:
 signals:
 
 public slots:
-	Neighbour* connectTo(EndPoint oAddress, DiscoveryProtocol::Protocol nProtocol,
-						  bool bAutomatic = true);
-	Neighbour* onAccept(NetworkConnection* pConn);
+	Neighbour* connectTo( EndPoint oAddress, DiscoveryProtocol::Protocol nProtocol,
+						  bool bAutomatic = true );
+	Neighbour* onAccept( NetworkConnection* pConn );
 
 	virtual void maintain();
 };

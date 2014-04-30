@@ -29,19 +29,19 @@
 
 namespace Ui
 {
-	class CWidgetUploads;
+class CWidgetUploads;
 }
 
 class CWidgetUploads : public QMainWindow
 {
 	Q_OBJECT
 public:
-	CWidgetUploads(QWidget* parent = 0);
+	CWidgetUploads( QWidget* parent = 0 );
 	~CWidgetUploads();
 	void saveWidget();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CWidgetUploads* ui;

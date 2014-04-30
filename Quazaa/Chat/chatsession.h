@@ -55,30 +55,30 @@ public:
 	ChatState		  m_nState;
 	QString			  m_sNick;
 public:
-	ChatSession(QObject *parent = 0);
+	ChatSession( QObject* parent = 0 );
 	virtual ~ChatSession();
 
 	virtual void connectNode();
 
-	virtual void onTimer(quint32 tNow);
+	virtual void onTimer( quint32 tNow );
 
-	void setupWidget(CWidgetPrivateMessage* pWg);
+	void setupWidget( CWidgetPrivateMessage* pWg );
 
 signals:
-	void incomingMessage(QString, bool = false);
-	void systemMessage(QString);
-	void nickChanged(QString);
-	void guidChanged(QUuid);
+	void incomingMessage( QString, bool = false );
+	void systemMessage( QString );
+	void nickChanged( QString );
+	void guidChanged( QUuid );
 
 public slots:
 	void onConnectNode();
 	void onDisconnectNode();
 	void onRead();
-	void onError(QAbstractSocket::SocketError e);
-	void onStateChange(QAbstractSocket::SocketState s);
+	void onError( QAbstractSocket::SocketError e );
+	void onStateChange( QAbstractSocket::SocketState s );
 
-	virtual void sendMessage(QString sMessage, bool bAction = false) = 0;
-	virtual void sendMessage(QTextDocument* pMessage, bool bAction = false) = 0;
+	virtual void sendMessage( QString sMessage, bool bAction = false ) = 0;
+	virtual void sendMessage( QTextDocument* pMessage, bool bAction = false ) = 0;
 
 };
 

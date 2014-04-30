@@ -31,7 +31,7 @@
 
 namespace Ui
 {
-	class CDialogHashProgress;
+class CDialogHashProgress;
 }
 
 class CDialogHashProgress : public QDialog
@@ -39,13 +39,13 @@ class CDialogHashProgress : public QDialog
 	Q_OBJECT
 public:
 	QHash< int, QPair<QWidget*, QWidget*> > m_lProgress;
-	CDialogHashProgress(QWidget* parent = 0);
+	CDialogHashProgress( QWidget* parent = 0 );
 	~CDialogHashProgress();
 
 protected:
-	void changeEvent(QEvent* e);
-	void resizeEvent(QResizeEvent* e);
-	void mousePressEvent(QMouseEvent* e);
+	void changeEvent( QEvent* e );
+	void resizeEvent( QResizeEvent* e );
+	void mousePressEvent( QMouseEvent* e );
 
 private:
 	Ui::CDialogHashProgress* ui;
@@ -54,10 +54,10 @@ signals:
 	void closed();
 
 public slots:
-	void onHasherStarted(int nId);
-	void onHasherFinished(int nId);
-	void onHashingProgress(int nId, QString sFilename, double nPercent, int nRate);
-	void onRemainingFilesChanged(qint32 nRemaining);
+	void onHasherStarted( int nId );
+	void onHasherFinished( int nId );
+	void onHashingProgress( int nId, QString sFilename, double nPercent, int nRate );
+	void onRemainingFilesChanged( qint32 nRemaining );
 	void setSkin();
 };
 

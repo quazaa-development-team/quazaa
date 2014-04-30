@@ -36,7 +36,7 @@ QNetworkAccessManager netManager; // TODO: move it to a better place ;)
 
 #include "debug_new.h"
 
-WidgetSearch::WidgetSearch(QWidget* parent) :
+WidgetSearch::WidgetSearch( QWidget* parent ) :
 	QWidget( parent ),
 	ui( new Ui::WidgetSearch )
 {
@@ -51,8 +51,10 @@ WidgetSearch::WidgetSearch(QWidget* parent) :
 	ui->toolButtonSearchTaskHeader->setChecked( quazaaSettings.WinMain.SearchTaskVisible );
 	panelSearchResults = new WidgetSearchResults();
 	ui->verticalLayoutSearchResults->addWidget( panelSearchResults );
-	connect( panelSearchResults, SIGNAL( searchTabChanged( WidgetSearchTemplate* ) ), this, SLOT( onSearchTabChanged( WidgetSearchTemplate* ) ) );
-	connect( panelSearchResults, SIGNAL( statsUpdated( WidgetSearchTemplate* ) ), this, SLOT( updateStats( WidgetSearchTemplate* ) ) );
+	connect( panelSearchResults, SIGNAL( searchTabChanged( WidgetSearchTemplate* ) ), this,
+			 SLOT( onSearchTabChanged( WidgetSearchTemplate* ) ) );
+	connect( panelSearchResults, SIGNAL( statsUpdated( WidgetSearchTemplate* ) ), this,
+			 SLOT( updateStats( WidgetSearchTemplate* ) ) );
 	connect( panelSearchResults, SIGNAL( stateChanged() ), this, SLOT( updateButtons() ) );
 	panelSearchResults->on_tabWidgetSearch_currentChanged( -1 );
 	setSkin();
@@ -69,16 +71,16 @@ WidgetSearch::~WidgetSearch()
 	delete ui;
 }
 
-void WidgetSearch::changeEvent(QEvent* e)
+void WidgetSearch::changeEvent( QEvent* e )
 {
 	QWidget::changeEvent( e );
-	switch( e->type() )
+	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi( this );
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 
@@ -125,7 +127,7 @@ void WidgetSearch::on_toolButtonSearchClear_clicked()
 	focusSearchInput();
 }
 
-void WidgetSearch::startNewSearch(QString* searchString)
+void WidgetSearch::startNewSearch( QString* searchString )
 {
 	panelSearchResults->startNewSearch( searchString );
 	focusSearchInput();
@@ -137,11 +139,11 @@ void WidgetSearch::on_toolButtonNewSearch_clicked()
 	focusSearchInput();
 }
 
-void WidgetSearch::on_splitterSearch_customContextMenuRequested(QPoint pos)
+void WidgetSearch::on_splitterSearch_customContextMenuRequested( QPoint pos )
 {
 	Q_UNUSED( pos );
 
-	if ( ui->splitterSearch->handle(1)->underMouse() )
+	if ( ui->splitterSearch->handle( 1 )->underMouse() )
 	{
 		if ( ui->splitterSearch->sizes()[0] > 0 )
 		{
@@ -162,7 +164,7 @@ void WidgetSearch::on_splitterSearch_customContextMenuRequested(QPoint pos)
 	}
 }
 
-void WidgetSearch::onSearchTabChanged(WidgetSearchTemplate* searchPage)
+void WidgetSearch::onSearchTabChanged( WidgetSearchTemplate* searchPage )
 {
 	currentPage = searchPage;
 	ui->lineEditSearch->setText( searchPage->m_sSearchString );
@@ -171,11 +173,14 @@ void WidgetSearch::onSearchTabChanged(WidgetSearchTemplate* searchPage)
 	focusSearchInput();
 }
 
-void WidgetSearch::updateStats(WidgetSearchTemplate* searchWidget)
+void WidgetSearch::updateStats( WidgetSearchTemplate* searchWidget )
 {
-	ui->labelSearchResultsSearching->setText( tr( "%1 hubs,%2 leaves." ).arg( searchWidget->m_nHubs ).arg( searchWidget->m_nLeaves ) );
-	ui->labelSearchResultsFound->setText( tr( "%1 files in %2 hits." ).arg( searchWidget->m_nFiles ).arg( searchWidget->m_nHits ) );
-	if ( searchWidget->m_nHubs == 0 && searchWidget->m_nLeaves == 0 && searchWidget->m_eSearchState != SearchState::Searching )
+	ui->labelSearchResultsSearching->setText( tr( "%1 hubs,%2 leaves." ).arg( searchWidget->m_nHubs ).arg(
+												  searchWidget->m_nLeaves ) );
+	ui->labelSearchResultsFound->setText( tr( "%1 files in %2 hits." ).arg( searchWidget->m_nFiles ).arg(
+											  searchWidget->m_nHits ) );
+	if ( searchWidget->m_nHubs == 0 && searchWidget->m_nLeaves == 0
+		 && searchWidget->m_eSearchState != SearchState::Searching )
 	{
 		ui->labelSearchResultsSearching->setText( tr( "Not Currently Searching" ) );
 	}
@@ -185,11 +190,11 @@ void WidgetSearch::updateStats(WidgetSearchTemplate* searchWidget)
 	}
 }
 
-void WidgetSearch::updateButtons(bool bInitial)
+void WidgetSearch::updateButtons( bool bInitial )
 {
 	WidgetSearchTemplate* searchPage = currentPage;
 
-	switch( searchPage->m_eSearchState )
+	switch ( searchPage->m_eSearchState )
 	{
 	case SearchState::Searching:
 		ui->toolButtonSearch->setText( tr( "Searching" ) );

@@ -34,7 +34,7 @@ class SecurityTableModel;
 
 namespace Ui
 {
-	class CWidgetSecurity;
+class CWidgetSecurity;
 }
 
 class CWidgetSecurity : public QMainWindow
@@ -53,14 +53,14 @@ private:
 	SecurityFilterModel* m_lAutomatic;
 
 public:
-	CWidgetSecurity(QWidget* parent = 0);
+	CWidgetSecurity( QWidget* parent = 0 );
 	virtual ~CWidgetSecurity();
 
 	void		saveWidget();
 
 protected:
-	virtual void changeEvent(QEvent* e);
-	virtual void keyPressEvent(QKeyEvent *event);
+	virtual void changeEvent( QEvent* e );
+	virtual void keyPressEvent( QKeyEvent* event );
 
 public slots:
 	void update();
@@ -73,12 +73,12 @@ private slots:
 	void on_actionSecurityExportRules_triggered();
 	void on_actionSubscribeSecurityList_triggered();
 
-	void tableViewSecurity_doubleClicked(const QModelIndex &index);
-	void tableViewSecurity_clicked(const QModelIndex &index);
+	void tableViewSecurity_doubleClicked( const QModelIndex& index );
+	void tableViewSecurity_clicked( const QModelIndex& index );
 
 	void setSkin();
-	void tableViewSecurity_customContextMenuRequested(const QPoint &pos);
-	void tableViewSecurityAuto_customContextMenuRequested(const QPoint &pos);
+	void tableViewSecurity_customContextMenuRequested( const QPoint& pos );
+	void tableViewSecurityAuto_customContextMenuRequested( const QPoint& pos );
 };
 
 #endif // WIDGETSECURITY_H

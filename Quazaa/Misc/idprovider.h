@@ -41,14 +41,14 @@ public:
 	IDProvider();
 
 	T aquire();
-	void release(T nID);
+	void release( T nID );
 };
 
 template <typename T>
 IDProvider<T>::IDProvider()
 {
 	// 0 equals an invalid ID
-	m_lIDs.push_back( (T)1 );
+	m_lIDs.push_back( ( T )1 );
 }
 
 template <typename T>
@@ -75,7 +75,9 @@ T IDProvider<T>::aquire()
 		typename std::list<T>::iterator itEnd = m_lIDs.end();
 
 		while ( *it < nBiggest )
+		{
 			++it;
+		}
 
 		// last element must always be biggest element in list
 		Q_ASSERT( it == --itEnd );
@@ -88,7 +90,7 @@ T IDProvider<T>::aquire()
 }
 
 template <typename T>
-void IDProvider<T>::release(T nID)
+void IDProvider<T>::release( T nID )
 {
 	m_oSection.lock();
 

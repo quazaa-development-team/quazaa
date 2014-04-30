@@ -1,6 +1,6 @@
 #include "downloadsourcelistmodel.h"
 
-DownloadSourceListModel::DownloadSourceListModel(QObject *parent) :
-    QObject(parent)
+DownloadSourceListModel::DownloadSourceListModel( QObject* parent ) :
+	QObject( parent )
 {
 }

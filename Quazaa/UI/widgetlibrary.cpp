@@ -32,16 +32,16 @@
 
 #include "debug_new.h"
 
-CWidgetLibrary::CWidgetLibrary(QWidget* parent) :
-	QWidget(parent),
-	ui(new Ui::CWidgetLibrary)
+CWidgetLibrary::CWidgetLibrary( QWidget* parent ) :
+	QWidget( parent ),
+	ui( new Ui::CWidgetLibrary )
 {
-	ui->setupUi(this);
-	ui->comboBoxLibraryNavigatorSharesFilter->setView(new QListView());
-	ui->tabWidgetLibraryNavigator->setCurrentIndex(quazaaSettings.WinMain.LibraryNavigatorTab);
-	ui->splitterLibrary->restoreState(quazaaSettings.WinMain.LibrarySplitter);
+	ui->setupUi( this );
+	ui->comboBoxLibraryNavigatorSharesFilter->setView( new QListView() );
+	ui->tabWidgetLibraryNavigator->setCurrentIndex( quazaaSettings.WinMain.LibraryNavigatorTab );
+	ui->splitterLibrary->restoreState( quazaaSettings.WinMain.LibrarySplitter );
 	panelLibraryView = new CWidgetLibraryView();
-	ui->verticalLayoutLibraryView->addWidget(panelLibraryView);
+	ui->verticalLayoutLibraryView->addWidget( panelLibraryView );
 	setSkin();
 }
 
@@ -50,22 +50,22 @@ CWidgetLibrary::~CWidgetLibrary()
 	delete ui;
 }
 
-void CWidgetLibrary::changeEvent(QEvent* e)
+void CWidgetLibrary::changeEvent( QEvent* e )
 {
-	QWidget::changeEvent(e);
-	switch(e->type())
+	QWidget::changeEvent( e );
+	switch ( e->type() )
 	{
-		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
-			break;
-		default:
-			break;
+	case QEvent::LanguageChange:
+		ui->retranslateUi( this );
+		break;
+	default:
+		break;
 	}
 }
 
 void CWidgetLibrary::on_toolButtonLibraryEditShares_clicked()
 {
-	CDialogEditShares* dlgEditShares = new CDialogEditShares(this);
+	CDialogEditShares* dlgEditShares = new CDialogEditShares( this );
 	dlgEditShares->show();
 }
 
@@ -76,27 +76,27 @@ void CWidgetLibrary::saveWidget()
 	panelLibraryView->saveWidget();
 }
 
-void CWidgetLibrary::on_splitterLibrary_customContextMenuRequested(QPoint pos)
+void CWidgetLibrary::on_splitterLibrary_customContextMenuRequested( QPoint pos )
 {
-	Q_UNUSED(pos);
+	Q_UNUSED( pos );
 
-	if(ui->splitterLibrary->handle(1)->underMouse())
+	if ( ui->splitterLibrary->handle( 1 )->underMouse() )
 	{
-		if(ui->splitterLibrary->sizes()[0] > 0)
+		if ( ui->splitterLibrary->sizes()[0] > 0 )
 		{
 			quazaaSettings.WinMain.LibrarySplitterRestoreLeft = ui->splitterLibrary->sizes()[0];
 			quazaaSettings.WinMain.LibrarySplitterRestoreRight = ui->splitterLibrary->sizes()[1];
 			QList<int> newSizes;
-			newSizes.append(0);
-			newSizes.append(ui->splitterLibrary->sizes()[0] + ui->splitterLibrary->sizes()[1]);
-			ui->splitterLibrary->setSizes(newSizes);
+			newSizes.append( 0 );
+			newSizes.append( ui->splitterLibrary->sizes()[0] + ui->splitterLibrary->sizes()[1] );
+			ui->splitterLibrary->setSizes( newSizes );
 		}
 		else
 		{
 			QList<int> sizesList;
-			sizesList.append(quazaaSettings.WinMain.LibrarySplitterRestoreLeft);
-			sizesList.append(quazaaSettings.WinMain.LibrarySplitterRestoreRight);
-			ui->splitterLibrary->setSizes(sizesList);
+			sizesList.append( quazaaSettings.WinMain.LibrarySplitterRestoreLeft );
+			sizesList.append( quazaaSettings.WinMain.LibrarySplitterRestoreRight );
+			ui->splitterLibrary->setSizes( sizesList );
 		}
 	}
 }
@@ -108,7 +108,7 @@ void CWidgetLibrary::initializeLibrary()
 
 void CWidgetLibrary::setSkin()
 {
-	ui->frameLibraryNavigator->setStyleSheet(skinSettings.sidebarBackground);
-	ui->treeViewLibraryNavigatorOrganiser->setStyleSheet(skinSettings.listViews);
-	ui->treeViewLibraryNavigatorShares->setStyleSheet(skinSettings.listViews);
+	ui->frameLibraryNavigator->setStyleSheet( skinSettings.sidebarBackground );
+	ui->treeViewLibraryNavigatorOrganiser->setStyleSheet( skinSettings.listViews );
+	ui->treeViewLibraryNavigatorShares->setStyleSheet( skinSettings.listViews );
 }

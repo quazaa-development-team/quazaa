@@ -29,19 +29,19 @@
 
 namespace Ui
 {
-	class CWidgetPacketDump;
+class CWidgetPacketDump;
 }
 
 class CWidgetPacketDump : public QMainWindow
 {
 	Q_OBJECT
 public:
-	CWidgetPacketDump(QWidget* parent = 0);
+	CWidgetPacketDump( QWidget* parent = 0 );
 	~CWidgetPacketDump();
 	void saveWidget();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CWidgetPacketDump* ui;

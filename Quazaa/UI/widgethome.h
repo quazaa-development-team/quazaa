@@ -29,14 +29,14 @@
 
 namespace Ui
 {
-	class CWidgetHome;
+class CWidgetHome;
 }
 
 class CWidgetHome : public QWidget
 {
 	Q_OBJECT
 public:
-	CWidgetHome(QWidget* parent = 0);
+	CWidgetHome( QWidget* parent = 0 );
 	~CWidgetHome();
 	void saveWidget();
 
@@ -44,21 +44,21 @@ signals:
 	void triggerLibrary();
 	void triggerTransfers();
 	void triggerSecurity();
-	void requestSearch(QString* searchString);
+	void requestSearch( QString* searchString );
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CWidgetHome* ui;
 
 private slots:
 	void on_toolButtonWelcomeSearch_clicked();
-	void on_labelWelcomeUserGuideLink_linkActivated(QString link);
-	void on_labelWelcomeWizardLink_linkActivated(QString link);
-	void on_labelWelcomeSkinLink_linkActivated(QString link);
-	void on_labelWelcomeOpenTorrentLink_linkActivated(QString link);
-	void on_labelWelcomeURLDownloadLink_linkActivated(QString link);
+	void on_labelWelcomeUserGuideLink_linkActivated( QString link );
+	void on_labelWelcomeWizardLink_linkActivated( QString link );
+	void on_labelWelcomeSkinLink_linkActivated( QString link );
+	void on_labelWelcomeOpenTorrentLink_linkActivated( QString link );
+	void on_labelWelcomeURLDownloadLink_linkActivated( QString link );
 	void setSkin();
 };
 

@@ -7,22 +7,27 @@
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 
-namespace ShortcutColumns {
-	enum Columns {
-		Description,
-		Shortcut
-	};
+namespace ShortcutColumns
+{
+enum Columns
+{
+	Description,
+	Shortcut
+};
 }
 
-namespace AliasColumns {
-	enum Columns {
-		Alias,
-		Command
-	};
+namespace AliasColumns
+{
+enum Columns
+{
+	Alias,
+	Command
+};
 }
 
-namespace Ui {
-	class CDialogIrcSettings;
+namespace Ui
+{
+class CDialogIrcSettings;
 }
 
 class CDialogIrcSettings : public QDialog
@@ -30,13 +35,13 @@ class CDialogIrcSettings : public QDialog
 	Q_OBJECT
 
 public:
-	explicit CDialogIrcSettings(QWidget *parent = 0);
+	explicit CDialogIrcSettings( QWidget* parent = 0 );
 	~CDialogIrcSettings();
 
 private:
-	Ui::CDialogIrcSettings *ui;
+	Ui::CDialogIrcSettings* ui;
 
-	QModelIndex addAliasRow(const QString& alias, const QString& command);
+	QModelIndex addAliasRow( const QString& alias, const QString& command );
 
 	QStandardItemModel* sourceModel;
 	QSortFilterProxyModel* proxyModel;
@@ -76,7 +81,7 @@ private slots:
 	void on_pushButtonOK_clicked();
 	void enableApply();
 	void addAlias();
-	void onAliasClicked(const QModelIndex& index);
+	void onAliasClicked( const QModelIndex& index );
 	void on_toolButtonChangeColorWhite_clicked();
 	void on_toolButtonChangeColorBlack_clicked();
 	void on_toolButtonChangeColorBlue_clicked();

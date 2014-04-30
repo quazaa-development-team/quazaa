@@ -51,14 +51,14 @@ public:
 	bool        m_bOutputPending;       // Do we have data to send on the compressed output stream?
 	QElapsedTimer m_tDeflateFlush;      // Amount of time until a deflate buffer flush is triggered.
 public:
-	CCompressedConnection(QObject* parent = 0);
+	CCompressedConnection( QObject* parent = 0 );
 	virtual ~CCompressedConnection();
 
-	bool enableInputCompression(bool bEnable = true);
-	bool enableOutputCompression(bool bEnable = true);
+	bool enableInputCompression( bool bEnable = true );
+	bool enableOutputCompression( bool bEnable = true );
 
-	virtual qint64 readFromNetwork(qint64 nBytes);
-	virtual qint64 writeToNetwork(qint64 nBytes);
+	virtual qint64 readFromNetwork( qint64 nBytes );
+	virtual qint64 writeToNetwork( qint64 nBytes );
 
 protected:
 	bool setupInputStream();
@@ -72,24 +72,24 @@ protected:
 public:
 	inline Buffer* getInputBuffer()
 	{
-		return (m_bCompressedInput ? m_pZInput : m_pInput);
+		return ( m_bCompressedInput ? m_pZInput : m_pInput );
 	}
 	inline Buffer* getOutputBuffer()
 	{
-		return (m_bCompressedOutput ? m_pZOutput : m_pOutput);
+		return ( m_bCompressedOutput ? m_pZOutput : m_pOutput );
 	}
 	inline virtual bool hasData()
 	{
-		if(m_bOutputPending)
+		if ( m_bOutputPending )
 		{
 			return true;
 		}
 
-		if(m_pZInput && !m_pZInput->isEmpty())
+		if ( m_pZInput && !m_pZInput->isEmpty() )
 		{
 			return true;
 		}
-		if(m_pZOutput && !m_pZOutput->isEmpty())
+		if ( m_pZOutput && !m_pZOutput->isEmpty() )
 		{
 			return true;
 		}
@@ -99,22 +99,22 @@ public:
 
 	float getTotalInDecompressed()
 	{
-		if(m_nTotalInput == 0)
+		if ( m_nTotalInput == 0 )
 		{
 			return 0;
 		}
 
-		float ret = 1.0f - (float)m_nTotalInputDec / (float)m_nTotalInput;
+		float ret = 1.0f - ( float )m_nTotalInputDec / ( float )m_nTotalInput;
 		return ret;
 	}
 	float getTotalOutCompressed()
 	{
-		if(m_nTotalOutputCom == 0)
+		if ( m_nTotalOutputCom == 0 )
 		{
 			return 0;
 		}
 
-		float ret = 1.0f - (float)m_nTotalOutput / (float)m_nTotalOutputCom;
+		float ret = 1.0f - ( float )m_nTotalOutput / ( float )m_nTotalOutputCom;
 		return ret;
 	}
 

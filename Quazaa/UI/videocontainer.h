@@ -7,7 +7,8 @@
 #include "videowidget.h"
 #include "mediacontrols.h"
 
-namespace Ui {
+namespace Ui
+{
 class VideoContainer;
 }
 
@@ -16,24 +17,24 @@ class VideoContainer : public QWidget
 	Q_OBJECT
 
 public:
-	explicit VideoContainer(QWidget *parent = 0);
+	explicit VideoContainer( QWidget* parent = 0 );
 	~VideoContainer();
 	VideoWidget* videoWidget();
 	MediaControls* mediaControls();
 
 protected:
-	void keyPressEvent(QKeyEvent *event);
-	void mouseDoubleClickEvent(QMouseEvent *event);
-	void mousePressEvent(QMouseEvent *event);
-	void mouseMoveEvent(QMouseEvent *event);
+	void keyPressEvent( QKeyEvent* event );
+	void mouseDoubleClickEvent( QMouseEvent* event );
+	void mousePressEvent( QMouseEvent* event );
+	void mouseMoveEvent( QMouseEvent* event );
 
 signals:
 	void doubleClicked();
 
 private:
-	Ui::VideoContainer *ui;
-	VideoWidget *m_oVideoWidget;
-	MediaControls *m_oMediaControls;
+	Ui::VideoContainer* ui;
+	VideoWidget* m_oVideoWidget;
+	MediaControls* m_oMediaControls;
 	QTimer* m_tMediaControls;
 };
 

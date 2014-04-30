@@ -36,8 +36,8 @@ public:
 	static QMutex m_oMutex;
 	static Buffer m_oCompressBuffer;
 
-	static bool compressBuffer(Buffer& pSrc, bool bIfSmaller = false);
-	static bool uncompressBuffer(Buffer& pSrc);
+	static bool compressBuffer( Buffer& pSrc, bool bIfSmaller = false );
+	static bool uncompressBuffer( Buffer& pSrc );
 };
 
 #endif // ZLIBUTILS_H

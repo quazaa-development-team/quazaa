@@ -31,13 +31,13 @@ class CDownloadsPeerModel : public QSortFilterProxyModel
 
 	QModelIndex m_oCurrentRoot;
 public:
-	CDownloadsPeerModel(QObject *parent = 0);
+	CDownloadsPeerModel( QObject* parent = 0 );
 
-	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-	void setCurrentRoot(const QModelIndex& index);
+	QVariant headerData( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
+	void setCurrentRoot( const QModelIndex& index );
 
 protected:
-	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+	bool filterAcceptsRow( int sourceRow, const QModelIndex& sourceParent ) const;
 
 signals:
 

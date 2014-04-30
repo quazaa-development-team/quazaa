@@ -29,7 +29,7 @@
 
 using namespace Discovery;
 
-GWC::GWC(const QUrl& oURL, const CNetworkType& oNType, quint8 nRating) :
+GWC::GWC( const QUrl& oURL, const CNetworkType& oNType, quint8 nRating ) :
 	DiscoveryService( oURL, oNType, nRating ),
 	m_pRequest( NULL ),
 	m_bGnutella( true ),
@@ -117,7 +117,7 @@ void GWC::doUpdate() throw()
 			query.addQueryItem( "url", QUrl::toPercentEncoding( sPromoteURL ) );
 		}
 
-		oURL.setQuery(query);
+		oURL.setQuery( query );
 	}
 
 	// inform user
@@ -155,7 +155,7 @@ void GWC::doCancelRequest() throw()
 	resetRunning();
 }
 
-void GWC::requestCompleted(QNetworkReply* pReply)
+void GWC::requestCompleted( QNetworkReply* pReply )
 {
 	QWriteLocker oGWCLock( &m_oRWLock );
 
@@ -172,7 +172,9 @@ void GWC::requestCompleted(QNetworkReply* pReply)
 		resetRunning();
 
 		if ( pReply )
+		{
 			pReply->deleteLater();
+		}
 
 		if ( m_pRequest )
 		{

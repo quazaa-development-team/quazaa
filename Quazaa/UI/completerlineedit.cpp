@@ -24,24 +24,24 @@
 
 #include "completerlineedit.h"
 
-CCompleterLineEdit::CCompleterLineEdit(const QStringList& completions, QWidget *parent) :
-	QLineEdit(parent)
+CCompleterLineEdit::CCompleterLineEdit( const QStringList& completions, QWidget* parent ) :
+	QLineEdit( parent )
 {
-	m_pCompleter = new QCompleter(completions, this);
-	setCaseSensitivity(Qt::CaseInsensitive);
-	setCompletionMode(QCompleter::UnfilteredPopupCompletion);
-	setCompleter(m_pCompleter);
+	m_pCompleter = new QCompleter( completions, this );
+	setCaseSensitivity( Qt::CaseInsensitive );
+	setCompletionMode( QCompleter::UnfilteredPopupCompletion );
+	setCompleter( m_pCompleter );
 	m_bCompleteOnDoubleClick = true;
 }
 
-void CCompleterLineEdit::mouseDoubleClickEvent(QMouseEvent *)
+void CCompleterLineEdit::mouseDoubleClickEvent( QMouseEvent* )
 {
 	m_pCompleter->complete();
 }
 
-void CCompleterLineEdit::setCaseSensitivity(Qt::CaseSensitivity caseSensitivity)
+void CCompleterLineEdit::setCaseSensitivity( Qt::CaseSensitivity caseSensitivity )
 {
-	m_pCompleter->setCaseSensitivity(caseSensitivity);
+	m_pCompleter->setCaseSensitivity( caseSensitivity );
 }
 
 Qt::CaseSensitivity CCompleterLineEdit::caseSensitivity() const
@@ -49,9 +49,9 @@ Qt::CaseSensitivity CCompleterLineEdit::caseSensitivity() const
 	return m_pCompleter->caseSensitivity();
 }
 
-void CCompleterLineEdit::setCompletionMode(QCompleter::CompletionMode mode)
+void CCompleterLineEdit::setCompletionMode( QCompleter::CompletionMode mode )
 {
-	m_pCompleter->setCompletionMode(mode);
+	m_pCompleter->setCompletionMode( mode );
 }
 
 QCompleter::CompletionMode CCompleterLineEdit::completionMode() const
@@ -59,9 +59,9 @@ QCompleter::CompletionMode CCompleterLineEdit::completionMode() const
 	return m_pCompleter->completionMode();
 }
 
-void CCompleterLineEdit::setWrapAround(bool wrap)
+void CCompleterLineEdit::setWrapAround( bool wrap )
 {
-	m_pCompleter->setWrapAround(wrap);
+	m_pCompleter->setWrapAround( wrap );
 }
 
 bool CCompleterLineEdit::wrapAround() const
@@ -74,7 +74,7 @@ bool CCompleterLineEdit::completeOnDoubleClick() const
 	return m_bCompleteOnDoubleClick;
 }
 
-void CCompleterLineEdit::setCompleteOnDoubleClick(bool complete)
+void CCompleterLineEdit::setCompleteOnDoubleClick( bool complete )
 {
 	m_bCompleteOnDoubleClick = complete;
 }

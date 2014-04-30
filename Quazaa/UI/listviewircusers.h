@@ -26,44 +26,45 @@ class MenuFactory;
 class CListViewIrcUsers : public QListView
 {
 	Q_OBJECT
-	Q_PROPERTY(QString channel READ channel WRITE setChannel)
+	Q_PROPERTY( QString channel READ channel WRITE setChannel )
 
 public:
-	CListViewIrcUsers(QWidget* parent = 0);
+	CListViewIrcUsers( QWidget* parent = 0 );
 	~CListViewIrcUsers();
 
 	QSize sizeHint() const;
 
 	Session* session() const;
-	void setSession(Session* session);
+	void setSession( Session* session );
 
 	QString channel() const;
-	void setChannel(const QString& channel);
+	void setChannel( const QString& channel );
 
 	IrcUserListModel* userModel() const;
-	bool hasUser(const QString& user) const;
+	bool hasUser( const QString& user ) const;
 
 	MenuFactory* menuFactory() const;
-	void setMenuFactory(MenuFactory* factory);
+	void setMenuFactory( MenuFactory* factory );
 
 public slots:
-	void processMessage(IrcMessage* message);
+	void processMessage( IrcMessage* message );
 
 signals:
-	void queried(const QString& user);
-	void doubleClicked(const QString& user);
-	void commandRequested(IrcCommand* command);
+	void queried( const QString& user );
+	void doubleClicked( const QString& user );
+	void commandRequested( IrcCommand* command );
 
 protected:
-	void contextMenuEvent(QContextMenuEvent* event);
-	void mousePressEvent(QMouseEvent* event);
-	void showEvent(QShowEvent* event);
+	void contextMenuEvent( QContextMenuEvent* event );
+	void mousePressEvent( QMouseEvent* event );
+	void showEvent( QShowEvent* event );
 
 private slots:
-	void onDoubleClicked(const QModelIndex& index);
+	void onDoubleClicked( const QModelIndex& index );
 
 private:
-	struct UserListViewData {
+	struct UserListViewData
+	{
 		IrcUserListModel* userModel;
 		MenuFactory* menuFactory;
 	} d;

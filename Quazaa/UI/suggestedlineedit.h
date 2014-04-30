@@ -46,17 +46,17 @@ protected:
 	bool m_bEnableExternal;
 	QNetworkAccessManager* m_pNetworkAccessManager;
 public:
-	CSuggestedLineEdit(QLineEdit* lineEdit, QObject *parent = 0);
+	CSuggestedLineEdit( QLineEdit* lineEdit, QObject* parent = 0 );
 	~CSuggestedLineEdit();
 
 	void load();
 	void save();
 
-	void setNetworkAccessManager(QNetworkAccessManager* pManager);
+	void setNetworkAccessManager( QNetworkAccessManager* pManager );
 
-	void setEnableExternal(bool bEnable);
+	void setEnableExternal( bool bEnable );
 	bool enableExternal();
-	void setMaxRecentItems(uint nMax);
+	void setMaxRecentItems( uint nMax );
 	int  maxRecentItems();
 
 signals:
@@ -69,8 +69,8 @@ public slots:
 	void clearRecent();
 
 private slots:
-	void onTextChanged(const QString& text);
-	void onItemActivated(const QModelIndex& index);
+	void onTextChanged( const QString& text );
+	void onItemActivated( const QModelIndex& index );
 	void setSkin();
 };
 

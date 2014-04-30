@@ -55,19 +55,19 @@ protected:
 
 	qint32				m_nRemainingFiles;
 public:
-	explicit ShareManager(QObject* parent = 0);
+	explicit ShareManager( QObject* parent = 0 );
 
 	void start();
 	void stop();
 
-	void addDir(QString sPath);
+	void addDir( QString sPath );
 
-	void removeDir(QString sPath);
-	void removeDir(quint64 nId);
-	void removeFile(QString sPath);
-	void removeFile(quint64 nFileId);
+	void removeDir( QString sPath );
+	void removeDir( quint64 nId );
+	void removeFile( QString sPath );
+	void removeFile( quint64 nFileId );
 
-	void scanFolder(QString sPath, qint64 nParentID = 0);
+	void scanFolder( QString sPath, qint64 nParentID = 0 );
 
 	QueryHashTable* getHashTable();
 
@@ -76,30 +76,30 @@ public:
 		return m_bReady;
 	}
 
-	QList<QSqlRecord> query(const QString sQuery);
+	QList<QSqlRecord> query( const QString sQuery );
 
 protected:
 	void buildHashTable();
 signals:
 	void sharesReady();
-	void executeQuery(const QString& sQuery);
+	void executeQuery( const QString& sQuery );
 
 signals:
-	void hasherStarted(int); // int - hasher id
-	void hasherFinished(int); // int - hasher id
-	void hashingProgress(int, QString, double, int); // hasher id, filename, percent, rate
-	void remainingFilesChanged(qint32);
+	void hasherStarted( int ); // int - hasher id
+	void hasherFinished( int ); // int - hasher id
+	void hashingProgress( int, QString, double, int ); // hasher id, filename, percent, rate
+	void remainingFilesChanged( qint32 );
 
 public slots:
 	void setupThread();
 	void cleanupThread();
 
 	void runHashing();
-	void onFileHashed(CSharedFilePtr pFile);
+	void onFileHashed( CSharedFilePtr pFile );
 
 protected slots:
 	void syncShares();
-	void execQuery(const QString& sQuery);
+	void execQuery( const QString& sQuery );
 };
 
 

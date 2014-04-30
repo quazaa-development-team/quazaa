@@ -38,7 +38,7 @@ QueryHashMaster::QueryHashMaster()
 
 QueryHashMaster::~QueryHashMaster()
 {
-	Q_ASSERT(getCount() == 0);
+	Q_ASSERT( getCount() == 0 );
 }
 
 void QueryHashMaster::create()
@@ -51,48 +51,48 @@ void QueryHashMaster::create()
 	m_nCookie			= 0;
 }
 
-void QueryHashMaster::add(QueryHashTable* pTable)
+void QueryHashMaster::add( QueryHashTable* pTable )
 {
-	Q_ASSERT(m_nPerGroup > 0);
-	Q_ASSERT(pTable != 0);
-	Q_ASSERT(pTable->m_nHash > 0);
-	Q_ASSERT(pTable->m_pGroup == 0);
+	Q_ASSERT( m_nPerGroup > 0 );
+	Q_ASSERT( pTable != 0 );
+	Q_ASSERT( pTable->m_nHash > 0 );
+	Q_ASSERT( pTable->m_pGroup == 0 );
 
-	for(QList<QueryHashGroup*>::iterator itGroup = m_pGroups.begin(); itGroup != m_pGroups.end(); itGroup++)
+	for ( QList<QueryHashGroup*>::iterator itGroup = m_pGroups.begin(); itGroup != m_pGroups.end(); itGroup++ )
 	{
 		QueryHashGroup* pGroup = *itGroup;
 
-		if(pGroup->m_nHash == pTable->m_nHash &&
-				pGroup->getCount() < m_nPerGroup)
+		if ( pGroup->m_nHash == pTable->m_nHash &&
+			 pGroup->getCount() < m_nPerGroup )
 		{
-			pGroup->add(pTable);
+			pGroup->add( pTable );
 			m_bValid = false;
 			return;
 		}
 	}
 
-	QueryHashGroup* pGroup = new QueryHashGroup(pTable->m_nHash);
-	m_pGroups.append(pGroup);
-	pGroup->add(pTable);
+	QueryHashGroup* pGroup = new QueryHashGroup( pTable->m_nHash );
+	m_pGroups.append( pGroup );
+	pGroup->add( pTable );
 	m_bValid = false;
 }
 
-void QueryHashMaster::remove(QueryHashTable* pTable)
+void QueryHashMaster::remove( QueryHashTable* pTable )
 {
-	Q_ASSERT(pTable != 0);
-	if(pTable->m_pGroup == 0)
+	Q_ASSERT( pTable != 0 );
+	if ( pTable->m_pGroup == 0 )
 	{
 		return;
 	}
 
 	QueryHashGroup* pGroup = pTable->m_pGroup;
-	pGroup->remove(pTable);
+	pGroup->remove( pTable );
 
-	if(pGroup->getCount() == 0)
+	if ( pGroup->getCount() == 0 )
 	{
-		int pos = m_pGroups.indexOf(pGroup);
-		Q_ASSERT(pos >= 0);
-		m_pGroups.removeAt(pos);
+		int pos = m_pGroups.indexOf( pGroup );
+		Q_ASSERT( pos >= 0 );
+		m_pGroups.removeAt( pos );
 		delete pGroup;
 	}
 
@@ -101,18 +101,18 @@ void QueryHashMaster::remove(QueryHashTable* pTable)
 
 void QueryHashMaster::build()
 {
-	quint32 tNow = time(0);
+	quint32 tNow = time( 0 );
 
-	if(m_bValid)
+	if ( m_bValid )
 	{
-		if(tNow - m_nCookie < 600)
+		if ( tNow - m_nCookie < 600 )
 		{
 			return;
 		}
 	}
 	else
 	{
-		if(tNow - m_nCookie < 20)
+		if ( tNow - m_nCookie < 20 )
 		{
 			return;
 		}
@@ -122,21 +122,21 @@ void QueryHashMaster::build()
 
 	const QueryHashTable* pLocalTable = shareManager.getHashTable();
 
-	if(!pLocalTable)
+	if ( !pLocalTable )
 	{
 		shareManager.m_oSection.unlock();
 		return;
 	}
 
 	clear();
-	merge(pLocalTable);
+	merge( pLocalTable );
 
 	shareManager.m_oSection.unlock();
 
-	for(QList<QueryHashGroup*>::iterator itGroup = m_pGroups.begin(); itGroup != m_pGroups.end(); itGroup++)
+	for ( QList<QueryHashGroup*>::iterator itGroup = m_pGroups.begin(); itGroup != m_pGroups.end(); itGroup++ )
 	{
 		QueryHashGroup* pGroup = *itGroup;
-		merge(pGroup);
+		merge( pGroup );
 	}
 
 	m_bValid	= true;

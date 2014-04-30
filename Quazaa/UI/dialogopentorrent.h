@@ -29,19 +29,19 @@
 
 namespace Ui
 {
-	class CDialogOpenTorrent;
+class CDialogOpenTorrent;
 }
 
 class CDialogOpenTorrent : public QDialog
 {
 	Q_OBJECT
-	Q_DISABLE_COPY(CDialogOpenTorrent)
+	Q_DISABLE_COPY( CDialogOpenTorrent )
 public:
-	explicit CDialogOpenTorrent(QWidget* parent = 0);
+	explicit CDialogOpenTorrent( QWidget* parent = 0 );
 	virtual ~CDialogOpenTorrent();
 
 protected:
-	virtual void changeEvent(QEvent* e);
+	virtual void changeEvent( QEvent* e );
 
 private:
 	Ui::CDialogOpenTorrent* ui;

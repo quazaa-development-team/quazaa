@@ -31,7 +31,7 @@
 
 IDProvider<quint32> Buffer::m_oIDProvider;
 
-Buffer::Buffer(quint32 nMinimum) :
+Buffer::Buffer( quint32 nMinimum ) :
 	m_pBuffer( NULL ),
 	m_nAllocatedSize( 0 ),
 	m_nMinimumAllocationSize( nMinimum ),
@@ -39,7 +39,7 @@ Buffer::Buffer(quint32 nMinimum) :
 	m_nCurrentSize( 0 ),
 	m_pData( NULL )
 #if DEBUG_BUFFER
-	,m_nID( m_oIDProvider.aquire() )
+	, m_nID( m_oIDProvider.aquire() )
 #endif
 {
 }
@@ -56,7 +56,7 @@ Buffer::~Buffer()
 	}
 }
 
-Buffer& Buffer::append(const void* pData, const quint32 nLength)
+Buffer& Buffer::append( const void* pData, const quint32 nLength )
 {
 	if ( pData && nLength )
 	{
@@ -76,27 +76,27 @@ Buffer& Buffer::append(const void* pData, const quint32 nLength)
 	return *this;
 }
 
-Buffer& Buffer::append(const char* pCStr)
+Buffer& Buffer::append( const char* pCStr )
 {
 	return append( pCStr, qstrlen( pCStr ) );
 }
 
-Buffer& Buffer::append(const QByteArray& baData)
+Buffer& Buffer::append( const QByteArray& baData )
 {
 	return append( baData.data(), baData.size() );
 }
 
-Buffer& Buffer::append(const Buffer& pOther)
+Buffer& Buffer::append( const Buffer& pOther )
 {
 	return append( pOther.data(), pOther.size() );
 }
 
-Buffer &Buffer::append(const Buffer* pOther)
+Buffer& Buffer::append( const Buffer* pOther )
 {
 	return append( pOther->data(), pOther->size() );
 }
 
-Buffer& Buffer::prepend(const void* pData, const quint32 nLength)
+Buffer& Buffer::prepend( const void* pData, const quint32 nLength )
 {
 	ensureFront( nLength );
 
@@ -114,12 +114,12 @@ Buffer& Buffer::prepend(const void* pData, const quint32 nLength)
 	return *this;
 }
 
-Buffer& Buffer::prepend(const char* pCStr)
+Buffer& Buffer::prepend( const char* pCStr )
 {
 	return prepend( pCStr, qstrlen( pCStr ) );
 }
 
-Buffer& Buffer::insert(const quint32 nOffset, const void* pData, const quint32 nLength)
+Buffer& Buffer::insert( const quint32 nOffset, const void* pData, const quint32 nLength )
 {
 	if ( pData )
 	{
@@ -147,18 +147,18 @@ Buffer& Buffer::insert(const quint32 nOffset, const void* pData, const quint32 n
 	Q_ASSERT( m_pData == m_pBuffer + m_nPreceding );
 	Q_ASSERT( m_nPreceding + m_nCurrentSize <= m_nAllocatedSize );
 	writeMessage( QString( "Inserted %0 bytes of data at %1."
-						   ).arg( QString::number( nLength ), QString::number( nOffset ) ) );
+						 ).arg( QString::number( nLength ), QString::number( nOffset ) ) );
 #endif // DEBUG_BUFFER
 
 	return *this;
 }
 
-Buffer& Buffer::insert(const quint32 nOffset, const char* pCStr)
+Buffer& Buffer::insert( const quint32 nOffset, const char* pCStr )
 {
 	return insert( nOffset, pCStr, qstrlen( pCStr ) );
 }
 
-Buffer& Buffer::remove(const quint32 nLength, const quint32 nPos)
+Buffer& Buffer::remove( const quint32 nLength, const quint32 nPos )
 {
 	if ( !nPos )
 	{
@@ -192,13 +192,13 @@ Buffer& Buffer::remove(const quint32 nLength, const quint32 nPos)
 	Q_ASSERT( m_pData == m_pBuffer + m_nPreceding );
 	Q_ASSERT( m_nPreceding + m_nCurrentSize <= m_nAllocatedSize );
 	writeMessage( QString( "Removed %0 bytes of data at %1."
-						   ).arg( QString::number( nLength ), QString::number( nPos ) ) );
+						 ).arg( QString::number( nLength ), QString::number( nPos ) ) );
 #endif // DEBUG_BUFFER
 
 	return *this;
 }
 
-void Buffer::ensure(const quint32 nLength)
+void Buffer::ensure( const quint32 nLength )
 {
 	if ( nLength > 0xffffffff - m_nAllocatedSize )
 	{
@@ -232,11 +232,11 @@ void Buffer::ensure(const quint32 nLength)
 	Q_ASSERT( m_pData == m_pBuffer + m_nPreceding );
 	Q_ASSERT( m_nPreceding + m_nCurrentSize <= m_nAllocatedSize );
 	writeMessage( QString( "Ensured space for %0 more bytes of data."
-						   ).arg( QString::number( nLength ) ) );
+						 ).arg( QString::number( nLength ) ) );
 #endif // DEBUG_BUFFER
 }
 
-void Buffer::ensureFront(const quint32 nLength)
+void Buffer::ensureFront( const quint32 nLength )
 {
 	if ( m_nPreceding < nLength )
 	{
@@ -254,11 +254,11 @@ void Buffer::ensureFront(const quint32 nLength)
 	Q_ASSERT( m_pData == m_pBuffer + m_nPreceding );
 	Q_ASSERT( m_nPreceding + m_nCurrentSize <= m_nAllocatedSize );
 	writeMessage( QString( "Ensured space %0 bytes of data (front)."
-						   ).arg( QString::number( nLength ) ) );
+						 ).arg( QString::number( nLength ) ) );
 #endif // DEBUG_BUFFER
 }
 
-void Buffer::resize(const quint32 nLength)
+void Buffer::resize( const quint32 nLength )
 {
 	Q_ASSERT( m_pData == m_pBuffer + m_nPreceding );
 
@@ -278,7 +278,7 @@ void Buffer::resize(const quint32 nLength)
 	Q_ASSERT( m_pData == m_pBuffer + m_nPreceding );
 	Q_ASSERT( m_nPreceding + m_nCurrentSize <= m_nAllocatedSize );
 	writeMessage( QString( "Resized buffer to %0 bytes length."
-						   ).arg( QString::number( nLength ) ) );
+						 ).arg( QString::number( nLength ) ) );
 #endif // DEBUG_BUFFER
 }
 
@@ -340,14 +340,14 @@ QString Buffer::dump() const
 		QString sLine( "0x%1  %2  %3\n" );
 
 		sRet += sLine.arg( nOffset, 8, 16, QLatin1Char( '0' )
-						   ).arg( sHex.mid( nOffset * 3, 10 * 3 ), -30, QLatin1Char( ' ' )
-								  ).arg( sAscii.mid( nOffset, 10 ) );
+						 ).arg( sHex.mid( nOffset * 3, 10 * 3 ), -30, QLatin1Char( ' ' )
+							  ).arg( sAscii.mid( nOffset, 10 ) );
 	}
 
 	return sRet;
 }
 
-void Buffer::reallocate(quint32 nNewSize)
+void Buffer::reallocate( quint32 nNewSize )
 {
 	// first alloc will be m_nMinimum bytes or 1024
 	// if we need more, we allocate twice as needed
@@ -361,7 +361,7 @@ void Buffer::reallocate(quint32 nNewSize)
 		nNewSize *= 2;
 	}
 
-	char* pBuffer = (char*)realloc( m_pBuffer, nNewSize );
+	char* pBuffer = ( char* )realloc( m_pBuffer, nNewSize );
 	if ( !pBuffer )
 	{
 		qWarning() << "Out of memory in Buffer::reallocate()";
@@ -376,11 +376,11 @@ void Buffer::reallocate(quint32 nNewSize)
 	Q_ASSERT( m_pData == m_pBuffer + m_nPreceding );
 	Q_ASSERT( m_nPreceding + m_nCurrentSize <= m_nAllocatedSize );
 	writeMessage( QString( "Reallocated buffer with %0 bytes of length."
-						   ).arg( QString::number( nNewSize ) ) );
+						 ).arg( QString::number( nNewSize ) ) );
 #endif // DEBUG_BUFFER
 }
 
-void Buffer::moveDataTo(const quint32 nOffset)
+void Buffer::moveDataTo( const quint32 nOffset )
 {
 	memmove( m_pBuffer + nOffset, m_pData, m_nCurrentSize );
 	m_pData = m_pBuffer + nOffset;
@@ -390,21 +390,21 @@ void Buffer::moveDataTo(const quint32 nOffset)
 	Q_ASSERT( m_pData == m_pBuffer + m_nPreceding );
 	Q_ASSERT( m_nPreceding + m_nCurrentSize <= m_nAllocatedSize );
 	writeMessage( QString( "Meved all data to buffer offset %1."
-						   ).arg( QString::number( nOffset ) ) );
+						 ).arg( QString::number( nOffset ) ) );
 #endif // DEBUG_BUFFER
 
 }
 
 #if DEBUG_BUFFER
-	void Buffer::writeMessage(QString& sMessage)
-	{
-		QString s;
-		s = QString( "Buffer %0 (Allocated: %1, Preceding: %2, Used Size: %3) "
-					 ).arg( QString::number( m_nID ), QString::number( m_nAllocatedSize ),
-							QString::number( m_nPreceding ), QString::number( m_nCurrentSize ) );
-		s += sMessage;
+void Buffer::writeMessage( QString& sMessage )
+{
+	QString s;
+	s = QString( "Buffer %0 (Allocated: %1, Preceding: %2, Used Size: %3) "
+			   ).arg( QString::number( m_nID ), QString::number( m_nAllocatedSize ),
+					  QString::number( m_nPreceding ), QString::number( m_nCurrentSize ) );
+	s += sMessage;
 
-		qDebug() << s.toLocal8Bit().data();
-	}
+	qDebug() << s.toLocal8Bit().data();
+}
 
 #endif // DEBUG_BUFFER

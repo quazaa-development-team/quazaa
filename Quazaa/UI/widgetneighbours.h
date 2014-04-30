@@ -33,7 +33,7 @@ class NeighboursTableModel;
 
 namespace Ui
 {
-	class CWidgetNeighbours;
+class CWidgetNeighbours;
 }
 
 class CWidgetNeighbours : public QMainWindow
@@ -45,23 +45,23 @@ public:
 	NeighboursTableModel* neighboursList;
 
 public:
-	CWidgetNeighbours(QWidget* parent = 0);
+	CWidgetNeighbours( QWidget* parent = 0 );
 	~CWidgetNeighbours();
 
-	void		setModel(QAbstractItemModel* model);
+	void		setModel( QAbstractItemModel* model );
 	QWidget*	treeView();
 	void		saveWidget();
 
 protected:
-	void changeEvent(QEvent* e);
+	void changeEvent( QEvent* e );
 
 private:
 	Ui::CWidgetNeighbours* ui;
-	QMenu *neighboursMenu;
+	QMenu* neighboursMenu;
 
 private slots:
 	void on_actionNetworkChatWith_triggered();
-	void on_tableViewNeighbours_customContextMenuRequested(QPoint pos);
+	void on_tableViewNeighbours_customContextMenuRequested( QPoint pos );
 	void on_actionNeighbourDisconnect_triggered();
 	void on_actionNeighbourConnectTo_triggered();
 	void on_actionSettings_triggered();
@@ -72,7 +72,7 @@ private slots:
 	void updateAres();
 	void updateEDonkey();
 	void setSkin();
-	void on_tableViewNeighbours_doubleClicked(const QModelIndex &index);
+	void on_tableViewNeighbours_doubleClicked( const QModelIndex& index );
 	void on_actionNetworkBan_triggered();
 };
 

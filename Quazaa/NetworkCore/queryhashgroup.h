@@ -33,7 +33,7 @@ class QueryHashTable;
 class QueryHashGroup
 {
 public:
-	QueryHashGroup(quint32 nHash = 0);
+	QueryHashGroup( quint32 nHash = 0 );
 	virtual ~QueryHashGroup();
 
 public:
@@ -44,10 +44,10 @@ protected:
 	QList< QueryHashTable* > m_pTables;
 
 public:
-	void	add(QueryHashTable* pTable);
-	void	remove(QueryHashTable* pTable);
+	void	add( QueryHashTable* pTable );
+	void	remove( QueryHashTable* pTable );
 protected:
-	void	operate(QueryHashTable* pTable, bool nAdd);
+	void	operate( QueryHashTable* pTable, bool nAdd );
 
 public:
 	int		getCount()

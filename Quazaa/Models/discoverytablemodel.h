@@ -103,44 +103,44 @@ public:
 		 * @param pService - Needs to be locked for read before calling this.
 		 * @param model
 		 */
-		Service(ConstServicePtr pService, DiscoveryTableModel* model);
+		Service( ConstServicePtr pService, DiscoveryTableModel* model );
 		~Service();
-		bool update(int row, int sortCol, QModelIndexList& to_update, DiscoveryTableModel* model);
-		QVariant data(int col) const;
-		bool lessThan(int col, const DiscoveryTableModel::Service* const pOther) const;
-		void refreshServiceIcon(DiscoveryTableModel* model);
+		bool update( int row, int sortCol, QModelIndexList& to_update, DiscoveryTableModel* model );
+		QVariant data( int col ) const;
+		bool lessThan( int col, const DiscoveryTableModel::Service* const pOther ) const;
+		void refreshServiceIcon( DiscoveryTableModel* model );
 	};
 
 protected:
 	QVector<Service*>   m_lNodes;
 
 public:
-	explicit DiscoveryTableModel(QObject* parent = 0, QWidget* container = 0);
+	explicit DiscoveryTableModel( QObject* parent = 0, QWidget* container = 0 );
 	~DiscoveryTableModel();
 
-	int rowCount(const QModelIndex& parent = QModelIndex()) const;
-	int columnCount(const QModelIndex& parent) const;
-	QVariant data(const QModelIndex& index, int role) const;
-	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+	int rowCount( const QModelIndex& parent = QModelIndex() ) const;
+	int columnCount( const QModelIndex& parent ) const;
+	QVariant data( const QModelIndex& index, int role ) const;
+	QVariant headerData( int section, Qt::Orientation orientation, int role ) const;
+	QModelIndex index( int row, int column, const QModelIndex& parent = QModelIndex() ) const;
 
-	void sort(int column, Qt::SortOrder order);
+	void sort( int column, Qt::SortOrder order );
 
-	ConstServicePtr nodeFromRow(quint32 row) const;
-	ConstServicePtr nodeFromIndex(const QModelIndex& index) const;
+	ConstServicePtr nodeFromRow( quint32 row ) const;
+	ConstServicePtr nodeFromIndex( const QModelIndex& index ) const;
 
-	bool isIndexBanned(const QModelIndex& index) const;
+	bool isIndexBanned( const QModelIndex& index ) const;
 
 	void completeRefresh();
 
 public slots:
-	void addService(ConstServicePtr pService);
-	void removeService(ServiceID nID);
-	void update(ServiceID nID);
+	void addService( ConstServicePtr pService );
+	void removeService( ServiceID nID );
+	void update( ServiceID nID );
 	void updateAll();
 
 private:
-	void updateView(QModelIndexList uplist = QModelIndexList());
+	void updateView( QModelIndexList uplist = QModelIndexList() );
 };
 
 #endif // DISCOVERYTABLEMODEL_H
