@@ -52,7 +52,7 @@ public:
 	QSharedPointer<QueryHitInfo>   m_pHitInfo;
 
 	// TODO: use everywhere. This is more efficient than a QList.
-	HashVector      m_lHashes;
+	HashSet      m_vHashes;
 	QString         m_sDescriptiveName;         // File name
 	QString         m_sURL;                     // http://{IP}:{port}/uri-res/N2R?{URN}
 	QString         m_sMetadata;

@@ -1349,8 +1349,7 @@ QueryHit UnitTestsSecurity::generateQueryHit(quint64 nSize, QString sName, QStri
 			 << "urn:bitprint:"
 			 << "urn:md5:";
 
-	HashVector vHashes;
-	vHashes.reserve( prefixes.size() );
+	HashSet vHashes;
 
 	//qDebug() << "Hash String: " << sHashes;
 	for ( int i = 0; i < prefixes.size(); ++i )
@@ -1388,11 +1387,12 @@ QueryHit UnitTestsSecurity::generateQueryHit(quint64 nSize, QString sName, QStri
 			CHash* pHash = CHash::fromURN( sHash );
 			if ( pHash )
 			{
-				vHashes.push_back( *pHash );
-				delete pHash;
+				vHashes.insert( pHash );
 			}
 			else
+			{
 				qDebug() << "Unit Tests: Hash type not recognised.";
+			}
 		}
 		else
 		{
@@ -1404,7 +1404,7 @@ QueryHit UnitTestsSecurity::generateQueryHit(quint64 nSize, QString sName, QStri
 
 	if ( !vHashes.empty() )
 	{
-		oHit.m_lHashes = vHashes;
+		oHit.m_vHashes = vHashes;
 		oHit.m_nObjectSize = nSize;
 		oHit.m_sDescriptiveName = sName;
 	}

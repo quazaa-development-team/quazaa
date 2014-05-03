@@ -6,6 +6,7 @@
 
 #include "Hashes/hash.h"
 
+// TODO: rename
 class CFile : public QObject, public QFileInfo
 {
 	Q_OBJECT
@@ -17,8 +18,8 @@ protected:
 
 	bool			m_bNull;
 
-	QList< CHash >
-	m_Hashes; // SHA1 (Base32), ED2K (MD4, Base16), BitTorrent Info Hash (Base32), TigerTree Root Hash (Base32), MD5 (Base16)
+	// SHA1 (Base32), ED2K (MD4, Base16), BitTorrent Info Hash (Base32), TigerTree Root Hash (Base32), MD5 (Base16)
+	HashSet m_vHashes;
 	QSet< QString > m_Tags;
 
 public:
@@ -42,20 +43,26 @@ public:
 	// To verify whether a file exists physically on the HDD, use CFile::exists().
 	inline bool isNull() const;
 
-	// Returns a list of all hashes attributed to this file. Note that this does not
-	// perform checking operations, so it is in theory possible to have 2 differnet
-	// hashes of the same type returned within this list.
-	inline QList< CHash > getHashes() const;
+	// Returns a list of all hashes attributed to this file.
+	inline const HashSet& getHashes() const;
 
-	// Sets a single hash for the file.
-	inline void setHash( const CHash& oHash );
+	// Sets a single hash for the file. Returns false on hash conflict. In that case, the hash is
+	// not inserted.
+	inline bool setHash( const CHash& rHash );
 
-	// Sets a list of hashes for the file.
-	inline void setHashes( const QList<CHash*>& lHashes );
+	// Sets a single hash for the file and takes control of that hash. Use this only if you do not
+	// use the hash anymore afterwards. Returns false on hash conflict. In that case, the hash is
+	// not inserted and deleted. Else, the hash is deleted uppon the destruction of the file or once
+	// it is removed explicitly from the file.
+	inline bool setHash( CHash* pHash );
+
+	// Sets a list of hashes for the file. Returns false on hash conflict. In that case, no hash is
+	// inserted.
+	inline bool setHashes(const HashSet& vHashes );
 
 	// Removes a hash from the set of hashes of a file. Returns false if the requested
 	// hash could not be found; otherwise returns true.
-	bool removeHash( const CHash& oHash );
+	bool removeHash( const CHash& rHash );
 
 	// Creates an URI of the files attributes.
 	QString toURI( URIType type ) const;
@@ -155,22 +162,24 @@ bool CFile::isNull() const
 	return m_bNull;
 }
 
-QList< CHash > CFile::getHashes() const
+const HashSet& CFile::getHashes() const
 {
-	return m_Hashes;
+	return m_vHashes;
 }
 
-void CFile::setHash( const CHash& oHash )
+bool CFile::setHash( const CHash& rHash )
 {
-	m_Hashes.push_back( oHash );
+	return m_vHashes.insert( rHash );
 }
 
-void CFile::setHashes( const QList<CHash*>& lHashes )
+bool CFile::setHash( CHash* pHash )
 {
-	for ( int i = 0, nSize = lHashes.size(); i < nSize; ++i )
-	{
-		m_Hashes.append( *lHashes[i] );
-	}
+	return m_vHashes.insert( pHash );
+}
+
+bool CFile::setHashes( const HashSet& vHashes )
+{
+	return m_vHashes.insert( vHashes );
 }
 
 void CFile::setTag( const QString& sTag )

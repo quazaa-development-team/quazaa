@@ -31,35 +31,35 @@
 
 #include "debug_new.h"
 
-CDownloadSource::CDownloadSource( Download* pDownload, QObject* parent )
-	: QObject( parent ),
-	  m_bPush( false ),
-	  m_nFailures( 0 ),
-	  m_pDownload( pDownload ),
-	  m_pTransfer( 0 ),
-	  m_lAvailableFrags( pDownload->m_nSize ),
-	  m_lDownloadedFrags( pDownload->m_nSize )
+CDownloadSource::CDownloadSource( Download* pDownload, QObject* parent ) :
+	QObject( parent ),
+	m_bPush( false ),
+	m_tNextAccess( common::getTNowUTC() ),
+	m_nFailures( NULL ),
+	m_pDownload( pDownload ),
+	m_pTransfer( NULL ),
+	m_lAvailableFrags( pDownload->m_nSize ),
+	m_lDownloadedFrags( pDownload->m_nSize )
 {
-	m_tNextAccess = time( 0 );
 }
 
-CDownloadSource::CDownloadSource( Download* pDownload, QueryHit* pHit, QObject* parent )
-	: QObject( parent ),
-	  m_pDownload( pDownload ),
-	  m_pTransfer( 0 ),
-	  m_lAvailableFrags( pDownload->m_nSize ),
-	  m_lDownloadedFrags( pDownload->m_nSize )
+CDownloadSource::CDownloadSource( Download* pDownload, QueryHit* pHit, QObject* parent ) :
+	QObject( parent ),
+	m_oAddress( pHit->m_pHitInfo->m_oNodeAddress ),
+	m_bPush( false ), // TODO: Push requests.
+	m_nProtocol( tpHTTP ),
+	m_nNetwork( DiscoveryProtocol::G2 ),
+	m_oGUID( pHit->m_pHitInfo->m_oNodeGUID ),
+	m_vHashes( HashSet( pHit->m_vHashes ) ),
+	m_tNextAccess( common::getTNowUTC() ),
+	m_nFailures( 0 ),
+	m_sURL( pHit->m_sURL ),
+	m_pDownload( pDownload ),
+	m_pTransfer( 0 ),
+	m_lAvailableFrags( pDownload->m_nSize ),
+	m_lDownloadedFrags( pDownload->m_nSize )
 {
-	m_oAddress = pHit->m_pHitInfo->m_oNodeAddress;
-	m_bPush = false; // TODO: Push requests.
 	m_oPushProxies << pHit->m_pHitInfo->m_lNeighbouringHubs;
-	m_nProtocol = tpHTTP;
-	m_nNetwork = DiscoveryProtocol::G2;
-	m_oGUID = pHit->m_pHitInfo->m_oNodeGUID;
-	m_lHashes << pHit->m_lHashes;
-	m_tNextAccess = time( 0 );
-	m_nFailures = 0;
-	m_sURL = pHit->m_sURL;
 }
 
 CDownloadSource::~CDownloadSource()

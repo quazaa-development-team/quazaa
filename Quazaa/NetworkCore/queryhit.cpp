@@ -30,7 +30,7 @@
 
 QueryHit::QueryHit() :
 	m_pNext( NULL ),
-	m_lHashes( HashVector() ),
+	m_vHashes( HashSet() ),
 	m_nObjectSize( 0 ),
 	m_nCachedSources( 0 ),
 	m_bIsPartial( false ),
@@ -47,7 +47,7 @@ QueryHit::QueryHit() :
 QueryHit::QueryHit( QueryHit* pHit ):
 	m_pNext( NULL ),
 	m_pHitInfo( pHit->m_pHitInfo ),
-	m_lHashes( pHit->m_lHashes ),
+	m_vHashes( pHit->m_vHashes ),
 	m_sDescriptiveName( pHit->m_sDescriptiveName ),
 	m_sURL( pHit->m_sURL ),
 	m_sMetadata( pHit->m_sMetadata ),
@@ -238,10 +238,9 @@ QueryHit* QueryHit::readPacket( G2Packet* pPacket, QueryHitInfo* pHitInfo )
 							CHash* pHash = CHash::fromRaw( hashBuff, CHash::SHA1 );
 							if ( pHash )
 							{
-								pHit->m_lHashes.push_back( *pHash );
+								pHit->m_vHashes.insert( pHash );
 								bHaveURN = true;
 							}
-							delete pHash;
 							// TODO: Tiger
 						}
 						else if ( nLengthX >= CHash::byteCount( CHash::SHA1 ) + 5u && sURN.compare( "sha1" ) == 0 )
@@ -251,10 +250,9 @@ QueryHit* QueryHit::readPacket( G2Packet* pPacket, QueryHitInfo* pHitInfo )
 							CHash* pHash = CHash::fromRaw( hashBuff, CHash::SHA1 );
 							if ( pHash )
 							{
-								pHit->m_lHashes.push_back( *pHash );
+								pHit->m_vHashes.insert( pHash );
 								bHaveURN = true;
 							}
-							delete pHash;
 						}
 					}
 					else if ( !strcmp( "URL", szTypeX ) && nLengthX )
@@ -400,14 +398,14 @@ void QueryHit::resolveURLs()
 		return;
 	}
 
-	if ( m_lHashes.empty() )
+	if ( m_vHashes.empty() )
 	{
 		return;
 	}
 
 	m_sURL = QString( "http://%1/uri-res/N2R?%2"
-					).arg( m_pHitInfo->m_oNodeAddress.toStringWithPort()
-						 ).arg( m_lHashes[0].toURN() );
+					  ).arg( m_pHitInfo->m_oNodeAddress.toStringWithPort()
+							 ).arg( m_vHashes.mostImportant()->toURN() );
 }
 
 bool QueryHit::isValid( Query* pQuery ) const

@@ -890,9 +890,9 @@ bool QueryHashTable::checkQuery( QuerySharedPtr pQuery )
 		return true;
 	}
 
-	for ( int i = 0; i < pQuery->m_lHashes.size(); ++i )
+	for ( quint8 i = 0, nSize = pQuery->m_vHashes.size(); i < nSize; ++i )
 	{
-		if ( checkString( pQuery->m_lHashes[i].toURN() ) )
+		if ( pQuery->m_vHashes[i] && checkString( pQuery->m_vHashes[i]->toURN() ) )
 		{
 			return true;
 		}

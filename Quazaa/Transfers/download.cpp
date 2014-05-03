@@ -38,55 +38,60 @@
 
 using namespace common;
 
-QDataStream& operator<<( QDataStream& s, const Download& rhs )
+QDataStream& operator<<( QDataStream& oStream, const Download& rhs )
 {
 	// basic info
-	s << quint32( 1 ); // version
-	s << "dn" << rhs.m_sDisplayName;
-	s << "tn" << rhs.m_sTempName;
-	s << "s" << rhs.m_nSize;
-	s << "cs" << rhs.m_nCompletedSize;
-	s << "state" << rhs.m_nState;
-	s << "mf" << rhs.m_bMultifile;
-	s << "pr" << rhs.m_nPriority;
+	oStream << quint32( 1 ); // version
+	oStream << "dn" << rhs.m_sDisplayName;
+	oStream << "tn" << rhs.m_sTempName;
+	oStream << "s" << rhs.m_nSize;
+	oStream << "cs" << rhs.m_nCompletedSize;
+	oStream << "state" << rhs.m_nState;
+	oStream << "mf" << rhs.m_bMultifile;
+	oStream << "pr" << rhs.m_nPriority;
 
 	// files
-	foreach ( const Download::FileListItem & i, rhs.m_lFiles )
+	foreach ( const Download::FileListItem & item, rhs.m_lFiles )
 	{
-		s << "file" << quint32( 1 ); // version
-		s << "name" << i.sFileName;
-		s << "path" << i.sPath;
-		s << "tempname" << i.sTempName;
-		s << "so" << i.nStartOffset;
-		s << "eo" << i.nEndOffset;
-		foreach ( const CHash & rHash, i.lHashes )
+		oStream << "file" << quint32( DOWNLOAD_CODE_FILE_VERSION ); // version
+		oStream << "name" << item.sFileName;
+		oStream << "path" << item.sPath;
+		oStream << "tempname" << item.sTempName;
+		oStream << "so" << item.nStartOffset;
+		oStream << "eo" << item.nEndOffset;
+
+		for ( quint8 i = 0, nSize = item.vHashes.size(); i < nSize; ++i )
 		{
-			s << "hash" << rHash.toURN();
+			if ( item.vHashes[i] )
+			{
+				oStream << "hash" << item.vHashes[i]->toURN();
+			}
 		}
-		s << "file-end";
+
+		oStream << "file-end";
 	}
 
 	// sources
 	foreach ( CDownloadSource * pSource, rhs.m_lSources )
 	{
-		s << *pSource;
+		oStream << *pSource;
 	}
 
-	s << "completed-frags";
-	Fragments::SerializeOut( s, rhs.m_lCompleted );
-	s << "verified-frags";
-	Fragments::SerializeOut( s, rhs.m_lCompleted );
+	oStream << "completed-frags";
+	Fragments::SerializeOut( oStream, rhs.m_lCompleted );
+	oStream << "verified-frags";
+	Fragments::SerializeOut( oStream, rhs.m_lCompleted );
 
-	s << "eof";
-	return s;
+	oStream << "eof";
+	return oStream;
 }
 QDataStream& operator>>( QDataStream& s, Download& rhs )
 {
-	quint32 nVer;
+	quint32 nVersion;
 
-	s >> nVer;
+	s >> nVersion;
 
-	if ( nVer == 1 )
+	if ( nVersion == 1 ) // DOWNLOAD_CODE_FILE_VERSION
 	{
 		QByteArray sTag;
 		s >> sTag;
@@ -170,9 +175,7 @@ QDataStream& operator>>( QDataStream& s, Download& rhs )
 						{
 							QString sHash;
 							s >> sHash;
-							CHash* pHash = CHash::fromURN( sHash );
-							item.lHashes.append( *pHash );
-							delete pHash;
+							item.vHashes.insert( CHash::fromURN( sHash ) );
 						}
 
 						s >> sTag2;
@@ -221,8 +224,6 @@ Download::Download( QueryHit* pHit, QObject* parent ) :
 	m_nSize = pHit->m_nObjectSize;
 	m_nCompletedSize = 0;
 	m_sTempName = getTempFileName( m_sDisplayName );
-
-	m_lHashes.reserve( CHash::NO_OF_HASH_TYPES );
 
 	FileListItem oFile;
 	oFile.sFileName = fixFileName( m_sDisplayName );
@@ -280,6 +281,8 @@ bool Download::addSource( CDownloadSource* pSource )
 
 	return true;
 }
+
+// TODO: check whether this is actually ever called for hits with m_pNext != NULL
 int Download::addSource( QueryHit* pHit )
 {
 	QueryHit* pCurrentHit = pHit;
@@ -287,36 +290,15 @@ int Download::addSource( QueryHit* pHit )
 
 	while ( pCurrentHit )
 	{
-		// add hashes
-		CHash* pNewHashes                      = &pCurrentHit->m_lHashes[0];
-		const HashVector::size_type nNewHashes =  pCurrentHit->m_lHashes.size();
-
-		for ( HashVector::size_type n = 0; n < nNewHashes; ++n )
+		if ( !m_vHashes.insert( pCurrentHit->m_vHashes ) )
 		{
-			bool bNew = true;
-
-			CHash* pExistingHashes                      = &m_lHashes[0];
-			const HashVector::size_type nExistingHashes =  m_lHashes.size();
-
-			for ( HashVector::size_type i = 0; i < nExistingHashes; ++i )
-			{
-				if ( pNewHashes[n] == pExistingHashes[i] )
-				{
-					bNew = false;
-					break;
-				}
-			}
-
-			if ( bNew )
-			{
-				m_lHashes.push_back( pNewHashes[n] );
-			}
+			// TODO: handle hash conflicts
 		}
 
 		CDownloadSource* pSource = new CDownloadSource( this, pCurrentHit );
 		if ( addSource( pSource ) )
 		{
-			nSources++;
+			++nSources;
 		}
 		else
 		{

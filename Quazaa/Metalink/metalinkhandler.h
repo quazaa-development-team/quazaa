@@ -34,14 +34,14 @@ struct MediaURI
 
 struct MetaFile
 {
-	quint16 m_nID;           // We assume there are no more than 2^16 files in a metalink XML.
-	quint64 m_nFileSize;
-	QString m_sFileName;
-	QString m_sIdentity;
-	QString m_sVersion;
-	QString m_sLanguage;
-	QString m_sDescription;
-	QList<CHash*> m_lHashes; // Includes all hashes provided via <hash> tag.
+	quint16         m_nID;           // We assume there are no more than 2^16 files in a metalink XML.
+	quint64         m_nFileSize;
+	QString         m_sFileName;
+	QString         m_sIdentity;
+	QString         m_sVersion;
+	QString         m_sLanguage;
+	QString         m_sDescription;
+	HashSet      m_vHashes; // Includes all hashes provided via <hash> tag.
 	QList<MediaURI> m_lURIs; // Includes web links, links to .torrent files, as well as Magnets.
 
 	MetaFile();

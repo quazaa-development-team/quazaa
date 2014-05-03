@@ -305,7 +305,7 @@ void WidgetSearchResults::on_actionSearchDownload_triggered()
 
 		if ( tabSearch )
 		{
-			SearchTreeItem* itemSearch = tabSearch->m_pSearchModel->topLevelItemFromIndex( tabSearch->currentItem() );
+			const SearchTreeItem* itemSearch = tabSearch->m_pSearchModel->topLevelItemFromIndex( tabSearch->currentItem() );
 
 			if ( itemSearch != NULL )
 			{

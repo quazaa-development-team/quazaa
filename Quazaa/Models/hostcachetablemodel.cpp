@@ -467,10 +467,13 @@ void HostCacheTableModel::updateAll()
 
 void HostCacheTableModel::clear()
 {
-	beginRemoveRows( QModelIndex(), 0, m_vHosts.size() - 1 );
-	m_vHosts.clear();
-	m_bNeedSorting = false;
-	endRemoveRows();
+	if ( m_vHosts.size() )
+	{
+		beginRemoveRows( QModelIndex(), 0, ( int )( m_vHosts.size() - 1 ) );
+		m_vHosts.clear();
+		m_bNeedSorting = false;
+		endRemoveRows();
+	}
 }
 
 void HostCacheTableModel::updateView( QModelIndexList uplist )

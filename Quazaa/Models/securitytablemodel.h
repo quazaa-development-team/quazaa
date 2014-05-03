@@ -102,7 +102,6 @@ private:
 	quint32         m_nRuleInfo;
 
 protected:
-	// TODO: use std::vector
 	QList<RuleDataPtr> m_lNodes;
 
 public:

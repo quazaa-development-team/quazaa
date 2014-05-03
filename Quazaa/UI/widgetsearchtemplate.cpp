@@ -121,11 +121,11 @@ void WidgetSearchTemplate::changeEvent( QEvent* e )
  * selected item
  * @return A pointer to the hash or NULL if the hash does not exist.
  */
-CHash* WidgetSearchTemplate::getHash()
+const CHash* const WidgetSearchTemplate::getHash() const
 {
-	SearchTreeItem* itemSearch = m_pSearchModel->topLevelItemFromIndex( currentItem() );
+	const SearchTreeItem* itemSearch = m_pSearchModel->topLevelItemFromIndex( currentItem() );
 
-	CHash* pReturnValue = NULL;
+	const CHash* pReturnValue = NULL;
 
 	if ( itemSearch )
 	{
@@ -133,12 +133,8 @@ CHash* WidgetSearchTemplate::getHash()
 		{
 			SearchFile* pFile = ( SearchFile* )itemSearch;
 
-			Q_ASSERT( pFile->m_lHashes.size() );
-
-			if ( pFile->m_lHashes.size() )
-			{
-				pReturnValue = &( pFile->m_lHashes.front() );
-			}
+			Q_ASSERT( !pFile->m_vHashes.empty() );
+			pReturnValue = pFile->m_vHashes.mostImportant();
 		}
 		else if ( itemSearch->type() == SearchTreeItem::SearchHitType )
 		{
@@ -146,12 +142,8 @@ CHash* WidgetSearchTemplate::getHash()
 
 			SearchHit* pHit = ( SearchHit* )itemSearch;
 
-			Q_ASSERT( pHit->m_oHitData.pQueryHit->m_lHashes.size() );
-
-			if ( pHit->m_oHitData.pQueryHit->m_lHashes.size() )
-			{
-				pReturnValue = &( pHit->m_oHitData.pQueryHit->m_lHashes.front() );
-			}
+			Q_ASSERT( !pHit->m_oHitData.pQueryHit->m_vHashes.empty() );
+			pReturnValue = pHit->m_oHitData.pQueryHit->m_vHashes.mostImportant();
 		}
 	}
 
@@ -221,7 +213,7 @@ void WidgetSearchTemplate::onStatsUpdated()
 	emit statsUpdated( this );
 }
 
-QModelIndex WidgetSearchTemplate::currentItem()
+QModelIndex WidgetSearchTemplate::currentItem() const
 {
 	QModelIndex idx = ui->treeViewSearchResults->currentIndex();
 	const QSortFilterProxyModel* pModel = static_cast<const QSortFilterProxyModel*>( idx.model() );
@@ -287,7 +279,7 @@ void WidgetSearchTemplate::loadHeaderState()
 void WidgetSearchTemplate::on_treeViewSearchResults_doubleClicked( const QModelIndex& index )
 {
 	Q_UNUSED( index );
-	SearchTreeItem* itemSearch = m_pSearchModel->topLevelItemFromIndex( currentItem() );
+	const SearchTreeItem* itemSearch = m_pSearchModel->topLevelItemFromIndex( currentItem() );
 
 	if ( itemSearch )
 	{
@@ -336,7 +328,7 @@ void WidgetSearchTemplate::on_treeViewSearchResults_customContextMenuRequested( 
 
 void WidgetSearchTemplate::on_actionDownload_triggered()
 {
-	SearchTreeItem* itemSearch = m_pSearchModel->topLevelItemFromIndex( currentItem() );
+	const SearchTreeItem* itemSearch = m_pSearchModel->topLevelItemFromIndex( currentItem() );
 
 	if ( itemSearch )
 	{
@@ -346,7 +338,7 @@ void WidgetSearchTemplate::on_actionDownload_triggered()
 
 void WidgetSearchTemplate::on_actionViewReviews_triggered()
 {
-	CHash* pHash = getHash();
+	const CHash* pHash = getHash();
 
 	if ( pHash )
 	{
@@ -359,7 +351,7 @@ void WidgetSearchTemplate::on_actionViewReviews_triggered()
 
 void WidgetSearchTemplate::on_actionVirusTotalCheck_triggered()
 {
-	CHash* pHash = getHash();
+	const CHash* pHash = getHash();
 
 	if ( pHash )
 	{

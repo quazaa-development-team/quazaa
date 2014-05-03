@@ -153,7 +153,7 @@ class SearchFile : public SearchTreeItem
 {
 	Q_OBJECT
 public:
-	HashVector      m_lHashes;
+	HashSet      m_vHashes;
 
 public:
 	SearchFile( SearchTreeItem* parent, const QueryHit* const pHit, const QFileInfo& fileInfo );
@@ -166,7 +166,7 @@ public:
 	void updateHitCount(); // change number of hits
 
 private:
-	void insertHashes( const HashVector& vHashes );
+	void insertHashes( const HashSet& vHashes );
 	bool duplicateHitCheck( QueryHit* pNewHit ) const;
 	void addQueryHit( QueryHit* pHit, const QFileInfo& fileInfo );
 
@@ -219,7 +219,7 @@ public:
 
 	bool fileVisible( int row ) const;
 
-	SearchTreeItem* topLevelItemFromIndex( QModelIndex index );
+	const SearchTreeItem* topLevelItemFromIndex( QModelIndex index ) const;
 	SearchTreeItem* itemFromIndex( QModelIndex index );
 
 	SearchFilter::FilterControlData* getFilterControlDataCopy() const;

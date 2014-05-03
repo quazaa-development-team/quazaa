@@ -29,19 +29,26 @@
 
 struct invalid_hash_exception {};
 
+// TODO: using shared data for both CHash and HashVector might be advantageous
 class CHash
 {
-
 public:
 	// When adding new hashes, make sure the values are assigned by hash importance.
 	// Exclude Algorithm::Null from NO_OF_HASH_TYPES
-	enum Algorithm { Null = 0, MD4 = 1, MD5 = 2, SHA1 = 10, NO_OF_HASH_TYPES = 3 };
+	enum Algorithm { Null = 0, MD4 = 1, MD5 = 2, SHA1 = 10, NO_OF_HASH_ALGOS = 3 };
+
+private:
+	// Sorted by descending order of importance. For usage within HashVector.
+	enum Type { SHA1TYPE = 0, MD5TYPE = 1, MD4TYPE = 2, NO_OF_TYPES = 3 };
 
 protected:
 	void*               m_pContext;
 	bool                m_bFinalized;
-	CHash::Algorithm    m_nHashAlgorithm;
 	QByteArray          m_baRawValue;
+
+private:
+	CHash::Algorithm    m_nHashAlgorithm;
+	CHash::Type     m_eType;          // for usage with HashVector only
 
 public:
 	CHash( const CHash& rhs );
@@ -66,13 +73,19 @@ public:
 
 	void finalize();
 
-	inline CHash::Algorithm getAlgorithm() const;
+	inline CHash::Algorithm algorithm() const;
 	inline QByteArray rawValue() const;
 
 	inline bool operator==( const CHash& oHash ) const;
 	inline bool operator!=( const CHash& oHash ) const;
 	inline bool operator>( const CHash& oHash ) const;
 	inline bool operator<( const CHash& oHash ) const;
+
+private: // for use with HashVector only
+	CHash::Type type() const;
+	static CHash::Type algoToType( CHash::Algorithm eAlgo );
+
+	friend class HashSet;
 };
 
 // allows using CHash with std::unordered_map
@@ -88,9 +101,7 @@ struct hash<CHash> : public unary_function<CHash, size_t>
 };
 }
 
-typedef std::vector< CHash > HashVector;
-
-CHash::Algorithm CHash::getAlgorithm() const
+CHash::Algorithm CHash::algorithm() const
 {
 	return m_nHashAlgorithm;
 }
@@ -124,9 +135,48 @@ bool CHash::operator >( const CHash& oHash ) const
 QDataStream& operator<<( QDataStream& s, const CHash& rhs );
 QDataStream& operator>>( QDataStream& s, CHash& rhs );
 
-QList<CHash>& operator<<(      QList<CHash>& list, const HashVector& vector );
-QList<CHash>& operator>>( const QList<CHash>& list,       HashVector& vector );
-HashVector&   operator<<(      HashVector& vector, const QList<CHash>& list );
-HashVector&   operator>>( const HashVector& vector,       QList<CHash>& list );
+class HashSet
+{
+private:
+	CHash** m_pHashes;
+
+public:
+	HashSet();
+	HashSet( const HashSet& other );
+	~HashSet();
+
+	bool insert( CHash* pHash );
+	bool insert( const CHash& rHash );
+	bool insert( const HashSet& other );
+
+	bool remove( const CHash& rHash );
+	bool remove( CHash::Algorithm eAlgo );
+
+	const CHash* const mostImportant() const;
+	const CHash* const get( CHash::Algorithm eAlgo ) const;
+
+	bool contains( const CHash& rHash ) const;
+	bool conflicts( const CHash& rHash ) const;
+
+	quint8 size() const;
+	quint8 hashCount() const;
+	bool empty() const;
+
+	void simplifyByHashPriority( quint8 nNumberOfHashes );
+
+public:
+	const CHash* const & operator[]( quint8 pos ) const;
+	bool operator==( const HashSet& other ) const;
+	bool operator!=( const HashSet& other ) const;
+	bool matches( const HashSet& other ) const;
+
+	friend class CHash;
+	//friend class HashRule;
+};
+
+QList<CHash>& operator<<(       QList<CHash>& list, const HashSet& vector );
+QList<CHash>& operator>>( const QList<CHash>& list,       HashSet& vector );
+HashSet&   operator<<(       HashSet& vector, const QList<CHash>& list );
+HashSet&   operator>>( const HashSet& vector,       QList<CHash>& list );
 
 #endif // HASH_H

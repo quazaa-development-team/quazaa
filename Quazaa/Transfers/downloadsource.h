@@ -15,12 +15,13 @@ class CDownloadSource : public QObject
 public:
 	EndPoint			m_oAddress;		// source address
 	bool				m_bPush;		// is it a push source?
-	QList<EndPoint>	m_oPushProxies;	// push proxy, in case we can't connect directly
-	TransferProtocol	m_nProtocol;	// protocol
+	QList<EndPoint>     m_oPushProxies;	// push proxy, in case we can't connect directly
+	TransferProtocol    m_nProtocol;	// protocol
 	DiscoveryProtocol::Protocol	m_nNetwork;		// network
 	QUuid				m_oGUID;		// source GUID (needed for pushing)
-	QList<CHash>		m_lHashes;		// list of hashes
-	time_t				m_tNextAccess;	// seconds since 1970
+
+	HashSet          m_vHashes;		// list of hashes
+	quint32				m_tNextAccess;	// seconds since 1970
 	quint32				m_nFailures;	// number of failures
 	QString				m_sURL;			// URL
 

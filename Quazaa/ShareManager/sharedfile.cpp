@@ -123,11 +123,15 @@ void CSharedFile::serialize( QSqlDatabase* pDatabase )
 		QMap<QString, QVariant> mapValues;
 		mapValues.insert( "file_id", QVariant( nFileID ) );
 
-		foreach ( const CHash & rHash, m_Hashes )
+		for ( quint8 i = 0, nSize = m_vHashes.size(); i < nSize; ++i )
 		{
-			if ( pDatabase->record( "hashes" ).contains( rHash.getFamilyName() ) )
+			const CHash* const pHash =  m_vHashes[i];
+			if ( pHash )
 			{
-				mapValues.insert( rHash.getFamilyName(), rHash.rawValue() );
+				if ( pDatabase->record( "hashes" ).contains( pHash->getFamilyName() ) )
+				{
+					mapValues.insert( pHash->getFamilyName(), pHash->rawValue() );
+				}
 			}
 		}
 

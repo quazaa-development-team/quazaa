@@ -115,18 +115,22 @@ bool CMetalink4Handler::parseFile( QList<MetaFile>& lFiles, quint16 ID )
 		{
 			if ( vAttributes.hasAttribute( "type" ) )
 			{
-				QString urn = "urn:" + vAttributes.value( "type" ).toString().trimmed() + ":" +
-							  m_oMetaLink.readElementText();
-				CHash* pHash = CHash::fromURN( urn );
+				const QString sType = vAttributes.value( "type" ).toString().trimmed();
+				const QString sUrn = "urn:" + sType + ":" + m_oMetaLink.readElementText();
+				CHash* pHash = CHash::fromURN( sUrn );
 
 				if ( pHash )
 				{
-					oCurrentFile.m_lHashes.append( pHash );
+					if ( !oCurrentFile.m_vHashes.insert( pHash ) )
+					{
+						postParsingInfo( m_oMetaLink.lineNumber(),
+										 tr( "Found and ignored conflicting hash of type \"%1\" within <hash> tag." ).arg( sType ) );
+					}
 				}
 				else
 				{
 					postParsingInfo( m_oMetaLink.lineNumber(),
-									 tr( "Found unsupported hash of type \"%1\" within <hash> tag." ) );
+									 tr( "Found unsupported hash of type \"%1\" within <hash> tag." ).arg( sType ) );
 					continue;
 				}
 			}

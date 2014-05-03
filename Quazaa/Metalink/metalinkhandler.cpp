@@ -40,7 +40,7 @@ MetaFile::MetaFile( quint16 ID ) :
 
 bool MetaFile::isValid() const
 {
-	return m_lHashes.size() || m_lURIs.size();
+	return !m_vHashes.empty() || m_lURIs.size();
 }
 
 QFile& CMetalinkHandler::m_oEmptyQFile = getEmptyStaticFile();

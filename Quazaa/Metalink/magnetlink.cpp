@@ -15,12 +15,11 @@ CMagnet::MagnetFile::MagnetFile() :
 
 CMagnet::MagnetFile::~MagnetFile()
 {
-	qDeleteAll( m_lHashes );
 }
 
 bool CMagnet::MagnetFile::isValid() const
 {
-	return m_lHashes.size() || m_lURLs.size();
+	return !m_vHashes.empty() || m_lURLs.size();
 }
 
 CMagnet::CMagnet() :
@@ -132,12 +131,16 @@ bool CMagnet::parseMagnet( QString sMagnet )
 
 				if ( pHash )
 				{
-					mFiles[nFileNo].m_lHashes.append( pHash );
+					if ( !mFiles[nFileNo].m_vHashes.insert( pHash ) )
+					{
+						systemLog.postLog( LogSeverity::Error, QObject::tr( "Detected and ignored conflicting hash within Magnet Link:" ) );
+						systemLog.postLog( LogSeverity::Error, m_sMagnet );
+					}
 				}
 				else
 				{
 					QString sub = QObject::tr( "Hash URN: %1" ).arg( sSubsection );
-					systemLog.postLog( LogSeverity::Error, QObject::tr( "Detected unknown hash type within Magnet Link:" ) );
+					systemLog.postLog( LogSeverity::Error, QObject::tr( "Detected and ignored unknown hash type within Magnet Link:" ) );
 					systemLog.postLog( LogSeverity::Error, m_sMagnet );
 					systemLog.postLog( LogSeverity::Error, sub );
 

@@ -127,14 +127,14 @@ void CFileHasher::run()
 
 		bool bHashed = true;
 
-		QList<CHash*> lHashes;
+		std::vector<CHash*> vHashes;
 
 		if ( pFile->exists() && pFile->open( QFile::ReadOnly ) )
 		{
 			baBuffer.resize( nBufferSize );
 
-			lHashes.append( new CHash( CHash::SHA1 ) );
-			lHashes.append( new CHash( CHash::MD5 ) );
+			vHashes.push_back( new CHash( CHash::SHA1 ) );
+			vHashes.push_back( new CHash( CHash::MD5  ) );
 
 			tTimer.start();
 //			double nLastPercent = 0;
@@ -168,9 +168,9 @@ void CFileHasher::run()
 
 				nTotalRead += nRead;
 
-				for ( int i = 0; i < lHashes.size(); i++ )
+				for ( size_t i = 0, nSize = vHashes.size(); i < nSize; ++i )
 				{
-					lHashes[i]->addData( baBuffer );
+					vHashes[i]->addData( baBuffer );
 				}
 
 				if ( tTimer.elapsed() >= 1000 )
@@ -196,18 +196,15 @@ void CFileHasher::run()
 
 		if ( bHashed )
 		{
-			for ( int i = 0; i < lHashes.size(); i++ )
+			for ( size_t i = 0, nSize = vHashes.size(); i < nSize; ++i )
 			{
-				lHashes[i]->finalize();
-				systemLog.postLog( LogSeverity::Debug, QString( "%1" ).arg( lHashes[i]->toURN() ) );
+				vHashes[i]->finalize();
+				pFile->setHash( vHashes[i] );
+				systemLog.postLog( LogSeverity::Debug, QString( "%1" ).arg( vHashes[i]->toURN() ) );
 				//qDebug() << pFile->m_lHashes[i]->ToURN();
 			}
-
-			pFile->setHashes( lHashes );
 			emit fileHashed( pFile );
 		}
-
-		qDeleteAll( lHashes );
 
 		msleep( 150 );
 

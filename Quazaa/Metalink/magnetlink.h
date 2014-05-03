@@ -7,11 +7,10 @@
 
 #include "download.h"
 
-class CHash;
-
 namespace URI
 {
 
+// TODO: rename
 class CMagnet
 {
 public:
@@ -19,24 +18,24 @@ public:
 	// internal storage structure
 	struct MediaURL
 	{
-		QUrl	m_oURL;
-		quint8	m_nPriority;		// 255: highest priority; 1: lowest priority; 0: temporary disabled
+		QUrl    m_oURL;
+		quint8  m_nPriority;		// 255: highest priority; 1: lowest priority; 0: temporary disabled
 	};
 
 	// internal storage structure
 	struct MagnetFile
 	{
-		bool			m_bNull;
-		quint64			m_nFileSize;
-		QString			m_sFileName;
-		QList<CHash*>	m_lHashes;		// Includes all hashes provided via <hash> tag.
-		QList<MediaURL>	m_lURLs;		// Includes http, https, ftp, ftps, etc.
-		QList<QUrl>		m_lTrackers;	// BitTorrent Trackers for this file
+		bool            m_bNull;
+		quint64         m_nFileSize;
+		QString         m_sFileName;
+		HashSet      m_vHashes;      // Includes all hashes provided via <hash> tag.
+		QList<MediaURL> m_lURLs;        // Includes http, https, ftp, ftps, etc.
+		QList<QUrl>     m_lTrackers;    // BitTorrent Trackers for this file
 
-		MagnetFile();	   // Creates an empty MagnetFile. Note that m_bNull needs to be handled manually.
+		MagnetFile();   // Creates an empty MagnetFile. Note that m_bNull needs to be handled manually.
 		~MagnetFile();
 		bool isNull() const;
-		bool isValid() const;// Returns true if file struct contains enough data to initialize a download.
+		bool isValid() const; // Returns true if file struct contains enough data to initialize a download.
 	};
 
 private:

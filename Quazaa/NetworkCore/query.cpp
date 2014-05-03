@@ -26,7 +26,6 @@
 #include "g2packet.h"
 #include "queryhashtable.h"
 #include "network.h"
-#include "Hashes/hash.h"
 
 #include "debug_new.h"
 
@@ -54,9 +53,10 @@ void Query::setSizeRestriction( quint64 nMin, quint64 nMax )
 	m_nMinimumSize = nMin;
 	m_nMaximumSize = nMax;
 }
-void Query::addURN( const CHash& pHash )
+bool Query::addURN( const CHash& rHash )
 {
-	m_lHashes.append( pHash );
+	// returns false on hash conflict
+	return m_vHashes.insert( rHash );
 }
 
 G2Packet* Query::toG2Packet( EndPoint* pAddr, quint32 nKey )
@@ -84,10 +84,13 @@ G2Packet* Query::toG2Packet( EndPoint* pAddr, quint32 nKey )
 		pPacket->writePacket( "MD", m_sMetadata.toUtf8().size() )->writeString( m_sMetadata, false );
 	}
 
-	foreach ( const CHash & rHash, m_lHashes )
+	for ( quint8 i = 0, nSize = m_vHashes.size(); i < nSize; ++i )
 	{
-		pPacket->writePacket( "URN", rHash.getFamilyName().size() + CHash::byteCount( rHash.getAlgorithm() ) + 1 );
-		pPacket->writeString( rHash.getFamilyName() + "\0" + rHash.rawValue(), false );
+		if ( m_vHashes[i] )
+		{
+			pPacket->writePacket( "URN", m_vHashes[i]->getFamilyName().size() + CHash::byteCount( m_vHashes[i]->algorithm() ) + 1 );
+			pPacket->writeString( m_vHashes[i]->getFamilyName() + "\0" + m_vHashes[i]->rawValue(), false );
+		}
 	}
 
 	/*if( m_nMinimumSize > 0 && m_nMaximumSize < 0xFFFFFFFFFFFFFFFF )
@@ -316,8 +319,7 @@ bool Query::fromG2Packet( G2Packet* pPacket, const EndPoint* const pEndpoint )
 				CHash* pHash = CHash::fromRaw( hashBuff, CHash::SHA1 );
 				if ( pHash )
 				{
-					m_lHashes.append( *pHash );
-					delete pHash;
+					m_vHashes.insert( pHash );
 				}
 				// TODO: Tiger
 			}
@@ -328,8 +330,7 @@ bool Query::fromG2Packet( G2Packet* pPacket, const EndPoint* const pEndpoint )
 				CHash* pHash = CHash::fromRaw( hashBuff, CHash::SHA1 );
 				if ( pHash )
 				{
-					m_lHashes.append( *pHash );
-					delete pHash;
+					m_vHashes.insert( pHash );
 				}
 			}
 		}
@@ -371,7 +372,7 @@ bool Query::checkValid()
 {
 	buildG2Keywords( m_sDescriptiveName );
 
-	if ( m_lHashes.isEmpty() && m_lHashedKeywords.isEmpty() )
+	if ( m_vHashes.empty() && m_lHashedKeywords.isEmpty() )
 	{
 		return false;
 	}

@@ -74,7 +74,7 @@ public:
 	void pauseSearch();
 	void stopSearch();
 	void clearSearch();
-	QModelIndex currentItem();
+	QModelIndex currentItem() const;
 
 	void filter( const SearchFilter::FilterControlData& rData );
 	SearchFilter::FilterControlData* getFilterDataCopy() const;
@@ -84,7 +84,7 @@ protected:
 	void changeEvent( QEvent* e );
 
 private:
-	CHash* getHash();
+	const CHash* const getHash() const;
 
 signals:
 	void statsUpdated( WidgetSearchTemplate* thisSearch );

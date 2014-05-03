@@ -9,6 +9,8 @@ class CDownloadSource;
 class QueryHit;
 class CTransfer;
 
+#define DOWNLOAD_CODE_FILE_VERSION 1
+
 class Download : public QObject
 {
 	Q_OBJECT
@@ -17,11 +19,11 @@ public:
 	struct FileListItem
 	{
 		QString sFileName;
-		QString sPath; // for multifile downloads (like torrents)
+		QString sPath;          // for multifile downloads (like torrents)
 		QString sTempName;
 		quint64 nStartOffset;
 		quint64 nEndOffset;
-		QList<CHash> lHashes;
+		HashSet vHashes;
 	};
 	enum DownloadState
 	{
@@ -47,21 +49,25 @@ public:
 	Fragments::List			m_lCompleted;
 	Fragments::List			m_lVerified;
 	Fragments::List			m_lActive;
-	HashVector				m_lHashes; // hashes for whole download
+	HashSet                 m_vHashes; // hashes for whole download
 
 	bool					m_bSignalSources;
 	quint8					m_nPriority; // 255: highest priority; 1: lowest priority; 0: temporary disabled
 	bool					m_bModified;
 	int						m_nTransfers;
 	QDateTime				m_tStarted;
+
 public:
-	Download()
-		: m_lCompleted( 0 ),
-		  m_lVerified( 0 ),
-		  m_lActive( 0 ),
-		  m_bSignalSources( false ), m_bModified( false ), m_nTransfers( 0 )
+	Download() :
+		m_lCompleted( 0 ),
+		m_lVerified( 0 ),
+		m_lActive( 0 ),
+		m_bSignalSources( false ),
+		m_bModified( false ),
+		m_nTransfers( 0 )
 	{}
-	Download( QueryHit* pHit, QObject* parent = 0 );
+
+	Download( QueryHit* pHit, QObject* parent = NULL );
 	~Download();
 
 	void start();
@@ -96,8 +102,8 @@ public slots:
 	void emitSources();
 };
 
-Q_DECLARE_METATYPE( Download* );
-Q_DECLARE_METATYPE( Download::DownloadState );
+Q_DECLARE_METATYPE( Download* )
+Q_DECLARE_METATYPE( Download::DownloadState )
 
 QDataStream& operator<<( QDataStream& s, const Download& rhs );
 QDataStream& operator>>( QDataStream& s, Download& rhs );

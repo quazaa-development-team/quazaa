@@ -203,10 +203,13 @@ void TreeRoot::removeChild( int position )
 	SearchTreeItem* pItem = m_lChildItems.at( position );
 	Q_ASSERT( pItem->type() == SearchFileType );
 
-	const CHash* pHashes = &( ( SearchFile* )pItem )->m_lHashes[0];
-	for ( size_t i = 0, nSize = ( ( SearchFile* )pItem )->m_lHashes.size(); i < nSize; ++i )
+	const CHash* const * pHashes = &( ( SearchFile* )pItem )->m_vHashes[0];
+	for ( quint8 i = 0, nSize = ( ( SearchFile* )pItem )->m_vHashes.size(); i < nSize; ++i )
 	{
-		unregisterHash( pHashes[i] );
+		if ( pHashes[i] )
+		{
+			unregisterHash( *pHashes[i] );
+		}
 	}
 
 	removeFromFilterControl( pItem );
@@ -233,13 +236,15 @@ QueryHit* TreeRoot::addQueryHit( QueryHit* pHit )
 	int existingFileEntry = -1;
 
 	// Check for duplicate file.
-
-	for ( size_t i = 0, nSize = pHit->m_lHashes.size(); i < nSize; ++i )
+	for ( quint8 i = 0, nSize = pHit->m_vHashes.size(); i < nSize; ++i )
 	{
-		existingFileEntry = find( pHit->m_lHashes[i] );
-		if ( existingFileEntry != -1 )
+		if ( pHit->m_vHashes[i] )
 		{
-			break;
+			existingFileEntry = find( *pHit->m_vHashes[i] );
+			if ( existingFileEntry != -1 )
+			{
+				break;
+			}
 		}
 	}
 
@@ -319,7 +324,7 @@ void TreeRoot::removeFromFilterControl( SearchTreeItem* pItem )
 SearchFile::SearchFile( SearchTreeItem* parent,
 						const QueryHit* const pHit, const QFileInfo& fileInfo ) :
 	SearchTreeItem( parent ),
-	m_lHashes( HashVector( pHit->m_lHashes ) )
+	m_vHashes( HashSet( pHit->m_vHashes ) )
 {
 	m_eType = SearchFileType;
 
@@ -333,10 +338,13 @@ SearchFile::SearchFile( SearchTreeItem* parent,
 	m_pItemData[CLIENT]    = "";
 	m_pItemData[COUNTRY]   = "";
 
-	const CHash* pHashes = &m_lHashes[0];
-	for ( size_t i = 0, nSize = m_lHashes.size(); i < nSize; ++i )
+	const CHash* const * pHashes = &m_vHashes[0];
+	for ( quint8 i = 0, nSize = m_vHashes.size(); i < nSize; ++i )
 	{
-		( ( TreeRoot* )m_pParentItem )->registerHash( pHashes[i], this );
+		if ( pHashes[i] )
+		{
+			( ( TreeRoot* )m_pParentItem )->registerHash( *pHashes[i], this );
+		}
 	}
 }
 
@@ -363,17 +371,7 @@ void SearchFile::removeChild( int position )
 
 bool SearchFile::manages( const CHash& rHash ) const
 {
-	const CHash* pHashes = &m_lHashes[0];
-
-	for ( char i = 0; i < m_lHashes.size(); ++i )
-	{
-		if ( pHashes[i] == rHash )
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return m_vHashes.contains( rHash );
 }
 
 /**
@@ -399,16 +397,20 @@ void SearchFile::updateHitCount()
 	m_pItemData[HOSTCOUNT] = m_lChildItems.size();
 }
 
-void SearchFile::insertHashes( const HashVector& vHashes )
+void SearchFile::insertHashes( const HashSet& vHashes )
 {
+	Q_ASSERT( !vHashes.empty() );
+
 	// TODO: hash collision detection
-	const CHash* pHashes = &vHashes[0];
-	for ( size_t i = 0, nSize = vHashes.size(); i < nSize; ++i )
+	const CHash* const * pHashes = &vHashes[0];
+	for ( quint8 i = 0, nSize = vHashes.size(); i < nSize; ++i )
 	{
-		if ( !manages( pHashes[i] ) )
+		if ( pHashes[i] && !manages( *pHashes[i] ) )
 		{
-			m_lHashes.push_back( pHashes[i] );
-			( ( TreeRoot* )m_pParentItem )->registerHash( pHashes[i], this );
+			// Note: We cannot use the insert(CHash*) here as that takes control of the hash
+			// (e.g. deletes it later)
+			m_vHashes.insert( *pHashes[i] );
+			( ( TreeRoot* )m_pParentItem )->registerHash( *pHashes[i], this );
 		}
 	}
 }
@@ -419,7 +421,7 @@ void SearchFile::addQueryHit( QueryHit* pHit, const QFileInfo& fileInfo )
 	// (e.g. is responsible for deleting it uppon its own destruction)
 	SearchHit* pSearchHit = new SearchHit( this, pHit, fileInfo );
 	appendChild( pSearchHit );
-	insertHashes( pHit->m_lHashes );
+	insertHashes( pHit->m_vHashes );
 	updateHitCount();
 
 	if ( childCount() == 1 )
@@ -647,7 +649,7 @@ bool SearchTreeModel::fileVisible( int row ) const
 	return pChild ? pChild->visible() : false;
 }
 
-SearchTreeItem* SearchTreeModel::topLevelItemFromIndex( QModelIndex index )
+const SearchTreeItem* SearchTreeModel::topLevelItemFromIndex( QModelIndex index ) const
 {
 	Q_ASSERT( index.model() == this );
 
@@ -662,7 +664,7 @@ SearchTreeItem* SearchTreeModel::topLevelItemFromIndex( QModelIndex index )
 
 		SearchTreeItem* pThis = static_cast<SearchTreeItem*>( idxThis.internalPointer() );
 
-		Q_ASSERT( pThis != NULL );
+		Q_ASSERT( pThis );
 
 		return pThis;
 	}

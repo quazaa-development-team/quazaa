@@ -34,7 +34,7 @@ CFile::CFile( CFile& file ) :
 	m_nDirectoryID( file.m_nDirectoryID ),
 	m_nFileID( file.m_nFileID ),
 	m_bNull( file.m_bNull ),
-	m_Hashes( file.m_Hashes ),
+	m_vHashes( HashSet( file.m_vHashes ) ),
 	m_Tags( file.m_Tags )
 {
 	m_pFile = file.m_pFile ? new QFile( file.absoluteFilePath() ) : NULL;
@@ -109,17 +109,9 @@ void CFile::refresh()
 	}
 }
 
-bool CFile::removeHash( const CHash& oHash )
+bool CFile::removeHash(const CHash& rHash )
 {
-	for ( QList< CHash >::Iterator i = m_Hashes.begin(); i != m_Hashes.end(); i++ )
-	{
-		if ( oHash == *i )
-		{
-			m_Hashes.erase( i );
-			return true;
-		}
-	}
-	return false;
+	return m_vHashes.remove( rHash );
 }
 
 // todo: implement this

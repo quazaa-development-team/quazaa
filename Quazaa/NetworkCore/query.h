@@ -26,10 +26,10 @@
 #define QUERY_H
 
 #include "types.h"
+#include "Hashes/hash.h"
 
 class G2Packet;
 class Query;
-class CHash;
 
 typedef QSharedPointer<Query> QuerySharedPtr;
 
@@ -37,17 +37,17 @@ class Query
 {
 public:
 	QUuid           m_oGUID;
-	QList<CHash>	m_lHashes;
+	HashSet      m_vHashes;
 	QString         m_sMetadata;
 	quint64         m_nMinimumSize;
 	quint64         m_nMaximumSize;
-	QString         m_sDescriptiveName;	// Complete search string.
-	EndPoint		m_oEndpoint;
-	quint32			m_nQueryKey;
+	QString         m_sDescriptiveName; // Complete search string.
+	EndPoint        m_oEndpoint;
+	quint32         m_nQueryKey;
 
-	QString			m_sG2PositiveWords;
-	QString			m_sG2NegativeWords;
-	QList<quint32>	m_lHashedKeywords;
+	QString         m_sG2PositiveWords;
+	QString         m_sG2NegativeWords;
+	QList<quint32>  m_lHashedKeywords;
 
 public:
 	Query();
@@ -58,7 +58,7 @@ public:
 
 	void setGUID( QUuid& guid );
 
-	void addURN( const CHash& pHash );
+	bool addURN( const CHash& rHash );
 	void setDescriptiveName( QString sDN );
 	void setSizeRestriction( quint64 nMin, quint64 nMax );
 	void setMetadata( QString sMeta );

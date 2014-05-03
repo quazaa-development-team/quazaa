@@ -31,6 +31,7 @@
 
 class QSqlDatabase;
 
+// TODO: rename
 class CSharedFile : public CFile
 {
 
