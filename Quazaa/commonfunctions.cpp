@@ -109,12 +109,16 @@ QString common::fixFileName( QString sName )
 	return sRet.left( 255 );
 }
 
+// TODO: It might be more intelligent to use one of the file hashes directly. Otherwise we could
+// simply use QUuid to generate a unique ID. Simply hashing the file name, some random data and the
+// current time to get a random enough value seems a rather inefficient and random approach...
 QString common::getTempFileName( QString sName )
 {
 	CHash oHashName( CHash::SHA1 );
 	oHashName.addData( sName.toUtf8() );
-	oHashName.addData( QString().number( qrand() % qrand() ).append( getDateTimeUTC().toString(
-																		 Qt::ISODate ) ).toLocal8Bit() );
+	oHashName.addData( QString::number( qrand() % qrand()
+										).append( getDateTimeUTC().toString( Qt::ISODate )
+												  ).toLocal8Bit() );
 	oHashName.finalize();
 	return oHashName.toString();
 }
