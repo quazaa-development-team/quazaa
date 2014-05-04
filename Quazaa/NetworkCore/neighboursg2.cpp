@@ -200,7 +200,7 @@ void NeighboursG2::maintain()
 		}
 	}
 
-	if ( isG2Hub() && networkG2.getLocalAddress().isValid()
+	if ( isG2Hub() && networkG2.localAddress().isValid()
 		 && !discoveryManager.isActive( Discovery::ServiceType::GWC )
 		 && m_nUpdateWait-- == 0 )
 	{

@@ -122,7 +122,7 @@ void RouteTable::remove( G2Node* pNeighbour )
 	}
 }
 
-bool RouteTable::find( QUuid& pGUID, G2Node** ppNeighbour, EndPoint* pEndpoint )
+bool RouteTable::find( const QUuid& pGUID, G2Node** ppNeighbour, EndPoint* pEndpoint )
 {
 	Q_ASSERT_X( ppNeighbour || pEndpoint, Q_FUNC_INFO, "Invalid arguments" );
 

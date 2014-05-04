@@ -60,7 +60,7 @@ public:
 	void remove( QUuid& pGUID );
 	void remove( G2Node* pNeighbour );
 
-	bool find( QUuid& pGUID, G2Node** ppNeighbour = 0, EndPoint* pEndpoint = 0 );
+	bool find( const QUuid& pGUID, G2Node** ppNeighbour = NULL, EndPoint* pEndpoint = NULL );
 
 	void expireOldRoutes( bool bForce = false );
 	void clear();

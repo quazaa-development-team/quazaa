@@ -97,7 +97,7 @@ void GWC::doUpdate() throw()
 	QString sVersion = QString::number( Version::MAJOR ) + "." + QString::number( Version::MINOR );
 
 	networkG2.m_pSection.lock();
-	QString sOwnIP = networkG2.getLocalAddress().toStringWithPort();
+	QString sOwnIP = networkG2.localAddress().toStringWithPort();
 	networkG2.m_pSection.unlock();
 
 	QString sPromoteURL = discoveryManager.getWorkingService( ServiceType::GWC );

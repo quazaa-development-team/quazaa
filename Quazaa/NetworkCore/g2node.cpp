@@ -277,7 +277,7 @@ void G2Node::initiateHandshake()
 	QByteArray sHandshake;
 
 	sHandshake += "GNUTELLA CONNECT/0.6\r\n";
-	sHandshake += "Listen-IP: " + networkG2.getLocalAddress().toStringWithPort() + "\r\n";
+	sHandshake += "Listen-IP: " + networkG2.localAddress().toStringWithPort() + "\r\n";
 	sHandshake += "Remote-IP: " + m_oAddress.toString() + "\r\n";
 	sHandshake += "User-Agent: " + QuazaaGlobals::USER_AGENT_STRING() + "\r\n";
 	sHandshake += "Accept: application/x-gnutella2\r\n";
@@ -706,7 +706,7 @@ void G2Node::send_ConnectOK( bool bHandshakeStep2, bool bDeflate )
 	if ( bHandshakeStep2 )
 	{
 		// only for handshake step #2
-		sHandshake += "Listen-IP: " + networkG2.getLocalAddress().toStringWithPort() + "\r\n";
+		sHandshake += "Listen-IP: " + networkG2.localAddress().toStringWithPort() + "\r\n";
 		sHandshake += "Remote-IP: " + m_oAddress.toString() + "\r\n";
 		sHandshake += "Accept: application/x-gnutella2\r\n";
 		sHandshake += "X-Hub-Needed: False\r\n";
@@ -744,7 +744,7 @@ void G2Node::sendStartups()
 {
 	if ( networkG2.isListening() )
 	{
-		EndPoint addr = networkG2.getLocalAddress();
+		EndPoint addr = networkG2.localAddress();
 		G2Packet* pPacket = G2Packet::newPacket( "PI", true );
 		pPacket->writePacket( "UDP", 6 );
 		pPacket->writeHostAddress( addr );

@@ -132,7 +132,7 @@ public:
 	bool isValid() const;
 	void setReadBufferSize( qint64 nSize );
 
-	inline EndPoint address() const
+	inline const EndPoint& address() const
 	{
 		return m_oAddress;
 	}

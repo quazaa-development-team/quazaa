@@ -731,7 +731,7 @@ void G2HostCache::localAddressChanged()
 		if ( m_pSection.tryLock( 200 ) )
 		{
 			bRetry          = false;
-			m_oLokalAddress = networkG2.getLocalAddress();
+			m_oLokalAddress = networkG2.localAddress();
 
 			m_pSection.unlock();
 		}

@@ -102,6 +102,8 @@ public slots:
 	 * @brief sanityCheck removes nodes newly banned by the Security Manager.
 	 */
 	void sanityCheck();
+
+	void localAddressChanged();
 };
 
 #endif // NEIGHBOURSBASE_H

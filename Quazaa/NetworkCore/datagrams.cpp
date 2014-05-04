@@ -109,7 +109,7 @@ void Datagrams::listen()
 
 	m_pSocket = new QUdpSocket( this );
 
-	EndPoint addr = networkG2.getLocalAddress();
+	EndPoint addr = networkG2.localAddress();
 	if ( m_pSocket->bind( addr.port() ) )
 	{
 		systemLog.postLog( LogSeverity::Debug, Component::Network,

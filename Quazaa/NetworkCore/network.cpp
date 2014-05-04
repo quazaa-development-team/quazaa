@@ -177,12 +177,12 @@ void NetworkG2::onSecondTimer()
 	emit datagrams.sendQueueUpdated();
 }
 
-bool NetworkG2::isListening()
+bool NetworkG2::isListening() const
 {
 	return handshakes.isListening() && datagrams.isListening();
 }
 
-bool NetworkG2::isFirewalled()
+bool NetworkG2::isFirewalled() const
 {
 	return datagrams.isFirewalled() || handshakes.isFirewalled();
 }
@@ -196,6 +196,7 @@ bool NetworkG2::acquireLocalAddress( const QString& sHeader )
 		if ( hostAddr != m_oAddress )
 		{
 			m_oAddress = hostAddr;
+			qDebug() << "*** localAddressChanged emitted";
 			emit localAddressChanged();
 		}
 
@@ -207,12 +208,12 @@ bool NetworkG2::acquireLocalAddress( const QString& sHeader )
 	}
 }
 
-bool NetworkG2::isConnectedTo( EndPoint /*addr*/ )
+bool NetworkG2::isConnectedTo(const EndPoint& /*addr*/ ) const
 {
 	return false;
 }
 
-bool NetworkG2::routePacket( QUuid& pTargetGUID, G2Packet* pPacket, bool bLockNeighbours, bool bBuffered )
+bool NetworkG2::routePacket(const QUuid& pTargetGUID, G2Packet* pPacket, bool bLockNeighbours, bool bBuffered )
 {
 	G2Node* pNode = 0;
 	EndPoint pAddr;
@@ -315,7 +316,7 @@ bool NetworkG2::routePacket( G2Packet* pPacket, G2Node* pNbr )
 	return false;
 }
 
-void NetworkG2::connectToNode( EndPoint& /*addr*/ )
+void NetworkG2::connectToNode( const EndPoint& /*addr*/ )
 {
 	// TODO: Verify network is connected before attempting connection and create connection if it is not
 	/*CG2Node* pNew = Neighbours.ConnectTo(addr);

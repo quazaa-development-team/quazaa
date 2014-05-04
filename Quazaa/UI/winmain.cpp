@@ -919,7 +919,7 @@ void CWinMain::on_actionChatWith_triggered()
 void CWinMain::localAddressChanged()
 {
 	networkG2.m_pSection.lock();
-	labelCurrentIPAddress->setText( networkG2.getLocalAddress().toStringWithPort() );
+	labelCurrentIPAddress->setText( networkG2.localAddress().toStringWithPort() );
 	networkG2.m_pSection.unlock();
 }
 

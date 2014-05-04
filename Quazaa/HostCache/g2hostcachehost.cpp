@@ -118,7 +118,7 @@ void G2HostCacheHost::setKey( quint32 nKey, const quint32 tNow, EndPoint* pHost 
 	m_nKeyTime  = tNow;
 	m_oKeyHost  = pHost ? *pHost :
 #ifndef QUAZAA_SETUP_UNIT_TESTS
-				  networkG2.getLocalAddress();
+				  networkG2.localAddress();
 #else
 				  EndPoint();
 #endif // QUAZAA_SETUP_UNIT_TESTS

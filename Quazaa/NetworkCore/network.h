@@ -82,19 +82,19 @@ public:
 	 */
 	bool acquireLocalAddress( const QString& sHeader );
 
-	bool isListening();
-	bool isFirewalled();
+	bool isListening() const;
+	bool isFirewalled() const;
 
-	bool routePacket( QUuid& pTargetGUID, G2Packet* pPacket, bool bLockNeighbours = false,
+	bool routePacket( const QUuid& pTargetGUID, G2Packet* pPacket, bool bLockNeighbours = false,
 					  bool bBuffered = true );
-	bool routePacket( G2Packet* pPacket, G2Node* pNbr = 0 );
+	bool routePacket( G2Packet* pPacket, G2Node* pNbr = NULL );
 
-	inline EndPoint getLocalAddress()
+	inline const EndPoint& localAddress() const
 	{
 		return m_oAddress;
 	}
 
-	bool isConnectedTo( EndPoint addr );
+	bool isConnectedTo( const EndPoint& addr ) const;
 
 public slots:
 	void onSecondTimer();
@@ -102,7 +102,7 @@ public slots:
 	void setupThread();
 	void cleanupThread();
 
-	void connectToNode( EndPoint& addr );
+	void connectToNode( const EndPoint& addr );
 
 	void onSharesReady();
 

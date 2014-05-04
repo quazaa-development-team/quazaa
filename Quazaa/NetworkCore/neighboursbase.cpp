@@ -23,6 +23,7 @@
 */
 
 #include "Security/securitymanager.h"
+#include "network.h"
 
 #include "neighboursbase.h"
 #include "neighbour.h"
@@ -51,6 +52,9 @@ void NeighboursBase::connectNode()
 
 	connect( this, SIGNAL( sanityCheckPerformed() ),
 			 &securityManager.m_oSanity, SLOT( sanityCheckPerformed() ), Qt::UniqueConnection );
+
+	connect( &networkG2, &NetworkG2::localAddressChanged,
+			 this,  &NeighboursBase::localAddressChanged );
 
 	m_bActive = true;
 }
@@ -147,5 +151,44 @@ void NeighboursBase::sanityCheck()
 	securityManager.m_oSanity.unlock();
 
 	emit sanityCheckPerformed();
+}
+
+/**
+ * @brief NeighboursBase::localAddressChanged Cleans up unwanted self-connections.
+ */
+void NeighboursBase::localAddressChanged()
+{
+	qDebug() << "*** localAddressChanged()";
+	networkG2.m_pSection.lock();
+
+	if ( m_pSection.tryLock() )
+	{
+		qDebug() << "*** localAddressChanged() - local address: "
+				 << networkG2.localAddress().toStringWithPort().toLocal8Bit();
+		for ( int i = 0; i < m_lNodes.size(); ++i )
+		{
+
+			qDebug() << "*** localAddressChanged() - testing: "
+					 << m_lNodes[i]->address().toStringWithPort().toLocal8Bit();
+
+			if ( m_lNodes[i]->address() == networkG2.localAddress() )
+			{
+				qDebug() << "*** localAddressChanged() - SELF-CONNECTION DETECTED";
+				m_lNodes[i]->close(); // this also removes the node from Neighbours
+			}
+		}
+
+		m_pSection.unlock();
+	}
+	else
+	{
+		// couldn't get a lock, trying again later to minimize lockdown time and risk of deadlock
+		QMetaObject::invokeMethod( this, "localAddressChanged", Qt::QueuedConnection );
+
+
+		qDebug() << "*** localAddressChanged() - trying again later";
+	}
+
+	networkG2.m_pSection.unlock();
 }
 
