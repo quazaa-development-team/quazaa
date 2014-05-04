@@ -430,7 +430,7 @@ void Manager::updateService( ServiceID nID )
  */
 void Manager::queryService( const NetworkType& type )
 {
-	qDebug() << "Calling asyncQueryServiceHelper(const CNetworkType&)";
+	qDebug() << "Calling asyncQueryServiceHelper(const NetworkType&)";
 
 	QMetaObject::invokeMethod( this, "asyncQueryServiceHelper",
 							   Qt::QueuedConnection, Q_ARG( const NetworkType, type ) );

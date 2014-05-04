@@ -39,9 +39,9 @@ Downloads downloads;
 Downloads::Downloads( QObject* parent ) :
 	QObject( parent )
 {
-	qRegisterMetaType<Download*>( "CDownload*" );
-	qRegisterMetaType<DownloadSource*>( "CDownloadSource*" );
-	qRegisterMetaType<Download::DownloadState>( "CDownload::DownloadState" );
+	qRegisterMetaType<Download*>( "Download*" );
+	qRegisterMetaType<DownloadSource*>( "DownloadSource*" );
+	qRegisterMetaType<Download::DownloadState>( "Download::DownloadState" );
 }
 
 void Downloads::add( QueryHit* pHit )

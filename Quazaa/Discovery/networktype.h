@@ -81,7 +81,7 @@ public:
 
 void NetworkType::registerMetaType() const
 {
-	static int foo = qRegisterMetaType<NetworkType>( "CNetworkType" );
+	static int foo = qRegisterMetaType<NetworkType>( "NetworkType" );
 	Q_UNUSED( foo );
 }
 
