@@ -31,7 +31,7 @@
 
 #include "debug_new.h"
 
-CHash::CHash( const CHash& rhs ) : // Right Hash Set
+Hash::Hash( const Hash& rhs ) : // Right Hash Set
 	m_pContext( NULL ),
 	m_bFinalized( true ),
 	m_baRawValue( rhs.m_baRawValue ),
@@ -45,20 +45,20 @@ CHash::CHash( const CHash& rhs ) : // Right Hash Set
 	}
 }
 
-CHash::CHash( Algorithm algo ) :
+Hash::Hash( Algorithm algo ) :
 	m_bFinalized( false ),
 	m_nHashAlgorithm( algo ),
-	m_eType( CHash::algoToType( algo ) )
+	m_eType( Hash::algoToType( algo ) )
 {
 	switch ( algo )
 	{
-	case CHash::SHA1:
+	case Hash::SHA1:
 		m_pContext = new QCryptographicHash( QCryptographicHash::Sha1 );
 		break;
-	case CHash::MD4:
+	case Hash::MD4:
 		m_pContext = new QCryptographicHash( QCryptographicHash::Md4 );
 		break;
-	case CHash::MD5:
+	case Hash::MD5:
 		m_pContext = new QCryptographicHash( QCryptographicHash::Md5 );
 		break;
 	default:
@@ -66,28 +66,28 @@ CHash::CHash( Algorithm algo ) :
 	}
 }
 
-CHash::CHash( QByteArray baRaw, CHash::Algorithm algo ) :
+Hash::Hash( QByteArray baRaw, Hash::Algorithm algo ) :
 	m_pContext( NULL ),
 	m_bFinalized( true ),
 	m_baRawValue( baRaw ),
 	m_nHashAlgorithm( algo ),
-	m_eType( CHash::algoToType( algo ) )
+	m_eType( Hash::algoToType( algo ) )
 {
-	if ( baRaw.size() != CHash::byteCount( algo ) )
+	if ( baRaw.size() != Hash::byteCount( algo ) )
 	{
 		throw invalid_hash_exception();
 	}
 }
 
-CHash::~CHash()
+Hash::~Hash()
 {
 	if ( m_pContext )
 	{
 		switch ( m_nHashAlgorithm )
 		{
-		case CHash::SHA1:
-		case CHash::MD5:
-		case CHash::MD4:
+		case Hash::SHA1:
+		case Hash::MD5:
+		case Hash::MD4:
 			delete ( ( QCryptographicHash* )m_pContext );
 			break;
 		default:
@@ -97,15 +97,15 @@ CHash::~CHash()
 }
 
 // Returns raw hash length by hash family
-int CHash::byteCount( int algo )
+int Hash::byteCount( int algo )
 {
 	switch ( algo )
 	{
-	case CHash::SHA1:
+	case Hash::SHA1:
 		return 20;
-	case CHash::MD4:
+	case Hash::MD4:
 		return 16;
-	case CHash::MD5:
+	case Hash::MD5:
 		return 16;
 	default:
 		return 0;
@@ -113,7 +113,7 @@ int CHash::byteCount( int algo )
 }
 
 // Parses URN and returns CHash pointer if conversion succeed, 0 otherwise
-CHash* CHash::fromURN( QString sURN )
+Hash* Hash::fromURN( QString sURN )
 {
 	// try to get hash family from URN
 	// urn:tree:tiger:/
@@ -137,7 +137,7 @@ CHash* CHash::fromURN( QString sURN )
 		{
 			// valid sha1/base32
 			cyoBase32Decode( ( char* )&pVal, baValue.data(), baValue.length() );
-			CHash* pRet = new CHash( QByteArray( ( char* )&pVal ), CHash::SHA1 );
+			Hash* pRet = new Hash( QByteArray( ( char* )&pVal ), Hash::SHA1 );
 			return pRet;
 		}
 		else
@@ -150,7 +150,7 @@ CHash* CHash::fromURN( QString sURN )
 		if ( cyoBase16Validate( baValue.data(), baValue.length() ) == 0 )
 		{
 			cyoBase16Decode( ( char* )&pVal, baValue.data(), baValue.length() );
-			CHash* pRet = new CHash( QByteArray( ( char* )&pVal ), CHash::MD5 );
+			Hash* pRet = new Hash( QByteArray( ( char* )&pVal ), Hash::MD5 );
 			return pRet;
 		}
 		else
@@ -162,11 +162,11 @@ CHash* CHash::fromURN( QString sURN )
 	return 0;
 }
 
-CHash* CHash::fromRaw( QByteArray& baRaw, CHash::Algorithm algo )
+Hash* Hash::fromRaw( QByteArray& baRaw, Hash::Algorithm algo )
 {
 	try
 	{
-		CHash* pRet = new CHash( baRaw, algo );
+		Hash* pRet = new Hash( baRaw, algo );
 		return pRet;
 	}
 	catch ( ... )
@@ -176,7 +176,7 @@ CHash* CHash::fromRaw( QByteArray& baRaw, CHash::Algorithm algo )
 	return 0;
 }
 
-int CHash::lengthForUrn( const QString& urn )
+int Hash::lengthForUrn( const QString& urn )
 {
 	if ( urn == "urn:sha1:" )
 	{
@@ -210,15 +210,15 @@ int CHash::lengthForUrn( const QString& urn )
 }
 
 // Returns URN as string
-QString CHash::toURN() const
+QString Hash::toURN() const
 {
 	switch ( m_nHashAlgorithm )
 	{
-	case CHash::SHA1:
+	case Hash::SHA1:
 		return QString( "urn:sha1:" ) + toString();
-	case CHash::MD5:
+	case Hash::MD5:
 		return QString( "urn:md5:" ) + toString();
-	case CHash::MD4:
+	case Hash::MD4:
 		break;
 	default:
 		Q_ASSERT( false );
@@ -228,20 +228,20 @@ QString CHash::toURN() const
 }
 
 // Returns hash value as a string in most natural encoding
-QString CHash::toString() const
+QString Hash::toString() const
 {
 	char pBuff[128];
 	memset( &pBuff, 0, sizeof( pBuff ) );
 
 	switch ( m_nHashAlgorithm )
 	{
-	case CHash::SHA1:
+	case Hash::SHA1:
 		cyoBase32Encode( ( char* )&pBuff, rawValue().data(), 20 );
 		break;
-	case CHash::MD5:
+	case Hash::MD5:
 		cyoBase16Encode( ( char* )&pBuff, rawValue().data(), 16 );
 		break;
-	case CHash::MD4:
+	case Hash::MD4:
 		break;
 	default:
 		Q_ASSERT( false );
@@ -250,7 +250,7 @@ QString CHash::toString() const
 	return QString( pBuff );
 }
 
-void CHash::finalize()
+void Hash::finalize()
 {
 	if ( !m_bFinalized )
 	{
@@ -258,9 +258,9 @@ void CHash::finalize()
 
 		switch ( m_nHashAlgorithm )
 		{
-		case CHash::SHA1:
-		case CHash::MD5:
-		case CHash::MD4:
+		case Hash::SHA1:
+		case Hash::MD5:
+		case Hash::MD4:
 			m_baRawValue = ( ( QCryptographicHash* )m_pContext )->result();
 			delete( ( QCryptographicHash* )m_pContext );
 			m_pContext = 0;
@@ -272,35 +272,35 @@ void CHash::finalize()
 	}
 }
 
-void CHash::addData( const char* pData, quint32 nLength )
+void Hash::addData( const char* pData, quint32 nLength )
 {
 	Q_ASSERT( !m_bFinalized && m_pContext );
 
 	switch ( m_nHashAlgorithm )
 	{
-	case CHash::SHA1:
-	case CHash::MD5:
-	case CHash::MD4:
+	case Hash::SHA1:
+	case Hash::MD5:
+	case Hash::MD4:
 		( ( QCryptographicHash* )m_pContext )->addData( pData, nLength );
 		break;
 	default:
 		Q_ASSERT( false );
 	}
 }
-void CHash::addData( QByteArray baData )
+void Hash::addData( QByteArray baData )
 {
 	addData( baData.data(), baData.length() );
 }
 
-QString CHash::getFamilyName() const
+QString Hash::getFamilyName() const
 {
 	switch ( m_nHashAlgorithm )
 	{
-	case CHash::SHA1:
+	case Hash::SHA1:
 		return QString( "sha1" );
-	case CHash::MD5:
+	case Hash::MD5:
 		return QString( "md5" );
-	case CHash::MD4:
+	case Hash::MD4:
 		return QString( "md4" );
 	default:
 		Q_ASSERT( false );
@@ -309,7 +309,7 @@ QString CHash::getFamilyName() const
 	return "";
 }
 
-CHash::Type CHash::type() const
+Hash::Type Hash::type() const
 {
 	return m_eType;
 }
@@ -319,38 +319,38 @@ CHash::Type CHash::type() const
  * @param eAlgo The CHash::Algorithm.
  * @return an HashVector::Type.
  */
-CHash::Type CHash::algoToType( CHash::Algorithm eAlgo )
+Hash::Type Hash::algoToType( Hash::Algorithm eAlgo )
 {
 	switch ( eAlgo )
 	{
-	case CHash::SHA1:
-		return CHash::SHA1TYPE;
+	case Hash::SHA1:
+		return Hash::SHA1TYPE;
 
-	case CHash::MD5:
-		return CHash::MD5TYPE;
+	case Hash::MD5:
+		return Hash::MD5TYPE;
 
-	case CHash::MD4:
-		return CHash::MD4TYPE;
+	case Hash::MD4:
+		return Hash::MD4TYPE;
 
 	default:
-		Q_ASSERT( CHash::NO_OF_TYPES == CHash::NO_OF_HASH_ALGOS ); // plz implement me ;)
+		Q_ASSERT( Hash::NO_OF_TYPES == Hash::NO_OF_HASH_ALGOS ); // plz implement me ;)
 		Q_ASSERT( false ); // invalid types are not allowed
 
-		return CHash::NO_OF_TYPES;
+		return Hash::NO_OF_TYPES;
 	}
 }
 
-QDataStream& operator<<( QDataStream& s, const CHash& rhs )
+QDataStream& operator<<( QDataStream& s, const Hash& rhs )
 {
 	s << rhs.toURN();
 	return s;
 }
 
-QDataStream& operator>>( QDataStream& s, CHash& rhs )
+QDataStream& operator>>( QDataStream& s, Hash& rhs )
 {
 	QString sTmp;
 	s >> sTmp;
-	CHash* pHash = CHash::fromURN( sTmp );
+	Hash* pHash = Hash::fromURN( sTmp );
 	rhs = *pHash;
 	delete pHash;
 	return s;
@@ -360,22 +360,22 @@ QDataStream& operator>>( QDataStream& s, CHash& rhs )
  * @brief Constructor. Creates an empty HashVector.
  */
 HashSet::HashSet() :
-	m_pHashes( new CHash*[CHash::NO_OF_TYPES] )
+	m_pHashes( new Hash*[Hash::NO_OF_TYPES] )
 {
-	for ( quint8 i = 0; i < CHash::NO_OF_TYPES; ++i )
+	for ( quint8 i = 0; i < Hash::NO_OF_TYPES; ++i )
 	{
 		m_pHashes[i] = NULL;
 	}
 }
 
 HashSet::HashSet( const HashSet& other ) :
-	m_pHashes( new CHash*[CHash::NO_OF_TYPES] )
+	m_pHashes( new Hash*[Hash::NO_OF_TYPES] )
 {
-	for ( quint8 i = 0; i < CHash::NO_OF_TYPES; ++i )
+	for ( quint8 i = 0; i < Hash::NO_OF_TYPES; ++i )
 	{
 		if ( other.m_pHashes[i] )
 		{
-			m_pHashes[i] = new CHash( *other.m_pHashes[i] );
+			m_pHashes[i] = new Hash( *other.m_pHashes[i] );
 		}
 		else
 		{
@@ -389,7 +389,7 @@ HashSet::HashSet( const HashSet& other ) :
  */
 HashSet::~HashSet()
 {
-	for ( quint8 i = 0; i < CHash::NO_OF_TYPES; ++i )
+	for ( quint8 i = 0; i < Hash::NO_OF_TYPES; ++i )
 	{
 		if ( m_pHashes[i] )
 		{
@@ -408,11 +408,11 @@ HashSet::~HashSet()
  * @return true if the Hash was added or an equal Hash was already present; false if a conflicting
  * Hash is present in the vector.
  */
-bool HashSet::insert( CHash* pHash )
+bool HashSet::insert( Hash* pHash )
 {
 	Q_ASSERT( pHash );
 
-	CHash::Type t = pHash->type();
+	Hash::Type t = pHash->type();
 
 	if ( !m_pHashes[t] )
 	{
@@ -438,13 +438,13 @@ bool HashSet::insert( CHash* pHash )
  * @return true if the Hash was added or an equal Hash was already present; false if a conflicting
  * Hash is present in the vector.
  */
-bool HashSet::insert( const CHash& rHash )
+bool HashSet::insert( const Hash& rHash )
 {
-	CHash::Type t = rHash.type();
+	Hash::Type t = rHash.type();
 
 	if ( !m_pHashes[t] )
 	{
-		m_pHashes[t] = new CHash( rHash );
+		m_pHashes[t] = new Hash( rHash );
 		return true;
 	}
 	else if ( *m_pHashes[t] == rHash )
@@ -465,10 +465,10 @@ bool HashSet::insert( const CHash& rHash )
  */
 bool HashSet::insert( const HashSet& other )
 {
-	std::vector<CHash*> vNewHashes;
+	std::vector<Hash*> vNewHashes;
 	vNewHashes.reserve( other.hashCount() );
 
-	for ( quint8 i = 0; i < CHash::NO_OF_TYPES; ++i )
+	for ( quint8 i = 0; i < Hash::NO_OF_TYPES; ++i )
 	{
 		// if there is a hash at position i
 		if ( other.m_pHashes[i] )
@@ -480,7 +480,7 @@ bool HashSet::insert( const HashSet& other )
 				if ( !m_pHashes[i] )
 				{
 					// remember the hash for later insertion
-					vNewHashes.push_back( new CHash( *other.m_pHashes[i] ) );
+					vNewHashes.push_back( new Hash( *other.m_pHashes[i] ) );
 				}
 			}
 			else
@@ -510,7 +510,7 @@ bool HashSet::insert( const HashSet& other )
  * @param rHash A hash.
  * @return true if the hash was found and removed; false if it was not present in the vector.
  */
-bool HashSet::remove( const CHash& rHash )
+bool HashSet::remove( const Hash& rHash )
 {
 	const quint8 type = rHash.type();
 
@@ -530,9 +530,9 @@ bool HashSet::remove( const CHash& rHash )
  * @param eAlgo The Algorithm to remove from the vector.
  * @return true if a hash with the specified Algorithm was present and removed; false otherwise.
  */
-bool HashSet::remove( CHash::Algorithm eAlgo )
+bool HashSet::remove( Hash::Algorithm eAlgo )
 {
-	const quint8 type = CHash::algoToType( eAlgo );
+	const quint8 type = Hash::algoToType( eAlgo );
 
 	if ( m_pHashes[type] )
 	{
@@ -549,18 +549,18 @@ bool HashSet::remove( CHash::Algorithm eAlgo )
  * @param eAlgo The Algorithm.
  * @return A pointer to the stored CHash.
  */
-const CHash* const HashSet::get( CHash::Algorithm eAlgo ) const
+const Hash* const HashSet::get( Hash::Algorithm eAlgo ) const
 {
-	return m_pHashes[ CHash::algoToType( eAlgo ) ];
+	return m_pHashes[ Hash::algoToType( eAlgo ) ];
 }
 
 /**
  * @brief HashVector::getFirst Allows to retrieve the most important hash handled by this vector.
  * @return A pointer to the stored CHash.
  */
-const CHash* const HashSet::mostImportant() const
+const Hash* const HashSet::mostImportant() const
 {
-	for ( quint8 i = 0; i < CHash::NO_OF_TYPES; ++i )
+	for ( quint8 i = 0; i < Hash::NO_OF_TYPES; ++i )
 	{
 		if ( m_pHashes[i] )
 		{
@@ -577,7 +577,7 @@ const CHash* const HashSet::mostImportant() const
  * @param rHash Const reference to the hash.
  * @return true if the vector contains the specified hash; false otherwise.
  */
-bool HashSet::contains( const CHash& rHash ) const
+bool HashSet::contains( const Hash& rHash ) const
 {
 	const quint8 type = rHash.type();
 
@@ -595,7 +595,7 @@ bool HashSet::contains( const CHash& rHash ) const
  * @param rHash
  * @return
  */
-bool HashSet::conflicts( const CHash& rHash ) const
+bool HashSet::conflicts( const Hash& rHash ) const
 {
 	const quint8 type = rHash.type();
 
@@ -614,7 +614,7 @@ bool HashSet::conflicts( const CHash& rHash ) const
 // TODO: check usage
 quint8 HashSet::size() const
 {
-	return CHash::NO_OF_TYPES;
+	return Hash::NO_OF_TYPES;
 }
 
 /**
@@ -624,7 +624,7 @@ quint8 HashSet::size() const
 quint8 HashSet::hashCount() const
 {
 	quint8 nCount = 0;
-	for ( quint8 i = 0; i < CHash::NO_OF_TYPES; ++i )
+	for ( quint8 i = 0; i < Hash::NO_OF_TYPES; ++i )
 	{
 		if ( m_pHashes[i] )
 		{
@@ -641,7 +641,7 @@ quint8 HashSet::hashCount() const
  */
 bool HashSet::empty() const
 {
-	for ( quint8 i = 0; i < CHash::NO_OF_TYPES; ++i )
+	for ( quint8 i = 0; i < Hash::NO_OF_TYPES; ++i )
 	{
 		if ( m_pHashes[i] )
 		{
@@ -656,7 +656,7 @@ void HashSet::simplifyByHashPriority( quint8 nNumberOfHashes )
 {
 	while ( hashCount() > nNumberOfHashes )
 	{
-		quint8 i = CHash::NO_OF_TYPES;
+		quint8 i = Hash::NO_OF_TYPES;
 		while ( i != 0 )
 		{
 			--i;
@@ -676,10 +676,10 @@ void HashSet::simplifyByHashPriority( quint8 nNumberOfHashes )
  * @param nPos The position.
  * @return A pointer to the CHash at position nPos.
  */
-const CHash* const & HashSet::operator[]( quint8 nPos ) const
+const Hash* const & HashSet::operator[]( quint8 nPos ) const
 {
 #ifdef _DEBUG
-	Q_ASSERT( nPos < CHash::NO_OF_TYPES );
+	Q_ASSERT( nPos < Hash::NO_OF_TYPES );
 #endif // _DEBUG
 
 	return m_pHashes[nPos];
@@ -693,7 +693,7 @@ const CHash* const & HashSet::operator[]( quint8 nPos ) const
  */
 bool HashSet::operator==(const HashSet& other) const
 {
-	for ( quint8 i = 0; i < CHash::NO_OF_TYPES; ++i )
+	for ( quint8 i = 0; i < Hash::NO_OF_TYPES; ++i )
 	{
 		if ( m_pHashes[i] && other.m_pHashes[i] )
 		{
@@ -725,7 +725,7 @@ bool HashSet::operator!=( const HashSet& other ) const
 bool HashSet::matches(const HashSet& other) const
 {
 	quint8 nCount = 0;
-	for ( quint8 i = 0; i < CHash::NO_OF_TYPES; ++i )
+	for ( quint8 i = 0; i < Hash::NO_OF_TYPES; ++i )
 	{
 		if ( m_pHashes[i] && other.m_pHashes[i] )
 		{
@@ -743,7 +743,7 @@ bool HashSet::matches(const HashSet& other) const
 	return nCount;
 }
 
-QList<CHash>& operator<<( QList<CHash>& list, const HashSet& vector )
+QList<Hash>& operator<<( QList<Hash>& list, const HashSet& vector )
 {
 	for ( quint8 i = 0, nSize = vector.size(); i < nSize; ++i )
 	{
@@ -753,7 +753,7 @@ QList<CHash>& operator<<( QList<CHash>& list, const HashSet& vector )
 	return list;
 }
 
-QList<CHash>& operator>>( QList<CHash>& list, HashSet& vector )
+QList<Hash>& operator>>( QList<Hash>& list, HashSet& vector )
 {
 	for ( int i = 0, nSize = list.size(); i < nSize; ++i )
 	{
@@ -763,7 +763,7 @@ QList<CHash>& operator>>( QList<CHash>& list, HashSet& vector )
 	return list;
 }
 
-HashSet& operator<<( HashSet& vector, const QList<CHash>& list )
+HashSet& operator<<( HashSet& vector, const QList<Hash>& list )
 {
 	for ( int i = 0, nSize = list.size(); i < nSize; ++i )
 	{
@@ -773,7 +773,7 @@ HashSet& operator<<( HashSet& vector, const QList<CHash>& list )
 	return vector;
 }
 
-HashSet& operator>>( HashSet& vector, QList<CHash>& list )
+HashSet& operator>>( HashSet& vector, QList<Hash>& list )
 {
 	for ( quint8 i = 0, nSize = vector.size(); i < nSize; ++i )
 	{

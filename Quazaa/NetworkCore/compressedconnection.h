@@ -32,7 +32,7 @@
 
 class Buffer;
 
-class CCompressedConnection : public NetworkConnection
+class CompressedConnection : public NetworkConnection
 {
 	Q_OBJECT
 
@@ -51,8 +51,8 @@ public:
 	bool        m_bOutputPending;       // Do we have data to send on the compressed output stream?
 	QElapsedTimer m_tDeflateFlush;      // Amount of time until a deflate buffer flush is triggered.
 public:
-	CCompressedConnection( QObject* parent = 0 );
-	virtual ~CCompressedConnection();
+	CompressedConnection( QObject* parent = 0 );
+	virtual ~CompressedConnection();
 
 	bool enableInputCompression( bool bEnable = true );
 	bool enableOutputCompression( bool bEnable = true );

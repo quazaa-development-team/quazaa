@@ -6,8 +6,7 @@
 
 #include "Hashes/hash.h"
 
-// TODO: rename
-class CFile : public QObject, public QFileInfo
+class File : public QObject, public QFileInfo
 {
 	Q_OBJECT
 
@@ -26,14 +25,14 @@ public:
 	typedef enum { Magnet, eD2k } URIType;
 
 public:
-	explicit CFile( CFile& file );
-	explicit CFile( QObject* parent = NULL );
-	explicit CFile( const QString& file, QObject* parent = NULL );
-	explicit CFile( const QFile& file, QObject* parent = NULL );
-	explicit CFile( const QDir& dir, const QString& file, QObject* parent = NULL );
-	explicit CFile( const QFileInfo& fileinfo, QObject* parent = NULL );
+	explicit File( File& file );
+	explicit File( QObject* parent = NULL );
+	explicit File( const QString& file, QObject* parent = NULL );
+	explicit File( const QFile& file, QObject* parent = NULL );
+	explicit File( const QDir& dir, const QString& file, QObject* parent = NULL );
+	explicit File( const QFileInfo& fileinfo, QObject* parent = NULL );
 
-	inline virtual ~CFile();
+	inline virtual ~File();
 
 	// Refreshes all information from the file on disk if existing.
 	virtual void refresh();
@@ -48,13 +47,13 @@ public:
 
 	// Sets a single hash for the file. Returns false on hash conflict. In that case, the hash is
 	// not inserted.
-	inline bool setHash( const CHash& rHash );
+	inline bool setHash( const Hash& rHash );
 
 	// Sets a single hash for the file and takes control of that hash. Use this only if you do not
 	// use the hash anymore afterwards. Returns false on hash conflict. In that case, the hash is
 	// not inserted and deleted. Else, the hash is deleted uppon the destruction of the file or once
 	// it is removed explicitly from the file.
-	inline bool setHash( CHash* pHash );
+	inline bool setHash( Hash* pHash );
 
 	// Sets a list of hashes for the file. Returns false on hash conflict. In that case, no hash is
 	// inserted.
@@ -62,7 +61,7 @@ public:
 
 	// Removes a hash from the set of hashes of a file. Returns false if the requested
 	// hash could not be found; otherwise returns true.
-	bool removeHash( const CHash& rHash );
+	bool removeHash( const Hash& rHash );
 
 	// Creates an URI of the files attributes.
 	QString toURI( URIType type ) const;
@@ -152,67 +151,67 @@ signals:
 public slots:
 };
 
-CFile::~CFile()
+File::~File()
 {
 	delete m_pFile;
 }
 
-bool CFile::isNull() const
+bool File::isNull() const
 {
 	return m_bNull;
 }
 
-const HashSet& CFile::getHashes() const
+const HashSet& File::getHashes() const
 {
 	return m_vHashes;
 }
 
-bool CFile::setHash( const CHash& rHash )
+bool File::setHash( const Hash& rHash )
 {
 	return m_vHashes.insert( rHash );
 }
 
-bool CFile::setHash( CHash* pHash )
+bool File::setHash( Hash* pHash )
 {
 	return m_vHashes.insert( pHash );
 }
 
-bool CFile::setHashes( const HashSet& vHashes )
+bool File::setHashes( const HashSet& vHashes )
 {
 	return m_vHashes.insert( vHashes );
 }
 
-void CFile::setTag( const QString& sTag )
+void File::setTag( const QString& sTag )
 {
 	m_Tags.insert( sTag );
 }
 
-bool CFile::removeTag( const QString& sTag )
+bool File::removeTag( const QString& sTag )
 {
 	return m_Tags.remove( sTag );
 }
 
-void CFile::setDirectoryID( const quint64& ID )
+void File::setDirectoryID( const quint64& ID )
 {
 	m_nDirectoryID = ID;
 }
 
-quint64 CFile::getDirectoryID() const
+quint64 File::getDirectoryID() const
 {
 	return m_nDirectoryID;
 }
 
-void CFile::setFileID( const quint64& ID )
+void File::setFileID( const quint64& ID )
 {
 	m_nFileID = ID;
 }
 
-quint64 CFile::getFileID() const
+quint64 File::getFileID() const
 {
 	return m_nFileID;
 }
 
-void CFile::setFile( const QString& file )
+void File::setFile( const QString& file )
 {
 	if ( !file.isEmpty() )
 	{
@@ -222,14 +221,14 @@ void CFile::setFile( const QString& file )
 	refresh();
 }
 
-void CFile::setFile( const QFile& file )
+void File::setFile( const QFile& file )
 {
 	m_bNull = false;
 	QFileInfo::setFile( file );
 	refresh();
 }
 
-void CFile::setFile( const QDir& dir, const QString& file )
+void File::setFile( const QDir& dir, const QString& file )
 {
 	if ( !file.isEmpty() )
 	{
@@ -239,236 +238,236 @@ void CFile::setFile( const QDir& dir, const QString& file )
 	refresh();
 }
 
-QFile* CFile::file()
+QFile* File::file()
 {
 	return new QFile( absoluteFilePath() );
 }
 
-bool CFile::copy( const QString& newName )
+bool File::copy( const QString& newName )
 {
 	return m_pFile->copy( newName );
 }
 
-QFile::FileError CFile::error() const
+QFile::FileError File::error() const
 {
 	return m_pFile->error();
 }
 
-bool CFile::flush()
+bool File::flush()
 {
 	return m_pFile->flush();
 }
 
-int CFile::handle() const
+int File::handle() const
 {
 	return m_pFile->handle();
 }
 
-bool CFile::link( const QString& linkName )
+bool File::link( const QString& linkName )
 {
 	return m_pFile->link( linkName );
 }
 
-uchar* CFile::map( qint64 offset, qint64 size, QFile::MemoryMapFlags flags )
+uchar* File::map( qint64 offset, qint64 size, QFile::MemoryMapFlags flags )
 {
 	return m_pFile->map( offset, size, flags );
 }
 
-bool CFile::open( FILE* fh, QIODevice::OpenMode mode )
+bool File::open( FILE* fh, QIODevice::OpenMode mode )
 {
 	return m_pFile->open( fh, mode );
 }
 
-bool CFile::open( int fd, QIODevice::OpenMode mode )
+bool File::open( int fd, QIODevice::OpenMode mode )
 {
 	return m_pFile->open( fd, mode );
 }
 
-bool CFile::remove()
+bool File::remove()
 {
 	bool bResult = m_pFile->remove();
 	refresh();
 	return bResult;
 }
 
-bool CFile::rename( const QString& newName )
+bool File::rename( const QString& newName )
 {
 	bool bResult = m_pFile->rename( newName );
 	QFileInfo::setFile( m_pFile->fileName() );
 	return bResult;
 }
 
-bool CFile::resize( qint64 sz )
+bool File::resize( qint64 sz )
 {
 	bool bResult = m_pFile->resize( sz );
 	refresh();
 	return bResult;
 }
 
-void CFile::setFileName( const QString& name )
+void File::setFileName( const QString& name )
 {
 	QFileInfo::setFile( name );
 	refresh();
 }
 
-bool CFile::setPermissions( QFile::Permissions permissions )
+bool File::setPermissions( QFile::Permissions permissions )
 {
 	bool bResult = m_pFile->setPermissions( permissions );
 	refresh();
 	return bResult;
 }
 
-bool CFile::unmap( uchar* address )
+bool File::unmap( uchar* address )
 {
 	return m_pFile->unmap( address );
 }
 
-void CFile::unsetError()
+void File::unsetError()
 {
 	m_pFile->unsetError();
 }
 
-bool CFile::atEnd() const
+bool File::atEnd() const
 {
 	return m_pFile->atEnd();
 }
 
-void CFile::close()
+void File::close()
 {
 	m_pFile->close();
 }
 
-bool CFile::isSequential() const
+bool File::isSequential() const
 {
 	return m_pFile->isSequential();
 }
 
-bool CFile::open( QIODevice::OpenMode mode )
+bool File::open( QIODevice::OpenMode mode )
 {
 	return m_pFile->open( mode );
 }
 
-qint64 CFile::pos() const
+qint64 File::pos() const
 {
 	return m_pFile->pos();
 }
 
-bool CFile::seek( qint64 off )
+bool File::seek( qint64 off )
 {
 	return m_pFile->seek( off );
 }
 
-qint64 CFile::size() const
+qint64 File::size() const
 {
 	return m_pFile->size();
 }
 
-QString CFile::errorString() const
+QString File::errorString() const
 {
 	return m_pFile->errorString();
 }
 
-bool CFile::getChar( char* c )
+bool File::getChar( char* c )
 {
 	return m_pFile->getChar( c );
 }
 
-bool CFile::isOpen() const
+bool File::isOpen() const
 {
 	return m_pFile->isOpen();
 }
 
-bool CFile::isReadable() const
+bool File::isReadable() const
 {
 	return m_pFile->isReadable();
 }
 
-bool CFile::isWritable() const
+bool File::isWritable() const
 {
 	return m_pFile->isWritable();
 }
 
-QIODevice::OpenMode CFile::openMode() const
+QIODevice::OpenMode File::openMode() const
 {
 	return m_pFile->openMode();
 }
 
-qint64 CFile::peek( char* data, qint64 maxSize )
+qint64 File::peek( char* data, qint64 maxSize )
 {
 	return m_pFile->peek( data, maxSize );
 }
 
-QByteArray CFile::peek( qint64 maxSize )
+QByteArray File::peek( qint64 maxSize )
 {
 	return m_pFile->peek( maxSize );
 }
 
-bool CFile::putChar( char c )
+bool File::putChar( char c )
 {
 	return m_pFile->putChar( c );
 }
 
-qint64 CFile::read( char* data, qint64 maxSize )
+qint64 File::read( char* data, qint64 maxSize )
 {
 	return m_pFile->read( data, maxSize );
 }
 
-QByteArray CFile::read( qint64 maxSize )
+QByteArray File::read( qint64 maxSize )
 {
 	return m_pFile->read( maxSize );
 }
 
-QByteArray CFile::readAll()
+QByteArray File::readAll()
 {
 	return m_pFile->readAll();
 }
 
-qint64 CFile::readLine( char* data, qint64 maxSize )
+qint64 File::readLine( char* data, qint64 maxSize )
 {
 	return m_pFile->readLine( data, maxSize );
 }
 
-QByteArray CFile::readLine( qint64 maxSize )
+QByteArray File::readLine( qint64 maxSize )
 {
 	return m_pFile->readLine( maxSize );
 }
 
-bool CFile::reset()
+bool File::reset()
 {
 	return m_pFile->reset();
 }
 
-void CFile::setTextModeEnabled( bool enabled )
+void File::setTextModeEnabled( bool enabled )
 {
 	m_pFile->setTextModeEnabled( enabled );
 }
 
-void CFile::ungetChar( char c )
+void File::ungetChar( char c )
 {
 	m_pFile->ungetChar( c );
 }
 
-bool CFile::waitForBytesWritten( int msecs )
+bool File::waitForBytesWritten( int msecs )
 {
 	return m_pFile->waitForBytesWritten( msecs );
 }
 
-bool CFile::waitForReadyRead( int msecs )
+bool File::waitForReadyRead( int msecs )
 {
 	return m_pFile->waitForReadyRead( msecs );
 }
 
-qint64 CFile::write( const char* data, qint64 maxSize )
+qint64 File::write( const char* data, qint64 maxSize )
 {
 	return m_pFile->write( data, maxSize );
 }
 
-qint64 CFile::write( const char* data )
+qint64 File::write( const char* data )
 {
 	return m_pFile->write( data );
 }
 
-qint64 CFile::write( const QByteArray& byteArray )
+qint64 File::write( const QByteArray& byteArray )
 {
 	return m_pFile->write( byteArray );
 }

@@ -58,7 +58,7 @@ public:
 
 	void setGUID( QUuid& guid );
 
-	bool addURN( const CHash& rHash );
+	bool addURN( const Hash& rHash );
 	void setDescriptiveName( QString sDN );
 	void setSizeRestriction( quint64 nMin, quint64 nMax );
 	void setMetadata( QString sMeta );

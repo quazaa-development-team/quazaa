@@ -121,11 +121,11 @@ void WidgetSearchTemplate::changeEvent( QEvent* e )
  * selected item
  * @return A pointer to the hash or NULL if the hash does not exist.
  */
-const CHash* const WidgetSearchTemplate::getHash() const
+const Hash* const WidgetSearchTemplate::getHash() const
 {
 	const SearchTreeItem* itemSearch = m_pSearchModel->topLevelItemFromIndex( currentItem() );
 
-	const CHash* pReturnValue = NULL;
+	const Hash* pReturnValue = NULL;
 
 	if ( itemSearch )
 	{
@@ -338,7 +338,7 @@ void WidgetSearchTemplate::on_actionDownload_triggered()
 
 void WidgetSearchTemplate::on_actionViewReviews_triggered()
 {
-	const CHash* pHash = getHash();
+	const Hash* pHash = getHash();
 
 	if ( pHash )
 	{
@@ -351,7 +351,7 @@ void WidgetSearchTemplate::on_actionViewReviews_triggered()
 
 void WidgetSearchTemplate::on_actionVirusTotalCheck_triggered()
 {
-	const CHash* pHash = getHash();
+	const Hash* pHash = getHash();
 
 	if ( pHash )
 	{

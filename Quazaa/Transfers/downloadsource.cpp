@@ -31,7 +31,7 @@
 
 #include "debug_new.h"
 
-CDownloadSource::CDownloadSource( Download* pDownload, QObject* parent ) :
+DownloadSource::DownloadSource( Download* pDownload, QObject* parent ) :
 	QObject( parent ),
 	m_bPush( false ),
 	m_tNextAccess( common::getTNowUTC() ),
@@ -43,7 +43,7 @@ CDownloadSource::CDownloadSource( Download* pDownload, QObject* parent ) :
 {
 }
 
-CDownloadSource::CDownloadSource( Download* pDownload, QueryHit* pHit, QObject* parent ) :
+DownloadSource::DownloadSource( Download* pDownload, QueryHit* pHit, QObject* parent ) :
 	QObject( parent ),
 	m_oAddress( pHit->m_pHitInfo->m_oNodeAddress ),
 	m_bPush( false ), // TODO: Push requests.
@@ -62,17 +62,17 @@ CDownloadSource::CDownloadSource( Download* pDownload, QueryHit* pHit, QObject* 
 	m_oPushProxies << pHit->m_pHitInfo->m_lNeighbouringHubs;
 }
 
-CDownloadSource::~CDownloadSource()
+DownloadSource::~DownloadSource()
 {
 	closeTransfer();
 	m_pDownload->removeSource( this );
 }
 
-CTransfer* CDownloadSource::createTransfer()
+Transfer* DownloadSource::createTransfer()
 {
 	ASSUME_LOCK( downloads.m_pSection );
 
-	CTransfer* pTransfer = 0;
+	Transfer* pTransfer = 0;
 
 	switch ( m_nProtocol )
 	{
@@ -92,7 +92,7 @@ CTransfer* CDownloadSource::createTransfer()
 	return pTransfer;
 }
 
-void CDownloadSource::closeTransfer()
+void DownloadSource::closeTransfer()
 {
 	ASSUME_LOCK( downloads.m_pSection );
 
@@ -104,7 +104,7 @@ void CDownloadSource::closeTransfer()
 	}
 }
 
-QDataStream& operator<<( QDataStream& s, const CDownloadSource& rhs )
+QDataStream& operator<<( QDataStream& s, const DownloadSource& rhs )
 {
 	if ( !rhs.m_bPush ) // do not store push sources (they may be useless after restart)
 	{
@@ -119,7 +119,7 @@ QDataStream& operator<<( QDataStream& s, const CDownloadSource& rhs )
 
 	return s;
 }
-QDataStream& operator>>( QDataStream& s, CDownloadSource& rhs )
+QDataStream& operator>>( QDataStream& s, DownloadSource& rhs )
 {
 	// download-source tag is handled elsewhere
 

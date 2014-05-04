@@ -111,7 +111,7 @@ typedef void ( WINAPI* PGetNativeSystemInfo )( LPSYSTEM_INFO );
 typedef bool ( WINAPI* PGetProductInfo )( DWORD, DWORD, DWORD, DWORD, PDWORD );
 #endif
 
-CQuazaaSysInfo::CQuazaaSysInfo( QObject* parent ) :
+QuazaaSysInfo::QuazaaSysInfo( QObject* parent ) :
 	QObject( parent )
 {
 #ifdef Q_OS_WIN
@@ -159,12 +159,12 @@ CQuazaaSysInfo::CQuazaaSysInfo( QObject* parent ) :
 #endif
 }
 
-CQuazaaSysInfo::~CQuazaaSysInfo()
+QuazaaSysInfo::~QuazaaSysInfo()
 {
 
 }
 
-OSVersion::OSVersion CQuazaaSysInfo::osVersion()
+OSVersion::OSVersion QuazaaSysInfo::osVersion()
 {
 #ifdef Q_OS_LINUX
 	return OSVersion::Linux;
@@ -223,7 +223,7 @@ OSVersion::OSVersion CQuazaaSysInfo::osVersion()
 #endif
 }
 
-QString CQuazaaSysInfo::osVersionToString()
+QString QuazaaSysInfo::osVersionToString()
 {
 	QString operatingSystemString = "";
 
@@ -798,7 +798,7 @@ QString CQuazaaSysInfo::osVersionToString()
 }
 
 #ifdef Q_OS_WIN
-void CQuazaaSysInfo::DetectWindowsVersion()
+void QuazaaSysInfo::DetectWindowsVersion()
 {
 	if ( m_bOsVersionInfoEx )
 	{
@@ -998,7 +998,7 @@ void CQuazaaSysInfo::DetectWindowsVersion()
 	}
 }
 
-void CQuazaaSysInfo::DetectWindowsEdition()
+void QuazaaSysInfo::DetectWindowsEdition()
 {
 	if ( m_bOsVersionInfoEx )
 	{
@@ -1346,7 +1346,7 @@ void CQuazaaSysInfo::DetectWindowsEdition()
 	}
 }
 
-void CQuazaaSysInfo::DetectWindowsServicePack()
+void QuazaaSysInfo::DetectWindowsServicePack()
 {
 	// Display service pack (if any) and build number.
 
@@ -1379,7 +1379,7 @@ void CQuazaaSysInfo::DetectWindowsServicePack()
 	}
 }
 
-DWORD CQuazaaSysInfo::DetectProductInfo()
+DWORD QuazaaSysInfo::DetectProductInfo()
 {
 	DWORD dwProductInfo = PRODUCT_UNDEFINED;
 
@@ -1404,52 +1404,52 @@ DWORD CQuazaaSysInfo::DetectProductInfo()
 	return dwProductInfo;
 }
 
-WindowsVersion::WindowsVersion CQuazaaSysInfo::GetWindowsVersion() const
+WindowsVersion::WindowsVersion QuazaaSysInfo::GetWindowsVersion() const
 {
 	return m_nWindowsVersion;
 }
 
-WindowsEdition::WindowsEdition CQuazaaSysInfo::GetWindowsEdition() const
+WindowsEdition::WindowsEdition QuazaaSysInfo::GetWindowsEdition() const
 {
 	return m_nWindowsEdition;
 }
 
-bool CQuazaaSysInfo::IsNTPlatform() const
+bool QuazaaSysInfo::IsNTPlatform() const
 {
 	return m_osvi.dwPlatformId == VER_PLATFORM_WIN32_NT;
 }
 
-bool CQuazaaSysInfo::IsWindowsPlatform() const
+bool QuazaaSysInfo::IsWindowsPlatform() const
 {
 	return m_osvi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS;
 }
 
-bool CQuazaaSysInfo::IsWin32sPlatform() const
+bool QuazaaSysInfo::IsWin32sPlatform() const
 {
 	return m_osvi.dwPlatformId == VER_PLATFORM_WIN32s;
 }
 
-DWORD CQuazaaSysInfo::GetMajorVersion() const
+DWORD QuazaaSysInfo::GetMajorVersion() const
 {
 	return m_osvi.dwMajorVersion;
 }
 
-DWORD CQuazaaSysInfo::GetMinorVersion() const
+DWORD QuazaaSysInfo::GetMinorVersion() const
 {
 	return m_osvi.dwMinorVersion;
 }
 
-DWORD CQuazaaSysInfo::GetBuildNumber() const
+DWORD QuazaaSysInfo::GetBuildNumber() const
 {
 	return m_osvi.dwBuildNumber;
 }
 
-DWORD CQuazaaSysInfo::GetPlatformID() const
+DWORD QuazaaSysInfo::GetPlatformID() const
 {
 	return m_osvi.dwPlatformId;
 }
 
-QString CQuazaaSysInfo::GetServicePackInfo() const
+QString QuazaaSysInfo::GetServicePackInfo() const
 {
 	QString servicePack = m_sServicePack;
 
@@ -1463,12 +1463,12 @@ QString CQuazaaSysInfo::GetServicePackInfo() const
 	}
 }
 
-bool CQuazaaSysInfo::Is32bitPlatform() const
+bool QuazaaSysInfo::Is32bitPlatform() const
 {
 	return !Is64bitPlatform();
 }
 
-bool CQuazaaSysInfo::Is64bitPlatform() const
+bool QuazaaSysInfo::Is64bitPlatform() const
 {
 	return (
 			   m_SysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64 ||

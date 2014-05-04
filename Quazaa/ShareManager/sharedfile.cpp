@@ -38,37 +38,37 @@
 #include "queryhashtable.h"
 #include "debug_new.h"
 
-CSharedFile::CSharedFile( QObject* parent ) :
-	CFile( parent )
+SharedFile::SharedFile( QObject* parent ) :
+	File( parent )
 {
 	setup();
 }
 
-CSharedFile::CSharedFile( const QString& file, QObject* parent ) :
-	CFile( file, parent )
+SharedFile::SharedFile( const QString& file, QObject* parent ) :
+	File( file, parent )
 {
 	setup();
 }
 
-CSharedFile::CSharedFile( const QFile& file, QObject* parent ) :
-	CFile( file, parent )
+SharedFile::SharedFile( const QFile& file, QObject* parent ) :
+	File( file, parent )
 {
 	setup();
 }
 
-CSharedFile::CSharedFile( const QDir& dir, const QString& file, QObject* parent ) :
-	CFile( dir, file, parent )
+SharedFile::SharedFile( const QDir& dir, const QString& file, QObject* parent ) :
+	File( dir, file, parent )
 {
 	setup();
 }
 
-CSharedFile::CSharedFile( const QFileInfo& fileinfo, QObject* parent ) :
-	CFile( fileinfo, parent )
+SharedFile::SharedFile( const QFileInfo& fileinfo, QObject* parent ) :
+	File( fileinfo, parent )
 {
 	setup();
 }
 
-void CSharedFile::serialize( QSqlDatabase* pDatabase )
+void SharedFile::serialize( QSqlDatabase* pDatabase )
 {
 	// get directory id if needed
 	if ( m_nDirectoryID == 0 )
@@ -125,7 +125,7 @@ void CSharedFile::serialize( QSqlDatabase* pDatabase )
 
 		for ( quint8 i = 0, nSize = m_vHashes.size(); i < nSize; ++i )
 		{
-			const CHash* const pHash =  m_vHashes[i];
+			const Hash* const pHash =  m_vHashes[i];
 			if ( pHash )
 			{
 				if ( pDatabase->record( "hashes" ).contains( pHash->getFamilyName() ) )
@@ -184,11 +184,11 @@ void CSharedFile::serialize( QSqlDatabase* pDatabase )
 	}
 }
 
-void CSharedFile::setup()
+void SharedFile::setup()
 {
 	m_bShared = false;
 
-	static int dummy = qRegisterMetaType<CSharedFilePtr>( "CSharedFilePtr" );
+	static int dummy = qRegisterMetaType<SharedFilePtr>( "CSharedFilePtr" );
 	Q_UNUSED( dummy );
 }
 

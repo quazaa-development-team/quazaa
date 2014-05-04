@@ -1361,7 +1361,7 @@ QueryHit UnitTestsSecurity::generateQueryHit(quint64 nSize, QString sName, QStri
 		if ( pos1 != -1 )
 		{
 			tmp  = sHashes.mid( pos1 );
-			int length = CHash::lengthForUrn( prefixes.at(i) ) + prefixes.at(i).length();
+			int length = Hash::lengthForUrn( prefixes.at(i) ) + prefixes.at(i).length();
 			pos2 = tmp.indexOf( "&" );
 
 			//qDebug() << "Expected hash length:" << length;
@@ -1384,7 +1384,7 @@ QueryHit UnitTestsSecurity::generateQueryHit(quint64 nSize, QString sName, QStri
 				continue;
 			}
 
-			CHash* pHash = CHash::fromURN( sHash );
+			Hash* pHash = Hash::fromURN( sHash );
 			if ( pHash )
 			{
 				vHashes.insert( pHash );

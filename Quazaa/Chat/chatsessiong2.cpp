@@ -62,19 +62,19 @@
  *
  */
 
-CChatSessionG2::CChatSessionG2( EndPoint oRemoteHost, QObject* parent ) :
+ChatSessionG2::ChatSessionG2( EndPoint oRemoteHost, QObject* parent ) :
 	ChatSession( parent )
 {
 	m_oRemoteHost = m_oAddress = oRemoteHost;
 }
 
-void CChatSessionG2::connectNode()
+void ChatSessionG2::connectNode()
 {
 	NetworkConnection::connectTo( m_oRemoteHost );
 	ChatSession::connectNode();
 }
 
-void CChatSessionG2::onConnectNode()
+void ChatSessionG2::onConnectNode()
 {
 	qDebug() << "OnConnect";
 
@@ -94,12 +94,12 @@ void CChatSessionG2::onConnectNode()
 
 	qDebug() << "Chat send:\n" << baHs;
 }
-void CChatSessionG2::onDisconnectNode()
+void ChatSessionG2::onDisconnectNode()
 {
 	ChatSession::onDisconnectNode();
 }
 
-void CChatSessionG2::onRead()
+void ChatSessionG2::onRead()
 {
 	if ( m_nState == csHandshaking )
 	{
@@ -141,7 +141,7 @@ void CChatSessionG2::onRead()
 	}
 }
 
-void CChatSessionG2::parseOutgoingHandshake()
+void ChatSessionG2::parseOutgoingHandshake()
 {
 	QString sHs = read( peek( bytesAvailable() ).indexOf( "\r\n\r\n" ) + 4 );
 
@@ -185,7 +185,7 @@ void CChatSessionG2::parseOutgoingHandshake()
 	close();
 }
 
-void CChatSessionG2::send_ChatOK( bool bReply )
+void ChatSessionG2::send_ChatOK( bool bReply )
 {
 	QByteArray sHs;
 
@@ -205,7 +205,7 @@ void CChatSessionG2::send_ChatOK( bool bReply )
 
 }
 
-void CChatSessionG2::send_ChatError( QString sReason )
+void ChatSessionG2::send_ChatError( QString sReason )
 {
 	QByteArray sHs;
 
@@ -215,7 +215,7 @@ void CChatSessionG2::send_ChatError( QString sReason )
 	write( sHs );
 }
 
-void CChatSessionG2::sendStartups()
+void ChatSessionG2::sendStartups()
 {
 	qDebug() << "sending startups";
 	G2Packet* pPacket = G2Packet::newPacket( "UPROC", false );
@@ -229,7 +229,7 @@ void CChatSessionG2::sendStartups()
 	sendPacket( pPacket );
 }
 
-void CChatSessionG2::sendPacket( G2Packet* pPacket, bool bRelease )
+void ChatSessionG2::sendPacket( G2Packet* pPacket, bool bRelease )
 {
 	qDebug() << "Sending packet" << pPacket->getType();
 	pPacket->toBuffer( getOutputBuffer() );
@@ -240,7 +240,7 @@ void CChatSessionG2::sendPacket( G2Packet* pPacket, bool bRelease )
 	emit readyToTransfer();
 }
 
-void CChatSessionG2::onPacket( G2Packet* pPacket )
+void ChatSessionG2::onPacket( G2Packet* pPacket )
 {
 	qDebug() << "Received chat packet: " << pPacket->getType();
 
@@ -267,7 +267,7 @@ void CChatSessionG2::onPacket( G2Packet* pPacket )
 
 }
 
-void CChatSessionG2::onUPROC( G2Packet* pPacket )
+void ChatSessionG2::onUPROC( G2Packet* pPacket )
 {
 	Q_UNUSED( pPacket );
 
@@ -285,7 +285,7 @@ void CChatSessionG2::onUPROC( G2Packet* pPacket )
 	sendPacket( pD );
 }
 
-void CChatSessionG2::onUPROD( G2Packet* pPacket )
+void ChatSessionG2::onUPROD( G2Packet* pPacket )
 {
 	qDebug() << "OnUPROD";
 
@@ -390,7 +390,7 @@ void CChatSessionG2::onUPROD( G2Packet* pPacket )
 	}
 }
 
-void CChatSessionG2::onCHATANS( G2Packet* pPacket )
+void ChatSessionG2::onCHATANS( G2Packet* pPacket )
 {
 	char szType[9];
 	quint32 nLength = 0, nNext = 0;
@@ -440,7 +440,7 @@ void CChatSessionG2::onCHATANS( G2Packet* pPacket )
 	}
 }
 
-void CChatSessionG2::onCMSG( G2Packet* pPacket )
+void ChatSessionG2::onCMSG( G2Packet* pPacket )
 {
 	if ( !pPacket->m_bCompound || m_nState < csConnected )
 	{
@@ -475,7 +475,7 @@ void CChatSessionG2::onCMSG( G2Packet* pPacket )
 	}
 }
 
-void CChatSessionG2::sendMessage( QString sMessage, bool bAction )
+void ChatSessionG2::sendMessage( QString sMessage, bool bAction )
 {
 	qDebug() << "Send message:" << sMessage << bAction;
 
@@ -492,9 +492,9 @@ void CChatSessionG2::sendMessage( QString sMessage, bool bAction )
 
 	sendPacket( pPacket );
 }
-void CChatSessionG2::sendMessage( QTextDocument* pMessage, bool bAction )
+void ChatSessionG2::sendMessage( QTextDocument* pMessage, bool bAction )
 {
-	CChatConverter oConv( pMessage );
+	ChatConverter oConv( pMessage );
 
 	sendMessage( oConv.toBBCode(), bAction );
 

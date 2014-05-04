@@ -28,7 +28,7 @@
 
 #include "debug_new.h"
 
-CCompressedConnection::CCompressedConnection( QObject* parent ) :
+CompressedConnection::CompressedConnection( QObject* parent ) :
 	NetworkConnection( parent )
 {
 	m_bCompressedInput = false;
@@ -50,13 +50,13 @@ CCompressedConnection::CCompressedConnection( QObject* parent ) :
 	memset( &m_sOutput, 0, sizeof( z_stream ) );
 }
 
-CCompressedConnection::~CCompressedConnection()
+CompressedConnection::~CompressedConnection()
 {
 	cleanupInputStream();
 	cleanupOutputStream();
 }
 
-bool CCompressedConnection::enableInputCompression( bool bEnable )
+bool CompressedConnection::enableInputCompression( bool bEnable )
 {
 	if ( bEnable && !m_bCompressedInput )
 	{
@@ -75,7 +75,7 @@ bool CCompressedConnection::enableInputCompression( bool bEnable )
 	return true;
 }
 
-bool CCompressedConnection::enableOutputCompression( bool bEnable )
+bool CompressedConnection::enableOutputCompression( bool bEnable )
 {
 	if ( bEnable && !m_bCompressedOutput )
 	{
@@ -94,7 +94,7 @@ bool CCompressedConnection::enableOutputCompression( bool bEnable )
 	return true;
 }
 
-bool CCompressedConnection::setupInputStream()
+bool CompressedConnection::setupInputStream()
 {
 	m_pZInput = new Buffer( 8192 );
 
@@ -112,7 +112,7 @@ bool CCompressedConnection::setupInputStream()
 	return true;
 }
 
-bool CCompressedConnection::setupOutputStream()
+bool CompressedConnection::setupOutputStream()
 {
 	m_pZOutput = new Buffer( 8192 );
 	if ( m_pZOutput == 0 )
@@ -132,7 +132,7 @@ bool CCompressedConnection::setupOutputStream()
 	return true;
 }
 
-void CCompressedConnection::cleanupInputStream()
+void CompressedConnection::cleanupInputStream()
 {
 	if ( m_pZInput )
 	{
@@ -144,7 +144,7 @@ void CCompressedConnection::cleanupInputStream()
 	inflateEnd( &m_sInput );
 }
 
-void CCompressedConnection::cleanupOutputStream()
+void CompressedConnection::cleanupOutputStream()
 {
 	if ( m_pZOutput )
 	{
@@ -155,7 +155,7 @@ void CCompressedConnection::cleanupOutputStream()
 	deflateEnd( &m_sOutput );
 }
 
-qint64 CCompressedConnection::readFromNetwork( qint64 nBytes )
+qint64 CompressedConnection::readFromNetwork( qint64 nBytes )
 {
 	qint64 nRet = NetworkConnection::readFromNetwork( nBytes );
 
@@ -171,7 +171,7 @@ qint64 CCompressedConnection::readFromNetwork( qint64 nBytes )
 	return nRet;
 }
 
-qint64 CCompressedConnection::writeToNetwork( qint64 nBytes )
+qint64 CompressedConnection::writeToNetwork( qint64 nBytes )
 {
 	if ( m_bCompressedOutput )
 	{
@@ -184,7 +184,7 @@ qint64 CCompressedConnection::writeToNetwork( qint64 nBytes )
 	return NetworkConnection::writeToNetwork( nBytes );
 }
 
-void CCompressedConnection::inflateInput()
+void CompressedConnection::inflateInput()
 {
 	if ( m_pInput->size() == 0 )
 	{
@@ -242,7 +242,7 @@ void CCompressedConnection::inflateInput()
 	}
 }
 
-void CCompressedConnection::deflateOutput()
+void CompressedConnection::deflateOutput()
 {
 	qint32 nFlushMode = Z_NO_FLUSH;
 

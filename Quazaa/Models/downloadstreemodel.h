@@ -34,50 +34,50 @@
 #include <QPalette>
 
 class Download;
-class CDownloadSource;
-class CDownloadsTreeModel;
-class CDownloadSourceItem;
+class DownloadSource;
+class DownloadsTreeModel;
+class DownloadSourceItem;
 class FileIconProvider;
 
-class CDownloadsItemBase : public QObject
+class DownloadsItemBase : public QObject
 {
 	Q_OBJECT
 public:
-	CDownloadsItemBase( QObject* parent = 0 );
-	virtual ~CDownloadsItemBase();
+	DownloadsItemBase( QObject* parent = 0 );
+	virtual ~DownloadsItemBase();
 
-	virtual void appendChild( CDownloadsItemBase* child );
-	virtual CDownloadsItemBase* child( int row );
+	virtual void appendChild( DownloadsItemBase* child );
+	virtual DownloadsItemBase* child( int row );
 	virtual int childCount() const;
 	virtual int columnCount() const;
 	virtual QVariant data( int column ) const;
 	virtual int row() const;
-	virtual CDownloadsItemBase* parent();
+	virtual DownloadsItemBase* parent();
 
 	bool m_bChanged;
 	TransferProtocol
 	m_nProtocol;	// the network used. this should always be tpNull for CDownloadsItemBase but child sources should always contain a value
 
 protected:
-	CDownloadsItemBase* parentItem;
-	QList<CDownloadsItemBase*> childItems;
+	DownloadsItemBase* parentItem;
+	QList<DownloadsItemBase*> childItems;
 	// item data here
 
 signals:
 	void progressChanged();
 
-	friend class CDownloadItem;
-	friend class CDownloadSourceItem;
+	friend class DownloadItem;
+	friend class DownloadSourceItem;
 };
 
-class CDownloadItem : public CDownloadsItemBase
+class DownloadItem : public DownloadsItemBase
 {
 	Q_OBJECT
 public:
-	CDownloadItem( Download* download, CDownloadsItemBase* parent, CDownloadsTreeModel* model, QObject* parentQObject = 0 );
-	virtual ~CDownloadItem();
+	DownloadItem( Download* download, DownloadsItemBase* parent, DownloadsTreeModel* model, QObject* parentQObject = 0 );
+	virtual ~DownloadItem();
 
-	void appendChild( CDownloadsItemBase* child );
+	void appendChild( DownloadsItemBase* child );
 	QVariant data( int column ) const;
 protected:
 	Download* m_pDownload; // pointer to corresponding CDownload object
@@ -93,27 +93,27 @@ protected:
 	Fragments::List	m_oCompletedFrags;
 	Fragments::List m_oVerifiedFrags;
 
-	CDownloadsTreeModel* m_pModel;
+	DownloadsTreeModel* m_pModel;
 public slots:
-	void onSourceAdded( CDownloadSource* pSource );
+	void onSourceAdded( DownloadSource* pSource );
 	void onStateChanged( int state );
-	void onBytesReceived( quint64 offset, quint64 length, CDownloadSourceItem* source );
+	void onBytesReceived( quint64 offset, quint64 length, DownloadSourceItem* source );
 
-	friend class CDownloadSourceItem;
-	friend class CDownloadsItemDelegate;
+	friend class DownloadSourceItem;
+	friend class DownloadsItemDelegate;
 };
 
-class CDownloadSourceItem : public CDownloadsItemBase
+class DownloadSourceItem : public DownloadsItemBase
 {
 	Q_OBJECT
 public:
-	CDownloadSourceItem( CDownloadSource* downloadSource, CDownloadsItemBase* parent, QObject* parentQObject = 0 );
-	virtual ~CDownloadSourceItem();
+	DownloadSourceItem( DownloadSource* downloadSource, DownloadsItemBase* parent, QObject* parentQObject = 0 );
+	virtual ~DownloadSourceItem();
 
-	void appendChild( CDownloadsItemBase* child );
+	void appendChild( DownloadsItemBase* child );
 	QVariant data( int column ) const;
 protected:
-	CDownloadSource* m_pDownloadSource; // pointer to corresponding CDownloadSource object
+	DownloadSource* m_pDownloadSource; // pointer to corresponding CDownloadSource object
 
 	QString m_sAddress;		// remote address
 	quint64 m_nSize;		// available bytes on remote server/client
@@ -132,11 +132,11 @@ public slots:
 	QString getCountry();
 	void onBytesReceived( quint64 offset, quint64 length );
 
-	friend class CDownloadItem;
-	friend class CDownloadsItemDelegate;
+	friend class DownloadItem;
+	friend class DownloadsItemDelegate;
 };
 
-class CDownloadsTreeModel : public QAbstractItemModel
+class DownloadsTreeModel : public QAbstractItemModel
 {
 	Q_OBJECT
 public:
@@ -155,8 +155,8 @@ public:
 	};
 
 public:
-	CDownloadsTreeModel( QObject* parent = 0 );
-	~CDownloadsTreeModel();
+	DownloadsTreeModel( QObject* parent = 0 );
+	~DownloadsTreeModel();
 
 	QVariant data( const QModelIndex& index, int role ) const;
 	Qt::ItemFlags flags( const QModelIndex& index ) const;
@@ -167,23 +167,23 @@ public:
 	int columnCount( const QModelIndex& parent = QModelIndex() ) const;
 
 private:
-	CDownloadsItemBase* rootItem;
+	DownloadsItemBase* rootItem;
 	FileIconProvider* m_pIconProvider;
 signals:
 
 public slots:
 	void onDownloadAdded( Download* pDownload );
 
-	friend class CDownloadItem;
+	friend class DownloadItem;
 };
 
 #include <QPainter>
 
-class CDownloadsItemDelegate : public QItemDelegate
+class DownloadsItemDelegate : public QItemDelegate
 {
 	Q_OBJECT
 public:
-	inline CDownloadsItemDelegate( QObject* parent )
+	inline DownloadsItemDelegate( QObject* parent )
 		: QItemDelegate( parent )
 	{}
 
@@ -242,7 +242,7 @@ public:
 
 	inline void paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const
 	{
-		if ( index.column() != CDownloadsTreeModel::PROGRESS )
+		if ( index.column() != DownloadsTreeModel::PROGRESS )
 		{
 			QItemDelegate::paint( painter, option, index );
 			return;
@@ -251,7 +251,7 @@ public:
 		if ( !index.parent().isValid() )
 		{
 			// top-level
-			CDownloadItem* item = static_cast<CDownloadItem*>( index.internalPointer() );
+			DownloadItem* item = static_cast<DownloadItem*>( index.internalPointer() );
 
 			Q_ASSERT( item );
 
@@ -266,7 +266,7 @@ public:
 
 				for ( int i = 0; i < item->childCount(); ++i )
 				{
-					CDownloadSourceItem* sourceItem = static_cast<CDownloadSourceItem*>( item->child( i ) );
+					DownloadSourceItem* sourceItem = static_cast<DownloadSourceItem*>( item->child( i ) );
 
 					completedFrags.erase( sourceItem->m_oDownloaded.begin(), sourceItem->m_oDownloaded.end() );
 

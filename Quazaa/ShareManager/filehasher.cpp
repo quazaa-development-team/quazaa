@@ -32,20 +32,20 @@
 
 #include "debug_new.h"
 
-QMutex CFileHasher::m_pSection;
-QQueue<CSharedFilePtr> CFileHasher::m_lQueue;
-CFileHasher** CFileHasher::m_pHashers = 0;
-quint32  CFileHasher::m_nMaxHashers = 1;
-quint32  CFileHasher::m_nRunningHashers = 0;
-QWaitCondition CFileHasher::m_oWaitCond;
+QMutex FileHasher::m_pSection;
+QQueue<SharedFilePtr> FileHasher::m_lQueue;
+FileHasher** FileHasher::m_pHashers = 0;
+quint32  FileHasher::m_nMaxHashers = 1;
+quint32  FileHasher::m_nRunningHashers = 0;
+QWaitCondition FileHasher::m_oWaitCond;
 
-CFileHasher::CFileHasher( QObject* parent ) : QThread( parent )
+FileHasher::FileHasher( QObject* parent ) : QThread( parent )
 {
 	m_bActive = true;
 	m_nId = -1;
 }
 
-CFileHasher::~CFileHasher()
+FileHasher::~FileHasher()
 {
 	m_bActive = false;
 	if ( isRunning() )
@@ -54,14 +54,14 @@ CFileHasher::~CFileHasher()
 	}
 }
 
-CFileHasher* CFileHasher::hashFile( CSharedFilePtr pFile )
+FileHasher* FileHasher::hashFile( SharedFilePtr pFile )
 {
 	m_pSection.lock();
 
 	if ( m_pHashers == 0 )
 	{
 		m_nMaxHashers = qMin<quint32>( 4, qMax<quint32>( 2, QThread::idealThreadCount() ) );
-		m_pHashers = new CFileHasher*[m_nMaxHashers];
+		m_pHashers = new FileHasher*[m_nMaxHashers];
 		for ( uint i = 0; i < m_nMaxHashers; i++ )
 		{
 			m_pHashers[i] = 0;
@@ -71,7 +71,7 @@ CFileHasher* CFileHasher::hashFile( CSharedFilePtr pFile )
 	//qDebug() << "File" << pFile->m_sFilename << "queued for hashing";
 	m_lQueue.enqueue( pFile );
 
-	CFileHasher* pHasher = 0;
+	FileHasher* pHasher = 0;
 
 	if ( m_nRunningHashers < ( uint )m_lQueue.size() && m_nRunningHashers < m_nMaxHashers )
 	{
@@ -80,11 +80,11 @@ CFileHasher* CFileHasher::hashFile( CSharedFilePtr pFile )
 			if ( !m_pHashers[i] )
 			{
 				systemLog.postLog( LogSeverity::Debug, QString( "Starting hasher: %1" ).arg( m_nRunningHashers ) );
-				m_pHashers[i] = new CFileHasher();
+				m_pHashers[i] = new FileHasher();
 				pHasher = m_pHashers[i];
 				pHasher->m_nId = i;
 				connect( pHasher, SIGNAL( queueEmpty() ), &shareManager, SLOT( RunHashing() ), Qt::UniqueConnection );
-				connect( pHasher, SIGNAL( fileHashed( CSharedFilePtr ) ), &shareManager, SLOT( OnFileHashed( CSharedFilePtr ) ),
+				connect( pHasher, SIGNAL( fileHashed( SharedFilePtr ) ), &shareManager, SLOT( OnFileHashed( SharedFilePtr ) ),
 						 Qt::UniqueConnection );
 				connect( pHasher, SIGNAL( hasherStarted( int ) ), &shareManager, SIGNAL( hasherStarted( int ) ) );
 				connect( pHasher, SIGNAL( hasherFinished( int ) ), &shareManager, SIGNAL( hasherFinished( int ) ) );
@@ -100,12 +100,12 @@ CFileHasher* CFileHasher::hashFile( CSharedFilePtr pFile )
 
 	m_pSection.unlock();
 
-	CFileHasher::m_oWaitCond.wakeOne();
+	FileHasher::m_oWaitCond.wakeOne();
 
 	return pHasher;
 }
 
-void CFileHasher::run()
+void FileHasher::run()
 {
 	QElapsedTimer tTimer;
 	QByteArray baBuffer;
@@ -118,7 +118,7 @@ void CFileHasher::run()
 
 	while ( !m_lQueue.isEmpty() )
 	{
-		CSharedFilePtr pFile = m_lQueue.dequeue();
+		SharedFilePtr pFile = m_lQueue.dequeue();
 		systemLog.postLog( LogSeverity::Debug, QString( "Hashing %1" ).arg( pFile->fileName() ) );
 
 		m_pSection.unlock();
@@ -127,14 +127,14 @@ void CFileHasher::run()
 
 		bool bHashed = true;
 
-		std::vector<CHash*> vHashes;
+		std::vector<Hash*> vHashes;
 
 		if ( pFile->exists() && pFile->open( QFile::ReadOnly ) )
 		{
 			baBuffer.resize( nBufferSize );
 
-			vHashes.push_back( new CHash( CHash::SHA1 ) );
-			vHashes.push_back( new CHash( CHash::MD5  ) );
+			vHashes.push_back( new Hash( Hash::SHA1 ) );
+			vHashes.push_back( new Hash( Hash::MD5  ) );
 
 			tTimer.start();
 //			double nLastPercent = 0;
@@ -220,7 +220,7 @@ void CFileHasher::run()
 			emit queueEmpty();
 			systemLog.postLog( LogSeverity::Debug, QString( "Hasher waiting..." ) );
 			//qDebug() << "Hasher " << this << "waiting...";
-			CFileHasher::m_oWaitCond.wait( &m_pSection, 10000 );
+			FileHasher::m_oWaitCond.wait( &m_pSection, 10000 );
 		}
 	}
 

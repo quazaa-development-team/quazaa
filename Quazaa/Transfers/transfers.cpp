@@ -85,7 +85,7 @@ void Transfers::stop()
 	downloads.stop();
 }
 
-void Transfers::add( CTransfer* pTransfer )
+void Transfers::add( Transfer* pTransfer )
 {
 	QMutexLocker l( &m_pSection );
 
@@ -103,7 +103,7 @@ void Transfers::add( CTransfer* pTransfer )
 	// start
 }
 
-void Transfers::remove( CTransfer* pTransfer )
+void Transfers::remove( Transfer* pTransfer )
 {
 	QMutexLocker l( &m_pSection );
 
@@ -117,7 +117,7 @@ void Transfers::remove( CTransfer* pTransfer )
 	m_lTransfers.remove( pTransfer->m_pOwner, pTransfer );
 }
 
-QList<CTransfer*> Transfers::getByOwner( void* pOwner )
+QList<Transfer*> Transfers::getByOwner( void* pOwner )
 {
 	return m_lTransfers.values( pOwner );
 }
@@ -131,7 +131,7 @@ void Transfers::onTimer()
 
 	QMutexLocker l( &m_pSection );
 
-	foreach ( CTransfer * pTransfer, m_lTransfers )
+	foreach ( Transfer * pTransfer, m_lTransfers )
 	{
 		pTransfer->onTimer();
 	}

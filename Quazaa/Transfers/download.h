@@ -5,9 +5,9 @@
 #include "FileFragments.hpp"
 #include "Hashes/hash.h"
 
-class CDownloadSource;
+class DownloadSource;
 class QueryHit;
-class CTransfer;
+class Transfer;
 
 #define DOWNLOAD_CODE_FILE_VERSION 1
 
@@ -43,7 +43,7 @@ public:
 	quint64					m_nSize;
 	quint64					m_nCompletedSize;
 	DownloadState			m_nState;
-	QList<CDownloadSource*> m_lSources;
+	QList<DownloadSource*> m_lSources;
 	bool					m_bMultifile;
 	QList<FileListItem>		m_lFiles;	// for multifile downloads
 	Fragments::List			m_lCompleted;
@@ -73,14 +73,14 @@ public:
 	void start();
 	void pause();
 	void cancelDownload();
-	bool addSource( CDownloadSource* pSource );
+	bool addSource( DownloadSource* pSource );
 	int  addSource( QueryHit* pHit );
-	void removeSource( CDownloadSource* pSource );
+	void removeSource( DownloadSource* pSource );
 	int  startTransfers( int nMaxTransfers = -1 );
 	void stopTransfers();
-	bool sourceExists( CDownloadSource* pSource );
+	bool sourceExists( DownloadSource* pSource );
 
-	QList<CTransfer*> getTransfers();
+	QList<Transfer*> getTransfers();
 
 	Fragments::List getPossibleFragments( const Fragments::List& oAvailable, Fragments::Fragment& oLargest );
 	Fragments::List getWantedFragments();
@@ -96,7 +96,7 @@ public:
 protected:
 	void setState( Download::DownloadState state );
 signals:
-	void sourceAdded( CDownloadSource* );
+	void sourceAdded( DownloadSource* );
 	void stateChanged( int );
 public slots:
 	void emitSources();

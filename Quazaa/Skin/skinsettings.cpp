@@ -6,12 +6,12 @@
 #include <QFont>
 #include <QPalette>
 
-CSkinSettings skinSettings;
+SkinSettings skinSettings;
 
-CSkinSettings::CSkinSettings( QObject* parent ) :
+SkinSettings::SkinSettings( QObject* parent ) :
 	QObject( parent )
 {
-	CQuazaaSysInfo* sysInfo = new CQuazaaSysInfo();
+	QuazaaSysInfo* sysInfo = new QuazaaSysInfo();
 	switch ( sysInfo->osVersion() )
 	{
 	case OSVersion::Linux:
@@ -58,7 +58,7 @@ CSkinSettings::CSkinSettings( QObject* parent ) :
 	}
 }
 
-void CSkinSettings::setGenericSkin()
+void SkinSettings::setGenericSkin()
 {
 	// Standard Items
 	standardItems = "";
@@ -136,7 +136,7 @@ void CSkinSettings::setGenericSkin()
 
 }
 
-void CSkinSettings::setLunaskin()
+void SkinSettings::setLunaskin()
 {
 	// ListViews
 	listViews =
@@ -205,7 +205,7 @@ void CSkinSettings::setLunaskin()
 	listsWeightHighlighted = QFont().weight();
 }
 
-void CSkinSettings::setAeroSkin()
+void SkinSettings::setAeroSkin()
 {
 	// Standard Items
 	standardItems = "";

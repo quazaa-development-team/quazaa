@@ -29,13 +29,13 @@
 
 class G2Packet;
 
-class CChatSessionG2 : public ChatSession
+class ChatSessionG2 : public ChatSession
 {
 	Q_OBJECT
 protected:
 	EndPoint m_oRemoteHost;
 public:
-	CChatSessionG2( EndPoint oRemoteHost, QObject* parent = 0 );
+	ChatSessionG2( EndPoint oRemoteHost, QObject* parent = 0 );
 
 	void connectNode();
 

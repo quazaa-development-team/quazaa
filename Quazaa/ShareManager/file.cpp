@@ -28,7 +28,7 @@
 #include "file.h"
 #include "debug_new.h"
 
-CFile::CFile( CFile& file ) :
+File::File( File& file ) :
 	QObject( file.parent() ),
 	QFileInfo( file.absoluteFilePath() ),
 	m_nDirectoryID( file.m_nDirectoryID ),
@@ -40,7 +40,7 @@ CFile::CFile( CFile& file ) :
 	m_pFile = file.m_pFile ? new QFile( file.absoluteFilePath() ) : NULL;
 }
 
-CFile::CFile( QObject* parent ) :
+File::File( QObject* parent ) :
 	QObject( parent ),
 	QFileInfo(),
 	m_nDirectoryID( 0 ),
@@ -50,7 +50,7 @@ CFile::CFile( QObject* parent ) :
 {
 }
 
-CFile::CFile( const QString& file, QObject* parent ) :
+File::File( const QString& file, QObject* parent ) :
 	QObject( parent ),
 	QFileInfo( file ),
 	m_nDirectoryID( 0 ),
@@ -61,7 +61,7 @@ CFile::CFile( const QString& file, QObject* parent ) :
 	refresh();
 }
 
-CFile::CFile( const QFile& file, QObject* parent ) :
+File::File( const QFile& file, QObject* parent ) :
 	QObject( parent ),
 	QFileInfo( file ),
 	m_nDirectoryID( 0 ),
@@ -72,7 +72,7 @@ CFile::CFile( const QFile& file, QObject* parent ) :
 	refresh();
 }
 
-CFile::CFile( const QDir& dir, const QString& file, QObject* parent ) :
+File::File( const QDir& dir, const QString& file, QObject* parent ) :
 	QObject( parent ),
 	QFileInfo( dir, file ),
 	m_nDirectoryID( 0 ),
@@ -83,7 +83,7 @@ CFile::CFile( const QDir& dir, const QString& file, QObject* parent ) :
 	refresh();
 }
 
-CFile::CFile( const QFileInfo& fileinfo, QObject* parent ) :
+File::File( const QFileInfo& fileinfo, QObject* parent ) :
 	QObject( parent ),
 	QFileInfo( fileinfo ),
 	m_nDirectoryID( 0 ),
@@ -94,7 +94,7 @@ CFile::CFile( const QFileInfo& fileinfo, QObject* parent ) :
 	refresh();
 }
 
-void CFile::refresh()
+void File::refresh()
 {
 	if ( m_pFile )
 	{
@@ -109,18 +109,18 @@ void CFile::refresh()
 	}
 }
 
-bool CFile::removeHash(const CHash& rHash )
+bool File::removeHash(const Hash& rHash )
 {
 	return m_vHashes.remove( rHash );
 }
 
 // todo: implement this
-QString CFile::toURI( URIType /*type*/ ) const
+QString File::toURI( URIType /*type*/ ) const
 {
 	return QString();
 }
 
-bool CFile::isTagged( const QString& sTag ) const
+bool File::isTagged( const QString& sTag ) const
 {
 	QSet< QString >::ConstIterator i = m_Tags.find( sTag );
 

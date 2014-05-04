@@ -8,36 +8,36 @@
 
 using namespace URI;
 
-CMagnet::MagnetFile::MagnetFile() :
+Magnet::MagnetFile::MagnetFile() :
 	m_bNull( true ),
 	m_nFileSize( 0 )
 {}
 
-CMagnet::MagnetFile::~MagnetFile()
+Magnet::MagnetFile::~MagnetFile()
 {
 }
 
-bool CMagnet::MagnetFile::isValid() const
+bool Magnet::MagnetFile::isValid() const
 {
 	return !m_vHashes.empty() || m_lURLs.size();
 }
 
-CMagnet::CMagnet() :
+Magnet::Magnet() :
 	m_bNull( true )
 {}
 
-CMagnet::CMagnet( QString sMagnet ) :
+Magnet::Magnet( QString sMagnet ) :
 	m_bNull( false )
 {
 	parseMagnet( sMagnet );
 }
 
-CMagnet::MagnetFile CMagnet::operator[]( const quint16 nID ) const
+Magnet::MagnetFile Magnet::operator[]( const quint16 nID ) const
 {
 	return m_lFiles[nID];
 }
 
-bool CMagnet::parseMagnet( QString sMagnet )
+bool Magnet::parseMagnet( QString sMagnet )
 {
 	m_bNull = false;
 
@@ -127,7 +127,7 @@ bool CMagnet::parseMagnet( QString sMagnet )
 			}
 			else if ( sParam.startsWith( "xt" ) )	// EXect Topic
 			{
-				CHash* pHash = CHash::fromURN( sSubsection );
+				Hash* pHash = Hash::fromURN( sSubsection );
 
 				if ( pHash )
 				{
@@ -230,7 +230,7 @@ bool CMagnet::parseMagnet( QString sMagnet )
 	return m_lFiles.size() + m_lSearches.size();
 }
 
-bool CMagnet::file( const quint16 nID, Download* pDownload ) const
+bool Magnet::file( const quint16 nID, Download* pDownload ) const
 {
 	if ( nID >= m_lFiles.size() )
 	{
@@ -253,7 +253,7 @@ bool CMagnet::file( const quint16 nID, Download* pDownload ) const
 	return true;
 }
 
-QString CMagnet::search( const quint16 nID ) const
+QString Magnet::search( const quint16 nID ) const
 {
 	if ( nID >= m_lSearches.size() )
 	{
@@ -267,7 +267,7 @@ QString CMagnet::search( const quint16 nID ) const
 }
 
 
-void CMagnet::subsectionError( QString sParam, QString sSubsection )
+void Magnet::subsectionError( QString sParam, QString sSubsection )
 {
 	QString sub = QObject::tr( "Subsection: %1=%2" ).arg( sParam, sSubsection );
 	systemLog.postLog( LogSeverity::Error, QObject::tr( "Error while parsing subsection of Magnet Link:" ) );

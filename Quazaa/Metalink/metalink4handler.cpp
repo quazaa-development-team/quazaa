@@ -29,8 +29,8 @@
 
 using namespace URI;
 
-CMetalink4Handler::CMetalink4Handler( QFile& oFile ) :
-	CMetalinkHandler( oFile )
+Metalink4Handler::Metalink4Handler( QFile& oFile ) :
+	MetalinkHandler( oFile )
 {
 	/*
 
@@ -91,7 +91,7 @@ CMetalink4Handler::CMetalink4Handler( QFile& oFile ) :
 	//TODO: Parse more data within the metalink
 }
 
-Download* CMetalink4Handler::file( const unsigned int& ID ) const
+Download* Metalink4Handler::file( const unsigned int& ID ) const
 {
 	MetaFile oFile = m_vFiles[ ID ];
 
@@ -102,7 +102,7 @@ Download* CMetalink4Handler::file( const unsigned int& ID ) const
 	return new Download();
 }
 
-bool CMetalink4Handler::parseFile( QList<MetaFile>& lFiles, quint16 ID )
+bool Metalink4Handler::parseFile( QList<MetaFile>& lFiles, quint16 ID )
 {
 	MetaFile oCurrentFile( ID );
 
@@ -117,7 +117,7 @@ bool CMetalink4Handler::parseFile( QList<MetaFile>& lFiles, quint16 ID )
 			{
 				const QString sType = vAttributes.value( "type" ).toString().trimmed();
 				const QString sUrn = "urn:" + sType + ":" + m_oMetaLink.readElementText();
-				CHash* pHash = CHash::fromURN( sUrn );
+				Hash* pHash = Hash::fromURN( sUrn );
 
 				if ( pHash )
 				{
@@ -236,7 +236,7 @@ bool CMetalink4Handler::parseFile( QList<MetaFile>& lFiles, quint16 ID )
 				else if ( !sMediaType.compare( "magnet" ) )
 				{
 					uri.m_nType = uriMagnet;
-					uri.m_pMagnet = new CMagnet( m_oMetaLink.readElementText() );
+					uri.m_pMagnet = new Magnet( m_oMetaLink.readElementText() );
 
 					if ( !uri.m_pMagnet->isValid() )
 					{

@@ -57,10 +57,10 @@ CWidgetDownloads::CWidgetDownloads( QWidget* parent ) :
 	downloadMenu->addSeparator();
 	downloadMenu->addAction( ui->actionHelp );
 
-	m_pModel = new CDownloadsTreeModel();
+	m_pModel = new DownloadsTreeModel();
 	ui->tableViewDownloads->setModel( m_pModel );
-	ui->tableViewDownloads->setColumnHidden( CDownloadsTreeModel::COUNTRY, true );
-	ui->tableViewDownloads->setItemDelegate( new CDownloadsItemDelegate( this ) );
+	ui->tableViewDownloads->setColumnHidden( DownloadsTreeModel::COUNTRY, true );
+	ui->tableViewDownloads->setItemDelegate( new DownloadsItemDelegate( this ) );
 	setSkin();
 
 	// Set up header sizes
@@ -68,15 +68,15 @@ CWidgetDownloads::CWidgetDownloads( QWidget* parent ) :
 	{
 		QFontMetrics fm = ui->tableViewDownloads->fontMetrics();
 		QHeaderView* header = ui->tableViewDownloads->horizontalHeader();
-		header->resizeSection( CDownloadsTreeModel::NAME,
+		header->resizeSection( DownloadsTreeModel::NAME,
 							   fm.width( "a-typical-name-of-mp3-or-movie-or-xxx-or-other-porn.avi" ) );
-		header->resizeSection( CDownloadsTreeModel::SIZE, fm.width( " 123.45 MB " ) );
-		header->resizeSection( CDownloadsTreeModel::COMPLETED, fm.width( " 1234.45 MB " ) );
-		header->resizeSection( CDownloadsTreeModel::BANDWIDTH, fm.width( " 1234.45 MB/s " ) );
-		header->resizeSection( CDownloadsTreeModel::CLIENT, fm.width( QuazaaGlobals::USER_AGENT_STRING() ) );
-		header->resizeSection( CDownloadsTreeModel::PROGRESS, 200 );
-		header->resizeSection( CDownloadsTreeModel::PRIORITY, fm.width( "    Priority    " ) );
-		header->resizeSection( CDownloadsTreeModel::STATUS, fm.width( "Tracker Down" ) );
+		header->resizeSection( DownloadsTreeModel::SIZE, fm.width( " 123.45 MB " ) );
+		header->resizeSection( DownloadsTreeModel::COMPLETED, fm.width( " 1234.45 MB " ) );
+		header->resizeSection( DownloadsTreeModel::BANDWIDTH, fm.width( " 1234.45 MB/s " ) );
+		header->resizeSection( DownloadsTreeModel::CLIENT, fm.width( QuazaaGlobals::USER_AGENT_STRING() ) );
+		header->resizeSection( DownloadsTreeModel::PROGRESS, 200 );
+		header->resizeSection( DownloadsTreeModel::PRIORITY, fm.width( "    Priority    " ) );
+		header->resizeSection( DownloadsTreeModel::STATUS, fm.width( "Tracker Down" ) );
 	}
 
 	restoreState( quazaaSettings.WinMain.DownloadsToolbar );

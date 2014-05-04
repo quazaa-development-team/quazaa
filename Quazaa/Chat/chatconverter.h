@@ -52,7 +52,7 @@ enum Control
 };
 }
 
-class CChatConverter
+class ChatConverter
 {
 
 	enum OutputFormats
@@ -70,8 +70,8 @@ class CChatConverter
 	OutputFormats	m_nOutputFormat;
 
 public:
-	CChatConverter( QTextDocument* pDoc );
-	virtual ~CChatConverter();
+	ChatConverter( QTextDocument* pDoc );
+	virtual ~ChatConverter();
 
 	QString toHtml();
 	QString toBBCode();

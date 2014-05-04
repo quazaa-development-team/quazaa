@@ -33,7 +33,7 @@
 
 typedef QPair<quint32, QPair<quint32, QString> > GeoIPEntry;
 
-class CGeoIPList
+class GeoIPList
 {
 protected:
 	bool	m_bListLoaded;
@@ -47,7 +47,7 @@ public:
 
 	QList<GeoIPEntry> m_lDatabase;
 
-	CGeoIPList();
+	GeoIPList();
 	void loadGeoIP();
 
 	/**
@@ -74,6 +74,6 @@ public:
 	QString countryNameFromCode( const QString& code ) const;
 };
 
-extern CGeoIPList geoIP;
+extern GeoIPList geoIP;
 
 #endif // GEOIPLIST_H

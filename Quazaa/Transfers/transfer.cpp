@@ -27,7 +27,7 @@
 
 #include "debug_new.h"
 
-CTransfer::CTransfer( void* pOwner, QObject* parent ) :
+Transfer::Transfer( void* pOwner, QObject* parent ) :
 	NetworkConnection( parent ),
 	m_pOwner( pOwner )
 {
@@ -35,13 +35,13 @@ CTransfer::CTransfer( void* pOwner, QObject* parent ) :
 	transfers.add( this );
 }
 
-CTransfer::~CTransfer()
+Transfer::~Transfer()
 {
 	ASSUME_LOCK( transfers.m_pSection );
 	transfers.remove( this );
 }
 
-void CTransfer::onTimer( quint32 /*tNow*/ )
+void Transfer::onTimer( quint32 /*tNow*/ )
 {
 }
 

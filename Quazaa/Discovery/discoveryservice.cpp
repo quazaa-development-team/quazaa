@@ -36,7 +36,7 @@ using namespace Discovery;
  * @param oNType
  * @param nRating
  */
-DiscoveryService::DiscoveryService( const QUrl& oURL, const CNetworkType& oNType, quint8 nRating ) :
+DiscoveryService::DiscoveryService( const QUrl& oURL, const NetworkType& oNType, quint8 nRating ) :
 	m_nServiceType( ServiceType::Null ),
 	m_oNetworkType( oNType ),
 	m_oServiceURL( oURL ),
@@ -166,7 +166,7 @@ void DiscoveryService::load( DiscoveryService*& pService, QDataStream& fsFile, i
 	fsFile >> nZeroRatingFailures;
 
 	pService = createService( sURL, ( ServiceType::Type )nServiceType,
-							  CNetworkType( nNetworkType ), nRating );
+							  NetworkType( nNetworkType ), nRating );
 
 	if ( pService )
 	{
@@ -227,7 +227,7 @@ void DiscoveryService::save( const DiscoveryService* const pService, QDataStream
  * @return
  */
 DiscoveryService* DiscoveryService::createService( const QString& sURL, ServiceType::Type eSType,
-												   const CNetworkType& oNType,	quint8 nRating )
+												   const NetworkType& oNType,	quint8 nRating )
 {
 	DiscoveryService* pService = NULL;
 

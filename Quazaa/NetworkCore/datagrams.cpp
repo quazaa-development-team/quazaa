@@ -917,7 +917,7 @@ void Datagrams::onQKR( G2Packet* pPacket, const EndPoint& addr )
 	}
 
 	G2Packet* pAns = G2Packet::newPacket( "QKA", true );
-	quint32 nKey = QueryKeys.create( oRequestedAddress );
+	quint32 nKey = queryKeys.create( oRequestedAddress );
 	pAns->writePacket( "QK", 4 );
 	pAns->writeIntLE<quint32>( nKey );
 	G2Packet* pSNA = G2Packet::newPacket( "SNA" );
@@ -1110,7 +1110,7 @@ void Datagrams::onQuery( G2Packet* pPacket, const EndPoint& addr )
 		return;
 	}
 
-	if ( !QueryKeys.check( pQuery->m_oEndpoint, pQuery->m_nQueryKey ) )
+	if ( !queryKeys.check( pQuery->m_oEndpoint, pQuery->m_nQueryKey ) )
 	{
 #if LOG_QUERY_HANDLING
 		systemLog.postLog( LogSeverity::Debug, Component::G2, "Issuing query key correction for %s.",
@@ -1118,7 +1118,7 @@ void Datagrams::onQuery( G2Packet* pPacket, const EndPoint& addr )
 #endif // LOG_QUERY_HANDLING
 
 		G2Packet* pQKA = G2Packet::newPacket( "QKA", true );
-		pQKA->writePacket( "QK", 4 )->writeIntLE<quint32>( QueryKeys.create( pQuery->m_oEndpoint ) );
+		pQKA->writePacket( "QK", 4 )->writeIntLE<quint32>( queryKeys.create( pQuery->m_oEndpoint ) );
 
 		if ( addr != pQuery->m_oEndpoint )
 		{

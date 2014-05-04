@@ -27,11 +27,11 @@
 
 #include "networkiconprovider.h"
 
-CNetworkIconProvider::CNetworkIconProvider()
+NetworkIconProvider::NetworkIconProvider()
 {
 }
 
-QIcon CNetworkIconProvider::icon( DiscoveryProtocol::Protocol protocol )
+QIcon NetworkIconProvider::icon( DiscoveryProtocol::Protocol protocol )
 {
 	QIcon icon;
 	QString key = QLatin1String( "nip_dp_" ) + QString::number( protocol );
@@ -75,7 +75,7 @@ QIcon CNetworkIconProvider::icon( DiscoveryProtocol::Protocol protocol )
 	return icon;
 }
 
-QIcon CNetworkIconProvider::icon( TransferProtocol protocol )
+QIcon NetworkIconProvider::icon( TransferProtocol protocol )
 {
 	QIcon icon;
 	QString key = QLatin1String( "nip_tp_" ) + QString::number( protocol );

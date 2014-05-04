@@ -79,7 +79,7 @@ Manager::~Manager()
  * is null, the total number of all services is returned, no matter whether they are working or
  * not.
  */
-quint32	Manager::count( const CNetworkType& oType )
+quint32	Manager::count( const NetworkType& oType )
 {
 	QMutexLocker l( &m_pSection );
 	return doCount( oType );
@@ -177,7 +177,7 @@ bool Manager::save( bool bForceSaving )
  * added.
  */
 ServiceID Manager::add( QString sURL, const ServiceType::Type eSType,
-						const CNetworkType& oNType, const quint8 nRating )
+						const NetworkType& oNType, const quint8 nRating )
 {
 #if ENABLE_DISCOVERY_DEBUGGING
 	QString s = QString( "add( <Service>, Service Type: " ) + QString::number( eSType )  +
@@ -411,10 +411,10 @@ void Manager::requestServiceList()
  * Locking: YES (asynchronous)
  * @param type
  */
-void Manager::updateService( const CNetworkType& type )
+void Manager::updateService( const NetworkType& type )
 {
 	QMetaObject::invokeMethod( this, "asyncUpdateServiceHelper",
-							   Qt::QueuedConnection, Q_ARG( const CNetworkType, type ) );
+							   Qt::QueuedConnection, Q_ARG( const NetworkType, type ) );
 }
 
 void Manager::updateService( ServiceID nID )
@@ -428,12 +428,12 @@ void Manager::updateService( ServiceID nID )
  * Locking: YES (asynchronous)
  * @param type
  */
-void Manager::queryService( const CNetworkType& type )
+void Manager::queryService( const NetworkType& type )
 {
 	qDebug() << "Calling asyncQueryServiceHelper(const CNetworkType&)";
 
 	QMetaObject::invokeMethod( this, "asyncQueryServiceHelper",
-							   Qt::QueuedConnection, Q_ARG( const CNetworkType, type ) );
+							   Qt::QueuedConnection, Q_ARG( const NetworkType, type ) );
 }
 
 void Manager::queryService( ServiceID nID )
@@ -547,7 +547,7 @@ void Manager::asyncRequestServiceListHelper()
 	m_pSection.unlock();
 }
 
-void Manager::asyncUpdateServiceHelper( const CNetworkType type )
+void Manager::asyncUpdateServiceHelper( const NetworkType type )
 {
 	QSharedPointer<QNetworkAccessManager> pNAM = requestNAM();
 
@@ -619,7 +619,7 @@ void Manager::asyncUpdateServiceHelper( ServiceID nID )
 	pService->update();
 }
 
-void Manager::asyncQueryServiceHelper( const CNetworkType type )
+void Manager::asyncQueryServiceHelper( const NetworkType type )
 {
 #if ENABLE_DISCOVERY_DEBUGGING
 	QString s = QString ( "CDiscovery::asyncQueryServiceHelper( " ) +
@@ -744,7 +744,7 @@ void Manager::asyncManageDuplicatesHelper( ServiceID nID )
 /**
  * @brief doCount: Internal helper without locking. See count for documentation.
  */
-quint32 Manager::doCount( const CNetworkType& oType )
+quint32 Manager::doCount( const NetworkType& oType )
 {
 	if ( oType.isNull() )
 	{
@@ -1066,7 +1066,7 @@ void Manager::addDefaults()
 				bAdded =
 #endif
 					add( sService, ServiceType::GWC,
-						 CNetworkType( DiscoveryProtocol::G2 ), DISCOVERY_MAX_PROBABILITY );
+						 NetworkType( DiscoveryProtocol::G2 ), DISCOVERY_MAX_PROBABILITY );
 				break;
 
 			case 'M':	// Multi-network service
@@ -1075,7 +1075,7 @@ void Manager::addDefaults()
 				bAdded =
 #endif
 					add( sService, ServiceType::GWC,
-						 CNetworkType( DiscoveryProtocol::G2 ), DISCOVERY_MAX_PROBABILITY );
+						 NetworkType( DiscoveryProtocol::G2 ), DISCOVERY_MAX_PROBABILITY );
 				break;
 
 //			case 'D':	// eDonkey service
@@ -1088,7 +1088,7 @@ void Manager::addDefaults()
 				postLog( LogSeverity::Debug, "Parsing Default Service: Banned Service", true );
 				bAdded =
 #endif
-					add( sService, ServiceType::Banned, CNetworkType( DiscoveryProtocol::None ), 0 );
+					add( sService, ServiceType::Banned, NetworkType( DiscoveryProtocol::None ), 0 );
 				break;
 
 			default:	// Comment line or unsupported
@@ -1133,7 +1133,7 @@ void Manager::addDefaults()
  * @return true if the caller needs not to worry about adding the requested ban anymore
  */
 bool Manager::manageBan( const QString& sURL, const ServiceType::Type eSType,
-						 const CNetworkType& oNType )
+						 const NetworkType& oNType )
 {
 	bool bReturn = false;
 
@@ -1537,7 +1537,7 @@ bool Manager::normalizeURL( QString& sURL )
  * @return A discovery service for the specified network; Null if no working service could be
  * found for the specified network.
  */
-Manager::ServicePtr Manager::getRandomService( const CNetworkType& oNType )
+Manager::ServicePtr Manager::getRandomService( const NetworkType& oNType )
 {
 #if ENABLE_DISCOVERY_DEBUGGING
 	postLog( LogSeverity::Debug,

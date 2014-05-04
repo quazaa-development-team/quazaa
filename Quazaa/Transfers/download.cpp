@@ -72,7 +72,7 @@ QDataStream& operator<<( QDataStream& oStream, const Download& rhs )
 	}
 
 	// sources
-	foreach ( CDownloadSource * pSource, rhs.m_lSources )
+	foreach ( DownloadSource * pSource, rhs.m_lSources )
 	{
 		oStream << *pSource;
 	}
@@ -175,7 +175,7 @@ QDataStream& operator>>( QDataStream& s, Download& rhs )
 						{
 							QString sHash;
 							s >> sHash;
-							item.vHashes.insert( CHash::fromURN( sHash ) );
+							item.vHashes.insert( Hash::fromURN( sHash ) );
 						}
 
 						s >> sTag2;
@@ -185,7 +185,7 @@ QDataStream& operator>>( QDataStream& s, Download& rhs )
 			}
 			else if ( sTag == "download-source" )
 			{
-				CDownloadSource* pSource = new CDownloadSource( &rhs );
+				DownloadSource* pSource = new DownloadSource( &rhs );
 				s >> *pSource;
 				rhs.addSource( pSource );
 			}
@@ -256,13 +256,13 @@ void Download::start()
 	setState( dsPending );
 }
 
-bool Download::addSource( CDownloadSource* pSource )
+bool Download::addSource( DownloadSource* pSource )
 {
 	ASSUME_LOCK( downloads.m_pSection );
 
 	Q_ASSERT( pSource->m_pDownload == this );
 
-	foreach ( CDownloadSource * pThis, m_lSources )
+	foreach ( DownloadSource * pThis, m_lSources )
 	{
 		if ( ( !pThis->m_oGUID.isNull() && pThis->m_oGUID == pSource->m_oGUID )
 			 || ( pThis->m_oAddress == pSource->m_oAddress )
@@ -295,7 +295,7 @@ int Download::addSource( QueryHit* pHit )
 			// TODO: handle hash conflicts
 		}
 
-		CDownloadSource* pSource = new CDownloadSource( this, pCurrentHit );
+		DownloadSource* pSource = new DownloadSource( this, pCurrentHit );
 		if ( addSource( pSource ) )
 		{
 			++nSources;
@@ -310,7 +310,7 @@ int Download::addSource( QueryHit* pHit )
 	return nSources;
 }
 
-void Download::removeSource( CDownloadSource* pSource )
+void Download::removeSource( DownloadSource* pSource )
 {
 	ASSUME_LOCK( downloads.m_pSection );
 
@@ -336,12 +336,12 @@ void Download::stopTransfers()
 
 }
 
-bool Download::sourceExists( CDownloadSource* pSource )
+bool Download::sourceExists( DownloadSource* pSource )
 {
 	return ( m_lSources.indexOf( pSource ) != -1 );
 }
 
-QList<CTransfer*> Download::getTransfers()
+QList<Transfer*> Download::getTransfers()
 {
 	ASSUME_LOCK( transfers.m_pSection );
 
@@ -377,10 +377,10 @@ Fragments::List Download::getPossibleFragments( const Fragments::List& oAvailabl
 
 	oLargest = *oPossible.largest_range();
 
-	QList<CTransfer*> lTransfers = getTransfers();
-	foreach ( CTransfer * pTransfer, lTransfers )
+	QList<Transfer*> lTransfers = getTransfers();
+	foreach ( Transfer * pTransfer, lTransfers )
 	{
-		CDownloadTransfer* pTr = qobject_cast<CDownloadTransfer*>( pTransfer );
+		DownloadTransfer* pTr = qobject_cast<DownloadTransfer*>( pTransfer );
 
 		if ( pTr )
 		{
@@ -435,7 +435,7 @@ void Download::emitSources()
 	if ( !m_bSignalSources )
 	{
 		m_bSignalSources = true;
-		foreach ( CDownloadSource * pSource, m_lSources )
+		foreach ( DownloadSource * pSource, m_lSources )
 		{
 			emit sourceAdded( pSource );
 		}

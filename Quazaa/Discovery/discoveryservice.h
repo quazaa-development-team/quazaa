@@ -56,7 +56,7 @@ protected:
 	mutable QReadWriteLock m_oRWLock;      // Service access lock.
 //	mutable CDebugRWLock   m_oRWLock;      // Enable this for debugging purposes.
 	ServiceType::Type      m_nServiceType; // GWC, UKHL, ...
-	CNetworkType           m_oNetworkType; // could be several in case of GWC for instance
+	NetworkType           m_oNetworkType; // could be several in case of GWC for instance
 	QUrl                   m_oServiceURL;
 	QUrl                   m_oRedirectUrl;
 	QString                m_sPong;        // The service's reply to a ping request
@@ -102,7 +102,7 @@ public:
 	 * @param oNType
 	 * @param nRating
 	 */
-	DiscoveryService( const QUrl& oURL, const CNetworkType& oNType,
+	DiscoveryService( const QUrl& oURL, const NetworkType& oNType,
 					  quint8 nRating = DISCOVERY_MAX_PROBABILITY );
 
 	/**
@@ -171,7 +171,7 @@ private:
 	 */
 	/** Must be modified when writing subclasses. */
 	static DiscoveryService* createService( const QString& sURL, ServiceType::Type eSType,
-											const CNetworkType& oNType, quint8 nRating );
+											const NetworkType& oNType, quint8 nRating );
 
 	/* ========================================================================================== */
 	/* ======================================= Operations ======================================= */
@@ -234,7 +234,7 @@ public:
 	 * Requires locking: R
 	 * @return
 	 */
-	inline CNetworkType networkType() const;
+	inline NetworkType networkType() const;
 
 	/**
 	 * @brief type
@@ -434,7 +434,7 @@ ServiceType::Type DiscoveryService::serviceType() const
 	return m_nServiceType;
 }
 
-CNetworkType DiscoveryService::networkType() const
+NetworkType DiscoveryService::networkType() const
 {
 	return m_oNetworkType;
 }

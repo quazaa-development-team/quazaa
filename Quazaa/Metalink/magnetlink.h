@@ -10,8 +10,7 @@
 namespace URI
 {
 
-// TODO: rename
-class CMagnet
+class Magnet
 {
 public:
 
@@ -46,8 +45,8 @@ private:
 	QList<QString>		m_lSearches;		// Contains all files sorted by ID.
 
 public:
-	CMagnet();
-	CMagnet( QString sMagnet );
+	Magnet();
+	Magnet( QString sMagnet );
 
 	/**
 	  * Returns File struct for ID. Remember to verify their validity with isNull().
@@ -100,27 +99,27 @@ private:
 	void subsectionError( QString sParam, QString sSubsection );
 };
 
-bool CMagnet::isNull() const
+bool Magnet::isNull() const
 {
 	return m_bNull;
 }
 
-bool CMagnet::isValid() const
+bool Magnet::isValid() const
 {
 	return m_lFiles.size() || m_lSearches.size();
 }
 
-int CMagnet::fileCount() const
+int Magnet::fileCount() const
 {
 	return m_lFiles.size();
 }
 
-int CMagnet::searchCount() const
+int Magnet::searchCount() const
 {
 	return m_lSearches.size();
 }
 
-QString CMagnet::toString() const
+QString Magnet::toString() const
 {
 	return m_sMagnet;
 }

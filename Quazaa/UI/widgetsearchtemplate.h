@@ -84,7 +84,7 @@ protected:
 	void changeEvent( QEvent* e );
 
 private:
-	const CHash* const getHash() const;
+	const Hash* const getHash() const;
 
 signals:
 	void statsUpdated( WidgetSearchTemplate* thisSearch );

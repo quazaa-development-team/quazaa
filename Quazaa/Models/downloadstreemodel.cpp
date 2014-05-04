@@ -37,23 +37,23 @@ using namespace common;
 
 #include "debug_new.h"
 
-CDownloadsTreeModel::CDownloadsTreeModel( QObject* parent ) :
+DownloadsTreeModel::DownloadsTreeModel( QObject* parent ) :
 	QAbstractItemModel( parent ),
 	m_pIconProvider( new FileIconProvider )
 {
-	rootItem = new CDownloadsItemBase( this );
+	rootItem = new DownloadsItemBase( this );
 	connect( &downloads, SIGNAL( downloadAdded( Download* ) ), this, SLOT( onDownloadAdded( Download* ) ),
 			 Qt::QueuedConnection );
 	QMetaObject::invokeMethod( &downloads, "emitDownloads" );
 }
 
-CDownloadsTreeModel::~CDownloadsTreeModel()
+DownloadsTreeModel::~DownloadsTreeModel()
 {
 	delete rootItem;
 	delete m_pIconProvider;
 }
 
-QVariant CDownloadsTreeModel::data( const QModelIndex& index, int role ) const
+QVariant DownloadsTreeModel::data( const QModelIndex& index, int role ) const
 {
 	if ( !index.isValid() )
 	{
@@ -64,37 +64,37 @@ QVariant CDownloadsTreeModel::data( const QModelIndex& index, int role ) const
 	{
 	case Qt::DisplayRole:
 	{
-		CDownloadsItemBase* item = static_cast<CDownloadsItemBase*>( index.internalPointer() );
+		DownloadsItemBase* item = static_cast<DownloadsItemBase*>( index.internalPointer() );
 		return item->data( index.column() );
 	}
 	case Qt::TextAlignmentRole:
 	{
 		switch ( index.column() )
 		{
-		case CDownloadsTreeModel::BANDWIDTH:
-		case CDownloadsTreeModel::STATUS:
-		case CDownloadsTreeModel::COMPLETED:
+		case DownloadsTreeModel::BANDWIDTH:
+		case DownloadsTreeModel::STATUS:
+		case DownloadsTreeModel::COMPLETED:
 			return Qt::AlignCenter;
 		}
 	}
 	case Qt::DecorationRole:
 	{
-		if ( index.column() == CDownloadsTreeModel::NAME )
+		if ( index.column() == DownloadsTreeModel::NAME )
 		{
 			if ( !index.parent().isValid() )
 			{
-				CDownloadItem* item = static_cast<CDownloadItem*>( index.internalPointer() );
-				return m_pIconProvider->icon( item->data( CDownloadsTreeModel::NAME ).toString() );
+				DownloadItem* item = static_cast<DownloadItem*>( index.internalPointer() );
+				return m_pIconProvider->icon( item->data( DownloadsTreeModel::NAME ).toString() );
 			}
 			else
 			{
-				CDownloadSourceItem* item = static_cast<CDownloadSourceItem*>( index.internalPointer() );
-				return CNetworkIconProvider::icon( item->m_nProtocol );
+				DownloadSourceItem* item = static_cast<DownloadSourceItem*>( index.internalPointer() );
+				return NetworkIconProvider::icon( item->m_nProtocol );
 			}
 		}
-		if ( index.column() == CDownloadsTreeModel::COUNTRY )
+		if ( index.column() == DownloadsTreeModel::COUNTRY )
 		{
-			CDownloadSourceItem* item = static_cast<CDownloadSourceItem*>( index.internalPointer() );
+			DownloadSourceItem* item = static_cast<DownloadSourceItem*>( index.internalPointer() );
 			if ( item->m_nProtocol != tpNull )
 			{
 				return QIcon( ":/Resource/Flags/" + item->getCountryCode().toLower() + ".png" );
@@ -106,7 +106,7 @@ QVariant CDownloadsTreeModel::data( const QModelIndex& index, int role ) const
 	return QVariant();
 }
 
-Qt::ItemFlags CDownloadsTreeModel::flags( const QModelIndex& index ) const
+Qt::ItemFlags DownloadsTreeModel::flags( const QModelIndex& index ) const
 {
 	if ( !index.isValid() )
 	{
@@ -116,37 +116,37 @@ Qt::ItemFlags CDownloadsTreeModel::flags( const QModelIndex& index ) const
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-QVariant CDownloadsTreeModel::headerData( int section, Qt::Orientation orientation, int role ) const
+QVariant DownloadsTreeModel::headerData( int section, Qt::Orientation orientation, int role ) const
 {
 	if ( orientation == Qt::Horizontal && role == Qt::DisplayRole )
 	{
 		switch ( section )
 		{
-		case CDownloadsTreeModel::NAME:
+		case DownloadsTreeModel::NAME:
 			return tr( "Downloaded file" );
 			break;
-		case CDownloadsTreeModel::SIZE:
+		case DownloadsTreeModel::SIZE:
 			return tr( "Size" );
 			break;
-		case CDownloadsTreeModel::PROGRESS:
+		case DownloadsTreeModel::PROGRESS:
 			return tr( "Progress" );
 			break;
-		case CDownloadsTreeModel::BANDWIDTH:
+		case DownloadsTreeModel::BANDWIDTH:
 			return tr( "Bandwidth" );
 			break;
-		case CDownloadsTreeModel::STATUS:
+		case DownloadsTreeModel::STATUS:
 			return tr( "Status" );
 			break;
-		case CDownloadsTreeModel::PRIORITY:
+		case DownloadsTreeModel::PRIORITY:
 			return tr( "Priority" );
 			break;
-		case CDownloadsTreeModel::CLIENT:
+		case DownloadsTreeModel::CLIENT:
 			return tr( "Client" );
 			break;
-		case CDownloadsTreeModel::COMPLETED:
+		case DownloadsTreeModel::COMPLETED:
 			return tr( "Completed" );
 			break;
-		case CDownloadsTreeModel::COUNTRY:
+		case DownloadsTreeModel::COUNTRY:
 			return tr( "Country" );
 			break;
 		default:
@@ -157,14 +157,14 @@ QVariant CDownloadsTreeModel::headerData( int section, Qt::Orientation orientati
 	return QVariant();
 }
 
-QModelIndex CDownloadsTreeModel::index( int row, int column, const QModelIndex& parent ) const
+QModelIndex DownloadsTreeModel::index( int row, int column, const QModelIndex& parent ) const
 {
 	if ( !hasIndex( row, column, parent ) )
 	{
 		return QModelIndex();
 	}
 
-	CDownloadsItemBase* parentItem;
+	DownloadsItemBase* parentItem;
 
 	if ( !parent.isValid() )
 	{
@@ -172,10 +172,10 @@ QModelIndex CDownloadsTreeModel::index( int row, int column, const QModelIndex& 
 	}
 	else
 	{
-		parentItem = static_cast<CDownloadsItemBase*>( parent.internalPointer() );
+		parentItem = static_cast<DownloadsItemBase*>( parent.internalPointer() );
 	}
 
-	CDownloadsItemBase* childItem = parentItem->child( row );
+	DownloadsItemBase* childItem = parentItem->child( row );
 	if ( childItem )
 	{
 		return createIndex( row, column, childItem );
@@ -186,15 +186,15 @@ QModelIndex CDownloadsTreeModel::index( int row, int column, const QModelIndex& 
 	}
 }
 
-QModelIndex CDownloadsTreeModel::parent( const QModelIndex& index ) const
+QModelIndex DownloadsTreeModel::parent( const QModelIndex& index ) const
 {
 	if ( !index.isValid() )
 	{
 		return QModelIndex();
 	}
 
-	CDownloadsItemBase* childItem = static_cast<CDownloadsItemBase*>( index.internalPointer() );
-	CDownloadsItemBase* parentItem = childItem->parent();
+	DownloadsItemBase* childItem = static_cast<DownloadsItemBase*>( index.internalPointer() );
+	DownloadsItemBase* parentItem = childItem->parent();
 
 	if ( parentItem == rootItem )
 	{
@@ -204,9 +204,9 @@ QModelIndex CDownloadsTreeModel::parent( const QModelIndex& index ) const
 	return createIndex( parentItem->row(), 0, parentItem );
 }
 
-int CDownloadsTreeModel::rowCount( const QModelIndex& parent ) const
+int DownloadsTreeModel::rowCount( const QModelIndex& parent ) const
 {
-	CDownloadsItemBase* parentItem;
+	DownloadsItemBase* parentItem;
 	if ( parent.column() > 0 )
 	{
 		return 0;
@@ -218,19 +218,19 @@ int CDownloadsTreeModel::rowCount( const QModelIndex& parent ) const
 	}
 	else
 	{
-		parentItem = static_cast<CDownloadsItemBase*>( parent.internalPointer() );
+		parentItem = static_cast<DownloadsItemBase*>( parent.internalPointer() );
 	}
 
 	return parentItem->childCount();
 }
 
-int CDownloadsTreeModel::columnCount( const QModelIndex& parent ) const
+int DownloadsTreeModel::columnCount( const QModelIndex& parent ) const
 {
 	Q_UNUSED( parent );
 	return _NO_OF_COLUMNS;
 }
 
-void CDownloadsTreeModel::onDownloadAdded( Download* pDownload )
+void DownloadsTreeModel::onDownloadAdded( Download* pDownload )
 {
 	QMutexLocker l( &downloads.m_pSection );
 
@@ -240,14 +240,14 @@ void CDownloadsTreeModel::onDownloadAdded( Download* pDownload )
 	}
 
 	beginInsertRows( QModelIndex(), rootItem->childCount(), rootItem->childCount() );
-	CDownloadItem* pItem = new CDownloadItem( pDownload, rootItem, this );
+	DownloadItem* pItem = new DownloadItem( pDownload, rootItem, this );
 	rootItem->appendChild( pItem );
 	endInsertRows();
 }
 
 
 
-CDownloadsItemBase::CDownloadsItemBase( QObject* parent )
+DownloadsItemBase::DownloadsItemBase( QObject* parent )
 	: QObject( parent ),
 	  m_bChanged( false ),
 	  parentItem( 0 )
@@ -255,54 +255,54 @@ CDownloadsItemBase::CDownloadsItemBase( QObject* parent )
 	m_nProtocol = tpNull;
 }
 
-CDownloadsItemBase::~CDownloadsItemBase()
+DownloadsItemBase::~DownloadsItemBase()
 {
 	qDeleteAll( childItems );
 }
 
-void CDownloadsItemBase::appendChild( CDownloadsItemBase* child )
+void DownloadsItemBase::appendChild( DownloadsItemBase* child )
 {
 	childItems.append( child );
 }
 
-CDownloadsItemBase* CDownloadsItemBase::child( int row )
+DownloadsItemBase* DownloadsItemBase::child( int row )
 {
 	return childItems.value( row );
 }
 
-int CDownloadsItemBase::childCount() const
+int DownloadsItemBase::childCount() const
 {
 	return childItems.count();
 }
 
-int CDownloadsItemBase::columnCount() const
+int DownloadsItemBase::columnCount() const
 {
-	return CDownloadsTreeModel::_NO_OF_COLUMNS;
+	return DownloadsTreeModel::_NO_OF_COLUMNS;
 }
 
-QVariant CDownloadsItemBase::data( int column ) const
+QVariant DownloadsItemBase::data( int column ) const
 {
 	Q_UNUSED( column );
 	return QVariant();
 }
 
-int CDownloadsItemBase::row() const
+int DownloadsItemBase::row() const
 {
 	if ( parentItem )
 	{
-		return parentItem->childItems.indexOf( const_cast<CDownloadsItemBase*>( this ) );
+		return parentItem->childItems.indexOf( const_cast<DownloadsItemBase*>( this ) );
 	}
 	return 0;
 }
 
-CDownloadsItemBase* CDownloadsItemBase::parent()
+DownloadsItemBase* DownloadsItemBase::parent()
 {
 	return parentItem;
 }
 
-CDownloadItem::CDownloadItem( Download* download, CDownloadsItemBase* parent, CDownloadsTreeModel* model,
+DownloadItem::DownloadItem( Download* download, DownloadsItemBase* parent, DownloadsTreeModel* model,
 							  QObject* parentQObject )
-	: CDownloadsItemBase( parentQObject ),
+	: DownloadsItemBase( parentQObject ),
 	  m_pDownload( download ),
 	  m_oCompletedFrags( 0 ),
 	  m_oVerifiedFrags( 0 ),
@@ -310,7 +310,7 @@ CDownloadItem::CDownloadItem( Download* download, CDownloadsItemBase* parent, CD
 {
 	parentItem = parent;
 
-	connect( download, SIGNAL( sourceAdded( CDownloadSource* ) ), this, SLOT( onSourceAdded( CDownloadSource* ) ),
+	connect( download, SIGNAL( sourceAdded( DownloadSource* ) ), this, SLOT( onSourceAdded( DownloadSource* ) ),
 			 Qt::QueuedConnection );
 	connect( download, SIGNAL( stateChanged( int ) ), this, SLOT( onStateChanged( int ) ), Qt::QueuedConnection );
 
@@ -345,29 +345,29 @@ CDownloadItem::CDownloadItem( Download* download, CDownloadsItemBase* parent, CD
 	QMetaObject::invokeMethod( download, "emitSources", Qt::QueuedConnection );
 }
 
-CDownloadItem::~CDownloadItem()
+DownloadItem::~DownloadItem()
 {
 }
 
-void CDownloadItem::appendChild( CDownloadsItemBase* child )
+void DownloadItem::appendChild( DownloadsItemBase* child )
 {
-	Q_ASSERT_X( qobject_cast<CDownloadSourceItem*>( child ) != 0, "CDownloadItem::appendChild()",
+	Q_ASSERT_X( qobject_cast<DownloadSourceItem*>( child ) != 0, "CDownloadItem::appendChild()",
 				"child can only be CDownloadSourceItem!" );
 
-	CDownloadsItemBase::appendChild( child );
+	DownloadsItemBase::appendChild( child );
 }
 
-QVariant CDownloadItem::data( int column ) const
+QVariant DownloadItem::data( int column ) const
 {
 	switch ( column )
 	{
-	case CDownloadsTreeModel::NAME:
+	case DownloadsTreeModel::NAME:
 		return m_sName;
-	case CDownloadsTreeModel::SIZE:
+	case DownloadsTreeModel::SIZE:
 		return formatBytes( m_nSize );
-	case CDownloadsTreeModel::PROGRESS:
+	case DownloadsTreeModel::PROGRESS:
 		return m_nProgress;
-	case CDownloadsTreeModel::BANDWIDTH:
+	case DownloadsTreeModel::BANDWIDTH:
 		if ( m_nBandwidth == 0 )
 		{
 			return QVariant();
@@ -376,7 +376,7 @@ QVariant CDownloadItem::data( int column ) const
 		{
 			return formatBytes( m_nBandwidth ).append( "/s" );
 		}
-	case CDownloadsTreeModel::STATUS:
+	case DownloadsTreeModel::STATUS:
 		switch ( m_nStatus )
 		{
 		case Download::dsQueued:
@@ -399,7 +399,7 @@ QVariant CDownloadItem::data( int column ) const
 			return tr( "Completed" );
 		}
 		return tr( "Unknown" ); // should not happen, but...
-	case CDownloadsTreeModel::PRIORITY:
+	case DownloadsTreeModel::PRIORITY:
 		/*switch(m_nPriority)
 		{
 			case CDownload::LOW:
@@ -417,15 +417,15 @@ QVariant CDownloadItem::data( int column ) const
 					return tr("Unknown"); // not possible, but...
 		}*/
 		return QString::number( m_nPriority );
-	case CDownloadsTreeModel::CLIENT:
+	case DownloadsTreeModel::CLIENT:
 		if ( childCount() )
 		{
 			return QString( tr( "(%n source(s))", "", childCount() ) );
 		}
 		return tr( "(No Sources)" );
-	case CDownloadsTreeModel::COMPLETED:
+	case DownloadsTreeModel::COMPLETED:
 		return formatBytes( m_nCompleted );
-	case CDownloadsTreeModel::COUNTRY:
+	case DownloadsTreeModel::COUNTRY:
 		return QVariant();
 	default:
 		return QVariant();
@@ -433,26 +433,26 @@ QVariant CDownloadItem::data( int column ) const
 	}
 }
 
-void CDownloadItem::onSourceAdded( CDownloadSource* pSource )
+void DownloadItem::onSourceAdded( DownloadSource* pSource )
 {
 	QMutexLocker l( &downloads.m_pSection );
 
 	if ( m_pDownload->sourceExists( pSource ) )
 	{
 		m_pModel->beginInsertRows( m_pModel->index( row(), 0 ), childCount(), childCount() );
-		CDownloadSourceItem* pItem = new CDownloadSourceItem( pSource, this );
+		DownloadSourceItem* pItem = new DownloadSourceItem( pSource, this );
 		appendChild( pItem );
 		m_pModel->endInsertRows();
 	}
 }
 
-void CDownloadItem::onStateChanged( int state )
+void DownloadItem::onStateChanged( int state )
 {
 	m_nStatus = state;
 	m_bChanged = true;
 }
 
-void CDownloadItem::onBytesReceived( quint64 offset, quint64 length, CDownloadSourceItem* source )
+void DownloadItem::onBytesReceived( quint64 offset, quint64 length, DownloadSourceItem* source )
 {
 	Q_UNUSED( source );
 	//TODO: Make use of CDownloadSourceItem *source
@@ -464,12 +464,12 @@ void CDownloadItem::onBytesReceived( quint64 offset, quint64 length, CDownloadSo
 	emit progressChanged();
 }
 
-CDownloadSourceItem::CDownloadSourceItem( CDownloadSource* downloadSource,
-										  CDownloadsItemBase* parent,
+DownloadSourceItem::DownloadSourceItem( DownloadSource* downloadSource,
+										  DownloadsItemBase* parent,
 										  QObject* parentQObject ) :
-	CDownloadsItemBase( parentQObject ),
+	DownloadsItemBase( parentQObject ),
 	m_pDownloadSource( downloadSource ),
-	m_oDownloaded( static_cast<CDownloadItem*>( parent )->m_nSize )
+	m_oDownloaded( static_cast<DownloadItem*>( parent )->m_nSize )
 {
 	parentItem = parent;
 
@@ -491,34 +491,34 @@ CDownloadSourceItem::CDownloadSourceItem( CDownloadSource* downloadSource,
 			 this, SLOT( onBytesReceived( quint64, quint64 ) ) );
 
 	//static int test = (srand(QDateTime::currentMSecsSinceEpoch()), 1);
-	onBytesReceived( common::getRandomNum<quint64>( 0, ( ( CDownloadItem* )parent )->m_nSize ),
+	onBytesReceived( common::getRandomNum<quint64>( 0, ( ( DownloadItem* )parent )->m_nSize ),
 					 common::getRandomNum<quint64>( 100, 1024 * 1024 ) );
 }
 
-CDownloadSourceItem::~CDownloadSourceItem()
+DownloadSourceItem::~DownloadSourceItem()
 {
 }
 
-void CDownloadSourceItem::appendChild( CDownloadsItemBase* child )
+void DownloadSourceItem::appendChild( DownloadsItemBase* child )
 {
 	Q_ASSERT_X( false, "CDownloadSourceItem::appendChild()", "CDownloadSourceItem cannot have children!" );
 	delete child; // good?
 }
 
-QVariant CDownloadSourceItem::data( int column ) const
+QVariant DownloadSourceItem::data( int column ) const
 {
 	switch ( column )
 	{
-	case CDownloadsTreeModel::NAME:
+	case DownloadsTreeModel::NAME:
 		return m_sAddress;
 
-	case CDownloadsTreeModel::SIZE:
+	case DownloadsTreeModel::SIZE:
 		return formatBytes( m_nSize );
 
-	case CDownloadsTreeModel::PROGRESS:
+	case DownloadsTreeModel::PROGRESS:
 		return QVariant();
 
-	case CDownloadsTreeModel::BANDWIDTH:
+	case DownloadsTreeModel::BANDWIDTH:
 		if ( m_nBandwidth )
 		{
 			return formatBytes( m_nBandwidth ).append( "/s" );
@@ -528,19 +528,19 @@ QVariant CDownloadSourceItem::data( int column ) const
 			return QVariant();
 		}
 
-	case CDownloadsTreeModel::STATUS:
+	case DownloadsTreeModel::STATUS:
 		return m_nStatus;
 
-	case CDownloadsTreeModel::PRIORITY:
+	case DownloadsTreeModel::PRIORITY:
 		return QVariant();
 
-	case CDownloadsTreeModel::CLIENT:
+	case DownloadsTreeModel::CLIENT:
 		return m_sClient;
 
-	case CDownloadsTreeModel::COMPLETED:
+	case DownloadsTreeModel::COMPLETED:
 		return formatBytes( m_nDownloaded );
 
-	case CDownloadsTreeModel::COUNTRY:
+	case DownloadsTreeModel::COUNTRY:
 		return m_sCountryName;
 
 	default:
@@ -548,19 +548,19 @@ QVariant CDownloadSourceItem::data( int column ) const
 	}
 }
 
-QString CDownloadSourceItem::getCountryCode()
+QString DownloadSourceItem::getCountryCode()
 {
 	return m_sCountryCode;
 }
 
-QString CDownloadSourceItem::getCountry()
+QString DownloadSourceItem::getCountry()
 {
 	return m_sCountryName;
 }
 
-void CDownloadSourceItem::onBytesReceived( quint64 offset, quint64 length )
+void DownloadSourceItem::onBytesReceived( quint64 offset, quint64 length )
 {
-	CDownloadItem* pParent = static_cast<CDownloadItem*>( parentItem );
+	DownloadItem* pParent = static_cast<DownloadItem*>( parentItem );
 
 	if ( pParent && m_nSize != -1 )
 	{

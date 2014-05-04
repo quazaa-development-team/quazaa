@@ -903,7 +903,7 @@ void CWinMain::on_actionChatWith_triggered()
 		{
 		case CDialogConnectTo::G2:
 		{
-			CChatSessionG2* pSession = new CChatSessionG2( ip );
+			ChatSessionG2* pSession = new ChatSessionG2( ip );
 			pSession->connectNode();
 			break;
 		}

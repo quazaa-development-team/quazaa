@@ -51,19 +51,19 @@
  */
 
 // This is the extern declaration used everywhere else in quazaa.
-CQuazaaSettings quazaaSettings;
+QuazaaSettings quazaaSettings;
 
 /*!
 	Creates a quazaaSettings object. Generally not necessary.
  */
-CQuazaaSettings::CQuazaaSettings()
+QuazaaSettings::QuazaaSettings()
 {
 }
 
 /*!
 	Saves most of Quazaa's settings to persistent .ini file.
  */
-void CQuazaaSettings::saveSettings()
+void QuazaaSettings::saveSettings()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -476,7 +476,7 @@ void CQuazaaSettings::saveSettings()
 /*!
 	Loads most of Quazaa's settings from persistent .ini file.
  */
-void CQuazaaSettings::loadSettings()
+void QuazaaSettings::loadSettings()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -929,7 +929,7 @@ void CQuazaaSettings::loadSettings()
 /*!
 	Saves the IRC chat connections to persistent .ini file.
  */
-void CQuazaaSettings::saveChatConnections()
+void QuazaaSettings::saveChatConnections()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -941,7 +941,7 @@ void CQuazaaSettings::saveChatConnections()
 /*!
 	Loads the IRC chat connections from persistent .ini file.
  */
-void CQuazaaSettings::loadChatConnections()
+void QuazaaSettings::loadChatConnections()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -953,7 +953,7 @@ void CQuazaaSettings::loadChatConnections()
 /*!
 	Saves the IRC chat connection dialog's autocomplete lists to persistent .ini file.
  */
-void CQuazaaSettings::saveChatConnectionWizard()
+void QuazaaSettings::saveChatConnectionWizard()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -969,7 +969,7 @@ void CQuazaaSettings::saveChatConnectionWizard()
 /*!
 	Loads the IRC chat connection dialog's autocomplete lists from persistent .ini file.
  */
-void CQuazaaSettings::loadChatConnectionWizard()
+void QuazaaSettings::loadChatConnectionWizard()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -988,7 +988,7 @@ void CQuazaaSettings::loadChatConnectionWizard()
 /*!
 	Saves the IRC chat settings to persistent .ini file.
  */
-void CQuazaaSettings::saveChat()
+void QuazaaSettings::saveChat()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -1074,7 +1074,7 @@ void CQuazaaSettings::saveChat()
 /*!
 	Loads the IRC chat settings from persistent .ini file.
  */
-void CQuazaaSettings::loadChat()
+void QuazaaSettings::loadChat()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -1196,7 +1196,7 @@ void CQuazaaSettings::loadChat()
 /*!
 	Saves the profile settings to persistent .ini file.
  */
-void CQuazaaSettings::saveProfile()
+void QuazaaSettings::saveProfile()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -1241,7 +1241,7 @@ void CQuazaaSettings::saveProfile()
 /*!
 	Loads the profile settings from persistent .ini file.
  */
-void CQuazaaSettings::loadProfile()
+void QuazaaSettings::loadProfile()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -1293,7 +1293,7 @@ void CQuazaaSettings::loadProfile()
 /*!
 	Saves the window settings to persistent .ini file.
  */
-void CQuazaaSettings::saveWindowSettings( QMainWindow* window )
+void QuazaaSettings::saveWindowSettings( QMainWindow* window )
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -1379,7 +1379,7 @@ void CQuazaaSettings::saveWindowSettings( QMainWindow* window )
 /*!
 	Loads the profile settings from persistent .ini file.
  */
-void CQuazaaSettings::loadWindowSettings( QMainWindow* window )
+void QuazaaSettings::loadWindowSettings( QMainWindow* window )
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -1472,7 +1472,7 @@ void CQuazaaSettings::loadWindowSettings( QMainWindow* window )
 /*!
 	Saves the language settings to persistent .ini file.
  */
-void CQuazaaSettings::saveLanguageSettings()
+void QuazaaSettings::saveLanguageSettings()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -1484,7 +1484,7 @@ void CQuazaaSettings::saveLanguageSettings()
 /*!
 	Loads the language settings from persistent .ini file.
  */
-void CQuazaaSettings::loadLanguageSettings()
+void QuazaaSettings::loadLanguageSettings()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -1496,7 +1496,7 @@ void CQuazaaSettings::loadLanguageSettings()
 /*!
 	Saves if this is Quazaa's first run to persistent .ini file.
  */
-void CQuazaaSettings::saveFirstRun( bool firstRun )
+void QuazaaSettings::saveFirstRun( bool firstRun )
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -1506,7 +1506,7 @@ void CQuazaaSettings::saveFirstRun( bool firstRun )
 /*!
 	Loads if this is Quazaa's first run from persistent .ini file.
  */
-bool CQuazaaSettings::isFirstRun()
+bool QuazaaSettings::isFirstRun()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -1516,7 +1516,7 @@ bool CQuazaaSettings::isFirstRun()
 /*!
 	Saves Quazaa's skin settings to persistent .ini file.
  */
-void CQuazaaSettings::saveSkinSettings()
+void QuazaaSettings::saveSkinSettings()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -1526,7 +1526,7 @@ void CQuazaaSettings::saveSkinSettings()
 /*!
 	Loads Quazaa's skin settings from persistent .ini file.
  */
-void CQuazaaSettings::loadSkinSettings()
+void QuazaaSettings::loadSkinSettings()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -1536,7 +1536,7 @@ void CQuazaaSettings::loadSkinSettings()
 /*!
 	Saves Quazaa's log settings to persistent .ini file.
  */
-void CQuazaaSettings::saveLogSettings()
+void QuazaaSettings::saveLogSettings()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 
@@ -1557,7 +1557,7 @@ void CQuazaaSettings::saveLogSettings()
 /*!
 	Loads Quazaa's log settings from persistent .ini file.
  */
-void CQuazaaSettings::loadLogSettings()
+void QuazaaSettings::loadLogSettings()
 {
 	QSettings m_qSettings( QuazaaGlobals::INI_FILE(), QSettings::IniFormat );
 

@@ -32,14 +32,14 @@
 
 #include "debug_new.h"
 
-CGeoIPList geoIP;
+GeoIPList geoIP;
 
-CGeoIPList::CGeoIPList()
+GeoIPList::GeoIPList()
 {
 	m_bListLoaded = false;
 }
 
-void CGeoIPList::loadGeoIP()
+void GeoIPList::loadGeoIP()
 {
 	const QString sOriginalFile( qApp->applicationDirPath() + "/GeoIP/geoip.dat" );
 	const QString sSerializedFile( qApp->applicationDirPath() + "/geoIP.ser" );
@@ -140,13 +140,13 @@ void CGeoIPList::loadGeoIP()
 	m_bListLoaded = !m_lDatabase.isEmpty();
 }
 
-QString CGeoIPList::findCountryCode( const QString& sIP ) const
+QString GeoIPList::findCountryCode( const QString& sIP ) const
 {
 	EndPoint ipAddress( sIP );
 	return findCountryCode( ipAddress );
 }
 
-QString CGeoIPList::findCountryCode( const QHostAddress& ip ) const
+QString GeoIPList::findCountryCode( const QHostAddress& ip ) const
 {
 	if ( ip.protocol() == 1 ) // IPv6
 	{
@@ -157,7 +157,7 @@ QString CGeoIPList::findCountryCode( const QHostAddress& ip ) const
 	return findCountryCode( ip4 );
 }
 
-QString CGeoIPList::findCountryCode( const quint32 nIp ) const
+QString GeoIPList::findCountryCode( const quint32 nIp ) const
 {
 	if ( !m_bListLoaded )
 	{
@@ -196,7 +196,7 @@ QString CGeoIPList::findCountryCode( const quint32 nIp ) const
 	return "ZZ";
 }
 
-QString CGeoIPList::countryNameFromCode( const QString& code ) const
+QString GeoIPList::countryNameFromCode( const QString& code ) const
 {
 	// Leave the formatting this way as it is easier to update from text file.
 	if ( code == "AD" )

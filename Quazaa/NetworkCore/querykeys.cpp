@@ -28,19 +28,19 @@
 
 #include "debug_new.h"
 
-CQueryKeys QueryKeys;
+QueryKeys queryKeys;
 
-CQueryKeys::CQueryKeys()
+QueryKeys::QueryKeys()
 	: m_pTable( 0 ), m_nTable( 0 )
 {
 }
 
-CQueryKeys::~CQueryKeys()
+QueryKeys::~QueryKeys()
 {
 	delete [] m_pTable;
 }
 
-void CQueryKeys::prepare()
+void QueryKeys::prepare()
 {
 	m_nTable = 1u << 16;
 	m_pTable = new quint32[m_nTable];
@@ -52,7 +52,7 @@ void CQueryKeys::prepare()
 	}
 }
 
-quint32 CQueryKeys::create( QHostAddress pAddr )
+quint32 QueryKeys::create( QHostAddress pAddr )
 {
 	if ( !m_pTable )
 	{
@@ -63,7 +63,7 @@ quint32 CQueryKeys::create( QHostAddress pAddr )
 
 	return m_pTable[nHash];
 }
-bool CQueryKeys::check( QHostAddress pAddr, quint32 nKey )
+bool QueryKeys::check( QHostAddress pAddr, quint32 nKey )
 {
 	return ( nKey == create( pAddr ) );
 }

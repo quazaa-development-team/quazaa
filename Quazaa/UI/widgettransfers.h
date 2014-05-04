@@ -30,7 +30,7 @@
 #include "widgetdownloads.h"
 #include "widgetuploads.h"
 
-class CDownloadsPeerModel;
+class DownloadsPeerModel;
 
 namespace Ui
 {
@@ -45,7 +45,7 @@ public:
 	~CWidgetTransfers();
 	CWidgetDownloads* panelDownloads;
 	CWidgetUploads* panelUploads;
-	CDownloadsPeerModel* m_pPeerModel;
+	DownloadsPeerModel* m_pPeerModel;
 	void saveWidget();
 
 protected:

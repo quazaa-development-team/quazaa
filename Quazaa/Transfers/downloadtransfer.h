@@ -5,9 +5,9 @@
 #include "FileFragments.hpp"
 
 class Download;
-class CDownloadSource;
+class DownloadSource;
 
-class CDownloadTransfer : public CTransfer
+class DownloadTransfer : public Transfer
 {
 	Q_OBJECT
 public:
@@ -25,7 +25,7 @@ public:
 
 public:
 	Download*			m_pOwner;
-	CDownloadSource*	m_pSource;
+	DownloadSource*	m_pSource;
 
 	DownloadTransferState m_nState;
 	quint32				m_tLastResponse;
@@ -36,21 +36,21 @@ public:
 
 	Fragments::Queue	m_lRequested;
 public:
-	CDownloadTransfer( Download* pOwner, CDownloadSource* pSource, QObject* parent = 0 );
-	virtual ~CDownloadTransfer();
+	DownloadTransfer( Download* pOwner, DownloadSource* pSource, QObject* parent = 0 );
+	virtual ~DownloadTransfer();
 
 	virtual void onTimer( quint32 tNow = 0 );
 	virtual void requestBlock( Fragments::Fragment oFragment );
 	virtual void subtractRequested( Fragments::List& oFragments );
 public:
-	inline CDownloadSource* source() const;
+	inline DownloadSource* source() const;
 signals:
 
 public slots:
 
 };
 
-CDownloadSource* CDownloadTransfer::source() const
+DownloadSource* DownloadTransfer::source() const
 {
 	return m_pSource;
 }

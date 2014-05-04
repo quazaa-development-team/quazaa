@@ -291,7 +291,7 @@ void MessageView::sendMessage(const QString& line)
 
 void MessageView::sendMessage(QTextDocument *message)
 {
-    CChatConverter *converter = new CChatConverter(message);
+    ChatConverter *converter = new ChatConverter(message);
     sendMessage(converter->toIrc());
 }
 
@@ -378,7 +378,7 @@ void MessageView::sendMessageLine() {
                 }
                 else if (command == "SYSINFO")
                 {
-                    CQuazaaSysInfo *sysInfo = new CQuazaaSysInfo();
+                    QuazaaSysInfo *sysInfo = new QuazaaSysInfo();
                     sendMessage(tr("Application:%1 %2 OS:%3 Qt Version:%4").arg(QApplication::applicationName(), QuazaaGlobals::APPLICATION_VERSION_STRING(), sysInfo->osVersionToString(), qVersion()));
                     //onSend(tr("CPU:%1 Cores:%2 Memory:%3").arg(QApplication::applicationName(), QuazaaGlobals::APPLICATION_VERSION_STRING()));
                 }

@@ -24,42 +24,42 @@
 
 #include "downloadstreemodel.h"
 
-CDownloadsPeerModel::CDownloadsPeerModel( QObject* parent ) :
+DownloadsPeerModel::DownloadsPeerModel( QObject* parent ) :
 	QSortFilterProxyModel( parent )
 {
 }
 
-QVariant CDownloadsPeerModel::headerData( int section, Qt::Orientation orientation, int role ) const
+QVariant DownloadsPeerModel::headerData( int section, Qt::Orientation orientation, int role ) const
 {
 	if ( orientation == Qt::Horizontal && role == Qt::DisplayRole )
 	{
 		switch ( section )
 		{
-		case CDownloadsTreeModel::NAME:
+		case DownloadsTreeModel::NAME:
 			return tr( "IP" );
 			break;
-		case CDownloadsTreeModel::SIZE:
+		case DownloadsTreeModel::SIZE:
 			return tr( "Size" );
 			break;
-		case CDownloadsTreeModel::PROGRESS:
+		case DownloadsTreeModel::PROGRESS:
 			return tr( "Progress" );
 			break;
-		case CDownloadsTreeModel::BANDWIDTH:
+		case DownloadsTreeModel::BANDWIDTH:
 			return tr( "Bandwidth" );
 			break;
-		case CDownloadsTreeModel::STATUS:
+		case DownloadsTreeModel::STATUS:
 			return tr( "Status" );
 			break;
-		case CDownloadsTreeModel::PRIORITY:
+		case DownloadsTreeModel::PRIORITY:
 			return tr( "Priority" );
 			break;
-		case CDownloadsTreeModel::CLIENT:
+		case DownloadsTreeModel::CLIENT:
 			return tr( "Client" );
 			break;
-		case CDownloadsTreeModel::COMPLETED:
+		case DownloadsTreeModel::COMPLETED:
 			return tr( "Completed" );
 			break;
-		case CDownloadsTreeModel::COUNTRY:
+		case DownloadsTreeModel::COUNTRY:
 			return tr( "Country" );
 			break;
 		default:
@@ -70,7 +70,7 @@ QVariant CDownloadsPeerModel::headerData( int section, Qt::Orientation orientati
 	return QVariant();
 }
 
-void CDownloadsPeerModel::setCurrentRoot( const QModelIndex& index )
+void DownloadsPeerModel::setCurrentRoot( const QModelIndex& index )
 {
 	Q_ASSERT( index.model() == sourceModel() );
 
@@ -78,7 +78,7 @@ void CDownloadsPeerModel::setCurrentRoot( const QModelIndex& index )
 	invalidate();
 }
 
-bool CDownloadsPeerModel::filterAcceptsRow( int sourceRow, const QModelIndex& sourceParent ) const
+bool DownloadsPeerModel::filterAcceptsRow( int sourceRow, const QModelIndex& sourceParent ) const
 {
 	QModelIndex index1 = sourceModel()->index( sourceRow, 0, sourceParent );
 

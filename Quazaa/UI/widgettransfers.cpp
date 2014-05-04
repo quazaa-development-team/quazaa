@@ -42,7 +42,7 @@ CWidgetTransfers::CWidgetTransfers( QWidget* parent ) :
 	ui->setupUi( this );
 	ui->splitterTransfers->restoreState( quazaaSettings.WinMain.TransfersSplitter );
 	panelDownloads = new CWidgetDownloads( this );
-	m_pPeerModel = new CDownloadsPeerModel( this );
+	m_pPeerModel = new DownloadsPeerModel( this );
 	m_pPeerModel->setDynamicSortFilter( true );
 	m_pPeerModel->setSourceModel( panelDownloads->m_pModel );
 	ui->tableViewPeers->setModel( m_pPeerModel );

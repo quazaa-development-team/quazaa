@@ -203,7 +203,7 @@ void TreeRoot::removeChild( int position )
 	SearchTreeItem* pItem = m_lChildItems.at( position );
 	Q_ASSERT( pItem->type() == SearchFileType );
 
-	const CHash* const * pHashes = &( ( SearchFile* )pItem )->m_vHashes[0];
+	const Hash* const * pHashes = &( ( SearchFile* )pItem )->m_vHashes[0];
 	for ( quint8 i = 0, nSize = ( ( SearchFile* )pItem )->m_vHashes.size(); i < nSize; ++i )
 	{
 		if ( pHashes[i] )
@@ -285,9 +285,9 @@ QueryHit* TreeRoot::addQueryHit( QueryHit* pHit )
 	return pNext;
 }
 
-int TreeRoot::find( const CHash& rHash ) const
+int TreeRoot::find( const Hash& rHash ) const
 {
-	std::unordered_map< CHash, SearchFile* >::const_iterator it = m_mHashes.find( rHash );
+	std::unordered_map< Hash, SearchFile* >::const_iterator it = m_mHashes.find( rHash );
 	if ( it != m_mHashes.end() )
 	{
 		return ( *it ).second->row();
@@ -296,12 +296,12 @@ int TreeRoot::find( const CHash& rHash ) const
 	return -1;
 }
 
-void TreeRoot::registerHash( const CHash& rHash, SearchFile* pFileItem )
+void TreeRoot::registerHash( const Hash& rHash, SearchFile* pFileItem )
 {
 	m_mHashes[rHash] = pFileItem;
 }
 
-void TreeRoot::unregisterHash( const CHash& rHash )
+void TreeRoot::unregisterHash( const Hash& rHash )
 {
 	m_mHashes.erase( rHash );
 }
@@ -338,7 +338,7 @@ SearchFile::SearchFile( SearchTreeItem* parent,
 	m_pItemData[CLIENT]    = "";
 	m_pItemData[COUNTRY]   = "";
 
-	const CHash* const * pHashes = &m_vHashes[0];
+	const Hash* const * pHashes = &m_vHashes[0];
 	for ( quint8 i = 0, nSize = m_vHashes.size(); i < nSize; ++i )
 	{
 		if ( pHashes[i] )
@@ -369,7 +369,7 @@ void SearchFile::removeChild( int position )
 	SearchTreeItem::removeChild( position );
 }
 
-bool SearchFile::manages( const CHash& rHash ) const
+bool SearchFile::manages( const Hash& rHash ) const
 {
 	return m_vHashes.contains( rHash );
 }
@@ -402,7 +402,7 @@ void SearchFile::insertHashes( const HashSet& vHashes )
 	Q_ASSERT( !vHashes.empty() );
 
 	// TODO: hash collision detection
-	const CHash* const * pHashes = &vHashes[0];
+	const Hash* const * pHashes = &vHashes[0];
 	for ( quint8 i = 0, nSize = vHashes.size(); i < nSize; ++i )
 	{
 		if ( pHashes[i] && !manages( *pHashes[i] ) )
@@ -450,7 +450,7 @@ SearchHit::SearchHit( SearchTreeItem* parent,
 
 	QString sCountry       = pHit->m_pHitInfo.data()->m_oNodeAddress.country();
 
-	m_oHitData.iNetwork  = CNetworkIconProvider::icon( DiscoveryProtocol::G2 );
+	m_oHitData.iNetwork  = NetworkIconProvider::icon( DiscoveryProtocol::G2 );
 	m_oHitData.iCountry  = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
 	m_oHitData.pQueryHit = QueryHitSharedPtr( pHit );
 

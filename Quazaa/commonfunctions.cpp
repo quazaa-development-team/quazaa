@@ -114,7 +114,7 @@ QString common::fixFileName( QString sName )
 // current time to get a random enough value seems a rather inefficient and random approach...
 QString common::getTempFileName( QString sName )
 {
-	CHash oHashName( CHash::SHA1 );
+	Hash oHashName( Hash::SHA1 );
 	oHashName.addData( sName.toUtf8() );
 	oHashName.addData( QString::number( qrand() % qrand()
 										).append( getDateTimeUTC().toString( Qt::ISODate )

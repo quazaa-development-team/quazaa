@@ -24,7 +24,7 @@ struct MediaURI
 	URIType m_nType;
 	union
 	{
-		CMagnet*    m_pMagnet;  // Magnet link
+		Magnet*    m_pMagnet;  // Magnet link
 		QUrl*       m_pURL;     // http, https, ftp, ftps, etc.
 		QUrl*       m_pTorrent; // link to .torrent file
 	};
@@ -49,7 +49,7 @@ struct MetaFile
 	bool isValid() const;    // Returns true if file struct contains enough data to initialize a download.
 };
 
-class CMetalinkHandler : public QObject
+class MetalinkHandler : public QObject
 {
 protected:
 	static QFile&			m_oEmptyQFile; // MinGW workaround to enable references to be default parameters
@@ -62,8 +62,8 @@ protected:
 	QVector<MetaFile>       m_vFiles; // Files are inerted in the order of their ID and always stay sorted.
 
 public:
-	explicit CMetalinkHandler( QFile& oFile = m_oEmptyQFile );
-	virtual ~CMetalinkHandler();
+	explicit MetalinkHandler( QFile& oFile = m_oEmptyQFile );
+	virtual ~MetalinkHandler();
 
 	virtual Download* file( const quint16& ID ) const = 0;
 	QList<Download*> files() const;
@@ -80,17 +80,17 @@ private:
 	static QFile& getEmptyStaticFile(); // part of the MinGW workaround
 };
 
-int CMetalinkHandler::size() const
+int MetalinkHandler::size() const
 {
 	return m_vFiles.size();
 }
 
-bool CMetalinkHandler::isNull() const
+bool MetalinkHandler::isNull() const
 {
 	return m_bNull;
 }
 
-bool CMetalinkHandler::isValid() const
+bool MetalinkHandler::isValid() const
 {
 	return m_bValid;
 }

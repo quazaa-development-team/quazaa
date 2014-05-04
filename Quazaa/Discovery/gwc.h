@@ -52,7 +52,7 @@ private:
 	/* ====================================== Construction ====================================== */
 	/* ========================================================================================== */
 public:
-	GWC( const QUrl& oURL, const CNetworkType& oNType, quint8 nRating );
+	GWC( const QUrl& oURL, const NetworkType& oNType, quint8 nRating );
 
 	~GWC();
 

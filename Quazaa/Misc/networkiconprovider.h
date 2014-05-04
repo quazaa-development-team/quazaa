@@ -35,13 +35,13 @@ class QIcon;
  * @brief The CNetworkIconProvider class can be used to obtain network icons. It optimizes memory
  * usage and HDD accesses using the QPixmapCache.
  */
-class CNetworkIconProvider
+class NetworkIconProvider
 {
 private:
 	/**
 	 * @brief CNetworkIconProvider creates a new CNetworkIconProvider object.
 	 */
-	CNetworkIconProvider();
+	NetworkIconProvider();
 
 public:
 	/**

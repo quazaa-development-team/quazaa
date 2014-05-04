@@ -95,7 +95,7 @@ public slots:
 	void cleanupThread();
 
 	void runHashing();
-	void onFileHashed( CSharedFilePtr pFile );
+	void onFileHashed( SharedFilePtr pFile );
 
 protected slots:
 	void syncShares();

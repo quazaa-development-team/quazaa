@@ -707,15 +707,15 @@ struct sWinMain
 	QByteArray	UploadsToolbar;							// Uploads Toolbar
 	bool		Visible;								// Is the main window visible
 };
-};
+}
 
-class CQuazaaSettings : public QObject
+class QuazaaSettings : public QObject
 {
 	Q_OBJECT
 
 public:
 	QTranslator translator;
-	CQuazaaSettings();
+	QuazaaSettings();
 	void saveSettings();
 	void loadSettings();
 	void saveChatConnections();
@@ -770,6 +770,6 @@ signals:
 	void securitySettingsChanged();
 };
 
-extern CQuazaaSettings quazaaSettings;
+extern QuazaaSettings quazaaSettings;
 
 #endif // QUAZAASETTINGS_H

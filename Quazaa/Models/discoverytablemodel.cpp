@@ -537,10 +537,10 @@ QModelIndex DiscoveryTableModel::index( int row, int column, const QModelIndex& 
 	}
 }
 
-class CDiscoveryTableModelCmp
+class DiscoveryTableModelCmp
 {
 public:
-	CDiscoveryTableModelCmp( int col, Qt::SortOrder o ) :
+	DiscoveryTableModelCmp( int col, Qt::SortOrder o ) :
 		column( col ),
 		order( o )
 	{
@@ -568,7 +568,7 @@ void DiscoveryTableModel::sort( int column, Qt::SortOrder order )
 	m_nSortOrder = order;
 
 	emit layoutAboutToBeChanged();
-	qStableSort( m_lNodes.begin(), m_lNodes.end(), CDiscoveryTableModelCmp( column, order ) );
+	qStableSort( m_lNodes.begin(), m_lNodes.end(), DiscoveryTableModelCmp( column, order ) );
 	emit layoutChanged();
 
 	m_bNeedSorting = false;

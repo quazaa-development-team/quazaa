@@ -28,7 +28,7 @@
 #include "compressedconnection.h"
 #include "types.h"
 
-class Neighbour : public CCompressedConnection
+class Neighbour : public CompressedConnection
 {
 	Q_OBJECT
 
@@ -69,7 +69,7 @@ public:
 	void attachTo( NetworkConnection* pOther )
 	{
 		m_nState = nsHandshaking;
-		CCompressedConnection::attachTo( pOther );
+		CompressedConnection::attachTo( pOther );
 	}
 
 	virtual void onTimer( quint32 tNow );

@@ -240,7 +240,7 @@ void CWidgetNeighbours::on_actionNetworkChatWith_triggered()
 		{
 		case DiscoveryProtocol::G2:
 		{
-			CChatSessionG2* pSession = new CChatSessionG2( pNode->m_oAddress );
+			ChatSessionG2* pSession = new ChatSessionG2( pNode->m_oAddress );
 			pSession->connectNode();
 			break;
 		}

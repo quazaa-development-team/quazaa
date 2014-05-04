@@ -77,7 +77,7 @@ NeighboursTableModel::NeighbourData::NeighbourData( Neighbour* pNeighbour ) : pN
 		break;
 	}
 
-	iNetwork = CNetworkIconProvider::icon( pNode->m_nProtocol );
+	iNetwork = NetworkIconProvider::icon( pNode->m_nProtocol );
 }
 
 bool NeighboursTableModel::NeighbourData::update( int row, int col, QModelIndexList& to_update,
@@ -567,13 +567,13 @@ QModelIndex NeighboursTableModel::index( int row, int column, const QModelIndex&
 	}
 }
 
-class CNeighboursTableModelCmp
+class NeighboursTableModelCmp
 {
 public:
 	int           column;
 	Qt::SortOrder order;
 
-	CNeighboursTableModelCmp( int col, Qt::SortOrder o ) :
+	NeighboursTableModelCmp( int col, Qt::SortOrder o ) :
 		column( col ),
 		order( o )
 	{}
@@ -602,7 +602,7 @@ void NeighboursTableModel::sort( int column, Qt::SortOrder order )
 	QModelIndexList oldIdx = persistentIndexList();
 	QModelIndexList newIdx = oldIdx;
 
-	qStableSort( m_lNodes.begin(), m_lNodes.end(), CNeighboursTableModelCmp( column, order ) );
+	qStableSort( m_lNodes.begin(), m_lNodes.end(), NeighboursTableModelCmp( column, order ) );
 
 	for ( int i = 0; i < oldIdx.size(); ++i ) // For each persistent index
 	{

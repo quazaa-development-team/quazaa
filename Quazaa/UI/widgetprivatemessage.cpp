@@ -110,7 +110,7 @@ void CWidgetPrivateMessage::SendPrivateMessage( QString sMessage, bool bAction )
 
 void CWidgetPrivateMessage::SendPrivateMessage( QTextDocument* pMessage, bool bAction )
 {
-	CChatConverter oConv( pMessage );
+	ChatConverter oConv( pMessage );
 
 	if ( bAction )
 	{

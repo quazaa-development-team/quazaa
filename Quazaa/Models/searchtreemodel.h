@@ -33,7 +33,7 @@
 
 #include "searchfilter.h"
 
-class CHash;
+class Hash;
 class QFileInfo;
 class FileIconProvider;
 
@@ -126,7 +126,7 @@ class TreeRoot : public SearchTreeItem
 	Q_OBJECT
 private:
 	SearchTreeModel* m_pModel; // The model the root node is part of.
-	std::unordered_map< CHash, SearchFile* > m_mHashes;
+	std::unordered_map< Hash, SearchFile* > m_mHashes;
 
 public:
 	TreeRoot( SearchTreeModel* pModel );
@@ -138,10 +138,10 @@ public:
 	void clearSearch();
 
 	QueryHit* addQueryHit( QueryHit* pHit );
-	int find( const CHash& rHash ) const; // find child number with given hash
+	int find( const Hash& rHash ) const; // find child number with given hash
 
-	void registerHash( const CHash& rHash, SearchFile* pFileItem );
-	void unregisterHash( const CHash& rHash );
+	void registerHash( const Hash& rHash, SearchFile* pFileItem );
+	void unregisterHash( const Hash& rHash );
 
 private:
 	void addToFilterControl( SearchTreeItem* pItem );
@@ -162,7 +162,7 @@ public:
 	void appendChild( SearchTreeItem* pItem );
 	void removeChild( int position );
 
-	bool manages( const CHash& rHash ) const;
+	bool manages( const Hash& rHash ) const;
 	void updateHitCount(); // change number of hits
 
 private:

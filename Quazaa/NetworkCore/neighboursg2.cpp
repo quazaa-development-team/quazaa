@@ -78,7 +78,7 @@ void NeighboursG2::connectNode()
 	// Only query service if we're not already querying and we actually need fresh hosts.
 	if ( !discoveryManager.isActive( Discovery::ServiceType::GWC ) && !hostCache.hasConnectable() )
 	{
-		discoveryManager.queryService( CNetworkType( DiscoveryProtocol::G2 ) );
+		discoveryManager.queryService( NetworkType( DiscoveryProtocol::G2 ) );
 	}
 
 	hubHorizonPool.setup();
@@ -127,7 +127,7 @@ void NeighboursG2::maintain()
 				 << ", empty host cache:" << hostCache.isEmpty()
 				 << ", has connectable:" << hostCache.hasConnectable()
 				 << ", has unknown initiated:" << ( m_nUnknownInitiated != 0 );
-		discoveryManager.queryService( CNetworkType( DiscoveryProtocol::G2 ) );
+		discoveryManager.queryService( NetworkType( DiscoveryProtocol::G2 ) );
 	}
 
 	if ( m_nNextKHL == 0 )
@@ -207,7 +207,7 @@ void NeighboursG2::maintain()
 		if ( m_nLeavesConnectedG2 < 0.7 *
 			 quazaaSettings.Gnutella2.NumLeafs ) // if we have less than 70% leaves (no reason to update GWC if we are already full of leaves)
 		{
-			discoveryManager.updateService( CNetworkType( DiscoveryProtocol::G2 ) );
+			discoveryManager.updateService( NetworkType( DiscoveryProtocol::G2 ) );
 		}
 		m_nUpdateWait = quazaaSettings.Discovery.AccessThrottle * 60;
 	}

@@ -52,7 +52,7 @@ enum OSVersion { Linux, Unix, BSD, MacCheetah, MacPuma, MacJaguar, MacPanther, M
 			   };
 }
 
-class CQuazaaSysInfo : public QObject
+class QuazaaSysInfo : public QObject
 {
 	Q_OBJECT
 #ifdef Q_OS_WIN
@@ -71,8 +71,8 @@ private:
 #endif
 
 public:
-	explicit CQuazaaSysInfo( QObject* parent = 0 );
-	virtual ~CQuazaaSysInfo();
+	explicit QuazaaSysInfo( QObject* parent = 0 );
+	virtual ~QuazaaSysInfo();
 
 	OSVersion::OSVersion osVersion();
 	QString osVersionToString();

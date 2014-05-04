@@ -233,9 +233,9 @@ QueryHit* QueryHit::readPacket( G2Packet* pPacket, QueryHitInfo* pHitInfo )
 
 						if ( nLengthX >= 44u && sURN.compare( "bp" ) == 0 )
 						{
-							hashBuff.resize( CHash::byteCount( CHash::SHA1 ) );
-							pPacket->read( hashBuff.data(), CHash::byteCount( CHash::SHA1 ) );
-							CHash* pHash = CHash::fromRaw( hashBuff, CHash::SHA1 );
+							hashBuff.resize( Hash::byteCount( Hash::SHA1 ) );
+							pPacket->read( hashBuff.data(), Hash::byteCount( Hash::SHA1 ) );
+							Hash* pHash = Hash::fromRaw( hashBuff, Hash::SHA1 );
 							if ( pHash )
 							{
 								pHit->m_vHashes.insert( pHash );
@@ -243,11 +243,11 @@ QueryHit* QueryHit::readPacket( G2Packet* pPacket, QueryHitInfo* pHitInfo )
 							}
 							// TODO: Tiger
 						}
-						else if ( nLengthX >= CHash::byteCount( CHash::SHA1 ) + 5u && sURN.compare( "sha1" ) == 0 )
+						else if ( nLengthX >= Hash::byteCount( Hash::SHA1 ) + 5u && sURN.compare( "sha1" ) == 0 )
 						{
-							hashBuff.resize( CHash::byteCount( CHash::SHA1 ) );
-							pPacket->read( hashBuff.data(), CHash::byteCount( CHash::SHA1 ) );
-							CHash* pHash = CHash::fromRaw( hashBuff, CHash::SHA1 );
+							hashBuff.resize( Hash::byteCount( Hash::SHA1 ) );
+							pPacket->read( hashBuff.data(), Hash::byteCount( Hash::SHA1 ) );
+							Hash* pHash = Hash::fromRaw( hashBuff, Hash::SHA1 );
 							if ( pHash )
 							{
 								pHit->m_vHashes.insert( pHash );

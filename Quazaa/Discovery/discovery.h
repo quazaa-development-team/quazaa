@@ -185,7 +185,7 @@ public:
 	 * is null, the total number of all services is returned, no matter whether they are working or
 	 * not.
 	 */
-	quint32 count( const CNetworkType& oType = CNetworkType() );
+	quint32 count( const NetworkType& oType = NetworkType() );
 
 	/**
 	 * @brief start initializes the Discovery Services Manager. Make sure this is called after
@@ -226,7 +226,7 @@ public:
 	 * added.
 	 */
 	ServiceID add( QString sURL, const ServiceType::Type eSType,
-				   const CNetworkType& oNType, const quint8 nRating );
+				   const NetworkType& oNType, const quint8 nRating );
 
 	/**
 	 * @brief remove removes a service by ID.
@@ -300,7 +300,7 @@ public:
 	 * Locking: YES (asynchronous)
 	 * @param type
 	 */
-	void updateService( const CNetworkType& type ); // Random service access
+	void updateService( const NetworkType& type ); // Random service access
 	void updateService( ServiceID nID );         // Manual service access
 
 	/**
@@ -308,7 +308,7 @@ public:
 	 * Locking: YES (asynchronous)
 	 * @param type
 	 */
-	void queryService( const CNetworkType& type ); // Random service access
+	void queryService( const NetworkType& type ); // Random service access
 	void queryService( ServiceID nID );         // Manual service access
 
 	/**
@@ -369,9 +369,9 @@ private slots:
 	// respective callers for documentation.
 	bool asyncSyncSavingHelper();
 	void asyncRequestServiceListHelper();
-	void asyncUpdateServiceHelper( const CNetworkType type );
+	void asyncUpdateServiceHelper( const NetworkType type );
 	void asyncUpdateServiceHelper( ServiceID nID );
-	void asyncQueryServiceHelper( const CNetworkType type );
+	void asyncQueryServiceHelper( const NetworkType type );
 	void asyncQueryServiceHelper( ServiceID nID );
 	void asyncManageDuplicatesHelper( ServiceID nID );
 
@@ -379,7 +379,7 @@ private:
 	/**
 	 * @brief doCount: Internal helper without locking. See count for documentation.
 	 */
-	quint32 doCount( const CNetworkType& oType = CNetworkType() );
+	quint32 doCount( const NetworkType& oType = NetworkType() );
 
 	/**
 	 * @brief doClear: Internal helper without locking. See clear for documentation.
@@ -423,7 +423,7 @@ private:
 	 * @param oNType : the network type of the banned service
 	 * @return true if the caller needs not to worry about adding the requested ban anymore
 	 */
-	bool manageBan( const QString& sURL, const ServiceType::Type eSType, const CNetworkType& oNType );
+	bool manageBan( const QString& sURL, const ServiceType::Type eSType, const NetworkType& oNType );
 
 	/**
 	 * @brief checkBan checks a given URL against the list of banned services.
@@ -476,7 +476,7 @@ private:
 	 * @return A discovery service for the specified network; Null if no working service could be
 	 * found for the specified network.
 	 */
-	ServicePtr getRandomService( const CNetworkType& oNType );
+	ServicePtr getRandomService( const NetworkType& oNType );
 };
 
 } // namespace Discovery

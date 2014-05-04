@@ -43,9 +43,9 @@ bool MetaFile::isValid() const
 	return !m_vHashes.empty() || m_lURIs.size();
 }
 
-QFile& CMetalinkHandler::m_oEmptyQFile = getEmptyStaticFile();
+QFile& MetalinkHandler::m_oEmptyQFile = getEmptyStaticFile();
 
-CMetalinkHandler::CMetalinkHandler( QFile& oFile ) :
+MetalinkHandler::MetalinkHandler( QFile& oFile ) :
 	m_bNull( true ),
 	m_bValid( false ),
 	m_nSize( 0 )
@@ -59,10 +59,10 @@ CMetalinkHandler::CMetalinkHandler( QFile& oFile ) :
 	m_nParsingState = m_oMetaLink.error();
 }
 
-CMetalinkHandler::~CMetalinkHandler()
+MetalinkHandler::~MetalinkHandler()
 {}
 
-QList<Download*> CMetalinkHandler::files() const
+QList<Download*> MetalinkHandler::files() const
 {
 	QList<Download*> result;
 
@@ -78,7 +78,7 @@ QList<Download*> CMetalinkHandler::files() const
 	return result;
 }
 
-void CMetalinkHandler::postParsingError( const int line, const QString sError ) const
+void MetalinkHandler::postParsingError( const int line, const QString sError ) const
 {
 	QString error = tr( "Metalink: " );
 	error += tr( "Error while parsing XML (line %1): " ).arg( line );
@@ -87,7 +87,7 @@ void CMetalinkHandler::postParsingError( const int line, const QString sError ) 
 	systemLog.postLog( LogSeverity::Error, error );
 }
 
-void CMetalinkHandler::postParsingInfo( const int line, const QString sInfo ) const
+void MetalinkHandler::postParsingInfo( const int line, const QString sInfo ) const
 {
 	QString info = tr( "Metalink: " );
 	info += tr( "Line %1: " ).arg( line );
@@ -98,7 +98,7 @@ void CMetalinkHandler::postParsingInfo( const int line, const QString sInfo ) co
 	systemLog.postLog( LogSeverity::Information, info );
 }
 
-QFile& CMetalinkHandler::getEmptyStaticFile()
+QFile& MetalinkHandler::getEmptyStaticFile()
 {
 	static QFile s_file( NULL );
 	return s_file;

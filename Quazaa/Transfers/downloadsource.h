@@ -7,9 +7,9 @@
 
 class QueryHit;
 class Download;
-class CTransfer;
+class Transfer;
 
-class CDownloadSource : public QObject
+class DownloadSource : public QObject
 {
 	Q_OBJECT
 public:
@@ -26,17 +26,17 @@ public:
 	QString				m_sURL;			// URL
 
 	Download*			m_pDownload;
-	CTransfer*			m_pTransfer;
+	Transfer*			m_pTransfer;
 
 	Fragments::List		m_lAvailableFrags;
 	Fragments::List		m_lDownloadedFrags;
 public:
-	CDownloadSource( Download* pDownload, QObject* parent = 0 );
-	CDownloadSource( Download* pDownload, QueryHit* pHit, QObject* parent = 0 );
-	virtual ~CDownloadSource();
+	DownloadSource( Download* pDownload, QObject* parent = 0 );
+	DownloadSource( Download* pDownload, QueryHit* pHit, QObject* parent = 0 );
+	virtual ~DownloadSource();
 
 public slots:
-	CTransfer*  createTransfer();
+	Transfer*  createTransfer();
 	void		closeTransfer();
 
 public:
@@ -49,18 +49,18 @@ signals:
 	void bytesReceived( quint64, quint64 ); // offset, length
 };
 
-Q_DECLARE_METATYPE( CDownloadSource* )
+Q_DECLARE_METATYPE( DownloadSource* )
 
-bool CDownloadSource::canAccess()
+bool DownloadSource::canAccess()
 {
 	return time( 0 ) > m_tNextAccess;
 }
-bool CDownloadSource::hasTransfer()
+bool DownloadSource::hasTransfer()
 {
 	return ( m_pTransfer != 0 );
 }
 
-QDataStream& operator<<( QDataStream& s, const CDownloadSource& rhs );
-QDataStream& operator>>( QDataStream& s, CDownloadSource& rhs );
+QDataStream& operator<<( QDataStream& s, const DownloadSource& rhs );
+QDataStream& operator>>( QDataStream& s, DownloadSource& rhs );
 
 #endif // DOWNLOADSOURCE_H

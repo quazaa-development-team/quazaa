@@ -3,15 +3,15 @@
 
 #include "networkconnection.h"
 
-class CTransfer : public NetworkConnection
+class Transfer : public NetworkConnection
 {
 	Q_OBJECT
 
 public:
 	void* m_pOwner;
 public:
-	CTransfer( void* pOwner, QObject* parent = 0 );
-	virtual ~CTransfer();
+	Transfer( void* pOwner, QObject* parent = 0 );
+	virtual ~Transfer();
 
 	virtual void onTimer( quint32 tNow = 0 );
 signals:

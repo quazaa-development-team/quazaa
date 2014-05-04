@@ -3,8 +3,8 @@
 
 #include "quazaasettings.h"
 
-CDownloadTransfer::CDownloadTransfer( Download* pOwner, CDownloadSource* pSource, QObject* parent ) :
-	CTransfer( pOwner, parent ),
+DownloadTransfer::DownloadTransfer( Download* pOwner, DownloadSource* pSource, QObject* parent ) :
+	Transfer( pOwner, parent ),
 	m_pSource( pSource ),
 	m_nState( dtsNull ),
 	m_tLastResponse( 0 ),
@@ -13,11 +13,11 @@ CDownloadTransfer::CDownloadTransfer( Download* pOwner, CDownloadSource* pSource
 {
 }
 
-CDownloadTransfer::~CDownloadTransfer()
+DownloadTransfer::~DownloadTransfer()
 {
 }
 
-void CDownloadTransfer::onTimer( quint32 tNow )
+void DownloadTransfer::onTimer( quint32 tNow )
 {
 	if ( tNow == 0 )
 	{
@@ -26,9 +26,9 @@ void CDownloadTransfer::onTimer( quint32 tNow )
 
 	switch ( m_nState )
 	{
-	case CDownloadTransfer::dtsConnecting:
-	case CDownloadTransfer::dtsRequesting:
-	case CDownloadTransfer::dtsResponse:
+	case DownloadTransfer::dtsConnecting:
+	case DownloadTransfer::dtsRequesting:
+	case DownloadTransfer::dtsResponse:
 		if ( tNow - m_tConnected > quazaaSettings.Connection.TimeoutConnect )
 		{
 			systemLog.postLog( LogSeverity::Error,
@@ -36,7 +36,7 @@ void CDownloadTransfer::onTimer( quint32 tNow )
 			close();
 		}
 		break;
-	case CDownloadTransfer::dtsDownloading:
+	case DownloadTransfer::dtsDownloading:
 		if ( tNow - m_tConnected > quazaaSettings.Connection.TimeoutTraffic )
 		{
 			systemLog.postLog( LogSeverity::Error,
@@ -50,12 +50,12 @@ void CDownloadTransfer::onTimer( quint32 tNow )
 	}
 }
 
-void CDownloadTransfer::requestBlock( Fragments::Fragment oFragment )
+void DownloadTransfer::requestBlock( Fragments::Fragment oFragment )
 {
 	m_lRequested.push_back( oFragment );
 }
 
-void CDownloadTransfer::subtractRequested( Fragments::List& oFragments )
+void DownloadTransfer::subtractRequested( Fragments::List& oFragments )
 {
 	if ( m_lRequested.empty() )
 	{

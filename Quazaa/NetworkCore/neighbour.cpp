@@ -32,7 +32,7 @@
 #include "debug_new.h"
 
 Neighbour::Neighbour( QObject* parent ) :
-	CCompressedConnection( parent ),
+	CompressedConnection( parent ),
 	m_nProtocol( DiscoveryProtocol::None ),
 	m_tLastPacketIn( 0 ),
 	m_tLastPacketOut( 0 ),
@@ -104,7 +104,7 @@ void Neighbour::onTimer( quint32 tNow )
 void Neighbour::close( bool bDelayed )
 {
 	m_nState = nsClosing;
-	CCompressedConnection::close( bDelayed );
+	CompressedConnection::close( bDelayed );
 }
 
 void Neighbour::onDisconnectNode()

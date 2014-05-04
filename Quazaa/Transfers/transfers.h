@@ -9,7 +9,7 @@
 
 #include "thread.h"
 
-class CTransfer;
+class Transfer;
 class RateController;
 
 class Transfers : public QObject
@@ -22,7 +22,7 @@ public:
 	QTimer m_oTimer;
 
 protected:
-	QMultiHash<void*, CTransfer*> m_lTransfers;
+	QMultiHash<void*, Transfer*> m_lTransfers;
 
 public:
 	Transfers( QObject* parent = 0 );
@@ -30,10 +30,10 @@ public:
 	void start();
 	void stop();
 
-	void add( CTransfer* pTransfer );
-	void remove( CTransfer* pTransfer );
+	void add( Transfer* pTransfer );
+	void remove( Transfer* pTransfer );
 
-	QList<CTransfer*> getByOwner( void* pOwner );
+	QList<Transfer*> getByOwner( void* pOwner );
 signals:
 
 public slots:

@@ -35,15 +35,15 @@
 #include "debug_new.h"
 #endif
 
-CChatConverter::CChatConverter( QTextDocument* pDoc ) :
+ChatConverter::ChatConverter( QTextDocument* pDoc ) :
 	m_pDocument( pDoc )
 {
 }
-CChatConverter::~CChatConverter()
+ChatConverter::~ChatConverter()
 {
 
 }
-QString CChatConverter::toHtml()
+QString ChatConverter::toHtml()
 {
 	m_nOutputFormat = HTML;
 	m_pResult.clear();
@@ -59,7 +59,7 @@ QString CChatConverter::toHtml()
 
 	return m_pResult;
 }
-QString CChatConverter::toBBCode()
+QString ChatConverter::toBBCode()
 {
 	m_nOutputFormat = BBCODE;
 	m_pResult.clear();
@@ -75,7 +75,7 @@ QString CChatConverter::toBBCode()
 
 	return m_pResult;
 }
-QString CChatConverter::toIrc()
+QString ChatConverter::toIrc()
 {
 	m_nOutputFormat = IRCCODE;
 	m_pResult.clear();
@@ -92,7 +92,7 @@ QString CChatConverter::toIrc()
 	return m_pResult;
 }
 
-void CChatConverter::processBlock( QTextBlock* pBlock )
+void ChatConverter::processBlock( QTextBlock* pBlock )
 {
 	QTextBlock::iterator it;
 	for ( it = pBlock->begin(); !( it.atEnd() ); ++it )
@@ -131,7 +131,7 @@ void CChatConverter::processBlock( QTextBlock* pBlock )
 		}
 	}
 }
-void CChatConverter::processFragment( QTextFragment* pFrag )
+void ChatConverter::processFragment( QTextFragment* pFrag )
 {
 	QTextCharFormat fmt = pFrag->charFormat();
 
@@ -182,7 +182,7 @@ void CChatConverter::processFragment( QTextFragment* pFrag )
 	m_pResult.append( pFrag->text() );
 }
 
-void CChatConverter::processFragmentBB( QTextFragment* pFrag )
+void ChatConverter::processFragmentBB( QTextFragment* pFrag )
 {
 	QTextCharFormat fmt = pFrag->charFormat();
 
@@ -233,7 +233,7 @@ void CChatConverter::processFragmentBB( QTextFragment* pFrag )
 	m_pResult.append( pFrag->text() );
 }
 
-void CChatConverter::processFragmentIRC( QTextFragment* pFrag )
+void ChatConverter::processFragmentIRC( QTextFragment* pFrag )
 {
 	QTextCharFormat fmt = pFrag->charFormat();
 

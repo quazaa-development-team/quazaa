@@ -40,20 +40,20 @@ enum Protocol
 };
 }
 
-class CNetworkType
+class NetworkType
 {
 private:
 	quint16 m_nNetworks;
 
 public:
-	CNetworkType();
-	CNetworkType( quint16 type );
-	CNetworkType( DiscoveryProtocol::Protocol type );
+	NetworkType();
+	NetworkType( quint16 type );
+	NetworkType( DiscoveryProtocol::Protocol type );
 
 	inline void registerMetaType() const;
 
-	bool operator==( const CNetworkType& type ) const;
-	bool operator!=( const CNetworkType& type ) const;
+	bool operator==( const NetworkType& type ) const;
+	bool operator!=( const NetworkType& type ) const;
 
 	bool isNull() const;
 
@@ -69,8 +69,8 @@ public:
 	bool isEDonkey2000() const;
 	void setEDonkey2000( bool );
 
-	bool isNetwork( const CNetworkType& type ) const;
-	void setNetwork( const CNetworkType& type );
+	bool isNetwork( const NetworkType& type ) const;
+	void setNetwork( const NetworkType& type );
 
 	bool isMulti() const;
 
@@ -79,9 +79,9 @@ public:
 	QString toString() const;
 };
 
-void CNetworkType::registerMetaType() const
+void NetworkType::registerMetaType() const
 {
-	static int foo = qRegisterMetaType<CNetworkType>( "CNetworkType" );
+	static int foo = qRegisterMetaType<NetworkType>( "CNetworkType" );
 	Q_UNUSED( foo );
 }
 

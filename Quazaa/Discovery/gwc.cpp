@@ -29,7 +29,7 @@
 
 using namespace Discovery;
 
-GWC::GWC( const QUrl& oURL, const CNetworkType& oNType, quint8 nRating ) :
+GWC::GWC( const QUrl& oURL, const NetworkType& oNType, quint8 nRating ) :
 	DiscoveryService( oURL, oNType, nRating ),
 	m_pRequest( NULL ),
 	m_bGnutella( true ),
@@ -352,7 +352,7 @@ void GWC::requestCompleted( QNetworkReply* pReply )
 	while ( lURLList.size() )
 	{
 		discoveryManager.add( lURLList.back(), nServiceType,
-							  CNetworkType( DiscoveryProtocol::G2 ), DISCOVERY_MAX_PROBABILITY );
+							  NetworkType( DiscoveryProtocol::G2 ), DISCOVERY_MAX_PROBABILITY );
 		lURLList.pop_back();
 	}
 

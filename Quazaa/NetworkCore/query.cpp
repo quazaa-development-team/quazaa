@@ -53,7 +53,7 @@ void Query::setSizeRestriction( quint64 nMin, quint64 nMax )
 	m_nMinimumSize = nMin;
 	m_nMaximumSize = nMax;
 }
-bool Query::addURN( const CHash& rHash )
+bool Query::addURN( const Hash& rHash )
 {
 	// returns false on hash conflict
 	return m_vHashes.insert( rHash );
@@ -88,7 +88,7 @@ G2Packet* Query::toG2Packet( EndPoint* pAddr, quint32 nKey )
 	{
 		if ( m_vHashes[i] )
 		{
-			pPacket->writePacket( "URN", m_vHashes[i]->getFamilyName().size() + CHash::byteCount( m_vHashes[i]->algorithm() ) + 1 );
+			pPacket->writePacket( "URN", m_vHashes[i]->getFamilyName().size() + Hash::byteCount( m_vHashes[i]->algorithm() ) + 1 );
 			pPacket->writeString( m_vHashes[i]->getFamilyName() + "\0" + m_vHashes[i]->rawValue(), false );
 		}
 	}
@@ -314,20 +314,20 @@ bool Query::fromG2Packet( G2Packet* pPacket, const EndPoint* const pEndpoint )
 
 			if ( nLength >= 44u && sURN.compare( "bp" ) == 0 )
 			{
-				hashBuff.resize( CHash::byteCount( CHash::SHA1 ) );
-				pPacket->read( hashBuff.data(), CHash::byteCount( CHash::SHA1 ) );
-				CHash* pHash = CHash::fromRaw( hashBuff, CHash::SHA1 );
+				hashBuff.resize( Hash::byteCount( Hash::SHA1 ) );
+				pPacket->read( hashBuff.data(), Hash::byteCount( Hash::SHA1 ) );
+				Hash* pHash = Hash::fromRaw( hashBuff, Hash::SHA1 );
 				if ( pHash )
 				{
 					m_vHashes.insert( pHash );
 				}
 				// TODO: Tiger
 			}
-			else if ( nLength >= CHash::byteCount( CHash::SHA1 ) + 5u && sURN.compare( "sha1" ) == 0 )
+			else if ( nLength >= Hash::byteCount( Hash::SHA1 ) + 5u && sURN.compare( "sha1" ) == 0 )
 			{
-				hashBuff.resize( CHash::byteCount( CHash::SHA1 ) );
-				pPacket->read( hashBuff.data(), CHash::byteCount( CHash::SHA1 ) );
-				CHash* pHash = CHash::fromRaw( hashBuff, CHash::SHA1 );
+				hashBuff.resize( Hash::byteCount( Hash::SHA1 ) );
+				pPacket->read( hashBuff.data(), Hash::byteCount( Hash::SHA1 ) );
+				Hash* pHash = Hash::fromRaw( hashBuff, Hash::SHA1 );
 				if ( pHash )
 				{
 					m_vHashes.insert( pHash );

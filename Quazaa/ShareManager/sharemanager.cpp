@@ -647,11 +647,11 @@ void ShareManager::runHashing()
 	{
 		sRowIDs.append( query.record().value( 0 ).toString() ).append( "," );
 
-		CSharedFilePtr pFile( new CSharedFile( query.record().value( 3 ).toString() + '/' + query.record().value(
+		SharedFilePtr pFile( new SharedFile( query.record().value( 3 ).toString() + '/' + query.record().value(
 												   1 ).toString() ) );
 		pFile->setDirectoryID( query.record().value( 2 ).toLongLong() );
 
-		CFileHasher::hashFile( pFile );
+		FileHasher::hashFile( pFile );
 
 		bFinished = false;
 	}
@@ -667,7 +667,7 @@ void ShareManager::runHashing()
 	}
 }
 
-void ShareManager::onFileHashed( CSharedFilePtr pFile )
+void ShareManager::onFileHashed( SharedFilePtr pFile )
 {
 	QMutexLocker l( &m_oSection );
 
@@ -734,7 +734,7 @@ void ShareManager::buildHashTable()
 			while ( q.next() )
 			{
 				QByteArray m_oHash = q.record().value( 0 ).toByteArray();
-				CHash* pHash = CHash::fromRaw( m_oHash, CHash::SHA1 );
+				Hash* pHash = Hash::fromRaw( m_oHash, Hash::SHA1 );
 				if ( pHash )
 				{
 					m_pTable->addExactString( pHash->toURN() );

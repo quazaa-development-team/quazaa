@@ -11,7 +11,7 @@ class BannedDiscoveryService : public DiscoveryService
 	Q_OBJECT
 
 public:
-	BannedDiscoveryService( const QUrl& oURL, const CNetworkType& oNType, quint8 nRating );
+	BannedDiscoveryService( const QUrl& oURL, const NetworkType& oNType, quint8 nRating );
 
 	~BannedDiscoveryService();
 

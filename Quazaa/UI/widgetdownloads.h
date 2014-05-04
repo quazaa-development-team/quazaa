@@ -29,7 +29,7 @@
 #include <QMenu>
 #include <QModelIndex>
 
-class CDownloadsTreeModel;
+class DownloadsTreeModel;
 
 namespace Ui
 {
@@ -52,7 +52,7 @@ private:
 	QMenu* downloadMenu;
 
 protected:
-	CDownloadsTreeModel* m_pModel;
+	DownloadsTreeModel* m_pModel;
 
 signals:
 	void onItemChange( const QModelIndex index );

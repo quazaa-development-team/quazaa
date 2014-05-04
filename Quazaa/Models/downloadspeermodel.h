@@ -25,13 +25,13 @@
 
 #include <QSortFilterProxyModel>
 
-class CDownloadsPeerModel : public QSortFilterProxyModel
+class DownloadsPeerModel : public QSortFilterProxyModel
 {
 	Q_OBJECT
 
 	QModelIndex m_oCurrentRoot;
 public:
-	CDownloadsPeerModel( QObject* parent = 0 );
+	DownloadsPeerModel( QObject* parent = 0 );
 
 	QVariant headerData( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
 	void setCurrentRoot( const QModelIndex& index );

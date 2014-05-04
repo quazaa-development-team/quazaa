@@ -33,13 +33,13 @@
 #include <QQueue>
 #include "ShareManager/sharedfile.h"
 
-class CFileHasher: public QThread
+class FileHasher: public QThread
 {
 	Q_OBJECT
 public:
 	static QMutex   m_pSection;
-	static QQueue<CSharedFilePtr> m_lQueue;
-	static CFileHasher** m_pHashers;
+	static QQueue<SharedFilePtr> m_lQueue;
+	static FileHasher** m_pHashers;
 	static quint32  m_nMaxHashers;
 	static quint32  m_nRunningHashers;
 
@@ -48,13 +48,13 @@ public:
 	bool m_bActive;
 	int	 m_nId;
 public:
-	CFileHasher( QObject* parent = 0 );
-	~CFileHasher();
-	static CFileHasher* hashFile( CSharedFilePtr pFile );
+	FileHasher( QObject* parent = 0 );
+	~FileHasher();
+	static FileHasher* hashFile( SharedFilePtr pFile );
 	void run();
 
 signals:
-	void fileHashed( CSharedFilePtr );
+	void fileHashed( SharedFilePtr );
 	void queueEmpty();
 	void hasherStarted( int ); // int - hasher id
 	void hasherFinished( int ); // int - hasher id

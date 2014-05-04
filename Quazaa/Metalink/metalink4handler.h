@@ -9,10 +9,10 @@
 namespace URI
 {
 
-class CMetalink4Handler : public CMetalinkHandler
+class Metalink4Handler : public MetalinkHandler
 {
 public:
-	explicit CMetalink4Handler( QFile& oFile = m_oEmptyQFile );
+	explicit Metalink4Handler( QFile& oFile = m_oEmptyQFile );
 
 	Download* file( const unsigned int& ID ) const;
 

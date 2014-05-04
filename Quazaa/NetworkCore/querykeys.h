@@ -29,20 +29,20 @@
 
 class QHostAddress;
 
-class CQueryKeys
+class QueryKeys
 {
 protected:
 	quint32*	m_pTable;
 	quint32		m_nTable;
 public:
-	CQueryKeys();
-	~CQueryKeys();
+	QueryKeys();
+	~QueryKeys();
 
 	void prepare();
 	quint32 create( QHostAddress pAddr );
 	bool check( QHostAddress pAddr, quint32 nKey );
 };
 
-extern CQueryKeys QueryKeys;
+extern QueryKeys queryKeys;
 
 #endif // QUERYKEYS_H

@@ -40,7 +40,7 @@ Downloads::Downloads( QObject* parent ) :
 	QObject( parent )
 {
 	qRegisterMetaType<Download*>( "CDownload*" );
-	qRegisterMetaType<CDownloadSource*>( "CDownloadSource*" );
+	qRegisterMetaType<DownloadSource*>( "CDownloadSource*" );
 	qRegisterMetaType<Download::DownloadState>( "CDownload::DownloadState" );
 }
 
