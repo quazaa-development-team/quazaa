@@ -410,7 +410,7 @@ bool TimedSignalQueue::pop( QUuid oTimer_ID )
 
 bool TimedSignalQueue::setInterval( QUuid oTimer_ID, quint64 tInterval )
 {
-	QMutexLocker l( &m_pSection );
+	m_pSection.lock();
 
 	TimerObject* pTimer = popInternal( oTimer_ID );
 
@@ -419,12 +419,13 @@ bool TimedSignalQueue::setInterval( QUuid oTimer_ID, quint64 tInterval )
 		pTimer->m_tInterval = tInterval;
 		pTimer->resetTime();
 
-		l.unlock();
+		m_pSection.unlock();
 
 		push( pTimer );
 		return true;
 	}
 
+	m_pSection.unlock();
 	return false;
 }
 
