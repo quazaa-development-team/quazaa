@@ -45,6 +45,7 @@ QString fixFileName( QString sName );
 QString getTempFileName( QString sName );
 
 QString formatBytes( quint64 nBytesPerSec );
+QString writeSizeInWholeBytes( quint64 nBytes );
 quint64 readSizeInBytes( QString sInput, bool& bOK );
 
 /**

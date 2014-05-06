@@ -150,6 +150,41 @@ QString common::formatBytes( quint64 nBytesPerSec )
 	}
 }
 
+QString common::writeSizeInWholeBytes( quint64 nBytes )
+{
+	if ( !nBytes )
+	{
+		return QString( "0 B" );
+	}
+
+	const char* sz1000[5] = { "B", "KB", "MB", "GB", "TB" };
+	const char* sz1024[5] = { "B", "KiB", "MiB", "GiB", "TiB" };
+
+	quint64 n1 = nBytes, n2 = nBytes;
+	quint8 n1count = 0, n2count = 0;
+
+	while ( n1 % 1000 == 0 )
+	{
+		n1 /= 1000;
+		++n1count;
+	}
+
+	while ( n2 % 1024 == 0 )
+	{
+		n2 /= 1024;
+		++n2count;
+	}
+
+	if ( n1count > n2count )
+	{
+		return QString::number( n1 ) + " " + sz1000[n1count];
+	}
+	else
+	{
+		return QString::number( n2 ) + " " + sz1024[n2count];
+	}
+}
+
 quint64 common::readSizeInBytes( QString sInput, bool& bOK )
 {
 	sInput.remove( QRegularExpression( "\\s" ) );
@@ -164,24 +199,23 @@ quint64 common::readSizeInBytes( QString sInput, bool& bOK )
 		return 0;
 	}
 
-
 	// TODO: replace with QRegularExpression once there is a respective QString overload
 	// use \\z instead of $
 	QRegExp suffix = QRegExp( "(B|KB|KiB|MB|MiB|GB|GiB|TB|TiB)$" );
-	suffix .setCaseSensitivity( Qt::CaseInsensitive );
+	suffix.setCaseSensitivity( Qt::CaseInsensitive );
 	int nSuffixPos = sInput.indexOf( suffix );
 
 	QString sNumber = sInput.left( nSuffixPos );
 	QString sSuffix = sInput.right( sInput.length() - sNumber.size() );
 
 #ifdef _DEBUG
-	Q_ASSERT( QRegularExpression( "\\A(B|KB|KiB|MB|MiB|GB|GiB|TB|TiB)\\z",
+	Q_ASSERT( QRegularExpression( "\\A(|B|KB|KiB|MB|MiB|GB|GiB|TB|TiB)\\z",
 								  QRegularExpression::CaseInsensitiveOption
-								).match( sSuffix, 0, QRegularExpression::NormalMatch ).hasMatch()
+								  ).match( sSuffix, 0, QRegularExpression::NormalMatch ).hasMatch()
 			);
 
 	Q_ASSERT( QRegularExpression( "\\A[0-9]+\\z", QRegularExpression::CaseInsensitiveOption
-								).match( sNumber, 0, QRegularExpression::NormalMatch ).hasMatch()
+								  ).match( sNumber, 0, QRegularExpression::NormalMatch ).hasMatch()
 			);
 #endif //_DEBUG
 
