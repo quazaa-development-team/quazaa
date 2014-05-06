@@ -25,62 +25,107 @@
 #include "searchfilter.h"
 #include "searchtreemodel.h"
 
+#include "quazaaglobals.h"
+
 #include <QRegularExpression>
 
 using namespace SearchFilter;
 
-FilterControlData::FilterControlData() :
+FilterControlData::FilterControlData( SavedFilters* pFilters ) :
 	m_sMatchString( "" ),
 	m_bRegExp( false ),
+
 	m_nMinSize( 0 ),
 	m_nMaxSize( 18446744073709551615 ), // max value of 64 bit int
 	m_nMinSources( 0 ),
-	m_bBusyAllowed( true ),
-	m_bFirewalledAllowed( true ),
-	m_bUnstableAllowed( true ),
-	m_bDRMAllowed( true ),
-	m_bSuspiciousAllowed( true ),
-	m_bNonMatchingAllowed( true ),
+
+	m_bAdultAllowed(           true ),
+	m_bBogusAllowed(           true ),
+	m_bBusyAllowed(            true ),
+	m_bDRMAllowed(             true ),
 	m_bExistsInLibraryAllowed( true ),
-	m_bBogusAllowed( true ),
-	m_bAdultAllowed( true )
+	m_bFirewalledAllowed(      true ),
+	m_bIncompleteAllowed(      true ),
+	m_bNonMatchingAllowed(     true ),
+	m_bSuspiciousAllowed(      true ),
+	m_bUnstableAllowed(        true ),
+
+	m_pFilters( pFilters ),
+	m_sFilterName( "" )
 {
 }
 
-FilterControlData::FilterControlData( const FilterControlData& other ) :
-	m_sMatchString(   other.m_sMatchString     ),
-	m_bRegExp(        other.m_bRegExp          ),
-	m_nMinSize(       other.m_nMinSize         ),
-	m_nMaxSize(       other.m_nMaxSize         ),
-	m_nMinSources(    other.m_nMinSources      ),
-	m_bBusyAllowed(            other.m_bBusyAllowed            ),
-	m_bFirewalledAllowed(      other.m_bFirewalledAllowed      ),
-	m_bUnstableAllowed(        other.m_bUnstableAllowed        ),
-	m_bDRMAllowed(             other.m_bDRMAllowed             ),
-	m_bSuspiciousAllowed(      other.m_bSuspiciousAllowed      ),
-	m_bNonMatchingAllowed(     other.m_bNonMatchingAllowed     ),
-	m_bExistsInLibraryAllowed( other.m_bExistsInLibraryAllowed ),
-	m_bBogusAllowed(           other.m_bBogusAllowed           ),
-	m_bAdultAllowed(           other.m_bAdultAllowed           )
+FilterControlData::FilterControlData( const FilterControlData& rOther ) :
+	m_sMatchString(   rOther.m_sMatchString     ),
+	m_bRegExp(        rOther.m_bRegExp          ),
+
+	m_nMinSize(       rOther.m_nMinSize         ),
+	m_nMaxSize(       rOther.m_nMaxSize         ),
+	m_nMinSources(    rOther.m_nMinSources      ),
+
+	m_bAdultAllowed(           rOther.m_bAdultAllowed           ),
+	m_bBogusAllowed(           rOther.m_bBogusAllowed           ),
+	m_bBusyAllowed(            rOther.m_bBusyAllowed            ),
+	m_bDRMAllowed(             rOther.m_bDRMAllowed             ),
+	m_bExistsInLibraryAllowed( rOther.m_bExistsInLibraryAllowed ),
+	m_bFirewalledAllowed(      rOther.m_bFirewalledAllowed      ),
+	m_bIncompleteAllowed(      rOther.m_bIncompleteAllowed      ),
+	m_bNonMatchingAllowed(     rOther.m_bNonMatchingAllowed     ),
+	m_bSuspiciousAllowed(      rOther.m_bSuspiciousAllowed      ),
+	m_bUnstableAllowed(        rOther.m_bUnstableAllowed        ),
+
+	m_pFilters(    rOther.m_pFilters    ),
+	m_sFilterName( rOther.m_sFilterName )
 {
 }
 
+void FilterControlData::operator=(  const FilterControlData& rOther )
+{
+	Q_ASSERT( m_pFilters == rOther.m_pFilters );
+
+	m_sMatchString   = rOther.m_sMatchString;
+	m_bRegExp        = rOther.m_bRegExp;
+
+	m_nMinSize       = rOther.m_nMinSize;
+	m_nMaxSize       = rOther.m_nMaxSize;
+	m_nMinSources    = rOther.m_nMinSources;
+
+	m_bAdultAllowed           = rOther.m_bAdultAllowed;
+	m_bBogusAllowed           = rOther.m_bBogusAllowed;
+	m_bBusyAllowed            = rOther.m_bBusyAllowed;
+	m_bDRMAllowed             = rOther.m_bDRMAllowed;
+	m_bExistsInLibraryAllowed = rOther.m_bExistsInLibraryAllowed;
+	m_bFirewalledAllowed      = rOther.m_bFirewalledAllowed;
+	m_bIncompleteAllowed      = rOther.m_bIncompleteAllowed;
+	m_bNonMatchingAllowed     = rOther.m_bNonMatchingAllowed;
+	m_bSuspiciousAllowed      = rOther.m_bSuspiciousAllowed;
+	m_bUnstableAllowed        = rOther.m_bUnstableAllowed;
+
+	m_sFilterName    = rOther.m_sFilterName;
+}
+
+// ignores an eventual filter name
 bool FilterControlData::operator==( const FilterControlData& rOther )
 {
+	Q_ASSERT( m_pFilters == rOther.m_pFilters );
+
 	return m_sMatchString   == rOther.m_sMatchString     &&
 		   m_bRegExp        == rOther.m_bRegExp          &&
+
 		   m_nMinSize       == rOther.m_nMinSize         &&
 		   m_nMaxSize       == rOther.m_nMaxSize         &&
 		   m_nMinSources    == rOther.m_nMinSources      &&
-		   m_bBusyAllowed            == rOther.m_bBusyAllowed            &&
-		   m_bFirewalledAllowed      == rOther.m_bFirewalledAllowed      &&
-		   m_bUnstableAllowed        == rOther.m_bUnstableAllowed        &&
-		   m_bDRMAllowed             == rOther.m_bDRMAllowed             &&
-		   m_bSuspiciousAllowed      == rOther.m_bSuspiciousAllowed      &&
-		   m_bNonMatchingAllowed     == rOther.m_bNonMatchingAllowed     &&
-		   m_bExistsInLibraryAllowed == rOther.m_bExistsInLibraryAllowed &&
+
+		   m_bAdultAllowed           == rOther.m_bAdultAllowed           &&
 		   m_bBogusAllowed           == rOther.m_bBogusAllowed           &&
-		   m_bAdultAllowed           == rOther.m_bAdultAllowed;
+		   m_bBusyAllowed            == rOther.m_bBusyAllowed            &&
+		   m_bDRMAllowed             == rOther.m_bDRMAllowed             &&
+		   m_bExistsInLibraryAllowed == rOther.m_bExistsInLibraryAllowed &&
+		   m_bFirewalledAllowed      == rOther.m_bFirewalledAllowed      &&
+		   m_bIncompleteAllowed      == rOther.m_bIncompleteAllowed      &&
+		   m_bNonMatchingAllowed     == rOther.m_bNonMatchingAllowed     &&
+		   m_bSuspiciousAllowed      == rOther.m_bSuspiciousAllowed      &&
+		   m_bUnstableAllowed        == rOther.m_bUnstableAllowed;
 }
 
 bool FilterControlData::operator!=( const FilterControlData& rOther )
@@ -88,12 +133,347 @@ bool FilterControlData::operator!=( const FilterControlData& rOther )
 	return !operator==( rOther );
 }
 
+void FilterControlData::load( FilterControlData* pFilterData, QDataStream& fsFile,
+							  quint16 /*nVersion*/ )
+{
+	fsFile >> pFilterData->m_sMatchString;
+	fsFile >> pFilterData->m_bRegExp;
+
+	fsFile >> pFilterData->m_nMinSize;
+	fsFile >> pFilterData->m_nMaxSize;
+	fsFile >> pFilterData->m_nMinSources;
+
+	fsFile >> pFilterData->m_bAdultAllowed;
+	fsFile >> pFilterData->m_bBogusAllowed;
+	fsFile >> pFilterData->m_bBusyAllowed;
+	fsFile >> pFilterData->m_bDRMAllowed;
+	fsFile >> pFilterData->m_bExistsInLibraryAllowed;
+	fsFile >> pFilterData->m_bFirewalledAllowed;
+	fsFile >> pFilterData->m_bIncompleteAllowed;
+	fsFile >> pFilterData->m_bNonMatchingAllowed;
+	fsFile >> pFilterData->m_bSuspiciousAllowed;
+	fsFile >> pFilterData->m_bUnstableAllowed;
+
+	fsFile >> pFilterData->m_sFilterName;
+}
+
+void FilterControlData::save( const FilterControlData* const pFilterData, QDataStream& fsFile )
+{
+	fsFile << pFilterData->m_sMatchString;
+	fsFile << pFilterData->m_bRegExp;
+
+	fsFile << pFilterData->m_nMinSize;
+	fsFile << pFilterData->m_nMaxSize;
+	fsFile << pFilterData->m_nMinSources;
+
+	fsFile << pFilterData->m_bAdultAllowed;
+	fsFile << pFilterData->m_bBogusAllowed;
+	fsFile << pFilterData->m_bBusyAllowed;
+	fsFile << pFilterData->m_bDRMAllowed;
+	fsFile << pFilterData->m_bExistsInLibraryAllowed;
+	fsFile << pFilterData->m_bFirewalledAllowed;
+	fsFile << pFilterData->m_bIncompleteAllowed;
+	fsFile << pFilterData->m_bNonMatchingAllowed;
+	fsFile << pFilterData->m_bSuspiciousAllowed;
+	fsFile << pFilterData->m_bUnstableAllowed;
+
+	fsFile << pFilterData->m_sFilterName;
+}
+
+SavedFilters::SavedFilters() :
+	m_mFilters( FilterMap() ),
+	m_sDefaultName( "" )
+{
+}
+
+SavedFilters::~SavedFilters()
+{
+	clear();
+}
+
+quint32 SavedFilters::load()
+{
+	QString sPath = QuazaaGlobals::DATA_PATH() + "searchfilters.dat";
+
+	if ( load( sPath ) )
+	{
+		systemLog.postLog( LogSeverity::Debug, Component::Network,
+						   QObject::tr( "Loaded %1 search filter(s) from file:"
+										).arg( QString::number( count() ) ) + " " + sPath );
+	}
+	else // Unable to load default file. Switch to backup one instead.
+	{
+		sPath = QuazaaGlobals::DATA_PATH() + "searchfilters_backup.dat";
+
+		systemLog.postLog( LogSeverity::Warning, Component::Network,
+			QObject::tr( "Failed to load search filters from primary file. Switching to backup:" )
+			+ " " + sPath );
+
+		if ( load( sPath ) )
+		{
+			systemLog.postLog( LogSeverity::Debug, Component::Network,
+							   QObject::tr( "Loaded %1 search filter(s) from backup file: "
+											).arg( QString::number( count() ) ) + sPath );
+		}
+		else
+		{
+			systemLog.postLog( LogSeverity::Warning, Component::Network,
+							   QObject::tr( "Failed secondary attempt on loading filters!" ) );
+		}
+	}
+
+	if ( m_mFilters.empty() )
+	{
+		// insert empty default filter
+		insert( FilterControlData( this ) );
+		m_sDefaultName = "";
+	}
+
+	return count();
+}
+
+bool SavedFilters::load( QString sPath )
+{
+	QFile oFile( sPath );
+
+	if ( !oFile.open( QIODevice::ReadOnly ) )
+	{
+		return false;
+	}
+
+	FilterControlData* pFilterData = NULL;
+
+	try
+	{
+		Q_ASSERT( !count() );
+
+		QDataStream fsFile( &oFile );
+
+		quint16 nVersion;
+		quint32 nCount;
+
+		fsFile >> nVersion;
+		fsFile >> nCount;
+		fsFile >> m_sDefaultName;
+
+		if ( nVersion == FILTERCONTROLDATA_CODE_VERSION )
+		{
+			for ( quint32 i = 0; i < nCount; ++i )
+			{
+				pFilterData = new FilterControlData( this );
+				FilterControlData::load( pFilterData, fsFile, nVersion );
+				m_mFilters[pFilterData->m_sFilterName] = pFilterData;
+				pFilterData = NULL;
+			}
+		}
+	}
+	catch ( ... )
+	{
+		if ( pFilterData )
+		{
+			delete pFilterData;
+		}
+
+		clear();
+		oFile.close();
+
+		systemLog.postLog( LogSeverity::Error, Component::Network,
+						   QObject::tr( "Caught an exception while loading filters from file!" ) );
+
+		return false;
+	}
+	oFile.close();
+
+	return true;
+}
+
+void SavedFilters::clear()
+{
+	for ( ConstIterator it = m_mFilters.begin(); it != m_mFilters.end(); ++it )
+	{
+		delete (*it).second;
+	}
+
+	m_mFilters.clear();
+}
+
+void SavedFilters::save()
+{
+	const quint32 nCount = common::securedSaveFile( QuazaaGlobals::DATA_PATH(), "searchfilters.dat",
+													Component::Network, this,
+													&SavedFilters::writeToFile );
+
+	systemLog.postLog( LogSeverity::Debug, Component::Network,
+					   QObject::tr( "%1 search filter(s) saved." ).arg( nCount ) );
+}
+
+quint32 SavedFilters::count() const
+{
+	return (quint32)m_mFilters.size();
+}
+
+void SavedFilters::insert( const FilterControlData& rData )
+{
+	ConstIterator it = m_mFilters.find( rData.m_sFilterName );
+	if ( it != m_mFilters.end() )
+	{
+		m_mFilters[rData.m_sFilterName]->operator=( rData );
+	}
+	else
+	{
+		m_mFilters[rData.m_sFilterName] = new FilterControlData( rData );
+	}
+}
+
+void SavedFilters::remove(const QString& rName )
+{
+	ConstIterator it = m_mFilters.find( rName );
+	if ( it != m_mFilters.end() )
+	{
+		delete (*it).second;
+		m_mFilters.erase( it );
+
+		if ( m_sDefaultName == rName )
+		{
+			m_sDefaultName = "";
+		}
+	}
+}
+
+void SavedFilters::select( const QString& sName, FilterControlData& rDestination )
+{
+	rDestination.operator=( *m_mFilters[sName] );
+}
+
+void SavedFilters::rename( const QString& sOldName, const QString& sNewName )
+{
+	ConstIterator it = m_mFilters.find( sNewName );
+	if ( it != m_mFilters.end() )
+	{
+		delete (*it).second;
+		m_mFilters.erase( it );
+	}
+
+	it = m_mFilters.find( sOldName );
+	Q_ASSERT( it != m_mFilters.end() );
+
+	FilterControlData* pData = (*it).second;
+	m_mFilters.erase( it );
+
+	pData->m_sFilterName = sNewName;
+	m_mFilters[sNewName] = pData;
+
+	if ( m_sDefaultName == sOldName )
+	{
+		m_sDefaultName = sNewName;
+	}
+}
+
+void SavedFilters::setDefault(const QString& sName)
+{
+	ConstIterator it = m_mFilters.find( sName );
+	if ( it != m_mFilters.end() )
+	{
+		m_sDefaultName = sName;
+	}
+}
+
+const FilterControlData& SavedFilters::defaultData() const
+{
+	// This is typically the first method of SavedFilters that is called, so we use it for loading
+	// as we cannot load within the constructor because loading relies on the systemLog being
+	// initialized.
+
+	// I know this is ugly, so sue me :D
+	SavedFilters* pThis = const_cast<SavedFilters*>( this );
+	// make sure to load only once
+	static quint32 foo = pThis->load();
+	Q_UNUSED( foo );
+
+	ConstIterator it = m_mFilters.find( m_sDefaultName );
+	Q_ASSERT( it != m_mFilters.end() );
+	return *(*it).second;
+}
+
+const QString&SavedFilters::defaultName() const
+{
+	return m_sDefaultName;
+}
+
+void SavedFilters::repopulate( QComboBox& rBox , const QString& expectedSecletion )
+{
+	Q_ASSERT( !m_mFilters.empty() );   // at least one item has been inserted
+
+	rBox.clear();
+
+	int i = 0;
+	for ( ConstIterator it = m_mFilters.begin(); it != m_mFilters.end(); ++it )
+	{
+		rBox.addItem( (*it).first );
+
+		if ( (*it).first == expectedSecletion )
+		{
+			rBox.setCurrentIndex( i );
+		}
+		else
+		{
+			++i;
+		}
+
+	}
+
+	Q_ASSERT( i < m_mFilters.size() ); // expectedSecletion has been found and set
+}
+
+quint32 SavedFilters::writeToFile( const void* const pManager, QFile& oFile )
+{
+#if ENABLE_DISCOVERY_DEBUGGING
+	postLog( LogSeverity::Debug, QString( "Manager::writeToFile()" ) ), true );
+#endif
+
+	SavedFilters* pSavedFilters = ( SavedFilters* )pManager;
+
+	const quint16 nVersion = FILTERCONTROLDATA_CODE_VERSION;
+	const quint32 nCount   = pSavedFilters->count();
+
+	try
+	{
+		QDataStream fsFile( &oFile );
+
+		fsFile << nVersion;
+		fsFile << nCount;
+		fsFile << pSavedFilters->m_sDefaultName;
+
+		FilterControlData* pFilterData;
+
+		// write services to stream
+		for ( ConstIterator it = pSavedFilters->m_mFilters.begin();
+			  it != pSavedFilters->m_mFilters.end(); ++it )
+		{
+			const MapPair& pair = *it;
+			pFilterData = pair.second;
+			FilterControlData::save( pFilterData, fsFile );
+		}
+	}
+	catch ( ... )
+	{
+		systemLog.postLog( LogSeverity::Error, Component::Network,
+			QObject::tr( "Unspecified problem while writing search filters to disk." ) );
+
+		return 0;
+	}
+
+	return nCount;
+}
+
+SavedFilters FilterControl::m_oSavedFilters = SavedFilters();
+
 FilterControl::FilterControl() :
 	m_lVisibleHits( HitList( 4095 ) ),
 	m_lFilteredHits( HitList( 4095 ) ),
 	m_lVisibleFiles( FileList( 2047 ) ),
 	m_lFilteredFiles( FileList( 2047 ) ),
-	m_oFilterControlData( FilterControlData() ),
+	m_oFilterControlData( m_oSavedFilters.defaultData() ),
 	m_bStringChanged( false ),
 	m_bSizeChanged( false ),
 	m_bMinSourcesChanged( false ),
@@ -101,6 +481,11 @@ FilterControl::FilterControl() :
 	m_bFileBoolsChanged( false ),
 	m_bStringFilterInvisibleHitsInvalidated( false )
 {
+}
+
+FilterControl::~FilterControl()
+{
+	m_oSavedFilters.save();
 }
 
 /*

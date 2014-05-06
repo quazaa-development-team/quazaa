@@ -33,6 +33,9 @@
    <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayoutDialogFilterSearch">
+   <property name="spacing">
+    <number>0</number>
+   </property>
    <property name="leftMargin">
     <number>0</number>
    </property>
@@ -43,9 +46,6 @@
     <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>0</number>
-   </property>
-   <property name="spacing">
     <number>0</number>
    </property>
    <item>
@@ -93,7 +93,7 @@
          <property name="spacing">
           <number>5</number>
          </property>
-		 <item row="0" column="0">
+         <item row="0" column="0">
           <widget class="QLineEdit" name="lineEditWords"/>
          </item>
          <item row="0" column="1">
@@ -145,7 +145,7 @@ p, li { white-space: pre-wrap; }
            </property>
           </widget>
          </item>
-		 <item row="0" column="1">
+         <item row="0" column="1">
           <widget class="QLineEdit" name="lineEditMinimumSize">
            <property name="text">
             <string notr="true"/>
@@ -178,7 +178,7 @@ p, li { white-space: pre-wrap; }
            </property>
           </widget>
          </item>
-		 <item row="1" column="0" colspan="2">
+         <item row="1" column="0" colspan="2">
           <widget class="QSpinBox" name="spinBoxMinimumSources">
            <property name="suffix">
             <string> sources.</string>
@@ -197,7 +197,7 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
       </item>
-	  <item row="2" column="0">
+      <item row="2" column="0">
        <widget class="QGroupBox" name="groupBoxHide">
         <property name="title">
          <string>Show</string>
@@ -253,28 +253,28 @@ p, li { white-space: pre-wrap; }
            </property>
           </widget>
          </item>
-		 <item row="2" column="1">
+         <item row="2" column="1">
           <widget class="QCheckBox" name="checkBoxDRMFiles">
            <property name="text">
             <string>DRM Files</string>
            </property>
           </widget>
          </item>
-		 <item row="3" column="0">
+         <item row="3" column="0">
           <widget class="QCheckBox" name="checkBoxBogusResults">
            <property name="text">
             <string>Bogus Results</string>
            </property>
           </widget>
          </item>
-		 <item row="3" column="1">
+         <item row="3" column="1">
           <widget class="QCheckBox" name="checkBoxSuspiciousFiles">
            <property name="text">
             <string>Suspicious Files</string>
            </property>
           </widget>
-		 </item>
-		 <item row="4" column="0">
+         </item>
+         <item row="4" column="0">
           <widget class="QCheckBox" name="checkBoxAdultResults">
            <property name="text">
             <string>Adult Results</string>
@@ -333,19 +333,34 @@ p, li { white-space: pre-wrap; }
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <property name="currentText">
+            <string notr="true"/>
+           </property>
+           <property name="insertPolicy">
+            <enum>QComboBox::NoInsert</enum>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
+           </property>
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QPushButton" name="pushButtonSaveAs">
+          <widget class="QPushButton" name="pushButtonSave">
            <property name="text">
-            <string>Save As</string>
+            <string>Save</string>
+           </property>
+           <property name="autoDefault">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QCheckBox" name="checkBoxSetDefault">
+          <widget class="QCheckBox" name="checkBoxDefaultFilter">
            <property name="text">
-            <string>Set As Default</string>
+            <string>Default Filter on Startup</string>
            </property>
           </widget>
          </item>
@@ -354,12 +369,15 @@ p, li { white-space: pre-wrap; }
            <property name="text">
             <string>Delete</string>
            </property>
+           <property name="autoDefault">
+            <bool>false</bool>
+           </property>
           </widget>
          </item>
         </layout>
        </widget>
       </item>
-	 </layout>
+     </layout>
     </widget>
    </item>
    <item>
@@ -379,7 +397,7 @@ p, li { white-space: pre-wrap; }
      <property name="spacing">
       <number>5</number>
      </property>
-	 <item row="0" column="0">
+     <item row="0" column="0">
       <spacer name="verticalSpacerControlButtons">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -392,7 +410,7 @@ p, li { white-space: pre-wrap; }
        </property>
       </spacer>
      </item>
-	 <item row="1" column="0">
+     <item row="1" column="0">
       <spacer name="horizontalSpacerControlButtons">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -410,12 +428,18 @@ p, li { white-space: pre-wrap; }
        <property name="text">
         <string>Filter</string>
        </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item row="1" column="2">
       <widget class="QPushButton" name="pushButtonCancel">
        <property name="text">
         <string>Cancel</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
        </property>
       </widget>
      </item>

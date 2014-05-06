@@ -241,7 +241,7 @@ void WidgetSearchResults::on_actionFilterMore_triggered()
 {
 	Q_ASSERT( m_pFilterData );
 
-	DialogFilterSearch* dlgFilterSearch = new DialogFilterSearch( m_pFilterData, this );
+	DialogFilterSearch* dlgFilterSearch = new DialogFilterSearch( *m_pFilterData, this );
 	connect( dlgFilterSearch, &DialogFilterSearch::filterClicked,
 			 this, &WidgetSearchResults::advancedSearchFilteringChanged );
 
@@ -284,6 +284,8 @@ void WidgetSearchResults::on_tabWidgetSearch_currentChanged( int index )
 
 	delete m_pFilterData;
 	m_pFilterData = tabSearch->getFilterDataCopy();
+
+	m_pLineEditFilter->setText( m_pFilterData->m_sMatchString );
 }
 
 void WidgetSearchResults::onStatsUpdated( WidgetSearchTemplate* searchWidget )

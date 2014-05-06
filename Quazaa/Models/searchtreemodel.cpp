@@ -253,7 +253,6 @@ QueryHit* TreeRoot::addQueryHit( QueryHit* pHit )
 	// This hit is a new non duplicate file.
 	if ( existingFileEntry == -1 )
 	{
-		// TODO: valid parent?
 		SearchFile* pFileItem = new SearchFile( this, pHit, fileInfo );
 		m_pModel->beginInsertRows( QModelIndex(), childCount(), childCount() );
 		pFileItem->addQueryHit( pHit, fileInfo );

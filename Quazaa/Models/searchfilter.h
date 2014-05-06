@@ -26,6 +26,7 @@
 #define SEARCHFILTER_H
 
 #include <QtGlobal>
+#include <QtWidgets/QComboBox>
 
 #include "NetworkCore/queryhit.h"
 #include "Misc/unorderedptrvector.h"
@@ -39,6 +40,9 @@ typedef UnorderedPtrVector<SearchFile> FileList;
 
 namespace SearchFilter
 {
+class SavedFilters;
+
+#define FILTERCONTROLDATA_CODE_VERSION	1
 struct FilterControlData
 {
 	// filter attributes
@@ -61,11 +65,65 @@ struct FilterControlData
 	bool m_bSuspiciousAllowed;      // suspicious hits
 	bool m_bUnstableAllowed;        // unstable hits/sources
 
-	FilterControlData();
-	FilterControlData( const FilterControlData& other );
+	// saving support
+	SavedFilters* m_pFilters;
+	QString       m_sFilterName;
+
+private:
+	FilterControlData( SavedFilters* pFilters );
+public:
+	FilterControlData( const FilterControlData& rOther );
+
+	void operator=(  const FilterControlData& rOther );
 
 	bool operator==( const FilterControlData& rOther );
 	bool operator!=( const FilterControlData& rOther );
+
+	static void load( FilterControlData* pFilterData, QDataStream& fsFile, quint16 );
+	static void save( const FilterControlData* const pFilterData, QDataStream& fsFile );
+
+	friend class SavedFilters;
+};
+
+class SavedFilters
+{
+private:
+	typedef std::pair< QString, FilterControlData* > MapPair;
+	typedef std::map<  QString, FilterControlData* > FilterMap;
+	typedef FilterMap::const_iterator ConstIterator;
+	typedef FilterMap::iterator Iterator;
+
+	FilterMap m_mFilters;
+	QString m_sDefaultName;
+
+public:
+	SavedFilters();
+	~SavedFilters();
+
+	quint32 load();
+
+private:
+	bool load( QString sPath );
+	void clear();
+
+public:
+	void save();
+
+	quint32 count() const;
+
+	void insert( const FilterControlData& rData );
+	void remove( const QString& rName );
+	void select( const QString& sName, FilterControlData& rDestination );
+	void rename( const QString& sOldName, const QString& sNewName );
+
+	void setDefault( const QString& sName );
+	const FilterControlData& defaultData() const;
+	const QString& defaultName() const;
+
+	void repopulate( QComboBox& rBox, const QString& expectedSecletion );
+
+private:
+	static quint32 writeToFile(const void* const pManager, QFile& oFile );
 };
 
 class FilterControl
@@ -89,8 +147,12 @@ private:
 	// allows lazy evaluation of string filter in case of an additionnal filter word
 	bool m_bStringFilterInvisibleHitsInvalidated;
 
+	// saving/loading support for advanced filter dialog
+	static SavedFilters m_oSavedFilters;
+
 public:
 	FilterControl();
+	~FilterControl();
 
 	/*bool operator==(const FilterControl& rOther);
 	bool operator!=(const FilterControl& rOther);

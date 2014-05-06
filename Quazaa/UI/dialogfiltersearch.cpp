@@ -26,17 +26,16 @@
 #include "ui_dialogfiltersearch.h"
 #include "skinsettings.h"
 
-#include "searchfilter.h"
-
 #include "debug_new.h"
 
-DialogFilterSearch::DialogFilterSearch( SearchFilter::FilterControlData*& pData, QWidget* parent ) :
+DialogFilterSearch::DialogFilterSearch( SearchFilter::FilterControlData& rData, QWidget* parent ) :
 	QDialog( parent ),
 	ui( new Ui::DialogFilterSearch ),
-	m_pData( pData )
+	m_rFilterData( rData ),
+	m_oWorkingData( rData ),
+	m_pFilters( rData.m_pFilters ),
+	m_sSelection( rData.m_sFilterName )
 {
-	Q_ASSERT( pData );
-
 	ui->setupUi( this );
 	setSkin();
 
@@ -49,29 +48,8 @@ DialogFilterSearch::DialogFilterSearch( SearchFilter::FilterControlData*& pData,
 	ui->lineEditMinimumSize->setValidator( pValidator );
 	ui->lineEditMaximumSize->setValidator( pValidator );
 
-	ui->lineEditWords->setText( m_pData->m_sMatchString );
-	ui->checkBoxRegularExpression->setChecked( m_pData->m_bRegExp );
-
-	const quint64 MAX_VAL = 18446744073709551615; // max value of 64 bit int
-	QString sMinSize = m_pData->m_nMinSize ? QString::number( m_pData->m_nMinSize ) + "B" : "";
-	QString sMaxSize = m_pData->m_nMaxSize != MAX_VAL ?
-					   QString::number( m_pData->m_nMaxSize ) + "B" : "";
-
-	ui->lineEditMinimumSize->setText( sMinSize );
-	ui->lineEditMaximumSize->setText( sMaxSize );
-
-	ui->spinBoxMinimumSources->setValue( m_pData->m_nMinSources );
-
-	ui->checkBoxAdultResults       ->setChecked( m_pData->m_bAdultAllowed          );
-	ui->checkBoxBogusResults       ->setChecked( m_pData->m_bBogusAllowed          );
-	ui->checkBoxBusyHosts          ->setChecked( m_pData->m_bBusyAllowed           );
-	ui->checkBoxDRMFiles           ->setChecked( m_pData->m_bDRMAllowed            );
-	ui->checkBoxFilesAlreadyHave   ->setChecked( m_pData->m_bExistsInLibraryAllowed );
-	ui->checkBoxFirewalledPushHosts->setChecked( m_pData->m_bFirewalledAllowed     );
-	ui->checkBoxIncompleteFiles    ->setChecked( m_pData->m_bIncompleteAllowed     );
-	ui->checkBoxNonMatchingFiles   ->setChecked( m_pData->m_bNonMatchingAllowed    );
-	ui->checkBoxSuspiciousFiles    ->setChecked( m_pData->m_bSuspiciousAllowed     );
-	ui->checkBoxUnreachableHosts   ->setChecked( m_pData->m_bUnstableAllowed       );
+	m_pFilters->repopulate( *ui->comboBoxFilters, rData.m_sFilterName );
+	// Note: triggers on_comboBoxFilters_currentIndexChanged()
 }
 
 DialogFilterSearch::~DialogFilterSearch()
@@ -92,7 +70,37 @@ void DialogFilterSearch::changeEvent( QEvent* e )
 	}
 }
 
-void DialogFilterSearch::on_pushButtonFilter_clicked()
+void DialogFilterSearch::updateGUIFromData()
+{
+	ui->lineEditWords->setText(                m_oWorkingData.m_sMatchString );
+	ui->checkBoxRegularExpression->setChecked( m_oWorkingData.m_bRegExp      );
+
+	const quint64 MAX_VAL = 18446744073709551615; // max value of 64 bit int
+	QString sMinSize = m_oWorkingData.m_nMinSize ?
+						   common::writeSizeInWholeBytes( m_oWorkingData.m_nMinSize ) : "";
+	QString sMaxSize = m_oWorkingData.m_nMaxSize != MAX_VAL ?
+						   common::writeSizeInWholeBytes( m_oWorkingData.m_nMaxSize ) : "";
+
+	ui->lineEditMinimumSize->setText( sMinSize );
+	ui->lineEditMaximumSize->setText( sMaxSize );
+
+	ui->spinBoxMinimumSources->setValue( m_oWorkingData.m_nMinSources );
+
+	ui->checkBoxAdultResults       ->setChecked( m_oWorkingData.m_bAdultAllowed            );
+	ui->checkBoxBogusResults       ->setChecked( m_oWorkingData.m_bBogusAllowed            );
+	ui->checkBoxBusyHosts          ->setChecked( m_oWorkingData.m_bBusyAllowed             );
+	ui->checkBoxDRMFiles           ->setChecked( m_oWorkingData.m_bDRMAllowed              );
+	ui->checkBoxFilesAlreadyHave   ->setChecked( m_oWorkingData.m_bExistsInLibraryAllowed  );
+	ui->checkBoxFirewalledPushHosts->setChecked( m_oWorkingData.m_bFirewalledAllowed       );
+	ui->checkBoxIncompleteFiles    ->setChecked( m_oWorkingData.m_bIncompleteAllowed       );
+	ui->checkBoxNonMatchingFiles   ->setChecked( m_oWorkingData.m_bNonMatchingAllowed      );
+	ui->checkBoxSuspiciousFiles    ->setChecked( m_oWorkingData.m_bSuspiciousAllowed       );
+	ui->checkBoxUnreachableHosts   ->setChecked( m_oWorkingData.m_bUnstableAllowed         );
+
+	ui->checkBoxDefaultFilter      ->setChecked( m_sSelection == m_pFilters->defaultName() );
+}
+
+void DialogFilterSearch::updateDataFromGUI()
 {
 	/*
 	// filter attributes
@@ -116,28 +124,37 @@ void DialogFilterSearch::on_pushButtonFilter_clicked()
 
 	const quint64 MAX_VAL = 18446744073709551615; // max value of 64 bit int
 
-	m_pData->m_sMatchString     = ui->lineEditWords->text();
-	m_pData->m_bRegExp          = ui->checkBoxRegularExpression->isChecked();
+	m_oWorkingData.m_sMatchString = ui->lineEditWords->text();
+	m_oWorkingData.m_bRegExp      = ui->checkBoxRegularExpression->isChecked();
 
 	bool bOK = true;
-	m_pData->m_nMinSize         = common::readSizeInBytes( ui->lineEditMinimumSize->text(), bOK );
-	m_pData->m_nMinSize         = bOK ? m_pData->m_nMinSize : 0;
+	m_oWorkingData.m_nMinSize     = common::readSizeInBytes( ui->lineEditMinimumSize->text(), bOK );
+	m_oWorkingData.m_nMinSize     = bOK ? m_oWorkingData.m_nMinSize : 0;
 
-	m_pData->m_nMaxSize         = common::readSizeInBytes( ui->lineEditMaximumSize->text(), bOK );
-	m_pData->m_nMaxSize         = bOK ? m_pData->m_nMaxSize : MAX_VAL;
+	m_oWorkingData.m_nMaxSize     = common::readSizeInBytes( ui->lineEditMaximumSize->text(), bOK );
+	m_oWorkingData.m_nMaxSize     = bOK ? m_oWorkingData.m_nMaxSize : MAX_VAL;
 
-	m_pData->m_nMinSources      = ui->spinBoxMinimumSources->value();
+	m_oWorkingData.m_nMinSources  = ui->spinBoxMinimumSources->value();
 
-	m_pData->m_bAdultAllowed           = ui->checkBoxAdultResults->isChecked();
-	m_pData->m_bBogusAllowed           = ui->checkBoxBogusResults->isChecked();
-	m_pData->m_bBusyAllowed            = ui->checkBoxBusyHosts->isChecked();
-	m_pData->m_bDRMAllowed             = ui->checkBoxDRMFiles->isChecked();
-	m_pData->m_bExistsInLibraryAllowed = ui->checkBoxFilesAlreadyHave->isChecked();
-	m_pData->m_bFirewalledAllowed      = ui->checkBoxFirewalledPushHosts->isChecked();
-	m_pData->m_bIncompleteAllowed      = ui->checkBoxIncompleteFiles->isChecked();
-	m_pData->m_bNonMatchingAllowed     = ui->checkBoxNonMatchingFiles->isChecked();
-	m_pData->m_bSuspiciousAllowed      = ui->checkBoxSuspiciousFiles->isChecked();
-	m_pData->m_bUnstableAllowed        = ui->checkBoxUnreachableHosts->isChecked();
+	m_oWorkingData.m_bAdultAllowed           = ui->checkBoxAdultResults->isChecked();
+	m_oWorkingData.m_bBogusAllowed           = ui->checkBoxBogusResults->isChecked();
+	m_oWorkingData.m_bBusyAllowed            = ui->checkBoxBusyHosts->isChecked();
+	m_oWorkingData.m_bDRMAllowed             = ui->checkBoxDRMFiles->isChecked();
+	m_oWorkingData.m_bExistsInLibraryAllowed = ui->checkBoxFilesAlreadyHave->isChecked();
+	m_oWorkingData.m_bFirewalledAllowed      = ui->checkBoxFirewalledPushHosts->isChecked();
+	m_oWorkingData.m_bIncompleteAllowed      = ui->checkBoxIncompleteFiles->isChecked();
+	m_oWorkingData.m_bNonMatchingAllowed     = ui->checkBoxNonMatchingFiles->isChecked();
+	m_oWorkingData.m_bSuspiciousAllowed      = ui->checkBoxSuspiciousFiles->isChecked();
+	m_oWorkingData.m_bUnstableAllowed        = ui->checkBoxUnreachableHosts->isChecked();
+}
+
+void DialogFilterSearch::on_pushButtonFilter_clicked()
+{
+	// update m_oWorkingData
+	updateDataFromGUI();
+
+	// update filter data in the parent
+	m_rFilterData = m_oWorkingData;
 
 	emit filterClicked();
 	close();
@@ -150,15 +167,73 @@ void DialogFilterSearch::on_pushButtonCancel_clicked()
 
 void DialogFilterSearch::setSkin()
 {
-
 }
 
-void DialogFilterSearch::on_pushButtonSaveAs_clicked()
+void DialogFilterSearch::on_pushButtonSave_clicked()
 {
+	updateDataFromGUI();
 
+	QString sNewName = ui->comboBoxFilters->currentText();
+
+	if ( m_sSelection == "" )
+	{
+		// duplicate the entry without a name to allow adding more filters in the future
+		Q_ASSERT( m_oWorkingData.m_sFilterName == "" );
+		m_pFilters->insert( m_oWorkingData );
+
+		if ( ui->comboBoxFilters->count() == 1 )
+		{
+			ui->pushButtonDelete->setDisabled( false );
+		}
+	}
+	else if ( m_sSelection != sNewName )
+	{
+		// rename the previously saved filter
+		m_pFilters->rename( m_sSelection, sNewName );
+	}
+
+	// add or update the entry
+	m_oWorkingData.m_sFilterName = sNewName;
+	m_pFilters->insert( m_oWorkingData );
+
+	if ( ui->checkBoxDefaultFilter->isChecked() )
+	{
+		m_pFilters->setDefault( sNewName );
+	}
+
+	m_pFilters->repopulate( *ui->comboBoxFilters, sNewName );
+	// Note: automatically trigers on_comboBoxFilters_currentIndexChanged()
 }
 
 void DialogFilterSearch::on_pushButtonDelete_clicked()
 {
+	if ( !m_sSelection.isEmpty() ) // don't remove item with empty name.
+	{
+		QComboBox* pBox = ui->comboBoxFilters;
 
+		m_pFilters->remove( m_sSelection );
+
+		int nNewTextPos = pBox->currentIndex();
+		if ( ++nNewTextPos == pBox->count() )
+		{
+			nNewTextPos -= 2;
+		}
+
+		// select the previous item - which always exists as the empty item is always the first and
+		// cannot be removed
+		m_pFilters->repopulate( *pBox, pBox->itemText( nNewTextPos ) );
+		// Note: automatically trigers on_comboBoxFilters_currentIndexChanged()
+
+		if ( ui->comboBoxFilters->count() == 1 )
+		{
+			ui->pushButtonDelete->setDisabled( true );
+		}
+	}
+}
+
+void DialogFilterSearch::on_comboBoxFilters_currentIndexChanged( int )
+{
+	m_sSelection = ui->comboBoxFilters->currentText();
+	m_pFilters->select( m_sSelection, m_oWorkingData );
+	updateGUIFromData();
 }
