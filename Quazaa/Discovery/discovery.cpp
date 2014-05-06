@@ -532,7 +532,7 @@ bool Manager::asyncSyncSavingHelper()
 
 	postLog( LogSeverity::Debug, tr( "%1 services saved." ).arg( nCount ) );
 
-	return true;
+	return nCount;
 }
 
 void Manager::asyncRequestServiceListHelper()
