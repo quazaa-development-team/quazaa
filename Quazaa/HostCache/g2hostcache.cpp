@@ -81,13 +81,13 @@ G2HostCache::~G2HostCache()
  * @param host: the EndPoint
  * @param tTimeStamp: its timestamp
  */
-void G2HostCache::add( const EndPoint host, const quint32 tTimeStamp )
+void G2HostCache::add( const EndPoint& oHost, const quint32 tTimeStamp )
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "add()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
-	QMetaObject::invokeMethod( this, "addSync", Qt::QueuedConnection, Q_ARG( EndPoint, host ),
+	QMetaObject::invokeMethod( this, "addSync", Qt::QueuedConnection, Q_ARG( EndPoint, oHost ),
 							   Q_ARG( quint32, tTimeStamp ), Q_ARG( bool, true ) );
 }
 
@@ -100,14 +100,14 @@ void G2HostCache::add( const EndPoint host, const quint32 tTimeStamp )
  * @param nKey
  * @param tNow
  */
-void G2HostCache::addKey( const EndPoint host, const quint32 tTimeStamp, EndPoint* pKeyHost, const quint32 nKey,
-						  const quint32 tNow )
+void G2HostCache::addKey( const EndPoint& oHost, const quint32 tTimeStamp, EndPoint* pKeyHost,
+						  const quint32 nKey, const quint32 tNow )
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "addKey()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
-	QMetaObject::invokeMethod( this, "addSyncKey", Qt::QueuedConnection, Q_ARG( EndPoint, host ),
+	QMetaObject::invokeMethod( this, "addSyncKey", Qt::QueuedConnection, Q_ARG( EndPoint, oHost ),
 							   Q_ARG( quint32, tTimeStamp ), Q_ARG( EndPoint*, pKeyHost ),
 							   Q_ARG( quint32, nKey ),       Q_ARG( quint32, tNow ),
 							   Q_ARG( bool, true ) );
@@ -121,19 +121,21 @@ void G2HostCache::addKey( const EndPoint host, const quint32 tTimeStamp, EndPoin
  * @param tAck
  * @param tNow
  */
-void G2HostCache::addAck( const EndPoint host, const quint32 tTimeStamp, const quint32 tAck, const quint32 tNow )
+void G2HostCache::addAck( const EndPoint& oHost, const quint32 tTimeStamp, const quint32 tAck,
+						  const quint32 tNow )
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "addAck()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
-	QMetaObject::invokeMethod( this, "addSyncAck", Qt::QueuedConnection, Q_ARG( EndPoint, host ),
+	QMetaObject::invokeMethod( this, "addSyncAck", Qt::QueuedConnection, Q_ARG( EndPoint, oHost ),
 							   Q_ARG( quint32, tTimeStamp ), Q_ARG( quint32, tAck ),
 							   Q_ARG( quint32, tNow ), Q_ARG( bool, true ) );
 }
 
 /**
- * @brief CHostCache::get allows you to access the CHostCacheHost object pertaining to a given EndPoint.
+ * @brief CHostCache::get allows you to access the CHostCacheHost object pertaining to a given
+ * EndPoint.
  * Locking: REQUIRED
  * @param oHost: The EndPoint.
  * @return the CHostCacheHost; NULL if the EndPoint has not been found in the cache.
@@ -307,7 +309,7 @@ void G2HostCache::remove( SharedG2HostPtr pHost )
  * Locking: YES (asynchronous)
  * @param sHeader: a string representation of value part of the X-Try header.
  */
-void G2HostCache::addXTry( QString sHeader )
+void G2HostCache::addXTry(const QString& sHeader )
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "addXTry(QString)" ) );
@@ -457,8 +459,8 @@ SharedG2HostPtr G2HostCache::getConnectable( const QSet<SharedG2HostPtr>& oExcep
 
 	if ( m_nConnectablesAtomic.load() )
 	{
-		// First try untested or working hosts, then fall back to failed hosts to increase chances for
-		// successful connection
+		// First try untested or working hosts, then fall back to failed hosts to increase chances
+		// for successful connection
 		for ( G2HostCacheConstIterator it = m_lHosts.begin(); it != m_lHosts.end(); ++it )
 		{
 			const SharedG2HostPtr& pHost = *it;
@@ -1075,7 +1077,7 @@ void G2HostCache::stopInternal()
  * @param tNow: the current time in sec since 1970-01-01 UTC.
  * @return the CHostCacheHost pointer pertaining to the EndPoint
  */
-SharedG2HostPtr G2HostCache::addSyncHelper( const EndPoint& oHostIP, quint32 tTimeStamp,
+SharedG2HostPtr G2HostCache::addSyncHelper(const EndPoint& oHost, quint32 tTimeStamp,
 											const quint32 tNow, quint32 nFailures )
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
@@ -1084,12 +1086,12 @@ SharedG2HostPtr G2HostCache::addSyncHelper( const EndPoint& oHostIP, quint32 tTi
 
 	ASSUME_LOCK( m_pSection );
 
-	if ( !oHostIP.isValid() )
+	if ( !oHost.isValid() )
 	{
 		return SharedG2HostPtr();
 	}
 
-	if ( oHostIP.isFirewalled() )
+	if ( oHost.isFirewalled() )
 	{
 		return SharedG2HostPtr();
 	}
@@ -1105,7 +1107,7 @@ SharedG2HostPtr G2HostCache::addSyncHelper( const EndPoint& oHostIP, quint32 tTi
 	// At this point the security check should already have been performed.
 	// TODO: fix this! The Host Cache is not the place where security checks should be made.
 	//Q_ASSERT( !securityManager.isDenied( oHostIP ) );
-	if ( securityManager.isDenied( oHostIP ) )
+	if ( securityManager.isDenied( oHost ) )
 	{
 		return SharedG2HostPtr();
 	}
@@ -1113,7 +1115,7 @@ SharedG2HostPtr G2HostCache::addSyncHelper( const EndPoint& oHostIP, quint32 tTi
 
 	// TODO: handle local IP changes - m_oLokalAddress might be unknown when adding own IP
 	// Don't add own IP to the cache.
-	if ( oHostIP == m_oLokalAddress )
+	if ( oHost == m_oLokalAddress )
 	{
 		return SharedG2HostPtr();
 	}
@@ -1125,7 +1127,7 @@ SharedG2HostPtr G2HostCache::addSyncHelper( const EndPoint& oHostIP, quint32 tTi
 
 	{
 		// update existing if such can be found
-		G2HostCacheIterator itPrevious = find( oHostIP );
+		G2HostCacheIterator itPrevious = find( oHost );
 
 		if ( itPrevious != m_lHosts.end() )
 		{
@@ -1135,7 +1137,7 @@ SharedG2HostPtr G2HostCache::addSyncHelper( const EndPoint& oHostIP, quint32 tTi
 	}
 
 	// create host, find place in sorted list, insert it there
-	SharedG2HostPtr pNew = SharedG2HostPtr( new G2HostCacheHost( oHostIP, tTimeStamp, nFailures ) );
+	SharedG2HostPtr pNew = SharedG2HostPtr( new G2HostCacheHost( oHost, tTimeStamp, nFailures ) );
 	insert( pNew );
 
 	return pNew;

@@ -76,10 +76,10 @@ public:
 	G2HostCache();
 	~G2HostCache();
 
-	void add( const EndPoint host, const quint32 tTimeStamp );
-	void addKey( const EndPoint host, const quint32 tTimeStamp,
+	void add( const EndPoint& oHost, const quint32 tTimeStamp );
+	void addKey( const EndPoint& oHost, const quint32 tTimeStamp,
 				 EndPoint* pKeyHost, const quint32 nKey, const quint32 tNow );
-	void addAck( const EndPoint host, const quint32 tTimeStamp,
+	void addAck( const EndPoint& oHost, const quint32 tTimeStamp,
 				 const quint32 tAck, const quint32 tNow );
 
 	SharedG2HostPtr get( const EndPoint& oHost ) const;
@@ -87,7 +87,7 @@ public:
 
 	void updateFailures( const EndPoint& oAddress, const quint32 nFailures );
 
-private: // remove this private if this is ever required...
+private: // remove this private if this is ever required
 //	SharedG2HostPtr update(const EndPoint& oHost,     const quint32 tTimeStamp);
 	SharedG2HostPtr update( G2HostCacheIterator& itHost, const quint32 tTimeStamp,
 							const quint32 nFailures );
@@ -96,7 +96,7 @@ public:
 	void remove( const EndPoint& oHost );
 	void remove( SharedG2HostPtr pHost );
 
-	void addXTry( QString sHeader );
+	void addXTry( const QString& sHeader );
 	QString getXTry() const;
 
 	void onFailure( const EndPoint& addr );
@@ -153,7 +153,7 @@ private:
 	 */
 	void stopInternal();
 
-	SharedG2HostPtr addSyncHelper( const EndPoint& oHostIP, quint32 tTimeStamp,
+	SharedG2HostPtr addSyncHelper( const EndPoint& oHost, quint32 tTimeStamp,
 								   const quint32 tNow, quint32 nNewFailures = 0 );
 
 	void insert( SharedG2HostPtr pNew );
