@@ -1028,14 +1028,9 @@ void G2HostCache::maintainInternal()
 		save( tNow );
 	}
 
-	// TODO: update m_bcon on attribute updates
-	// TODO: check if statement
-
-	// Update m_bConnectable for all hosts that are currently marked as unconnectable
+	// update m_bConnectable for all hosts
 	const quint16 tFailurePenalty = quazaaSettings.Connection.FailurePenalty;
 	qint32 tThrottle = ( ( qint32 )quazaaSettings.Gnutella.ConnectThrottle ) - tFailurePenalty;
-
-	Q_ASSERT( ( qint64 )tNow > tThrottle ); // if not, the following bool statement is wrong
 
 	int nConnectables = 0;
 	bool bConnectable;
@@ -1044,15 +1039,8 @@ void G2HostCache::maintainInternal()
 		const SharedG2HostPtr& pHost = *it;
 		if ( pHost )
 		{
-			bConnectable = pHost->connectable();
-			// Note: if ( !pHost->m_tLastConnect ), the following statement also evaluates to true.
-			if ( !bConnectable )
-			{
-				bConnectable = tNow > pHost->lastConnect() + tThrottle;
-				pHost->setConnectable( bConnectable );
-				m_nConnectablesAtomic.fetchAndAddRelaxed( bConnectable );
-			}
-
+			bConnectable = tNow > pHost->lastConnect() + tThrottle;
+			pHost->setConnectable( bConnectable );
 			nConnectables += bConnectable;
 		}
 		else // This will be triggered immediately at least once as the first node is always NULL.
@@ -1062,14 +1050,12 @@ void G2HostCache::maintainInternal()
 		}
 	}
 
+	m_nConnectablesAtomic.store( nConnectables );
+
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	qDebug() << "Number of connectable Hosts: "
 			 << QString::number( nConnectables ).toLocal8Bit().data();
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
-
-	// TODO: remoe both lines in alpha1
-	Q_ASSERT( nConnectables == m_nConnectablesAtomic.load() );
-	Q_ASSERT( m_nConnectablesAtomic.load() >= 0 );
 }
 
 /**
@@ -1125,6 +1111,7 @@ SharedG2HostPtr G2HostCache::addSyncHelper( const EndPoint& oHostIP, quint32 tTi
 	}
 #endif // QUAZAA_SETUP_UNIT_TESTS
 
+	// TODO: handle local IP changes - m_oLokalAddress might be unknown when adding own IP
 	// Don't add own IP to the cache.
 	if ( oHostIP == m_oLokalAddress )
 	{

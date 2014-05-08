@@ -81,7 +81,7 @@ public:
 		return m_nType;
 	}
 
-	inline EndPoint address()       const
+	inline EndPoint address()        const
 	{
 		return m_oAddress;
 	}
