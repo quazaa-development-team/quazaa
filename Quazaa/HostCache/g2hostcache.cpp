@@ -1343,12 +1343,10 @@ G2HostCacheIterator G2HostCache::find( const G2HostCacheHost* const pHost )
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	ASSUME_LOCK( m_pSection );
-	Q_ASSERT( pHost->failures() <= m_nMaxFailures );
 
-	// TODO: test this
 	Q_ASSERT( pHost->iteratorValid() );
 
-	return pHost->iteratorValid() ? pHost->iterator() : m_lHosts.end();
+	return pHost->iterator();
 }
 
 G2HostCacheConstIterator G2HostCache::find( const G2HostCacheHost* const pHost ) const

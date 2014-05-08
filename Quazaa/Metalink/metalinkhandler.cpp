@@ -93,9 +93,7 @@ void MetalinkHandler::postParsingInfo( const int line, const QString sInfo ) con
 	info += tr( "Line %1: " ).arg( line );
 	info += sInfo;
 
-	// TODO: Check info level
-
-	systemLog.postLog( LogSeverity::Information, info );
+	systemLog.postLog( LogSeverity::Debug, info );
 }
 
 QFile& MetalinkHandler::getEmptyStaticFile()
