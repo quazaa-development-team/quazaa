@@ -41,6 +41,7 @@
 // 8 - Added Polymorphism and type indicator (m_nType)
 
 // TODO: test changes of m_nMaxFailures under load
+// TODO: add method for adding requesting a security check to be done within this thread
 // TODO: things to test
 //  12:58:39 brov: 1. does it use hosts from host cache b4 GWC query succeeds
 //  12:59:25 brov: 2. search manager must request query keys directly from other nodes (use a random search string)
@@ -78,7 +79,7 @@ public:
 
 	void add( const EndPoint& oHost, const quint32 tTimeStamp );
 	void addKey( const EndPoint& oHost, const quint32 tTimeStamp,
-				 EndPoint* pKeyHost, const quint32 nKey, const quint32 tNow );
+				 const EndPoint& oKeyHost, const quint32 nKey, const quint32 tNow );
 	void addAck( const EndPoint& oHost, const quint32 tTimeStamp,
 				 const quint32 tAck, const quint32 tNow );
 
@@ -87,10 +88,10 @@ public:
 
 	void updateFailures( const EndPoint& oAddress, const quint32 nFailures );
 
-private: // remove this private if this is ever required
-//	SharedG2HostPtr update(const EndPoint& oHost,     const quint32 tTimeStamp);
+private:
+//	SharedG2HostPtr update( const EndPoint& oHost,       const quint32 tTimeStamp );
 	SharedG2HostPtr update( G2HostCacheIterator& itHost, const quint32 tTimeStamp,
-							const quint32 nFailures );
+							const quint32 nFailures = 0 );
 
 public:
 	void remove( const EndPoint& oHost );
@@ -133,7 +134,7 @@ public slots:
 
 private slots:
 	SharedG2HostPtr addSync( EndPoint host, quint32 tTimeStamp, bool bLock );
-	SharedG2HostPtr addSyncKey( EndPoint host, quint32 tTimeStamp, EndPoint* pKeyHost,
+	SharedG2HostPtr addSyncKey( EndPoint host, quint32 tTimeStamp, EndPoint oKeyHost,
 								const quint32 nKey, const quint32 tNow, bool bLock );
 	SharedG2HostPtr addSyncAck( EndPoint host, quint32 tTimeStamp, const quint32 tAck,
 								const quint32 tNow, bool bLock );

@@ -120,7 +120,7 @@ public:
 	void onPong  ( G2Packet* pPacket, const EndPoint& addr );
 	void onCRAWLR( G2Packet* pPacket, const EndPoint& addr );
 	void onQKR   ( G2Packet* pPacket, const EndPoint& addr );
-	void onQKA   ( G2Packet* pPacket, const EndPoint& addr );
+	void onQKA   ( G2Packet* pPacket, const EndPoint& oHost );
 	void onQA    ( G2Packet* pPacket, const EndPoint& addr );
 	void onQH2   ( G2Packet* pPacket, const EndPoint& addr );
 	void onQuery ( G2Packet* pPacket, const EndPoint& addr );

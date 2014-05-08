@@ -78,7 +78,7 @@ G2HostCache::~G2HostCache()
 /**
  * @brief CHostCache::add adds a EndPoint asynchronously to the Host Cache.
  * Locking: YES (asynchronous)
- * @param host: the EndPoint
+ * @param oHost: the EndPoint - is expected to have been checked against the security manager
  * @param tTimeStamp: its timestamp
  */
 void G2HostCache::add( const EndPoint& oHost, const quint32 tTimeStamp )
@@ -94,13 +94,13 @@ void G2HostCache::add( const EndPoint& oHost, const quint32 tTimeStamp )
 /**
  * @brief CHostCache::addKey adds a EndPoint asynchronously to the Host Cache.
  * Locking: YES (asynchronous)
- * @param host
+ * @param oHost: the EndPoint - is expected to have been checked against the security manager
  * @param tTimeStamp
- * @param pKeyHost
+ * @param oKeyHost
  * @param nKey
  * @param tNow
  */
-void G2HostCache::addKey( const EndPoint& oHost, const quint32 tTimeStamp, EndPoint* pKeyHost,
+void G2HostCache::addKey( const EndPoint& oHost, const quint32 tTimeStamp, const EndPoint& oKeyHost,
 						  const quint32 nKey, const quint32 tNow )
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
@@ -108,7 +108,7 @@ void G2HostCache::addKey( const EndPoint& oHost, const quint32 tTimeStamp, EndPo
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	QMetaObject::invokeMethod( this, "addSyncKey", Qt::QueuedConnection, Q_ARG( EndPoint, oHost ),
-							   Q_ARG( quint32, tTimeStamp ), Q_ARG( EndPoint*, pKeyHost ),
+							   Q_ARG( quint32, tTimeStamp ), Q_ARG( EndPoint, oKeyHost ),
 							   Q_ARG( quint32, nKey ),       Q_ARG( quint32, tNow ),
 							   Q_ARG( bool, true ) );
 }
@@ -116,7 +116,7 @@ void G2HostCache::addKey( const EndPoint& oHost, const quint32 tTimeStamp, EndPo
 /**
  * @brief CHostCache::addAck adds a EndPoint asynchronously to the Host Cache.
  * Locking: YES (asynchronous)
- * @param host
+ * @param oHost: the EndPoint - is expected to have been checked against the security manager
  * @param tTimeStamp
  * @param tAck
  * @param tNow
@@ -201,17 +201,14 @@ void G2HostCache::updateFailures( const EndPoint& oAddress, const quint32 nFailu
  * @param tTimeStamp: its new timestamp
  * @return the CHostCacheHost pointer pertaining to the updated host.
  */
-/*CHostCacheHost* CHostCache::update(const EndPoint& oHost, const quint32 tTimeStamp)
+/*SharedG2HostPtr CHostCache::update(const EndPoint& oHost, const quint32 tTimeStamp)
 {
 	ASSUME_LOCK( m_pSection );
 
-	quint8 nFailures;
-	THostCacheIterator it = find( oHost, nFailures );
+	HostCacheIterator it = find( oHost );
 
-	Q_ASSERT( nFailures < m_vlHosts.size() );
-
-	if ( it == m_vlHosts[nFailures].end() )
-		return NULL;
+	if ( it == m_lHosts.end() )
+		return SharedG2HostPtr();
 
 	return update( it, tTimeStamp );
 }*/
@@ -786,12 +783,12 @@ SharedG2HostPtr G2HostCache::addSync( EndPoint host, quint32 tTimeStamp, bool bL
  * Locking: YES
  * @param host: the EndPoint
  * @param tTimeStamp: its timestamp
- * @param pKeyHost: the query key host
+ * @param oKeyHost: the query key host
  * @param nKey: the query key
  * @param tNow: the current time in sec since 1970-01-01 UTC.
  * @return the CHostCacheHost pointer pertaining to the EndPoint
  */
-SharedG2HostPtr G2HostCache::addSyncKey( EndPoint host, quint32 tTimeStamp, EndPoint* pKeyHost,
+SharedG2HostPtr G2HostCache::addSyncKey( EndPoint host, quint32 tTimeStamp, EndPoint oKeyHost,
 										 const quint32 nKey, const quint32 tNow, bool bLock )
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
@@ -807,7 +804,7 @@ SharedG2HostPtr G2HostCache::addSyncKey( EndPoint host, quint32 tTimeStamp, EndP
 
 	if ( pReturn )
 	{
-		pReturn->setKey( nKey, tNow, pKeyHost );
+		pReturn->setKey( nKey, tNow, oKeyHost );
 	}
 
 	if ( bLock )
@@ -1086,32 +1083,21 @@ SharedG2HostPtr G2HostCache::addSyncHelper(const EndPoint& oHost, quint32 tTimeS
 
 	ASSUME_LOCK( m_pSection );
 
-	if ( !oHost.isValid() )
-	{
-		return SharedG2HostPtr();
-	}
+	Q_ASSERT( oHost.isValid() );
+	Q_ASSERT( nFailures <= m_nMaxFailures );
 
 	if ( oHost.isFirewalled() )
 	{
 		return SharedG2HostPtr();
 	}
 
-	Q_ASSERT( nFailures <= m_nMaxFailures ); //TODO: if this gets triggered, just comment it out. :)
-	if ( nFailures > m_nMaxFailures )
-	{
-		return SharedG2HostPtr();
-	}
-
+#ifdef _DEBUG
 	// We don't want to call an improperly set up security manager during unit tests.
 #ifndef QUAZAA_SETUP_UNIT_TESTS
 	// At this point the security check should already have been performed.
-	// TODO: fix this! The Host Cache is not the place where security checks should be made.
-	//Q_ASSERT( !securityManager.isDenied( oHostIP ) );
-	if ( securityManager.isDenied( oHost ) )
-	{
-		return SharedG2HostPtr();
-	}
+	Q_ASSERT( !securityManager.isDenied( oHost ) );
 #endif // QUAZAA_SETUP_UNIT_TESTS
+#endif //_DEBUG
 
 	// TODO: handle local IP changes - m_oLokalAddress might be unknown when adding own IP
 	// Don't add own IP to the cache.
@@ -1125,15 +1111,13 @@ SharedG2HostPtr G2HostCache::addSyncHelper(const EndPoint& oHost, quint32 tTimeS
 		tTimeStamp = tNow - 60 ;
 	}
 
-	{
-		// update existing if such can be found
-		G2HostCacheIterator itPrevious = find( oHost );
+	// update existing if such can be found
+	G2HostCacheIterator itPrevious = find( oHost );
 
-		if ( itPrevious != m_lHosts.end() )
-		{
-			SharedG2HostPtr pUpdate = update( itPrevious, tTimeStamp, nFailures );
-			return pUpdate;
-		}
+	if ( itPrevious != m_lHosts.end() )
+	{
+		SharedG2HostPtr pUpdate = update( itPrevious, tTimeStamp, nFailures );
+		return pUpdate;
 	}
 
 	// create host, find place in sorted list, insert it there

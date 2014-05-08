@@ -42,7 +42,7 @@ class G2HostCacheHost : public HostCacheHost
 {
 private:
 	quint32     m_nQueryKey;    // QK
-	EndPoint   m_oKeyHost;     // host dla ktorego jest QK
+	EndPoint    m_oKeyHost;     // host dla ktorego jest QK
 	quint32     m_nKeyTime;     // kiedy odebrano OK?
 
 	quint32     m_tAck;         // czas ostatniej operacji wymagajacej potwierdzenia
@@ -55,7 +55,8 @@ private:
 
 public:
 	G2HostCacheHost( const EndPoint& oAddress, const quint32 tTimestamp, const quint8 nFailures );
-	G2HostCacheHost( const G2HostCacheHost& oHost, const quint32 tTimestamp, const quint8 nFailures );
+	G2HostCacheHost( const G2HostCacheHost& oHost, const quint32 tTimestamp,
+					 const quint8 nFailures );
 
 private:
 	G2HostCacheHost( const G2HostCacheHost& ); // avoids unintentionnal copies
@@ -64,7 +65,7 @@ public:
 	~G2HostCacheHost();
 
 	bool canQuery( const quint32 tNow = common::getTNowUTC() ) const;
-	void setKey( quint32 nKey, const quint32 tNow = common::getTNowUTC(), EndPoint* pHost = NULL );
+	void setKey( quint32 nKey, const quint32 tNow, const EndPoint& rHost );
 
 	inline quint32   queryKey()      const
 	{

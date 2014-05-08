@@ -338,20 +338,22 @@ bool SearchManager::onQueryAcknowledge( G2Packet* pPacket, const EndPoint& oSend
 						   nSearchedLeaves, nSuggestedHubs, tRetryAfter,
 						   ( sVendor.isEmpty() ? "unknown" : qPrintable( sVendor ) ), ( bLikelyFoxy ? "yes" : "no" ) );
 
-		// Add Hubs to the cache
+		// add/update searched Hubs to the cache
 		if ( Q_LIKELY( !bLikelyFoxy ) )
 		{
-			for ( QList<EndPoint>::iterator itHub = lDoneHubs.begin(); itHub != lDoneHubs.end(); ++itHub )
+			for ( QList<EndPoint>::iterator itHub = lDoneHubs.begin();
+				  itHub != lDoneHubs.end(); ++itHub )
 			{
-				if ( ( *itHub ).port() )
+				if ( ( *itHub ).port() && !securityManager.isDenied( *itHub ) )
 				{
 					hostCache.add( *itHub, tNow );
 				}
 			}
 
-			for ( QHash<EndPoint, quint32>::iterator itHub = lSuggestedHubs.begin(); itHub != lSuggestedHubs.end(); ++itHub )
+			for ( QHash<EndPoint, quint32>::iterator itHub = lSuggestedHubs.begin();
+				  itHub != lSuggestedHubs.end(); ++itHub )
 			{
-				if ( itHub.key().port() )
+				if ( itHub.key().port() && !securityManager.isDenied( itHub.key() ) )
 				{
 					hostCache.add( itHub.key(), itHub.value() );
 				}

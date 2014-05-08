@@ -22,6 +22,7 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#include "Security/securitymanager.h"
 #include "network.h"
 #include "version.h"
 
@@ -207,8 +208,8 @@ void GWC::requestCompleted( QNetworkReply* pReply )
 	quint16 nHosts = 0;
 	quint16 nURLs  = 0;
 
-	bool bUpdateOK = false;     // in case we did update, was it successful?
-	QList<QString>   lURLList;  // alternate services returned by the GWC
+	bool bUpdateOK = false;    // in case we did update, was it successful?
+	QList<QString>  lURLList;  // alternate services returned by the GWC
 	QList<EndPoint> lHostList; // hosts returned by the GWC
 
 	if ( pReply->error() == QNetworkReply::NoError )
@@ -360,7 +361,10 @@ void GWC::requestCompleted( QNetworkReply* pReply )
 
 	while ( lHostList.size() )
 	{
-		hostCache.add( lHostList.back(), tNow );
+		if ( !securityManager.isDenied( lHostList.back() ) )
+		{
+			hostCache.add( lHostList.back(), tNow );
+		}
 		lHostList.pop_back();
 	}
 

@@ -934,7 +934,7 @@ void Datagrams::onQKR( G2Packet* pPacket, const EndPoint& addr )
 #endif // LOG_QUERY_HANDLING
 }
 
-void Datagrams::onQKA( G2Packet* pPacket, const EndPoint& addr )
+void Datagrams::onQKA( G2Packet* pPacket, const EndPoint& oHost )
 {
 	if ( !pPacket->m_bCompound )
 	{
@@ -974,7 +974,7 @@ void Datagrams::onQKA( G2Packet* pPacket, const EndPoint& addr )
 
 	{
 		const quint32 tNow = common::getTNowUTC();
-		hostCache.addKey( addr, tNow, NULL, nKey, tNow );
+		hostCache.addKey( oHost, tNow, networkG2.localAddress(), nKey, tNow );
 	}
 
 #if LOG_QUERY_HANDLING
@@ -983,10 +983,11 @@ void Datagrams::onQKA( G2Packet* pPacket, const EndPoint& addr )
 	//qDebug("Got a query key for %s = 0x%x", addr.toString().toLocal8Bit().constData(), nKey);
 #endif // LOG_QUERY_HANDLING
 
-	if ( neighbours.isG2Hub() && !nKeyHost.isNull() && nKeyHost != ( ( QHostAddress )networkG2.m_oAddress ) )
+	if ( neighbours.isG2Hub() && !nKeyHost.isNull() &&
+		 nKeyHost != ( ( QHostAddress )networkG2.m_oAddress ) )
 	{
 		G2Packet* pQNA = G2Packet::newPacket( "QNA" );
-		pQNA->writeHostAddress( addr );
+		pQNA->writeHostAddress( oHost );
 		pPacket->prependPacket( pQNA );
 
 		neighbours.m_pSection.lock();

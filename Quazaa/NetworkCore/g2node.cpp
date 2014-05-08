@@ -1094,9 +1094,11 @@ void G2Node::onKHL( G2Packet* pPacket )
 
 			QString sVendor;
 
+			// TODO: check IP against security first before continuing to parse this?
 			if ( bCompound )
 			{
-				while ( pPacket->m_nPosition < nNext && pPacket->readPacket( &szInner[0], nInnerLength ) )
+				while ( pPacket->m_nPosition < nNext &&
+						pPacket->readPacket( &szInner[0], nInnerLength ) )
 				{
 					nInnerNext = pPacket->m_nPosition + nInnerLength;
 
@@ -1113,34 +1115,36 @@ void G2Node::onKHL( G2Packet* pPacket )
 
 			if ( nLength >= 10 )
 			{
-				EndPoint ep;
+				EndPoint oHost;
 				// quint32 nTs = 0;
 
 				if ( nLength >= 22 )
 				{
-					pPacket->readHostAddress( &ep, false );
+					pPacket->readHostAddress( &oHost, false );
 				}
 				else
 				{
-					pPacket->readHostAddress( &ep );
+					pPacket->readHostAddress( &oHost );
 				}
 
 				/*nTs = */pPacket->readIntLE<quint32>();
 
-				if ( !sVendor.isEmpty() && securityManager.isVendorBlocked( sVendor ) )
+				if ( !securityManager.isDenied( oHost ) )
 				{
-					// TODO: Investigate: This is the cause of many bans of already banned IPs...
-					securityManager.ban( ep, Security::RuleTime::SixHours, true,
-										 QString( "[AUTO] Vendor blocked (%1)" ).arg( sVendor ),
-										 true
+					if ( !sVendor.isEmpty() && securityManager.isVendorBlocked( sVendor ) )
+					{
+						securityManager.ban( oHost, Security::RuleTime::SixHours, true,
+											 QString( "[AUTO] Vendor blocked (%1)" ).arg( sVendor ),
+											 true
 #if SECURITY_LOG_BAN_SOURCES
-										 , QString( "g2node.cpp line 1131" )
+											 , QString( "g2node.cpp line 1131" )
 #endif // SECURITY_LOG_BAN_SOURCES
-									   );
-				}
-				else
-				{
-					hostCache.add( ep, nDiff + tNow );
+											 );
+					}
+					else
+					{
+						hostCache.add( oHost, nDiff + tNow );
+					}
 				}
 			}
 		}
@@ -1376,8 +1380,11 @@ void G2Node::onQKA( G2Packet* pPacket )
 		pPacket->m_nPosition = nNext;
 	}
 
-	const quint32 tNow = common::getTNowUTC();
-	hostCache.addKey( addr, tNow, &m_oAddress, nKey, tNow );
+	if ( !securityManager.isDenied( addr ) )
+	{
+		const quint32 tNow = common::getTNowUTC();
+		hostCache.addKey( addr, tNow, m_oAddress, nKey, tNow );
+	}
 
 #if LOG_QUERY_HANDLING
 	systemLog.postLog( LogSeverity::Debug,
@@ -1445,7 +1452,7 @@ void G2Node::onHaw( G2Packet* pPacket )
 	char szType[9];
 	quint32 nLength = 0, nNext = 0;
 
-	EndPoint addr;
+	EndPoint oHost;
 
 	while ( pPacket->readPacket( &szType[0], nLength ) )
 	{
@@ -1462,12 +1469,18 @@ void G2Node::onHaw( G2Packet* pPacket )
 				if ( nLength >= 18 )
 				{
 					// IPv6 with port
-					pPacket->readHostAddress( &addr, false );
+					pPacket->readHostAddress( &oHost, false );
 				}
 				else
 				{
 					// IPv4 with port
-					pPacket->readHostAddress( &addr );
+					pPacket->readHostAddress( &oHost );
+				}
+
+				if ( securityManager.isDenied( oHost ) )
+				{
+					// stop parsing if the destination is blocked
+					return;
 				}
 			}
 		}
@@ -1488,7 +1501,7 @@ void G2Node::onHaw( G2Packet* pPacket )
 
 	if ( !sVendor.isEmpty() && securityManager.isVendorBlocked( sVendor ) )
 	{
-		securityManager.ban( addr, Security::RuleTime::SixHours, true,
+		securityManager.ban( oHost, Security::RuleTime::SixHours, true,
 							 QString( "[AUTO] Vendor blocked (%1)" ).arg( sVendor ), true
 #if SECURITY_LOG_BAN_SOURCES
 							 , QString( "g2node.cpp line 1545" )
@@ -1498,7 +1511,7 @@ void G2Node::onHaw( G2Packet* pPacket )
 	}
 	else
 	{
-		hostCache.add( addr, common::getTNowUTC() );
+		hostCache.add( oHost, common::getTNowUTC() );
 	}
 
 	if ( nTTL > 0 && nHops < 255 )
