@@ -25,12 +25,13 @@
 #ifndef DISCOVERY_H
 #define DISCOVERY_H
 
+#include <QFile>
+#include <QMetaMethod>
 #include <QMutex>
 #include <QNetworkAccessManager>
 #include <QSharedPointer>
 #include <QString>
 #include <QThread>
-#include <QFile>
 
 #include <map>
 #include <list>
@@ -158,6 +159,15 @@ private:
 
 	// thread used by the manager
 	QThread*                m_pHostCacheDiscoveryThread;
+
+	// QMetaMethod objects for faster asynchronous method invokation
+	QMetaMethod m_pfAsyncSyncSavingHelper;
+	QMetaMethod m_pfAsyncRequestServiceListHelper;
+	QMetaMethod m_pfAsyncUpdateServiceHelper;
+	QMetaMethod m_pfAsyncUpdateServiceHelperByID;
+	QMetaMethod m_pfAsyncQueryServiceHelper;
+	QMetaMethod m_pfAsyncQueryServiceHelperByID;
+	QMetaMethod m_pfAsyncManageDuplicatesHelper;
 
 public:
 	QAtomicInt*             m_pActive;
@@ -301,7 +311,7 @@ public:
 	 * @param type
 	 */
 	void updateService( const NetworkType& type ); // Random service access
-	void updateService( ServiceID nID );         // Manual service access
+	void updateService( ServiceID nID );           // Manual service access
 
 	/**
 	 * @brief queryService queries a service for hosts to connect to.
@@ -309,7 +319,7 @@ public:
 	 * @param type
 	 */
 	void queryService( const NetworkType& type ); // Random service access
-	void queryService( ServiceID nID );         // Manual service access
+	void queryService( ServiceID nID );           // Manual service access
 
 	/**
 	 * @brief getWorkingService

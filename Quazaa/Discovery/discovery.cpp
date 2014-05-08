@@ -92,22 +92,61 @@ quint32	Manager::count( const NetworkType& oType )
  */
 void Manager::start()
 {
+	// initialize meta methods for for faster asynchronous invoking
+	const QMetaObject* pMetaObject = metaObject();
+	QByteArray         sNormalizedSignature;
+	int                nMethodIndex;
+
+	sNormalizedSignature              = "asyncSyncSavingHelper()";
+	nMethodIndex                      = pMetaObject->indexOfMethod( sNormalizedSignature );
+	m_pfAsyncSyncSavingHelper         = pMetaObject->method( nMethodIndex );
+
+	sNormalizedSignature              = "asyncRequestServiceListHelper()";
+	nMethodIndex                      = pMetaObject->indexOfMethod( sNormalizedSignature );
+	m_pfAsyncRequestServiceListHelper = pMetaObject->method( nMethodIndex );
+
+	sNormalizedSignature              = "asyncUpdateServiceHelper(NetworkType)";
+	nMethodIndex                      = pMetaObject->indexOfMethod( sNormalizedSignature );
+	m_pfAsyncUpdateServiceHelper      = pMetaObject->method( nMethodIndex );
+
+	sNormalizedSignature              = "asyncUpdateServiceHelper(ServiceID)";
+	nMethodIndex                      = pMetaObject->indexOfMethod( sNormalizedSignature );
+	m_pfAsyncUpdateServiceHelperByID  = pMetaObject->method( nMethodIndex );
+
+	sNormalizedSignature              = "asyncQueryServiceHelper(NetworkType)";
+	nMethodIndex                      = pMetaObject->indexOfMethod( sNormalizedSignature );
+	m_pfAsyncQueryServiceHelper       = pMetaObject->method( nMethodIndex );
+
+	sNormalizedSignature              = "asyncQueryServiceHelper(ServiceID)";
+	nMethodIndex                      = pMetaObject->indexOfMethod( sNormalizedSignature );
+	m_pfAsyncQueryServiceHelperByID   = pMetaObject->method( nMethodIndex );
+
+	sNormalizedSignature              = "asyncManageDuplicatesHelper(ServiceID)";
+	nMethodIndex                      = pMetaObject->indexOfMethod( sNormalizedSignature );
+	m_pfAsyncManageDuplicatesHelper   = pMetaObject->method( nMethodIndex );
+
+#ifdef _DEBUG
+	Q_ASSERT( m_pfAsyncSyncSavingHelper.isValid() );
+	Q_ASSERT( m_pfAsyncRequestServiceListHelper.isValid() );
+	Q_ASSERT( m_pfAsyncUpdateServiceHelper.isValid() );
+	Q_ASSERT( m_pfAsyncUpdateServiceHelperByID.isValid() );
+	Q_ASSERT( m_pfAsyncQueryServiceHelper.isValid() );
+	Q_ASSERT( m_pfAsyncQueryServiceHelperByID.isValid() );
+	Q_ASSERT( m_pfAsyncManageDuplicatesHelper.isValid() );
+#endif // _DEBUG
+
+	// assure worker thread validity
+	Q_ASSERT( hostCache.m_pHostCacheDiscoveryThread );
+	Q_ASSERT( hostCache.m_pHostCacheDiscoveryThread->isRunning() );
+
+	// move to worker thread
 	m_pHostCacheDiscoveryThread = hostCache.m_pHostCacheDiscoveryThread;
-	Q_ASSERT( m_pHostCacheDiscoveryThread );
+	moveToThread( m_pHostCacheDiscoveryThread );
 
-	QThread* pThread = m_pHostCacheDiscoveryThread;
-
-	moveToThread( pThread );
-
-	Q_ASSERT( pThread->isRunning() );
-
-	// Handle destruction gracefully.
-	connect( pThread, &QThread::finished, pThread, &QObject::deleteLater );
-
-	// Initialize random number generator.
+	// initialize random number generator
 	qsrand ( common::getTNowUTC() );
 
-	// Includes its own locking.
+	// includes its own locking
 	load();
 
 	m_bRunning.store( 1 );
@@ -158,9 +197,17 @@ bool Manager::save( bool bForceSaving )
 		else
 		{
 			m_pSection.unlock();
-			QMetaObject::invokeMethod( this, "asyncSyncSavingHelper", Qt::QueuedConnection );
 
-			// We do not know whether it was successful, so pretend it was not to be on the safe side.
+#ifdef _DEBUG
+			bool bOK =
+#endif // _DEBUG
+			m_pfAsyncSyncSavingHelper.invoke( this, Qt::QueuedConnection );
+#ifdef _DEBUG
+			Q_ASSERT( bOK );
+#endif // _DEBUG
+
+			// We do not know whether it was successful,
+			// so pretend it was not to be on the safe side.
 			return false;
 		}
 	}
@@ -333,8 +380,13 @@ bool Manager::check( const ConstServicePtr pService )
  */
 void Manager::initiateSearchForDuplicates( ServiceID nID )
 {
-	QMetaObject::invokeMethod( this, "asyncManageDuplicatesHelper",
-							   Qt::QueuedConnection, Q_ARG( ServiceID, nID ) );
+#ifdef _DEBUG
+	bool bOK =
+#endif // _DEBUG
+	m_pfAsyncManageDuplicatesHelper.invoke( this, Qt::QueuedConnection, Q_ARG( ServiceID, nID ) );
+#ifdef _DEBUG
+	Q_ASSERT( bOK );
+#endif // _DEBUG
 }
 
 /**
@@ -402,7 +454,13 @@ QNAMPtr Manager::requestNAM()
  */
 void Manager::requestServiceList()
 {
-	QMetaObject::invokeMethod( this, "asyncRequestServiceListHelper", Qt::QueuedConnection );
+#ifdef _DEBUG
+	bool bOK =
+#endif // _DEBUG
+	m_pfAsyncRequestServiceListHelper.invoke( this, Qt::QueuedConnection );
+#ifdef _DEBUG
+	Q_ASSERT( bOK );
+#endif // _DEBUG
 }
 
 /**
@@ -413,14 +471,26 @@ void Manager::requestServiceList()
  */
 void Manager::updateService( const NetworkType& type )
 {
-	QMetaObject::invokeMethod( this, "asyncUpdateServiceHelper",
-							   Qt::QueuedConnection, Q_ARG( const NetworkType, type ) );
+#ifdef _DEBUG
+	bool bOK =
+#endif // _DEBUG
+	m_pfAsyncUpdateServiceHelper.invoke( this, Qt::QueuedConnection,
+										 Q_ARG( const NetworkType, type ) );
+#ifdef _DEBUG
+	Q_ASSERT( bOK );
+#endif // _DEBUG
 }
 
 void Manager::updateService( ServiceID nID )
 {
-	QMetaObject::invokeMethod( this, "asyncUpdateServiceHelper",
-							   Qt::QueuedConnection, Q_ARG( ServiceID, nID ) );
+#ifdef _DEBUG
+	bool bOK =
+#endif // _DEBUG
+	m_pfAsyncUpdateServiceHelperByID.invoke( this, Qt::QueuedConnection,
+											 Q_ARG( ServiceID, nID ) );
+#ifdef _DEBUG
+	Q_ASSERT( bOK );
+#endif // _DEBUG
 }
 
 /**
@@ -430,18 +500,25 @@ void Manager::updateService( ServiceID nID )
  */
 void Manager::queryService( const NetworkType& type )
 {
-	qDebug() << "Calling asyncQueryServiceHelper(const NetworkType&)";
-
-	QMetaObject::invokeMethod( this, "asyncQueryServiceHelper",
-							   Qt::QueuedConnection, Q_ARG( const NetworkType, type ) );
+#ifdef _DEBUG
+	bool bOK =
+#endif // _DEBUG
+	m_pfAsyncQueryServiceHelper.invoke( this, Qt::QueuedConnection,
+										Q_ARG( const NetworkType, type ) );
+#ifdef _DEBUG
+	Q_ASSERT( bOK );
+#endif // _DEBUG
 }
 
 void Manager::queryService( ServiceID nID )
 {
-	qDebug() << "Calling asyncQueryServiceHelper(ServiceID)";
-
-	QMetaObject::invokeMethod( this, "asyncQueryServiceHelper",
-							   Qt::QueuedConnection, Q_ARG( ServiceID, nID ) );
+#ifdef _DEBUG
+	bool bOK =
+#endif // _DEBUG
+	m_pfAsyncQueryServiceHelperByID.invoke( this, Qt::QueuedConnection, Q_ARG( ServiceID, nID ) );
+#ifdef _DEBUG
+	Q_ASSERT( bOK );
+#endif // _DEBUG
 }
 
 /**
@@ -1285,7 +1362,7 @@ Manager::ServicePtr Manager::lookupUrl( const QString& sURL ) const
 bool Manager::manageDuplicates( ServicePtr& pService, bool bNeedRemoval )
 {
 	// there is only a valid ID for services that have already been added
-	Q_ASSERT( bNeedRemoval == pService->m_nID );
+	Q_ASSERT( bNeedRemoval == (bool)pService->m_nID );
 
 	/*std::list< std::pair<Manager::ServicePtr, bool> > lDuplicates = lookupDuplicates( pService );
 
