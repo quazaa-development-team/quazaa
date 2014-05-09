@@ -1095,7 +1095,7 @@ SharedG2HostPtr G2HostCache::addSyncHelper(const EndPoint& oHost, quint32 tTimeS
 	// We don't want to call an improperly set up security manager during unit tests.
 #ifndef QUAZAA_SETUP_UNIT_TESTS
 	// At this point the security check should already have been performed.
-	Q_ASSERT( !securityManager.isDenied( oHost ) );
+	//Q_ASSERT( !securityManager.isDenied( oHost ) );
 #endif // QUAZAA_SETUP_UNIT_TESTS
 #endif //_DEBUG
 

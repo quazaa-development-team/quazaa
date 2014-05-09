@@ -189,10 +189,7 @@ QVariant HostData::data( int col ) const
 
 bool HostData::lessThan( int col, HostData* pOther ) const
 {
-	if ( !pOther )
-	{
-		return false;
-	}
+	Q_ASSERT( pOther );
 
 	switch ( col )
 	{

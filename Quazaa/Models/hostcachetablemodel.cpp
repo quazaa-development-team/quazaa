@@ -217,8 +217,17 @@ public:
 	{
 	}
 
+	/**
+	 * @brief operator () Allows to compare a and b.
+	 * @param a
+	 * @param b
+	 * @return true if a is smaller than b in the current sort order; false otherwise.
+	 */
 	bool operator()( HostData* a, HostData* b )
 	{
+		Q_ASSERT( a );
+		Q_ASSERT( b );
+
 		if ( m_nOrder == Qt::AscendingOrder )
 		{
 			return a->lessThan( m_nColumn, b );
@@ -371,29 +380,6 @@ void HostCacheTableModel::addHost( HostData* pHostData )
 
 	if ( pHostData->m_nType == DiscoveryProtocol::G2 )
 	{
-		/*hostCache.m_pSection.lock();
-
-		SharedG2HostPtr pG2Host = qSharedPointerCast<G2HostCacheHost>(pHostData);
-
-		// if iterator is invalid, the host has been removed in the meantime
-		if ( pG2Host->iteratorValid() )
-		{
-			G2HostCacheConstIterator endIterator = hostCache.getEndIterator();
-			G2HostCacheConstIterator hostIterator = pG2Host->iterator();
-
-			// this also checks for a valid iterator in debug mode
-			Q_ASSERT( endIterator != hostIterator );
-			Q_ASSERT( (*hostIterator)->address().isValid() );
-
-			Q_ASSERT( pG2Host->iteratorValid() );
-
-			Q_ASSERT( hostCache.check( pHostData ) );
-			insert( new HostData( pHostData ) );
-			// TODO: updateView( uplist ); ???
-		}
-
-		hostCache.m_pSection.unlock();*/
-
 		insert( pHostData );
 	}
 }
@@ -498,6 +484,48 @@ void HostCacheTableModel::updateView( QModelIndexList uplist )
 	}
 }
 
+int HostCacheTableModel::findInsertPos( HostData* pData )
+{
+	if ( m_vHosts.empty() )
+	{
+		return 0;
+	}
+
+	HostData** pHosts = &m_vHosts[0];
+	G2CacheTableModelCmp oComparator = G2CacheTableModelCmp( m_nSortColumn, m_nSortOrder );
+
+	int nMiddle;
+	int nPosStart = 0;
+	int nPosEnd   = ( int )m_vHosts.size() - 1;
+
+	for ( int i = 0; i < nPosEnd - 1; ++i )
+	{
+		bool bSmaller   =  oComparator( pHosts[i], pHosts[i+1] );
+		bool bNotBigger = !oComparator( pHosts[i+1], pHosts[i] );
+		if ( !bSmaller && bNotBigger )
+		{
+			Q_ASSERT( bSmaller || bNotBigger );
+		}
+	}
+
+	while ( nPosStart <= nPosEnd )
+	{
+		nMiddle = ( nPosStart + nPosEnd ) / 2;
+
+		// if pData smaller than pHosts[nMiddle] in current sort order
+		if ( oComparator( pData, pHosts[nMiddle] ) )
+		{
+			nPosEnd = nMiddle - 1;
+		}
+		else
+		{
+			nPosStart = nMiddle + 1;
+		}
+	}
+
+	return nPosEnd + 1;
+}
+
 void HostCacheTableModel::insert( HostData* pData )
 {
 	if ( m_bNeedSorting )
@@ -510,15 +538,36 @@ void HostCacheTableModel::insert( HostData* pData )
 
 		sort( m_nSortColumn, m_nSortOrder );
 	}
-	else // TODO: improve efficiency later
+	else
 	{
-		beginInsertRows( QModelIndex(), ( int )m_vHosts.size(), ( int )m_vHosts.size() );
+		int nPos = findInsertPos( pData );
 
-		m_vHosts.push_back( pData );
-
+		beginInsertRows( QModelIndex(), nPos, nPos );
+		insertAt( pData, nPos );
 		endInsertRows();
+	}
+}
 
-		sort( m_nSortColumn, m_nSortOrder );
+void HostCacheTableModel::insertAt(HostData* pData, const int nPos)
+{
+	const int nMax = ( int )m_vHosts.size();
+
+	if ( nPos == nMax )
+	{
+		m_vHosts.push_back( pData );
+	}
+	else
+	{
+		m_vHosts.push_back( NULL );
+
+		// TODO: use memmove
+		HostData** pHosts = &m_vHosts[0];
+		for ( int i = nMax; i > nPos; --i )
+		{
+			pHosts[i] = pHosts[i - 1];
+		}
+
+		pHosts[nPos] = pData;
 	}
 }
 
@@ -527,9 +576,10 @@ void HostCacheTableModel::erase( int nPos )
 	beginRemoveRows( QModelIndex(), nPos, nPos );
 	delete m_vHosts[nPos];
 
-	for ( int i = nPos; i < m_vHosts.size() - 1; ++i )
+	HostData** pHosts = &m_vHosts[0];
+	for ( int i = nPos, nMax = ( int )m_vHosts.size() - 1; i < nMax; ++i )
 	{
-		m_vHosts[i] = m_vHosts[i + 1];
+		pHosts[i] = pHosts[i + 1];
 	}
 	m_vHosts.pop_back();
 
