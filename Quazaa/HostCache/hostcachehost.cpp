@@ -27,6 +27,8 @@
 
 #include "hostcachetablemodel.h"
 
+using namespace HostManagement;
+
 IDProvider<quint32> HostCacheHost::m_oIDProvider;
 bool                HostCacheHost::m_bShutDownFlag = false;
 

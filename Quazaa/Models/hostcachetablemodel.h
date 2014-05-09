@@ -29,11 +29,15 @@
 
 #include "g2hostcache.h"
 
+class HostData;
+
 class HostCacheTableModel : public QAbstractTableModel
 {
 	Q_OBJECT
 
 private:
+	typedef QSharedPointer<HostManagement::HostCacheHost> SharedHost;
+
 	QWidget*        m_oContainer;
 	Qt::SortOrder   m_nSortOrder;
 	int             m_nSortColumn;
@@ -89,7 +93,7 @@ public slots:
 	 * This is to be triggered from the host cache AFTER the host has been removed.
 	 * @param pHost : the host
 	 */
-	void removeHost( QSharedPointer<HostCacheHost> pHost );
+	void removeHost( SharedHost pHost );
 
 	/**
 	 * @brief updateHost updates the GUI for a specified host.
@@ -111,7 +115,7 @@ private:
 	void updateView( QModelIndexList uplist = QModelIndexList() );
 	int findInsertPos( HostData* pData );
 	void insert( HostData* pData );
-	void insertAt(HostData* pData, const int nPos );
+	void insertAt( HostData* pData, const int nPos );
 	void erase( int nPos );
 };
 

@@ -9,7 +9,7 @@ UnitTestsHostCache::UnitTestsHostCache() :
 
 void UnitTestsHostCache::initTestCase()
 {
-	m_pCache = new G2HostCache();
+	m_pCache = new HostManagement::G2HostCache();
 
 	m_pCache->start();
 	m_pCache->clear();

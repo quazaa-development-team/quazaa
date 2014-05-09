@@ -28,6 +28,8 @@
 #include "hostcachehost.h"
 #include "debug_new.h"
 
+using namespace HostManagement;
+
 HostCacheTableModel::HostCacheTableModel( QObject* parent, QWidget* container ) :
 	QAbstractTableModel( parent ),
 	m_oContainer( container ),
@@ -40,8 +42,8 @@ HostCacheTableModel::HostCacheTableModel( QObject* parent, QWidget* container ) 
 	connect( &hostCache, SIGNAL( hostAdded( HostData* ) ), this,
 			 SLOT( addHost( HostData* ) ), Qt::QueuedConnection );
 
-	connect( &hostCache, SIGNAL( hostRemoved( QSharedPointer<HostCacheHost> ) ), this,
-			 SLOT( removeHost( QSharedPointer<HostCacheHost> ) ), Qt::QueuedConnection );
+	connect( &hostCache, SIGNAL( hostRemoved( SharedHostPtr ) ), this,
+			 SLOT( removeHost( SharedHostPtr ) ), Qt::QueuedConnection );
 
 	// This handles GUI updates on rule changes.
 	/*connect( &hostCache, SIGNAL( hostUpdated( quint32 ) ), this,

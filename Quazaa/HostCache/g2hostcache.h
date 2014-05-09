@@ -47,14 +47,31 @@
 //  12:59:25 brov: 2. search manager must request query keys directly from other nodes (use a random search string)
 
 class QFile;
+
+namespace HostManagement
+{
 class G2HostCacheHost;
+}
 
-typedef QSharedPointer<G2HostCacheHost> SharedG2HostPtr;
+/**
+ * @brief SharedG2HostPtr A shared pointer to a G2HostCacheHost.
+ */
+typedef QSharedPointer<HostManagement::G2HostCacheHost> SharedG2HostPtr;
 
+namespace HostManagement
+{
 typedef std::list<SharedG2HostPtr>      G2HostCacheList;
 typedef G2HostCacheList::iterator       G2HostCacheIterator;
-typedef G2HostCacheList::const_iterator G2HostCacheConstIterator;
+}
 
+/**
+ * @brief G2HostCacheConstIterator In iterator allowing to iterate over the G2HostCache's internal
+ * storage container.
+ */
+typedef HostManagement::G2HostCacheList::const_iterator G2HostCacheConstIterator;
+
+namespace HostManagement
+{
 class G2HostCache : public HostCache
 {
 	Q_OBJECT
@@ -178,6 +195,8 @@ private slots:
 	void asyncOnFailure( EndPoint addr );
 };
 
-extern G2HostCache hostCache;
+} // namespace HostManagement
+
+extern HostManagement::G2HostCache hostCache;
 
 #endif // G2HOSTCACHE_H

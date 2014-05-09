@@ -46,6 +46,8 @@
 
 #include "debug_new.h"
 
+using namespace HostManagement;
+
 G2HostCache hostCache;
 
 /**

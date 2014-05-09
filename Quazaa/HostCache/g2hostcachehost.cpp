@@ -1,7 +1,7 @@
 /*
 ** g2hostcachehost.cpp
 **
-** Copyright © Quazaa Development Team, 2009-2013.
+** Copyright © Quazaa Development Team, 2009-2014.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
 **
 ** Quazaa is free software; this file may be used under the terms of the GNU
@@ -23,6 +23,8 @@
 */
 
 #include "g2hostcachehost.h"
+
+using namespace HostManagement;
 
 /*
 template<>

@@ -34,6 +34,10 @@
 // TODO: add mechanism to remove hosts and discovery services by their origin
 
 class HostData;
+
+namespace HostManagement
+{
+
 class HostCacheHost;
 
 class HostCache : public QObject
@@ -158,5 +162,7 @@ private:
 	 */
 	virtual void    registerMetaTypesInternal() = 0;
 };
+
+} // namespace HostManagement
 
 #endif // HOSTCACHE_H

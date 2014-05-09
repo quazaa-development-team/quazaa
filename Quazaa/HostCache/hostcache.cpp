@@ -25,6 +25,8 @@
 #include "hostcache.h"
 #include "hostcachehost.h"
 
+using namespace HostManagement;
+
 HostCache::HostCache() :
 	m_pHostCacheDiscoveryThread( NULL ),
 	m_tLastSave( 0 ),

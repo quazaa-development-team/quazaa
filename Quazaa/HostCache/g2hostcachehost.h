@@ -1,7 +1,7 @@
 /*
 ** g2hostcachehost.h
 **
-** Copyright © Quazaa Development Team, 2009-2013.
+** Copyright © Quazaa Development Team, 2009-2014.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
 **
 ** Quazaa is free software; this file may be used under the terms of the GNU
@@ -30,14 +30,30 @@
 
 #include "hostcachehost.h"
 
+namespace HostManagement
+{
 class G2HostCacheHost;
+}
 
-typedef QSharedPointer<G2HostCacheHost> SharedG2HostPtr;
+/**
+ * @brief SharedG2HostPtr A shared pointer to a G2HostCacheHost.
+ */
+typedef QSharedPointer<HostManagement::G2HostCacheHost> SharedG2HostPtr;
 
+namespace HostManagement
+{
 typedef std::list<SharedG2HostPtr>      G2HostCacheList;
 typedef G2HostCacheList::iterator       G2HostCacheIterator;
-typedef G2HostCacheList::const_iterator G2HostCacheConstIterator;
+}
 
+/**
+ * @brief G2HostCacheConstIterator In iterator allowing to iterate over the G2HostCache's internal
+ * storage container.
+ */
+typedef HostManagement::G2HostCacheList::const_iterator G2HostCacheConstIterator;
+
+namespace HostManagement
+{
 class G2HostCacheHost : public HostCacheHost
 {
 private:
@@ -125,5 +141,7 @@ public:
 	void setIterator( const G2HostCacheIterator& it );
 	void invalidateIterator();
 };
+
+} // namespace HostManagement
 
 #endif // G2HOSTCACHEHOST_H

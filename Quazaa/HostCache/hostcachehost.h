@@ -35,6 +35,9 @@
 #include "network.h"
 #endif
 
+namespace HostManagement
+{
+
 class HostCacheHost
 {
 protected:
@@ -130,7 +133,9 @@ public:
 	}
 };
 
-typedef QSharedPointer<HostCacheHost> SharedHostPtr;
+} // namespace HostManagement
+
+typedef QSharedPointer<HostManagement::HostCacheHost> SharedHostPtr;
 
 #include <QIcon>
 #include <QAbstractTableModel>
@@ -142,7 +147,7 @@ class HostData
 public:
 	SharedHostPtr   m_pHost;
 
-	const EndPoint m_oAddress;
+	const EndPoint  m_oAddress;
 	const QString   m_sAddress;
 	const QString   m_sCountryCode;
 	const QString   m_sCountry;

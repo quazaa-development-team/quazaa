@@ -39,10 +39,10 @@ class WidgetHostCache : public QMainWindow
 {
 	Q_OBJECT
 public:
-	HostCacheTableModel*      m_pHosts;
+	HostCacheTableModel*    m_pHosts;
 
 private:
-	Ui::WidgetHostCache*   ui;
+	Ui::WidgetHostCache*    ui;
 
 	QMenu*                  m_pHostCacheMenu;
 	CTableView*             m_pTableViewG2Cache;

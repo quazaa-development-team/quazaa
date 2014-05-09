@@ -17,7 +17,7 @@ class UnitTestsHostCache : public QObject
 	typedef std::vector< DataPair > DataVector;
 
 private:
-	G2HostCache* m_pCache;
+	HostManagement::G2HostCache* m_pCache;
 	DataVector m_vTestData;
 
 public:
