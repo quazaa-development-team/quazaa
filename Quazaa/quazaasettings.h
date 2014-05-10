@@ -543,11 +543,9 @@ struct sSecurity
 	bool		UPnPSkipWANPPPSetup;					// Skip WANPPPConn1 device setup (UPnP)
 
 	/* --- Settings used by security manager --- */
-// TODO: Make sure slot settingsChanged() is called if these settings are changed to inform security manager about the changes.
-	bool		LogIPCheckHits;							// Post log message on IsDenied( QHostAdress ) call
+	// TODO: Make sure slot securitySettingsChanged() is called if these settings are changed to inform security manager about the changes.
+	bool		LogIPCheckHits;							// Post log message on isDenied( QHostAdress ) call
 	bool		IgnorePrivateIP;						// Ingnore all 'local' (LAN) IPs
-	//quint32		MaxUnsavedRules;						// Number of unsaved rules to accumulate before triggering an auntosave
-	//quint32		MissCacheExpiryInterval;				// Clear the miss cache each x seconds
 	quint32		RuleExpiryInterval;						// Check the security manager for expired hosts each x seconds; 0 to disable
 };
 

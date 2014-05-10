@@ -86,7 +86,7 @@ private:
 	QAtomicInt              m_nWorkTime;
 #endif // ENABLE_G2_HOST_CACHE_BENCHMARKING
 
-	EndPoint               m_oLokalAddress;
+	EndPoint                m_oLokalAddress;
 
 	bool                    m_bLoading;
 
@@ -97,6 +97,7 @@ private:
 	QMetaMethod m_pfAsyncAddXTry;
 	QMetaMethod m_pfAsyncOnFailure;
 	QMetaMethod m_pfAsyncUpdateFailures;
+	QMetaMethod m_pfLocalAddressChanged;
 	QMetaMethod m_pfRemoveSync;
 	QMetaMethod m_pfStartUpInternal;
 

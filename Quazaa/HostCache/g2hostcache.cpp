@@ -613,9 +613,9 @@ void G2HostCache::localAddressChanged()
 	bool bRetry = true;
 
 	// this avoids possible deadlocks with Network.m_pSection
-	if ( networkG2.m_pSection.tryLock( 200 ) )
+	if ( networkG2.m_pSection.tryLock( 100 ) )
 	{
-		if ( m_pSection.tryLock( 200 ) )
+		if ( m_pSection.tryLock( 100 ) )
 		{
 			bRetry          = false;
 			m_oLokalAddress = networkG2.localAddress();
@@ -628,7 +628,7 @@ void G2HostCache::localAddressChanged()
 
 	if ( bRetry )
 	{
-		QMetaObject::invokeMethod( this, "localAddressChanged", Qt::QueuedConnection );
+		m_pfLocalAddressChanged.invoke( this, Qt::QueuedConnection );
 	}
 #endif // QUAZAA_SETUP_UNIT_TESTS
 }
@@ -1472,6 +1472,10 @@ void G2HostCache::startUpInternal()
 	nMethodIndex            = pMetaObject->indexOfMethod( sNormalizedSignature );
 	m_pfAsyncUpdateFailures = pMetaObject->method( nMethodIndex );
 
+	sNormalizedSignature    = "localAddressChanged()";
+	nMethodIndex            = pMetaObject->indexOfMethod( sNormalizedSignature );
+	m_pfLocalAddressChanged = pMetaObject->method( nMethodIndex );
+
 	sNormalizedSignature    = "removeSync(EndPoint)";
 	nMethodIndex            = pMetaObject->indexOfMethod( sNormalizedSignature );
 	m_pfRemoveSync          = pMetaObject->method( nMethodIndex );
@@ -1487,6 +1491,7 @@ void G2HostCache::startUpInternal()
 	Q_ASSERT( m_pfAsyncAddXTry.isValid() );
 	Q_ASSERT( m_pfAsyncOnFailure.isValid() );
 	Q_ASSERT( m_pfAsyncUpdateFailures.isValid() );
+	Q_ASSERT( m_pfLocalAddressChanged.isValid() );
 	Q_ASSERT( m_pfRemoveSync.isValid() );
 	Q_ASSERT( m_pfStartUpInternal.isValid() );
 #endif // _DEBUG
