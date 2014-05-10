@@ -39,15 +39,11 @@ HostCacheTableModel::HostCacheTableModel( QObject* parent, QWidget* container ) 
 	// register necessary meta types before using them
 	hostCache.registerMetaTypes();
 
-	connect( &hostCache, SIGNAL( hostAdded( HostData* ) ), this,
-			 SLOT( addHost( HostData* ) ), Qt::QueuedConnection );
+	connect( &hostCache, &HostCache::hostAdded, this,
+			 &HostCacheTableModel::addHost, Qt::QueuedConnection );
 
-	connect( &hostCache, SIGNAL( hostRemoved( SharedHostPtr ) ), this,
-			 SLOT( removeHost( SharedHostPtr ) ), Qt::QueuedConnection );
-
-	// This handles GUI updates on rule changes.
-	/*connect( &hostCache, SIGNAL( hostUpdated( quint32 ) ), this,
-			 SLOT( updateHost( quint32 ) ), Qt::QueuedConnection );*/
+	connect( &hostCache, &HostCache::hostRemoved, this,
+			 &HostCacheTableModel::removeHost, Qt::QueuedConnection );
 
 	connect( &hostCache, &HostCache::loadingFinished, this,
 			 &HostCacheTableModel::updateAll, Qt::QueuedConnection );
@@ -56,8 +52,9 @@ HostCacheTableModel::HostCacheTableModel( QObject* parent, QWidget* container ) 
 	connect( &hostCache, &HostCache::clearTriggered, this,
 			 &HostCacheTableModel::clear, Qt::DirectConnection );
 
-	// This needs to be called to make sure that all rules added to the host cache before this
-	// part of the GUI is loaded are properly added to the model.
+	// If there were hosts in the cache, we would need
+	// to have to do a complete refresh at this point.
+	Q_ASSERT( !hostCache.size() );
 	//completeRefresh();
 }
 
@@ -338,7 +335,9 @@ void HostCacheTableModel::completeRefresh()
 	connect( &hostCache, SIGNAL( hostInfo( HostData* ) ), this,
 			 SLOT( recieveHostInfo( HostData* ) ), Qt::QueuedConnection );
 
+#ifdef _DEBUG
 	hostCache.verifyIterators();
+#endif
 
 	// Request getting them back from the Host Cache.
 	m_nHostInfo = hostCache.requestHostInfo();
@@ -440,7 +439,7 @@ void HostCacheTableModel::updateAll()
 
 	QModelIndexList uplist;
 
-	hostCache.m_pSection.lock();
+	hostCache.lock();
 	for ( int i = 0, max = ( int )m_vHosts.size(); i < max; ++i )
 	{
 		if ( m_vHosts[i]->update( i, m_nSortColumn, uplist, this ) )
@@ -448,7 +447,7 @@ void HostCacheTableModel::updateAll()
 			m_bNeedSorting = true;
 		}
 	}
-	hostCache.m_pSection.unlock();
+	hostCache.unlock();
 
 	updateView( uplist );
 }

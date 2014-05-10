@@ -25,9 +25,9 @@
 #ifndef G2HOSTCACHE_H
 #define G2HOSTCACHE_H
 
-#include "hostcache.h"
+#include <QMetaMethod>
 
-#include "endpoint.h"
+#include "hostcache.h"
 
 #define ENABLE_G2_HOST_CACHE_DEBUGGING    0
 #define ENABLE_G2_HOST_CACHE_BENCHMARKING 0
@@ -90,6 +90,16 @@ private:
 
 	bool                    m_bLoading;
 
+	// QMetaMethod objects for faster asynchronous method invokation
+	QMetaMethod m_pfAddSync;
+	QMetaMethod m_pfAddSyncKey;
+	QMetaMethod m_pfAddSyncAck;
+	QMetaMethod m_pfAsyncAddXTry;
+	QMetaMethod m_pfAsyncOnFailure;
+	QMetaMethod m_pfAsyncUpdateFailures;
+	QMetaMethod m_pfRemoveSync;
+	QMetaMethod m_pfStartUpInternal;
+
 public:
 	G2HostCache();
 	~G2HostCache();
@@ -100,69 +110,51 @@ public:
 	void addAck( const EndPoint& oHost, const quint32 tTimeStamp,
 				 const quint32 tAck, const quint32 tNow );
 
-	SharedG2HostPtr get( const EndPoint& oHost ) const;
-	//bool check(const SharedHostPtr pHost) const;
-
-	void updateFailures( const EndPoint& oAddress, const quint32 nFailures );
-
-private:
-//	SharedG2HostPtr update( const EndPoint& oHost,       const quint32 tTimeStamp );
-	SharedG2HostPtr update( G2HostCacheIterator& itHost, const quint32 tTimeStamp,
-							const quint32 nFailures = 0 );
-
-public:
 	void remove( const EndPoint& oHost );
 	void remove( SharedG2HostPtr pHost );
+
+	void pruneByQueryAck( const quint32 tNow );
 
 	void addXTry( const QString& sHeader );
 	QString getXTry() const;
 
 	void onFailure( const EndPoint& addr );
+	void updateFailures( const EndPoint& oAddress, const quint32 nFailures );
+
+	SharedG2HostPtr get( const EndPoint& oHost ) const;
 	SharedG2HostPtr getConnectable( const QSet<SharedG2HostPtr>& oExcept = QSet<SharedG2HostPtr>(),
 									QString sCountry = QString( "ZZ" ) );
+
+	quint32 requestHostInfo();
+
+	//bool check(const SharedHostPtr pHost) const;
 
 	void clear();
 	void save( const quint32 tNow ) const;
 
-private:
-	void pruneOldHosts( const quint32 tNow );
-
-public:
-	void pruneByQueryAck( const quint32 tNow );
-
-	static quint32 writeToFile( const void* const pManager, QFile& oFile );
-
-	quint32 requestHostInfo();
-
 	// These allow access to the list without the possibility of being able to edit the list itself
-	inline G2HostCacheConstIterator getIterator() const
+	inline G2HostCacheConstIterator begin() const
 	{
 		return m_lHosts.begin();
 	}
-	inline G2HostCacheConstIterator getEndIterator() const
+	inline G2HostCacheConstIterator end() const
 	{
 		return m_lHosts.end();
 	}
 
+#ifdef _DEBUG
+	// TODO: remove in beta1
 	void verifyIterators();
+#endif
+
+	static quint32 writeToFile( const void* const pManager, QFile& oFile );
 
 public slots:
 	void localAddressChanged();
-
-private slots:
-	SharedG2HostPtr addSync( EndPoint host, quint32 tTimeStamp, bool bLock );
-	SharedG2HostPtr addSyncKey( EndPoint host, quint32 tTimeStamp, EndPoint oKeyHost,
-								const quint32 nKey, const quint32 tNow, bool bLock );
-	SharedG2HostPtr addSyncAck( EndPoint host, quint32 tTimeStamp, const quint32 tAck,
-								const quint32 tNow, bool bLock );
-
-	void removeSync( EndPoint oHost );
-
-public slots:
 	void sanityCheck();
-	void maintain();
 
 private:
+	void maintain();
 	void maintainInternal();
 
 	/**
@@ -170,6 +162,12 @@ private:
 	 * Locking: REQUIRED
 	 */
 	void stopInternal();
+	void registerMetaTypesInternal();
+
+//	SharedG2HostPtr update( const EndPoint& oHost,       const quint32 tTimeStamp );
+	SharedG2HostPtr update( G2HostCacheIterator& itHost, const quint32 tTimeStamp,
+									const quint32 nFailures = 0 );
+
 
 	SharedG2HostPtr addSyncHelper( const EndPoint& oHost, quint32 tTimeStamp,
 								   const quint32 tNow, quint32 nNewFailures = 0 );
@@ -177,6 +175,7 @@ private:
 	void insert( SharedG2HostPtr pNew );
 	G2HostCacheIterator erase( G2HostCacheIterator& itHost );
 
+	void pruneOldHosts( const quint32 tNow );
 	void removeWorst( quint8& nFailures );
 
 	G2HostCacheIterator      find( const EndPoint& oHost );
@@ -188,11 +187,19 @@ private:
 	void load();
 
 private slots:
+	SharedG2HostPtr addSync( EndPoint host, quint32 tTimeStamp, bool bLock );
+	SharedG2HostPtr addSyncKey( EndPoint host, quint32 tTimeStamp, EndPoint oKeyHost,
+								const quint32 nKey, const quint32 tNow, bool bLock );
+	SharedG2HostPtr addSyncAck( EndPoint host, quint32 tTimeStamp, const quint32 tAck,
+								const quint32 tNow, bool bLock );
+
+	void removeSync( EndPoint oHost );
+
 	void startUpInternal();
-	void registerMetaTypesInternal();
-	void asyncUpdateFailures( EndPoint oAddress, quint32 nNewFailures );
+
 	void asyncAddXTry( QString sHeader );
 	void asyncOnFailure( EndPoint addr );
+	void asyncUpdateFailures( EndPoint oAddress, quint32 nNewFailures );
 };
 
 } // namespace HostManagement

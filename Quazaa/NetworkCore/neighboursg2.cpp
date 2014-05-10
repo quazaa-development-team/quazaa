@@ -248,12 +248,12 @@ void NeighboursG2::dispatchKHL()
 		}
 	}
 
-	hostCache.m_pSection.lock();
+	hostCache.lock();
 
 	quint32 nCount = quazaaSettings.Gnutella2.KHLHubCount;
 
-	for ( G2HostCacheConstIterator itHost = hostCache.getIterator(); // nCount == ( nCount > 0 )
-		  nCount && itHost != hostCache.getEndIterator(); ++itHost )  // as nCount is a quint32
+	for ( G2HostCacheConstIterator itHost = hostCache.begin(); // nCount == ( nCount > 0 )
+		  nCount && itHost != hostCache.end(); ++itHost )  // as nCount is a quint32
 	{
 		if ( !( *itHost ) )
 		{
@@ -277,7 +277,7 @@ void NeighboursG2::dispatchKHL()
 		}
 	}
 
-	hostCache.m_pSection.unlock();
+	hostCache.unlock();
 
 	foreach ( Neighbour * pNode, m_lNodes )
 	{

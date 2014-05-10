@@ -100,6 +100,8 @@ void UnitTestsUnorderedPtrVector::test1AddAll()
 	QFETCH( QString*, string );
 	QFETCH( bool, parameter );
 
+	Q_UNUSED( parameter );
+
 	bool bFound = false;
 	for( quint32 i = 0; i < m_lUnordered.count(); ++i )
 	{

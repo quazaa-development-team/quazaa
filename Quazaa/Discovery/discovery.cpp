@@ -143,13 +143,7 @@ void Manager::start()
 	m_pHostCacheDiscoveryThread = hostCache.m_pHostCacheDiscoveryThread;
 	moveToThread( m_pHostCacheDiscoveryThread );
 
-	// initialize random number generator
-	qsrand ( common::getTNowUTC() );
-
-	// includes its own locking
-	load();
-
-	m_bRunning.store( 1 );
+	QMetaObject::invokeMethod( this, "startInternal", Qt::QueuedConnection );
 }
 
 /**
@@ -595,6 +589,121 @@ QString Manager::getWorkingService( ServiceType::Type type )
 
 		return pSelected->m_oServiceURL.toString();
 	}
+}
+
+/**
+ * @brief postLog writes a message to the system log or to the debug output.
+ * Requires locking: /
+ * @param severity
+ * @param message
+ * @param bDebug Defaults to false. If set to true, the message is send  to qDebug() instead of
+ * to the system log.
+ */
+void Manager::postLog( LogSeverity severity, QString message,
+					   bool bDebug, ServiceID nID )
+{
+	QString sMessage;
+
+	if ( nID )
+	{
+		sMessage += tr( "ID:" ) += QString::number( nID ) += " ";
+	}
+
+	switch ( severity )
+	{
+	case LogSeverity::Warning:
+		sMessage += tr ( "Warning: " );
+		break;
+
+	case LogSeverity::Error:
+		sMessage += tr ( "Error: " );
+		break;
+
+	case LogSeverity::Critical:
+		sMessage += tr ( "Critical Error: " );
+		break;
+
+	default:
+		break; // do nothing
+	}
+
+	sMessage += message;
+
+	if ( bDebug )
+	{
+		sMessage = systemLog.msgFromComponent( Component::Discovery ) + sMessage;
+		qDebug() << sMessage.toLocal8Bit().constData();
+	}
+	else
+	{
+		systemLog.postLog( severity, Component::Discovery, sMessage );
+	}
+}
+
+/**
+ * @brief writeToFile is a helper method for save()
+ * Locking: YES (synchronous)
+ * @param pManager
+ * @param oFile
+ * @return The number of services written to the specified file
+ */
+quint32 Manager::writeToFile( const void* const pManager, QFile& oFile )
+{
+#if ENABLE_DISCOVERY_DEBUGGING
+	postLog( LogSeverity::Debug, QString( "Manager::writeToFile()" ) ), true );
+#endif
+
+	Manager* pDiscovery = ( Manager* )pManager;
+
+	pDiscovery->m_pSection.lock();
+
+	const quint16 nVersion = DISCOVERY_CODE_VERSION;
+	const quint32 nCount   = pDiscovery->doCount();
+
+	try
+	{
+		QDataStream fsFile( &oFile );
+
+		fsFile << nVersion;
+		fsFile << nCount;
+
+		ServicePtr pService;
+
+		// write services to stream
+		for ( DiscoveryServicesMap::const_iterator it = pDiscovery->m_mServices.begin();
+			  it != pDiscovery->m_mServices.end(); ++it )
+		{
+			const MapPair& pair = *it;
+			pService = pair.second;
+			pService->cancelRequest( true );
+			DiscoveryService::save( pService.data(), fsFile );
+			pService->unlock();
+		}
+	}
+	catch ( ... )
+	{
+		pDiscovery->m_pSection.unlock();
+
+		postLog( LogSeverity::Error,
+				 tr( "Unspecified problem while writing discovery services to disk." ) );
+
+		return 0;
+	}
+
+	pDiscovery->m_bSaved = true;
+	pDiscovery->m_pSection.unlock();
+	return nCount;
+}
+
+void Manager::startInternal()
+{
+	// initialize random number generator
+	qsrand ( common::getTNowUTC() );
+
+	// includes its own locking
+	load();
+
+	m_bRunning.store( 1 );
 }
 
 bool Manager::asyncSyncSavingHelper()
@@ -1732,108 +1841,4 @@ Manager::ServicePtr Manager::getRandomService( const NetworkType& oNType )
 
 		return pSelected;
 	}
-}
-
-/**
- * @brief postLog writes a message to the system log or to the debug output.
- * Requires locking: /
- * @param severity
- * @param message
- * @param bDebug Defaults to false. If set to true, the message is send  to qDebug() instead of
- * to the system log.
- */
-void Manager::postLog( LogSeverity severity, QString message,
-					   bool bDebug, ServiceID nID )
-{
-	QString sMessage;
-
-	if ( nID )
-	{
-		sMessage += tr( "ID:" ) += QString::number( nID ) += " ";
-	}
-
-	switch ( severity )
-	{
-	case LogSeverity::Warning:
-		sMessage += tr ( "Warning: " );
-		break;
-
-	case LogSeverity::Error:
-		sMessage += tr ( "Error: " );
-		break;
-
-	case LogSeverity::Critical:
-		sMessage += tr ( "Critical Error: " );
-		break;
-
-	default:
-		break; // do nothing
-	}
-
-	sMessage += message;
-
-	if ( bDebug )
-	{
-		sMessage = systemLog.msgFromComponent( Component::Discovery ) + sMessage;
-		qDebug() << sMessage.toLocal8Bit().constData();
-	}
-	else
-	{
-		systemLog.postLog( severity, Component::Discovery, sMessage );
-	}
-}
-
-/**
- * @brief writeToFile is a helper method for save()
- * Locking: YES (synchronous)
- * @param pManager
- * @param oFile
- * @return The number of services written to the specified file
- */
-quint32 Manager::writeToFile( const void* const pManager, QFile& oFile )
-{
-#if ENABLE_DISCOVERY_DEBUGGING
-	postLog( LogSeverity::Debug, QString( "Manager::writeToFile()" ) ), true );
-#endif
-
-	Manager* pDiscovery = ( Manager* )pManager;
-
-	pDiscovery->m_pSection.lock();
-
-	const quint16 nVersion = DISCOVERY_CODE_VERSION;
-	const quint32 nCount   = pDiscovery->doCount();
-
-	try
-	{
-		QDataStream fsFile( &oFile );
-
-		fsFile << nVersion;
-		fsFile << nCount;
-
-		ServicePtr pService;
-
-		// write services to stream
-		for ( DiscoveryServicesMap::const_iterator it = pDiscovery->m_mServices.begin();
-			  it != pDiscovery->m_mServices.end(); ++it )
-		{
-			const MapPair& pair = *it;
-			pService = pair.second;
-			pService->cancelRequest( true );
-			DiscoveryService::save( pService.data(), fsFile );
-			pService->unlock();
-		}
-	}
-	catch ( ... )
-	{
-		pDiscovery->m_pSection.unlock();
-
-		postLog( LogSeverity::Error,
-				 tr( "Unspecified problem while writing discovery services to disk." ) );
-
-		return 0;
-	}
-
-	pDiscovery->m_bSaved = true;
-	pDiscovery->m_pSection.unlock();
-	return nCount;
 }

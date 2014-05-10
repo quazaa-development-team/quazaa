@@ -329,7 +329,6 @@ public:
 	 */
 	QString getWorkingService( ServiceType::Type type );
 
-public:
 	/**
 	 * @brief postLog writes a message to the system log or to the debug output.
 	 * Requires locking: NO
@@ -377,6 +376,7 @@ signals:
 private slots:
 	// All methods in this section are helpers to do certain tasks asynchronously. See their
 	// respective callers for documentation.
+	void startInternal();
 	bool asyncSyncSavingHelper();
 	void asyncRequestServiceListHelper();
 	void asyncUpdateServiceHelper( const NetworkType type );

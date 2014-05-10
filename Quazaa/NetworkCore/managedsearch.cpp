@@ -226,11 +226,9 @@ void ManagedSearch::searchG2( const QDateTime& tNowDT, quint32* pnMaxPackets )
 	tHostCacheLock.start();
 #endif
 
-	qDebug() << "**** [Search] Starting a search. Waiting for the lock.";
+	qDebug() << "**** [Search] Starting a search.";
 
-	QMutexLocker oHostCacheLock( &hostCache.m_pSection );
-
-	qDebug() << "**** [Search] Lock aquired.";
+	hostCache.lock();
 
 #if ENABLE_G2_HOST_CACHE_BENCHMARKING
 	const qint64 tHCLock = tHostCacheLock.elapsed();
@@ -239,8 +237,8 @@ void ManagedSearch::searchG2( const QDateTime& tNowDT, quint32* pnMaxPackets )
 	tHostCacheWork.start();
 #endif
 
-	for ( G2HostCacheConstIterator itHost = hostCache.getIterator();
-		  itHost != hostCache.getEndIterator(); ++itHost )
+	for ( G2HostCacheConstIterator itHost = hostCache.begin();
+		  itHost != hostCache.end(); ++itHost )
 	{
 		pHost = *itHost;
 
@@ -442,11 +440,12 @@ void ManagedSearch::searchG2( const QDateTime& tNowDT, quint32* pnMaxPackets )
 
 		pHost.clear();
 	}
+	hostCache.unlock();
 
 #if ENABLE_G2_HOST_CACHE_BENCHMARKING
 	tHCWork += tHostCacheWork.elapsed() - tHCWorkStart;
 
-	oHostCacheLock.unlock();
+	//oHostCacheLock.unlock();
 
 	hostCache.m_nLockWaitTime.fetchAndAddRelaxed( tHCLock );
 	hostCache.m_nWorkTime.fetchAndAddRelaxed( tHCWork );

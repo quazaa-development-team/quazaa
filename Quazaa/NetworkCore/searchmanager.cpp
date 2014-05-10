@@ -291,13 +291,13 @@ bool SearchManager::onQueryAcknowledge( G2Packet* pPacket, const EndPoint& oSend
 					tRetryAfter = pPacket->readIntLE<quint16>();
 				}
 
-				hostCache.m_pSection.lock();
+				hostCache.lock();
 				SharedG2HostPtr pHost = hostCache.get( oQAOrigin );
 				if ( !pHost.isNull() )
 				{
 					pHost->setRetryAfter( tNow + tRetryAfter );
 				}
-				hostCache.m_pSection.unlock();
+				hostCache.unlock();
 			}
 			else if ( strcmp( "FR", szType ) == 0 && nLength >= 4 )
 			{

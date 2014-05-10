@@ -287,8 +287,7 @@ void NeighboursConnections::maintain()
 			int  nCountry = 0;
 			QSet<SharedG2HostPtr> oExcept;
 
-			QMutexLocker l( &hostCache.m_pSection );
-
+			hostCache.lock();
 			for ( ; nAttempt > 0; --nAttempt )
 			{
 				// nowe polaczenie
@@ -342,6 +341,7 @@ void NeighboursConnections::maintain()
 					}
 				}
 			}
+			hostCache.unlock();
 		}
 	}
 	else
@@ -363,8 +363,7 @@ void NeighboursConnections::maintain()
 			nAttempt = qMin( nAttempt, 8 ) - nUnknown;
 			QSet<SharedG2HostPtr> oExcept;
 
-			QMutexLocker l( &hostCache.m_pSection );
-
+			hostCache.lock();
 			for ( ; nAttempt > 0; --nAttempt )
 			{
 				// nowe polaczenie
@@ -396,6 +395,7 @@ void NeighboursConnections::maintain()
 					break;
 				}
 			}
+			hostCache.unlock();
 		}
 
 		if ( nLeavesG2 > quazaaSettings.Gnutella2.NumLeafs )

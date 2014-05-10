@@ -25,11 +25,11 @@
 #ifndef HOSTCACHE_H
 #define HOSTCACHE_H
 
-#include <QObject>
-
 #include <QMutex>
 #include <QThread>
 #include <QAtomicInt>
+
+#include "endpoint.h"
 
 // TODO: add mechanism to remove hosts and discovery services by their origin
 
@@ -45,23 +45,30 @@ class HostCache : public QObject
 	Q_OBJECT
 
 public:
-	mutable QMutex          m_pSection;
-
 	// Thread used by the Host Cache
-	QThread*                m_pHostCacheDiscoveryThread;
-
-	mutable quint32         m_tLastSave;
-	quint8                  m_nMaxFailures;
-	QAtomicInt              m_nSizeAtomic;
-	QAtomicInt              m_nConnectablesAtomic;
+	QThread*        m_pHostCacheDiscoveryThread;
 
 protected:
+	mutable QMutex  m_pSection;
 
-private:
+	mutable quint32 m_tLastSave;
+	quint8          m_nMaxFailures;
+	QAtomicInt      m_nSizeAtomic;
+	QAtomicInt      m_nConnectablesAtomic;
 
 public:
 	HostCache();
 	virtual ~HostCache();
+
+	/**
+	 * @brief lock locks the HostCache for synchronous access.
+	 */
+	void            lock();
+
+	/**
+	 * @brief unlock unlocks the HostCache.
+	 */
+	void            unlock();
 
 	/**
 	 * @brief start initializes the Host Cache.
@@ -138,17 +145,6 @@ signals:
 	 */
 	void            clearTriggered();
 
-public slots:
-
-private slots:
-	/**
-	 * @brief asyncStartUpHelper is a private helper method for start().
-	 * It contains among other things the signal slot connections specific to the respective host
-	 * cache.
-	 * Locking: YES
-	 */
-	virtual void    startUpInternal() = 0;
-
 private:
 	/**
 	 * @brief stopInternal prepares the Host Cache (sub classes) for deletion.
@@ -161,6 +157,15 @@ private:
 	 * classes.
 	 */
 	virtual void    registerMetaTypesInternal() = 0;
+
+private slots:
+	/**
+	 * @brief asyncStartUpHelper is a private helper method for start().
+	 * It contains among other things the signal slot connections specific to the respective host
+	 * cache.
+	 * Locking: YES
+	 */
+	virtual void    startUpInternal() = 0;
 };
 
 } // namespace HostManagement

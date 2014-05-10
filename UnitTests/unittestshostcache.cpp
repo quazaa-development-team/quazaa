@@ -42,10 +42,10 @@ void UnitTestsHostCache::testCache()
 
 	EndPoint oIP = EndPoint( IP, UNIT_TEST_PORT );
 
-	m_pCache->m_pSection.lock();
+	m_pCache->lock();
 	// a NULL pointer is returned if the IP cannot be found in the cache
 	SharedG2HostPtr pHost = m_pCache->get( oIP );
-	m_pCache->m_pSection.unlock();
+	m_pCache->unlock();
 
 	QCOMPARE( !(pHost.isNull()), isCached );
 

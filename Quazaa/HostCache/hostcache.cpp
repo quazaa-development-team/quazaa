@@ -40,6 +40,16 @@ HostCache::~HostCache()
 {
 }
 
+void HostCache::lock()
+{
+	m_pSection.lock();
+}
+
+void HostCache::unlock()
+{
+	m_pSection.unlock();
+}
+
 /**
  * @brief start initializes the Host Cache.
  * Make sure this is not called before QApplication is instantiated.

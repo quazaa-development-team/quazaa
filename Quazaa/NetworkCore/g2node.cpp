@@ -1261,7 +1261,7 @@ void G2Node::onQKR( G2Packet* pPacket )
 //	tHostCache.start();
 //#endif
 
-	QMutexLocker l( &hostCache.m_pSection );
+	hostCache.lock();
 
 //#if ENABLE_G2_HOST_CACHE_BENCHMARKING
 //	qint64 tHCLock = tHostCache.elapsed();
@@ -1315,6 +1315,8 @@ void G2Node::onQKR( G2Packet* pPacket )
 		datagrams.sendPacket( pQKR, addr, false );
 		pQKR->release();
 	}
+
+	hostCache.unlock();
 
 //#if ENABLE_G2_HOST_CACHE_BENCHMARKING
 //	l.unlock();
