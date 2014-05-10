@@ -150,16 +150,18 @@ inline T getRandomNum( T min, T max )
 	return min + T( ( ( max - min ) + 1 ) * ( double )( qrand() ) / ( RAND_MAX + 1.0 ) );
 }
 
-// TODO: Make this work.
-// This generates a read/write iterator from a read-only iterator.
-/*template<class T> inline typename T::iterator getRWIterator(T container, typename T::const_iterator const_it)
+/**
+ * This generates a (read/write) iterator from a (read-only) const_iterator.
+ */
+template<class T>
+typename T::iterator getRWIterator( T& container, const typename T::const_iterator& const_it )
 {
-	typename T::iterator i = container.begin();
+	typename T::iterator it = container.begin();
 	typename T::const_iterator container_begin_const = container.begin();
 	int nDistance = std::distance< typename T::const_iterator >( container_begin_const, const_it );
-	std::advance( i, nDistance );
-	return i;
-}*/
+	std::advance( it, nDistance );
+	return it;
+}
 }
 
 #endif // COMMONFUNCTIONS_H
