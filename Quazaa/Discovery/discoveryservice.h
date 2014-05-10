@@ -56,7 +56,7 @@ protected:
 	mutable QReadWriteLock m_oRWLock;      // Service access lock.
 //	mutable CDebugRWLock   m_oRWLock;      // Enable this for debugging purposes.
 	ServiceType::Type      m_nServiceType; // GWC, UKHL, ...
-	NetworkType           m_oNetworkType; // could be several in case of GWC for instance
+	NetworkType            m_oNetworkType; // could be several in case of GWC for instance
 	QUrl                   m_oServiceURL;
 	QUrl                   m_oRedirectUrl;
 	QString                m_sPong;        // The service's reply to a ping request

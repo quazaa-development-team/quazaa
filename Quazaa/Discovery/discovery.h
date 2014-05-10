@@ -82,10 +82,10 @@ enum Type
 }
 
 /**
- * @brief DiscoveryID: ID type used to identify and manage discovery services. All IDs are
+ * @brief ServiceID: ID type used to identify and manage discovery services. All IDs are
  * positive. 0 indicates an invalid ID.
  */
-typedef quint16 ServiceID;
+typedef quint32 ServiceID;
 
 /**
  * @brief ConstServicePtr is a shared pointer (strong reference) for allowing classes external to

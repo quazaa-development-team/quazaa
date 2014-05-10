@@ -282,7 +282,7 @@ void HostCacheTableModel::sort( int column, Qt::SortOrder order )
 	m_bNeedSorting = false;
 }
 
-int HostCacheTableModel::find( quint32 nRuleID )
+/*int HostCacheTableModel::find( quint32 nRuleID )
 {
 	const int nSize = ( int )m_vHosts.size();
 
@@ -295,7 +295,7 @@ int HostCacheTableModel::find( quint32 nRuleID )
 	}
 
 	return -1;
-}
+}*/
 
 HostData* HostCacheTableModel::dataFromRow( int nRow ) const
 {

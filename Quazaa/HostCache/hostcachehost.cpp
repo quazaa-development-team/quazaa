@@ -41,14 +41,14 @@ HostCacheHost::HostCacheHost( const EndPoint& oAddress, const quint8 nFailures,
 	m_nFailures(    nFailures    ),
 	m_bConnectable( false        )
 {
-	m_nID = m_oIDProvider.aquire();
+//	m_nID = m_oIDProvider.aquire();
 }
 
 HostCacheHost::~HostCacheHost()
 {
 	if ( !m_bShutDownFlag )
 	{
-		m_oIDProvider.release( m_nID );
+//		m_oIDProvider.release( m_nID );
 	}
 }
 
@@ -108,7 +108,7 @@ HostData::HostData( SharedHostPtr pHost ) :
 	m_sCountryCode( m_oAddress.country() ),
 	m_sCountry(     geoIP.countryNameFromCode( m_sCountryCode ) ),
 	m_iCountry(     QIcon( ":/Resource/Flags/" + m_sCountryCode.toLower() + ".png" ) ),
-	m_nID(          pHost->id()          ),
+	//m_nID(          pHost->id()          ),
 	m_tLastConnect( pHost->lastConnect() ),
 	m_sLastConnect( m_tLastConnect ? QDateTime::fromTime_t( m_tLastConnect ).toString()
 					: QObject::tr( "never" ) ),

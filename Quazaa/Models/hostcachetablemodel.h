@@ -70,10 +70,10 @@ public:
 
 	void sort( int column, Qt::SortOrder order );
 
-	int find( quint32 nHostID );
+//	int find( quint32 nHostID );
 
 	HostData* dataFromRow( int nRow ) const;
-	//Rule* ruleFromIndex(const QModelIndex& index) const;
+//	Rule* ruleFromIndex(const QModelIndex& index) const;
 
 	void completeRefresh();
 
@@ -99,7 +99,7 @@ public slots:
 	 * @brief updateHost updates the GUI for a specified host.
 	 * @param nHostID : the ID of the host
 	 */
-	//void updateHost(quint32 nHostID);
+//	void updateHost(quint32 nHostID);
 
 	/**
 	 * @brief updateAll updates all hosts in the GUI.

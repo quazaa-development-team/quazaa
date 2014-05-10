@@ -38,6 +38,12 @@
 namespace HostManagement
 {
 
+/**
+ * @brief SourceID: ID type used to relate a HostCacheHost with the source it has been obtained
+ * from. All IDs are positive. 0 indicates an invalid ID.
+ */
+typedef quint32 SourceID;
+
 class HostCacheHost
 {
 protected:
@@ -47,7 +53,7 @@ protected:
 
 	quint32     m_tTimeStamp;   // Kiedy ostatnio widziany
 
-	quint32     m_nID;          // GUI ID
+//	quint32     m_nID;          // GUI ID
 
 	quint32     m_tLastConnect; // kiedy ostatnio sie polaczylismy?
 	quint8      m_nFailures;    // Connection failures in a row.
@@ -92,10 +98,10 @@ public:
 	{
 		return m_tTimeStamp;
 	}
-	inline quint32   id()            const
+	/*inline quint32   id()            const
 	{
 		return m_nID;
-	}
+	}*/
 	inline quint32   lastConnect()   const
 	{
 		return m_tLastConnect;
@@ -152,7 +158,7 @@ public:
 	const QString   m_sCountryCode;
 	const QString   m_sCountry;
 	const QIcon     m_iCountry;
-	const quint32   m_nID;
+//	const quint32   m_nID;
 	quint32         m_tLastConnect;
 	QString         m_sLastConnect;
 	quint8          m_nFailures;
@@ -160,8 +166,8 @@ public:
 
 	DiscoveryProtocol::Protocol m_nType;
 
-	//QString         m_sUserAgent;
-	//QIcon           m_iNetwork;
+//	QString         m_sUserAgent;
+//	QIcon           m_iNetwork;
 
 	HostData( SharedHostPtr pHost );
 	bool update( int row, int col, QModelIndexList& to_update, HostCacheTableModel* model );
