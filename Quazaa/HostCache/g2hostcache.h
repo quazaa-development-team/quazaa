@@ -96,6 +96,7 @@ private:
 	QMetaMethod m_pfAddSyncAck;
 	QMetaMethod m_pfAsyncAddXTry;
 	QMetaMethod m_pfAsyncOnFailure;
+	QMetaMethod m_pfAsyncPruneByQueryAck;
 	QMetaMethod m_pfAsyncUpdateFailures;
 	QMetaMethod m_pfLocalAddressChanged;
 	QMetaMethod m_pfRemoveSync;
@@ -200,6 +201,7 @@ private slots:
 
 	void asyncAddXTry( QString sHeader );
 	void asyncOnFailure( EndPoint addr );
+	void asyncPruneByQueryAck( quint32 tNow );
 	void asyncUpdateFailures( EndPoint oAddress, quint32 nNewFailures );
 };
 

@@ -171,30 +171,14 @@ void G2HostCache::remove( SharedG2HostPtr pHost )
 }
 
 /**
- * @brief G2HostCache::pruneByQueryAck removes all hosts with a tAck older than
- * tNow - quazaaSettings.Gnutella2.QueryHostDeadline.
- * Locking: YES
- * @param tNow: the current time in sec since 1970-01-01 UTC.
+ * @brief G2HostCache::asyncPruneByQueryAck removes all hosts with outdated acks (older than
+ * tNow - quazaaSettings.Gnutella2.QueryHostDeadline).
+ * Locking: YES (asynchronous)
+ * @param tNow The current time in sec since 1970-01-01 UTC.
  */
 void G2HostCache::pruneByQueryAck( const quint32 tNow )
 {
-	// TODO: async operation
-
-	m_pSection.lock();
-
-	const quint32 tAckExpire = tNow - quazaaSettings.Gnutella2.QueryHostDeadline;
-	for ( G2HostCacheIterator itHost = m_lHosts.begin(); itHost != m_lHosts.end(); )
-	{
-		if ( *itHost && ( *itHost )->ack() && ( *itHost )->ack() < tAckExpire )
-		{
-			itHost = erase( itHost );
-		}
-		else
-		{
-			++itHost;
-		}
-	}
-	m_pSection.unlock();
+	m_pfAsyncPruneByQueryAck.invoke( this, Qt::QueuedConnection, Q_ARG( quint32, tNow ) );
 }
 
 /**
@@ -1468,6 +1452,10 @@ void G2HostCache::startUpInternal()
 	nMethodIndex            = pMetaObject->indexOfMethod( sNormalizedSignature );
 	m_pfAsyncOnFailure      = pMetaObject->method( nMethodIndex );
 
+	sNormalizedSignature    = "asyncPruneByQueryAck(quint32)";
+	nMethodIndex            = pMetaObject->indexOfMethod( sNormalizedSignature );
+	m_pfAsyncPruneByQueryAck= pMetaObject->method( nMethodIndex );
+
 	sNormalizedSignature    = "asyncUpdateFailures(EndPoint,quint32)";
 	nMethodIndex            = pMetaObject->indexOfMethod( sNormalizedSignature );
 	m_pfAsyncUpdateFailures = pMetaObject->method( nMethodIndex );
@@ -1490,6 +1478,7 @@ void G2HostCache::startUpInternal()
 	Q_ASSERT( m_pfAddSyncAck.isValid() );
 	Q_ASSERT( m_pfAsyncAddXTry.isValid() );
 	Q_ASSERT( m_pfAsyncOnFailure.isValid() );
+	Q_ASSERT( m_pfAsyncPruneByQueryAck.isValid() );
 	Q_ASSERT( m_pfAsyncUpdateFailures.isValid() );
 	Q_ASSERT( m_pfLocalAddressChanged.isValid() );
 	Q_ASSERT( m_pfRemoveSync.isValid() );
@@ -1623,6 +1612,31 @@ void G2HostCache::asyncOnFailure( EndPoint addr )
 		}
 	}
 
+	m_pSection.unlock();
+}
+
+/**
+ * @brief G2HostCache::asyncPruneByQueryAck removes all hosts with outdated acks (older than
+ * tNow - quazaaSettings.Gnutella2.QueryHostDeadline).
+ * Locking: YES
+ * @param tNow The current time in sec since 1970-01-01 UTC.
+ */
+void G2HostCache::asyncPruneByQueryAck( quint32 tNow )
+{
+	m_pSection.lock();
+
+	const quint32 tAckExpire = tNow - quazaaSettings.Gnutella2.QueryHostDeadline;
+	for ( G2HostCacheIterator itHost = m_lHosts.begin(); itHost != m_lHosts.end(); )
+	{
+		if ( *itHost && ( *itHost )->ack() && ( *itHost )->ack() < tAckExpire )
+		{
+			itHost = erase( itHost );
+		}
+		else
+		{
+			++itHost;
+		}
+	}
 	m_pSection.unlock();
 }
 
