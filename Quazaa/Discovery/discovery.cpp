@@ -1396,8 +1396,6 @@ Manager::ServicePtr Manager::lookupUrl( const QString& sURL ) const
 		const MapPair& pair = *it;
 		ServicePtr pService = pair.second;
 
-		// TODO: If this ever causes a problem (someone removing a service that is locked),
-		// restart the loop upon encountering a locked service.
 		pService->m_oRWLock.lockForRead();
 
 		if ( !sURL.compare( pService->m_oServiceURL.toString() ) ||

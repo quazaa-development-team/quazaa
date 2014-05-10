@@ -26,6 +26,8 @@
 #define WIDGETSEARCH_H
 
 #include <QWidget>
+#include <QNetworkAccessManager>
+
 #include "widgetsearchresults.h"
 
 namespace Ui
@@ -39,14 +41,17 @@ class WidgetSearch : public QWidget
 public:
 	WidgetSearch( QWidget* parent = 0 );
 	~WidgetSearch();
+
 	WidgetSearchResults* panelSearchResults;
 	WidgetSearchTemplate* currentPage;
+
 	void saveWidget();
 
 protected:
 	void changeEvent( QEvent* e );
 
 private:
+	QNetworkAccessManager netManager;
 	Ui::WidgetSearch* ui;
 
 public slots:

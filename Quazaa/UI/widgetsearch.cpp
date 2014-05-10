@@ -30,14 +30,12 @@
 
 #include "systemlog.h"
 #include "suggestedlineedit.h"
-#include <QNetworkAccessManager>
-
-QNetworkAccessManager netManager; // TODO: move it to a better place ;)
 
 #include "debug_new.h"
 
 WidgetSearch::WidgetSearch( QWidget* parent ) :
 	QWidget( parent ),
+	netManager( QNetworkAccessManager() ),
 	ui( new Ui::WidgetSearch )
 {
 	ui->setupUi( this );
