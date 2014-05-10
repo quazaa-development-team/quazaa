@@ -153,9 +153,9 @@ public:
 public slots:
 	void localAddressChanged();
 	void sanityCheck();
+	void maintain();
 
 private:
-	void maintain();
 	void maintainInternal();
 
 	/**
