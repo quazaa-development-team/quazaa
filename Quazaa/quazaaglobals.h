@@ -32,6 +32,7 @@
 #define LOG_ROUTED_PACKETS 0
 #define LOG_CONNECTIONS 0
 
+// TODO: Is there a need for this to be a QObject?
 class QuazaaGlobals : public QObject
 {
 	Q_OBJECT
@@ -49,6 +50,9 @@ public:
 	static QString STORAGE_PATH();
 	static QString SETTINGS_PATH();
 	static QString INI_FILE();
+
+private:
+	static QString HOME_PATH();
 };
 
 #endif // QUAZAAGLOBALS_H

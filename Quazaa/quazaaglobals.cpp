@@ -60,24 +60,33 @@ QString QuazaaGlobals::APPLICATION_NAME()
 /*!
 	Returns the version of Quazaa at run-time as a string.
  */
-#ifdef QT_DEBUG
 QString QuazaaGlobals::APPLICATION_VERSION()
 {
-	return QString().sprintf( "%d.%d Git:%s (debug build)", Version::MAJOR, Version::MINOR, Version::REVISION );
-}
+#ifdef QT_DEBUG
+	static const QString sVersion = QString( "%1.%2 Git:%3 (debug build)"
+											 ).arg( QString::number( Version::MAJOR ),
+													QString::number( Version::MINOR ),
+													Version::REVISION );
 #else
-QString CQuazaaGlobals::APPLICATION_VERSION()
-{
-	return QString().sprintf( "%d.%d Git:%s", Version::MAJOR, Version::MINOR, Version::REVISION );
-}
+	static const QString sVersion = QString( "%1.%2 Git:%3"
+											 ).arg( QString::number( Version::MAJOR ),
+													QString::number( Version::MINOR ),
+													Version::REVISION );
 #endif
+	return sVersion;
+}
 
 /*!
 	Returns the version of Quazaa including build date at run-time as a string.
  */
 QString QuazaaGlobals::APPLICATION_VERSION_STRING()
 {
-	return QString().sprintf( "%d.%d Git:%s (%s)", Version::MAJOR, Version::MINOR, Version::REVISION, Version::BUILD_DATE );
+	static const QString sVersion = QString( "%1.%2 Git:%3 (%4)"
+											 ).arg( QString::number( Version::MAJOR ),
+													QString::number( Version::MINOR ),
+													Version::REVISION,
+													Version::BUILD_DATE );
+	return sVersion;
 }
 
 /*!
@@ -110,24 +119,23 @@ QString QuazaaGlobals::APPLICATION_ORGANIZATION_DOMAIN()
  */
 QString QuazaaGlobals::USER_AGENT_STRING()
 {
-	return APPLICATION_NAME() + "/" + APPLICATION_VERSION().replace( ",", "." );
+	static const QString sUserAgent = APPLICATION_NAME() + "/"
+									  + APPLICATION_VERSION().replace( ",", "." );
+	return sUserAgent;
 }
 
 /*!
 	Returns the vendor code of Quazaa at run-time as a string.
 	This is used by most of the network protocols in vendor code pakets.
  */
-#ifdef QT_DEBUG
 QString QuazaaGlobals::VENDOR_CODE()
 {
+#ifdef QT_DEBUG
 	return "QAZB";
-}
 #else
-QString CQuazaaGlobals::VENDOR_CODE()
-{
 	return "QAZA";
-}
 #endif
+}
 
 /*!
 	Returns the media open filter used by file open dialogs when opening media files.
@@ -145,9 +153,9 @@ QString QuazaaGlobals::MEDIA_OPEN_FILTER()
 QString QuazaaGlobals::SETTINGS_PATH()
 {
 	QDir path;
-	path.mkpath( ( QString( "%1/.quazaa/" ).arg( QStandardPaths::writableLocation( QStandardPaths::HomeLocation ) ) ) );
-	return QDir::toNativeSeparators( QString( "%1/.quazaa/" ).arg( QStandardPaths::writableLocation(
-																	   QStandardPaths::HomeLocation ) ) );
+	static const QString sPath = QDir::toNativeSeparators( HOME_PATH() + ".quazaa/" );
+	path.mkpath( sPath );
+	return sPath;
 }
 
 /*!
@@ -156,21 +164,30 @@ QString QuazaaGlobals::SETTINGS_PATH()
 QString QuazaaGlobals::DATA_PATH()
 {
 	QDir path;
-	path.mkpath( QString( "%1Data/" ).arg( SETTINGS_PATH() ) );
-	return QDir::toNativeSeparators( QString( "%1Data/" ).arg( SETTINGS_PATH() ) );
+	static const QString sPath = QDir::toNativeSeparators( SETTINGS_PATH() + "Data/" );
+	path.mkpath( sPath );
+	return sPath;
 }
 
 QString QuazaaGlobals::STORAGE_PATH()
 {
 	QDir path;
-	path.mkpath( QString( "%1/Quazaa/" ).arg( QStandardPaths::writableLocation( QStandardPaths::HomeLocation ) ) );
-	return QDir::toNativeSeparators( QString( "%1/Quazaa/" ).arg( QStandardPaths::writableLocation(
-																	  QStandardPaths::HomeLocation ) ) );
+	static const QString sPath = QDir::toNativeSeparators( HOME_PATH() + "Quazaa/" );
+	path.mkpath( sPath );
+	return sPath;
 }
 
 QString QuazaaGlobals::INI_FILE()
 {
-	return QString( "%1quazaa.ini" ).arg( SETTINGS_PATH() );
+	static const QString sPath = SETTINGS_PATH() + "quazaa.ini";
+	return sPath;
+}
+
+QString QuazaaGlobals::HOME_PATH()
+{
+	static const QString sPath = QStandardPaths::writableLocation( QStandardPaths::HomeLocation )
+								 + "/";
+	return sPath;
 }
 
 
