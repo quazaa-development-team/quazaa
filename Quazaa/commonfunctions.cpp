@@ -105,7 +105,7 @@ QString common::fixFileName( QString sName )
 {
 	QString sRet = sName;
 	// \ * / ? % : | " > <
-	sRet.replace( QRegExp( "[\\\\\\*\\/\\?\\%\\:\\|\\\"\\>\\<\\x0000]" ), "_" );
+	sRet.replace( QRegularExpression( "[\\\\\\*\\/\\?\\%\\:\\|\\\"\\>\\<\\x0000]" ), "_" );
 	return sRet.left( 255 );
 }
 
@@ -199,11 +199,9 @@ quint64 common::readSizeInBytes( QString sInput, bool& bOK )
 		return 0;
 	}
 
-	// TODO: replace with QRegularExpression once there is a respective QString overload
-	// use \\z instead of $
-	QRegExp suffix = QRegExp( "(B|KB|KiB|MB|MiB|GB|GiB|TB|TiB)$" );
-	suffix.setCaseSensitivity( Qt::CaseInsensitive );
-	int nSuffixPos = sInput.indexOf( suffix );
+	int nSuffixPos = QRegularExpression( "(B|KB|KiB|MB|MiB|GB|GiB|TB|TiB)\\z",
+										  QRegularExpression::CaseInsensitiveOption
+										  ).match( sInput ).capturedStart();
 
 	QString sNumber = sInput.left( nSuffixPos );
 	QString sSuffix = sInput.right( sInput.length() - sNumber.size() );

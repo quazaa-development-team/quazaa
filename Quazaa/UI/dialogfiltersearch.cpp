@@ -39,12 +39,11 @@ DialogFilterSearch::DialogFilterSearch( SearchFilter::FilterControlData& rData, 
 	ui->setupUi( this );
 	setSkin();
 
-	// TODO: replace with QRegularExpression oMatch( "\\A...\\z", QRegularExpression::
-	// CaseInsensitiveOption ); once Qt has finised integrating new RegularExpression class.
-	QRegExp pattern = QRegExp( "^(|[0-9]+\\s*(|B|KB|KiB|MB|MiB|GB|GiB|TB|TiB))$" );
-	pattern.setCaseSensitivity( Qt::CaseInsensitive );
+	QRegularExpression pattern =
+			QRegularExpression( "\\A(|[0-9]+\\s*(|B|KB|KiB|MB|MiB|GB|GiB|TB|TiB))\\z",
+								QRegularExpression::CaseInsensitiveOption );
 
-	QValidator* pValidator = new QRegExpValidator( pattern, this );
+	QValidator* pValidator = new QRegularExpressionValidator( pattern, this );
 	ui->lineEditMinimumSize->setValidator( pValidator );
 	ui->lineEditMaximumSize->setValidator( pValidator );
 

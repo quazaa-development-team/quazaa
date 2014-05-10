@@ -18,7 +18,7 @@ DialogNeighbourInfo::DialogNeighbourInfo( NeighboursTableModel::NeighbourData* p
 		.arg( pNeighbour->sCountry )
 		.arg( pNeighbour->sUserAgent )
 		.arg( neighbourConnectionDescription( pNeighbour ) )
-		.arg( pNeighbour->sHandshake.replace( QRegExp( "\r\n|\n" ), "<br>" ) ) );
+		.arg( pNeighbour->sHandshake.replace( QRegularExpression( "\r\n|\n" ), "<br>" ) ) );
 	ui->labelNetworkImage->setPixmap( pNeighbour->iNetwork.pixmap( QSize( 41, 41 ) ) );
 	ui->labelCurrentInbound->setText( QString().sprintf( "%1.3f", double( pNeighbour->nBandwidthIn ) ) );
 	ui->labelCurrentOutbound->setText( QString().sprintf( "%1.3f", double( pNeighbour->nBandwidthOut ) ) );

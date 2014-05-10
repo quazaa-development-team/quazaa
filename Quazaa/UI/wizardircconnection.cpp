@@ -14,8 +14,8 @@ CWizardIrcConnection::CWizardIrcConnection( QWidget* parent ) :
 	quazaaSettings.loadChatConnectionWizard();
 	//Users page
 	lineEditNickName = new CCompleterLineEdit( quazaaSettings.Chat.NickNames, this );
-	QRegExpValidator* validator = new QRegExpValidator( lineEditNickName );
-	validator->setRegExp( QRegExp( "\\S+" ) );
+	QRegularExpressionValidator* validator =
+			new QRegularExpressionValidator( QRegularExpression( "\\S+" ), lineEditNickName );
 	lineEditNickName->setValidator( validator );
 	ui->horizontalLayoutNick->addWidget( lineEditNickName );
 	connect( lineEditNickName, SIGNAL( textChanged( QString ) ), this, SLOT( completeChanged() ) );

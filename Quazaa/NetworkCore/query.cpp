@@ -1,7 +1,7 @@
 /*
 ** $Id$
 **
-** Copyright © Quazaa Development Team, 2009-2013.
+** Copyright © Quazaa Development Team, 2009-2014.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
 **
 ** Quazaa is free software; this file may be used under the terms of the GNU
@@ -21,6 +21,8 @@
 ** 3.0 along with Quazaa; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
+#include <QRegularExpression>
 
 #include "query.h"
 #include "g2packet.h"
@@ -135,47 +137,55 @@ void Query::buildG2Keywords( QString strPhrase )
 {
 	QStringList lPositive, lNegative;
 
-	strPhrase = strPhrase.trimmed().replace( "_", " " ).normalized( QString::NormalizationForm_KC ).toLower().append( " " );
-	QRegExp re( "(-?\\\".*\\\"|-?\\w+)\\W+", Qt::CaseSensitive, QRegExp::RegExp2 );
-	re.setMinimal( true );
-
-	QStringList list;
-	int pos = 0, oldPos = 0;
-	bool hasDash = false;
-
-	while ( ( pos = re.indexIn( strPhrase, pos ) ) != -1 )
+	strPhrase = strPhrase.trimmed().replace( "_", " "
+											 ).normalized( QString::NormalizationForm_KC
+														   ).toLower().append( " " );
+	QStringList lWords;
 	{
-		QString sWord = re.cap( 1 );
+		QRegularExpression re( "(-?\\\".*\\\"|-?\\w+)\\W+",
+							   QRegularExpression::InvertedGreedinessOption );
+		int nPos = 0, nOldPos = 0;
+		bool bHasDash = false;
+		QRegularExpressionMatch oMatch;
 
-		if ( hasDash && pos - re.matchedLength() - oldPos == 0 && list.last().size() < 4 && sWord.size() < 4 )
+		while ( ( oMatch = re.match( strPhrase, nPos ) ).hasMatch() )
 		{
-			list.last().append( "-" ).append( sWord );
-		}
-		else
-		{
-			list << sWord;
-		}
+			nPos = re.match( strPhrase, nPos ).capturedStart();
+			QString sWord = oMatch.captured( 1 );
 
-		oldPos = pos;
-		pos += re.matchedLength();
+			if ( bHasDash &&
+				 nPos - oMatch.capturedLength() - nOldPos == 0 &&
+				 lWords.last().size() < 4 &&
+				 sWord.size() < 4 )
+			{
+				lWords.last().append( "-" ).append( sWord );
+			}
+			else
+			{
+				lWords << sWord;
+			}
 
-		if ( strPhrase.mid( pos - 1, 1 ) == "-" )
-		{
-			hasDash = true;
-		}
-		else
-		{
-			hasDash = false;
+			nOldPos = nPos;
+			nPos += oMatch.capturedLength();
+
+			if ( strPhrase.mid( nPos - 1, 1 ) == "-" )
+			{
+				bHasDash = true;
+			}
+			else
+			{
+				bHasDash = false;
+			}
 		}
 	}
 
-	list.removeDuplicates();
+	lWords.removeDuplicates();
 
-	for ( QStringList::iterator itWord = list.begin(); itWord != list.end(); )
+	for ( QStringList::iterator itWord = lWords.begin(); itWord != lWords.end(); )
 	{
 		if ( ( *itWord ).size() < 4 )
 		{
-			itWord = list.erase( itWord );
+			itWord = lWords.erase( itWord );
 		}
 		else
 		{
@@ -183,9 +193,9 @@ void Query::buildG2Keywords( QString strPhrase )
 		}
 	}
 
-	QRegExp rx( "\\w+", Qt::CaseSensitive, QRegExp::RegExp2 );
+	QRegularExpression rx( "\\w+" );
 
-	foreach ( const QString & sWord, list )
+	foreach ( const QString& sWord, lWords )
 	{
 		if ( sWord.at( 0 ) == '-' && sWord.at( 1 ) != '"' )
 		{
@@ -200,10 +210,11 @@ void Query::buildG2Keywords( QString strPhrase )
 
 			// extract words
 			int p = 0;
-			while ( ( p = rx.indexIn( sWord, p ) ) != -1 )
+			QRegularExpressionMatch oMatch;
+			while ( ( oMatch = rx.match( sWord, p ) ).hasMatch() )
 			{
-				lPositive.append( rx.cap( 0 ) );
-				p += rx.matchedLength();
+				p = oMatch.capturedStart() + oMatch.capturedLength();
+				lPositive.append( oMatch.captured() );
 			}
 		}
 		else if ( sWord.at( 0 ) == '-' && sWord.at( 1 ) == '"' )
@@ -213,10 +224,11 @@ void Query::buildG2Keywords( QString strPhrase )
 
 			// extract words
 			int p = 0;
-			while ( ( p = rx.indexIn( sWord, p ) ) != -1 )
+			QRegularExpressionMatch oMatch;
+			while ( ( oMatch = rx.match( sWord, p ) ).hasMatch() )
 			{
-				lNegative.append( rx.cap( 0 ) );
-				p += rx.matchedLength();
+				p = oMatch.capturedStart() + oMatch.capturedLength();
+				lNegative.append( oMatch.captured() );
 			}
 		}
 		else
@@ -230,12 +242,12 @@ void Query::buildG2Keywords( QString strPhrase )
 	m_sG2PositiveWords.chop( 1 );
 	m_sG2NegativeWords.chop( 1 );
 
-	foreach( const QString & sWord, lNegative )
+	foreach( const QString& sWord, lNegative )
 	{
 		lPositive.removeAll( sWord );
 	}
 
-	foreach ( const QString & sWord, lPositive )
+	foreach ( const QString& sWord, lPositive )
 	{
 		quint32 nHash = QueryHashTable::hashWord( sWord.toUtf8().constData(), sWord.toUtf8().size(), 32 );
 		m_lHashedKeywords.append( nHash );

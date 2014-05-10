@@ -89,7 +89,7 @@ CDialogProfile::CDialogProfile( QWidget* parent ) :
 		ui->treeWidgetFavorites->addTopLevelItem( m_qTreeWidgetItem );
 	}
 	tempGUID = QUuid::createUuid();
-	ui->labelGUID->setText( tempGUID.toString().remove( QRegExp( "[{}]" ) ) );
+	ui->labelGUID->setText( tempGUID.toString().remove( QRegularExpression( "[{}]" ) ) );
 	ui->pushButtonApply->setEnabled( false );
 	setSkin();
 }
@@ -407,7 +407,7 @@ void CDialogProfile::on_pushButtonRemoveWebsite_clicked()
 void CDialogProfile::on_pushButtonGenerateNewGUID_clicked()
 {
 	tempGUID = QUuid::createUuid();
-	ui->labelGUID->setText( tempGUID.toString().remove( QRegExp( "[{}]" ) ) );
+	ui->labelGUID->setText( tempGUID.toString().remove( QRegularExpression( "[{}]" ) ) );
 	ui->pushButtonApply->setEnabled( true );
 }
 

@@ -1,7 +1,7 @@
 /*
 ** $Id$
 **
-** Copyright © Quazaa Development Team, 2009-2013.
+** Copyright © Quazaa Development Team, 2009-2014.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
 **
 ** Quazaa is free software; this file may be used under the terms of the GNU
@@ -22,17 +22,19 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#include <QString>
+#include <QDateTime>
+#include <QByteArray>
+#include <QRegularExpression>
+
 #include "queryhashtable.h"
 #include "queryhashmaster.h"
 #include "queryhashgroup.h"
-#include <QString>
 #include "network.h"
 #include "neighbour.h"
 #include "g2node.h"
 #include "g2packet.h"
 #include "zlibutils.h"
-#include <QByteArray>
-#include <QDateTime>
 #include "quazaasettings.h"
 #include "buffer.h"
 #include "query.h"
@@ -848,10 +850,10 @@ int QueryHashTable::makeKeywords( QString sPhrase, QStringList& outList )
 
 	// split it into words
 	QStringList lOut;
-	lOut = sPhrase.split( QRegExp( "\\W+" ), QString::SkipEmptyParts );
+	lOut = sPhrase.split( QRegularExpression( "\\W+" ), QString::SkipEmptyParts );
 
 	// now filter out too short words and only numeric
-	QRegExp rx( "^\\d+$" );
+	QRegularExpression rx( "^\\d+$" );
 	foreach ( const QString & sWord, lOut )
 	{
 		// not specs compliant, Shareaza does this too
@@ -860,7 +862,7 @@ int QueryHashTable::makeKeywords( QString sPhrase, QStringList& outList )
 			continue;
 		}
 
-		if ( rx.indexIn( sWord ) != -1 )
+		if ( rx.match( sWord ).capturedStart() != -1 )
 		{
 			continue;
 		}
