@@ -88,7 +88,7 @@ private: // for use with HashVector only
 	friend class HashSet;
 };
 
-// allows using CHash with std::unordered_map
+// allows using Hash with std::unordered_map
 namespace std
 {
 template <>
@@ -171,7 +171,6 @@ public:
 	bool matches( const HashSet& other ) const;
 
 	friend class Hash;
-	//friend class HashRule;
 };
 
 QList<Hash>& operator<<(       QList<Hash>& list, const HashSet& vector );

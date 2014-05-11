@@ -262,7 +262,7 @@ bool SearchManager::onQueryAcknowledge( G2Packet* pPacket, const EndPoint& oSend
 
 				EndPoint suggestion;
 				pPacket->readHostAddress( &suggestion, !( nLength >= 18 ) );
-				const quint32 tTimeStamp = ( nLength >= ( suggestion.protocol() == 0 ? 10u : 22u ) ) ?
+				const quint32 tTimeStamp = ( nLength >= ( !suggestion.protocol() ? 10u : 22u ) ) ?
 										   pPacket->readIntLE<quint32>() + tAdjust : tNow - 60;
 
 				lSuggestedHubs.insert( suggestion, tTimeStamp );

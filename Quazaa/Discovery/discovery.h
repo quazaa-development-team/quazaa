@@ -155,7 +155,7 @@ private:
 	QAtomicInt              m_bRunning;
 
 	// service ID provider
-	IDProvider< ServiceID > m_oIDProvider;
+	IDProvider< ServiceID >* m_pIDProvider;
 
 	// thread used by the manager
 	QThread*                m_pHostCacheDiscoveryThread;

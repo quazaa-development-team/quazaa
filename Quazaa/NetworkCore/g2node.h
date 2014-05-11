@@ -53,10 +53,10 @@ public:
 
 	quint32         m_tKeyRequest;
 
-	//quint32         m_tLastHAWIn;       // Time when HAW packet recievied
-	//quint32         m_nCountHAWIn;      // Number of HAW packets recievied
-	//bool            m_bSendQHT;
-	//quint32         m_tLastQHT;
+//	quint32         m_tLastHAWIn;       // Time when HAW packet recievied
+//	quint32         m_nCountHAWIn;      // Number of HAW packets recievied
+//	bool            m_bSendQHT;
+//	quint32         m_tLastQHT;
 
 	quint32         m_nHAWWait;
 

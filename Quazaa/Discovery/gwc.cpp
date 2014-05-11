@@ -363,7 +363,7 @@ void GWC::requestCompleted( QNetworkReply* pReply )
 	{
 		if ( !securityManager.isDenied( lHostList.back() ) )
 		{
-			hostCache.add( lHostList.back(), tNow );
+			hostCache.add( lHostList.back(), tNow, id() );
 		}
 		lHostList.pop_back();
 	}

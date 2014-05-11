@@ -70,9 +70,9 @@ private:
 	G2HostCacheIterator m_iHostCacheIterator;
 
 public:
-	G2HostCacheHost( const EndPoint& oAddress, const quint32 tTimestamp, const quint8 nFailures );
-	G2HostCacheHost( const G2HostCacheHost& oHost, const quint32 tTimestamp,
-					 const quint8 nFailures );
+	G2HostCacheHost( const EndPoint& oAddress,     quint32 tTimestamp, quint8 nFailures,
+					 SourceID nOwnID, SourceID nSourceID );
+	G2HostCacheHost( const G2HostCacheHost& oHost, quint32 tTimestamp, quint8 nFailures );
 
 private:
 	G2HostCacheHost( const G2HostCacheHost& ); // avoids unintentionnal copies

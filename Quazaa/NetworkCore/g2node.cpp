@@ -1143,7 +1143,7 @@ void G2Node::onKHL( G2Packet* pPacket )
 					}
 					else
 					{
-						hostCache.add( oHost, nDiff + tNow );
+						hostCache.add( oHost, nDiff + tNow, m_oAddress );
 					}
 				}
 			}
@@ -1513,7 +1513,7 @@ void G2Node::onHaw( G2Packet* pPacket )
 	}
 	else
 	{
-		hostCache.add( oHost, common::getTNowUTC() );
+		hostCache.add( oHost, common::getTNowUTC(), m_oAddress );
 	}
 
 	if ( nTTL > 0 && nHops < 255 )

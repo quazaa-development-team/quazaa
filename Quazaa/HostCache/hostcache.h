@@ -30,6 +30,7 @@
 #include <QAtomicInt>
 
 #include "endpoint.h"
+#include "idprovider.h"
 
 // TODO: add mechanism to remove hosts and discovery services by their origin
 
@@ -46,15 +47,16 @@ class HostCache : public QObject
 
 public:
 	// Thread used by the Host Cache
-	QThread*        m_pHostCacheDiscoveryThread;
+	QThread*            m_pHostCacheDiscoveryThread;
+	IDProvider<quint32> m_oIDProvider;
 
 protected:
-	mutable QMutex  m_pSection;
+	mutable QMutex      m_pSection;
 
-	mutable quint32 m_tLastSave;
-	quint8          m_nMaxFailures;
-	QAtomicInt      m_nSizeAtomic;
-	QAtomicInt      m_nConnectablesAtomic;
+	mutable quint32     m_tLastSave;
+	quint8              m_nMaxFailures;
+	QAtomicInt          m_nSizeAtomic;
+	QAtomicInt          m_nConnectablesAtomic;
 
 public:
 	HostCache();

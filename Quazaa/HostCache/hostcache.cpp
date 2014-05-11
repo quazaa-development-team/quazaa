@@ -29,6 +29,7 @@ using namespace HostManagement;
 
 HostCache::HostCache() :
 	m_pHostCacheDiscoveryThread( NULL ),
+	m_oIDProvider( IDProvider<quint32>() ),
 	m_tLastSave( 0 ),
 	m_nMaxFailures( 0 ),
 	m_nSizeAtomic( 0 ),

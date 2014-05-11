@@ -27,18 +27,21 @@
 
 #include <QMetaMethod>
 
+#include <unordered_map>
+
 #include "hostcache.h"
 
 #define ENABLE_G2_HOST_CACHE_DEBUGGING    0
 #define ENABLE_G2_HOST_CACHE_BENCHMARKING 0
 
 // Increment this if there have been made changes to the way of storing Host Cache Hosts.
-#define HOST_CACHE_CODE_VERSION	8
+#define HOST_CACHE_CODE_VERSION	9
 // History:
 // 4 - Initial implementation.
 // 6 - Fixed Hosts having an early date and changed time storage from QDateTime to quint32.
 // 7 - Changed host failure counter from quint32 to quint8.
 // 8 - Added Polymorphism and type indicator (m_nType)
+// 9 - Added host parent and source ID
 
 // TODO: test changes of m_nMaxFailures under load
 // TODO: add method for adding requesting a security check to be done within this thread
@@ -72,6 +75,11 @@ typedef HostManagement::G2HostCacheList::const_iterator G2HostCacheConstIterator
 
 namespace HostManagement
 {
+
+typedef quint32 SourceID;
+typedef QList< QPair<EndPoint, quint32> > InsertList;
+typedef std::unordered_map<EndPoint, SourceID> IDLookup;
+
 class G2HostCache : public HostCache
 {
 	Q_OBJECT
@@ -80,6 +88,8 @@ private:
 	// allows access to 0 .. m_nMaxFailures + 1
 	G2HostCacheIterator*    m_pFailures; // = new G2HostCacheIterator[m_nMaxFailures + 2];
 	G2HostCacheList         m_lHosts;
+
+	IDLookup m_mIDLookup;
 
 #if ENABLE_G2_HOST_CACHE_BENCHMARKING
 	QAtomicInt              m_nLockWaitTime;
@@ -92,6 +102,8 @@ private:
 
 	// QMetaMethod objects for faster asynchronous method invokation
 	QMetaMethod m_pfAddSync;
+	QMetaMethod m_pfAddSyncSource;
+	QMetaMethod m_pfAddSyncList;
 	QMetaMethod m_pfAddSyncKey;
 	QMetaMethod m_pfAddSyncAck;
 	QMetaMethod m_pfAsyncAddXTry;
@@ -106,14 +118,16 @@ public:
 	G2HostCache();
 	~G2HostCache();
 
-	void add( const EndPoint& oHost, const quint32 tTimeStamp );
-	void addKey( const EndPoint& oHost, const quint32 tTimeStamp,
-				 const EndPoint& oKeyHost, const quint32 nKey, const quint32 tNow );
-	void addAck( const EndPoint& oHost, const quint32 tTimeStamp,
-				 const quint32 tAck, const quint32 tNow );
+	void add(    const EndPoint& oHost, quint32 tTimeStamp, SourceID nSource = 0 );
+	void add(    const EndPoint& oHost, quint32 tTimeStamp, const EndPoint& oSource );
+	void add(    const InsertList& lHosts, const EndPoint& oSource );
+	void addKey( const EndPoint& oHost, quint32 tTimeStamp,
+				 const EndPoint& oKeyHost, quint32 nKey, quint32 tNow );
+	void addAck( const EndPoint& oHost, quint32 tTimeStamp, quint32 tAck, quint32 tNow );
 
 	void remove( const EndPoint& oHost );
 	void remove( SharedG2HostPtr pHost );
+	void remove( SourceID nSource );
 
 	void pruneByQueryAck( const quint32 tNow );
 
@@ -167,12 +181,11 @@ private:
 	void registerMetaTypesInternal();
 
 //	SharedG2HostPtr update( const EndPoint& oHost,       const quint32 tTimeStamp );
-	SharedG2HostPtr update( G2HostCacheIterator& itHost, const quint32 tTimeStamp,
-									const quint32 nFailures = 0 );
-
+	SharedG2HostPtr update( G2HostCacheIterator& itHost, quint32 tTimeStamp,
+							SourceID nSource, quint32 nFailures = 0 );
 
 	SharedG2HostPtr addSyncHelper( const EndPoint& oHost, quint32 tTimeStamp,
-								   const quint32 tNow, quint32 nNewFailures = 0 );
+								   quint32 tNow, SourceID nSource, quint32 nNewFailures = 0 );
 
 	void insert( SharedG2HostPtr pNew );
 	G2HostCacheIterator erase( G2HostCacheIterator& itHost );
@@ -189,11 +202,13 @@ private:
 	void load();
 
 private slots:
-	SharedG2HostPtr addSync( EndPoint host, quint32 tTimeStamp, bool bLock );
-	SharedG2HostPtr addSyncKey( EndPoint host, quint32 tTimeStamp, EndPoint oKeyHost,
-								const quint32 nKey, const quint32 tNow, bool bLock );
-	SharedG2HostPtr addSyncAck( EndPoint host, quint32 tTimeStamp, const quint32 tAck,
-								const quint32 tNow, bool bLock );
+	SharedG2HostPtr addSync( EndPoint oHost, quint32 tTimeStamp, SourceID nSource );
+	SharedG2HostPtr addSyncSource( EndPoint oHost, quint32 tTimeStamp, EndPoint oSource );
+	void addSyncList( InsertList lHosts, EndPoint oSource );
+	SharedG2HostPtr addSyncKey( EndPoint host, quint32 tTimeStamp,
+								EndPoint oKeyHost, quint32 nKey, quint32 tNow );
+	SharedG2HostPtr addSyncAck( EndPoint host, quint32 tTimeStamp,
+								quint32 tAck, quint32 tNow );
 
 	void removeSync( EndPoint oHost );
 

@@ -80,14 +80,26 @@ G2HostCache::~G2HostCache()
  * @param oHost: the EndPoint - is expected to have been checked against the security manager
  * @param tTimeStamp: its timestamp
  */
-void G2HostCache::add( const EndPoint& oHost, const quint32 tTimeStamp )
+void G2HostCache::add( const EndPoint& oHost, quint32 tTimeStamp , SourceID nSource )
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "add()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
 	m_pfAddSync.invoke( this, Qt::QueuedConnection, Q_ARG( EndPoint, oHost ),
-						Q_ARG( quint32, tTimeStamp ), Q_ARG( bool, true ) );
+						Q_ARG( quint32, tTimeStamp ), Q_ARG( SourceID, nSource ) );
+}
+
+void G2HostCache::add( const EndPoint& oHost, quint32 tTimeStamp, const EndPoint& oSource )
+{
+	m_pfAddSyncSource.invoke( this, Qt::QueuedConnection, Q_ARG( EndPoint, oHost ),
+							  Q_ARG( quint32, tTimeStamp ), Q_ARG( EndPoint, oSource ) );
+}
+
+void G2HostCache::add( const InsertList& lHosts, const EndPoint& oSource )
+{
+	m_pfAddSyncList.invoke( this, Qt::QueuedConnection, Q_ARG( InsertList, lHosts ),
+							Q_ARG( EndPoint, oSource ) );
 }
 
 /**
@@ -99,8 +111,8 @@ void G2HostCache::add( const EndPoint& oHost, const quint32 tTimeStamp )
  * @param nKey
  * @param tNow
  */
-void G2HostCache::addKey( const EndPoint& oHost, const quint32 tTimeStamp, const EndPoint& oKeyHost,
-						  const quint32 nKey, const quint32 tNow )
+void G2HostCache::addKey( const EndPoint& oHost, quint32 tTimeStamp,
+						  const EndPoint& oKeyHost, quint32 nKey, quint32 tNow )
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "addKey()" ) );
@@ -108,8 +120,7 @@ void G2HostCache::addKey( const EndPoint& oHost, const quint32 tTimeStamp, const
 
 	m_pfAddSyncKey.invoke( this, Qt::QueuedConnection,   Q_ARG( EndPoint, oHost ),
 						   Q_ARG( quint32, tTimeStamp ), Q_ARG( EndPoint, oKeyHost ),
-						   Q_ARG( quint32, nKey ),       Q_ARG( quint32, tNow ),
-						   Q_ARG( bool, true ) );
+						   Q_ARG( quint32, nKey ),       Q_ARG( quint32, tNow ) );
 }
 
 /**
@@ -120,8 +131,7 @@ void G2HostCache::addKey( const EndPoint& oHost, const quint32 tTimeStamp, const
  * @param tAck
  * @param tNow
  */
-void G2HostCache::addAck( const EndPoint& oHost, const quint32 tTimeStamp, const quint32 tAck,
-						  const quint32 tNow )
+void G2HostCache::addAck( const EndPoint& oHost, quint32 tTimeStamp, quint32 tAck, quint32 tNow )
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "addAck()" ) );
@@ -129,7 +139,7 @@ void G2HostCache::addAck( const EndPoint& oHost, const quint32 tTimeStamp, const
 
 	m_pfAddSyncAck.invoke( this, Qt::QueuedConnection, Q_ARG( EndPoint, oHost ),
 						   Q_ARG( quint32, tTimeStamp ), Q_ARG( quint32, tAck ),
-						   Q_ARG( quint32, tNow ), Q_ARG( bool, true ) );
+						   Q_ARG( quint32, tNow ) );
 }
 
 /**
@@ -168,6 +178,11 @@ void G2HostCache::remove( SharedG2HostPtr pHost )
 	{
 		erase( it );
 	}
+}
+
+void G2HostCache::remove( SourceID nSource )
+{
+	// TODO: implement
 }
 
 /**
@@ -813,8 +828,13 @@ void G2HostCache::stopInternal()
  */
 void G2HostCache::registerMetaTypesInternal()
 {
-	static int foo = qRegisterMetaType< SharedG2HostPtr >( "SharedG2HostPtr" );
+	static int foo    = qRegisterMetaType< SharedG2HostPtr >( "SharedG2HostPtr" );
+	static int bar    = qRegisterMetaType< SourceID   >( "SourceID" );
+	static int foobar = qRegisterMetaType< InsertList >( "InsertList" );
+
 	Q_UNUSED( foo );
+	Q_UNUSED( bar );
+	Q_UNUSED( foobar );
 }
 
 /**
@@ -846,8 +866,8 @@ void G2HostCache::registerMetaTypesInternal()
  * @param nFailures: the new amount of failures. If nFailures > m_nMaxFailures, host will be removed
  * @return the CHostCacheHost pointer pertaining to the updated host.
  */
-SharedG2HostPtr G2HostCache::update( G2HostCacheIterator& itHost, const quint32 tTimeStamp,
-									 const quint32 nFailures )
+SharedG2HostPtr G2HostCache::update( G2HostCacheIterator& itHost, quint32 tTimeStamp,
+									 SourceID nSource, quint32 nFailures )
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache,
@@ -881,6 +901,13 @@ SharedG2HostPtr G2HostCache::update( G2HostCacheIterator& itHost, const quint32 
 
 	if ( pNew )
 	{
+		// if there isn't a source ID yet...
+		if ( !pNew->sourceId() )
+		{
+			// ...set it
+			pNew->setSource( nSource );
+		}
+
 		insert( pNew );
 	}
 
@@ -896,7 +923,7 @@ SharedG2HostPtr G2HostCache::update( G2HostCacheIterator& itHost, const quint32 
  * @return the CHostCacheHost pointer pertaining to the EndPoint
  */
 SharedG2HostPtr G2HostCache::addSyncHelper( const EndPoint& oHost, quint32 tTimeStamp,
-											const quint32 tNow, quint32 nFailures )
+											quint32 tNow, SourceID nSource, quint32 nFailures )
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "addSyncHelper()" ) );
@@ -937,15 +964,25 @@ SharedG2HostPtr G2HostCache::addSyncHelper( const EndPoint& oHost, quint32 tTime
 
 	if ( itPrevious != m_lHosts.end() )
 	{
-		SharedG2HostPtr pUpdate = update( itPrevious, tTimeStamp, nFailures );
+		SharedG2HostPtr pUpdate = update( itPrevious, tTimeStamp, nSource, nFailures );
 		return pUpdate;
 	}
+	else
+	{
+		if ( nSource )
+		{
+			m_mIDLookup[ oHost ] = nSource;
+		}
 
-	// create host, find place in sorted list, insert it there
-	SharedG2HostPtr pNew = SharedG2HostPtr( new G2HostCacheHost( oHost, tTimeStamp, nFailures ) );
-	insert( pNew );
+		const SourceID nOwnID = m_oIDProvider.aquire();
 
-	return pNew;
+		// create host, find place in sorted list, insert it there
+		SharedG2HostPtr pNew = SharedG2HostPtr( new G2HostCacheHost( oHost, tTimeStamp,
+																	 nFailures, nOwnID, nSource ) );
+		insert( pNew );
+
+		return pNew;
+	}
 }
 
 /**
@@ -1294,7 +1331,7 @@ void G2HostCache::load()
  * @param bLock: does the method need to lock the mutex?
  * @return the CHostCacheHost pointer pertaining to the EndPoint
  */
-SharedG2HostPtr G2HostCache::addSync( EndPoint host, quint32 tTimeStamp, bool bLock )
+SharedG2HostPtr G2HostCache::addSync( EndPoint oHost, quint32 tTimeStamp, SourceID nSource )
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, "addSync()" );
@@ -1302,21 +1339,34 @@ SharedG2HostPtr G2HostCache::addSync( EndPoint host, quint32 tTimeStamp, bool bL
 
 	const quint32 tNow = common::getTNowUTC();
 
-	if ( bLock )
-	{
-		m_pSection.lock();
-	}
+	m_pSection.lock();
 
 	ASSUME_LOCK( m_pSection );
 
-	SharedG2HostPtr pReturn = addSyncHelper( host, tTimeStamp, tNow );
+	SharedG2HostPtr pReturn = addSyncHelper( oHost, tTimeStamp, tNow, nSource );
 
-	if ( bLock )
-	{
-		m_pSection.unlock();
-	}
+	m_pSection.unlock();
 
 	return pReturn;
+}
+
+SharedG2HostPtr G2HostCache::addSyncSource( EndPoint oHost, quint32 tTimeStamp, EndPoint oSource )
+{
+	IDLookup::const_iterator it = m_mIDLookup.find( oSource );
+	const SourceID nID = ( it != m_mIDLookup.end() ) ? (*it).second : 0;
+
+	return addSync( oHost, tTimeStamp, nID );
+}
+
+void G2HostCache::addSyncList( InsertList lHosts, EndPoint oSource )
+{
+	IDLookup::const_iterator it = m_mIDLookup.find( oSource );
+	const SourceID nID = ( it != m_mIDLookup.end() ) ? (*it).second : 0;
+
+	for ( int i = 0, nSize = lHosts.size(); i < nSize; ++i )
+	{
+		addSync( lHosts[i].first, lHosts[i].second, nID );
+	}
 }
 
 /**
@@ -1330,28 +1380,22 @@ SharedG2HostPtr G2HostCache::addSync( EndPoint host, quint32 tTimeStamp, bool bL
  * @return the CHostCacheHost pointer pertaining to the EndPoint
  */
 SharedG2HostPtr G2HostCache::addSyncKey( EndPoint host, quint32 tTimeStamp, EndPoint oKeyHost,
-										 const quint32 nKey, const quint32 tNow, bool bLock )
+										 quint32 nKey, quint32 tNow )
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "addSyncKey()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
-	if ( bLock )
-	{
-		m_pSection.lock();
-	}
+	m_pSection.lock();
 
-	SharedG2HostPtr pReturn = addSyncHelper( host, tTimeStamp, tNow );
+	SharedG2HostPtr pReturn = addSyncHelper( host, tTimeStamp, tNow, 0 );
 
 	if ( pReturn )
 	{
 		pReturn->setKey( nKey, tNow, oKeyHost );
 	}
 
-	if ( bLock )
-	{
-		m_pSection.unlock();
-	}
+	m_pSection.unlock();
 
 	return pReturn;
 }
@@ -1366,28 +1410,22 @@ SharedG2HostPtr G2HostCache::addSyncKey( EndPoint host, quint32 tTimeStamp, EndP
  * @return the CHostCacheHost pointer pertaining to the EndPoint
  */
 SharedG2HostPtr G2HostCache::addSyncAck( EndPoint host, quint32 tTimeStamp,
-										 const quint32 tAck, const quint32 tNow, bool bLock )
+										 quint32 tAck, quint32 tNow )
 {
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "addSyncAck()" ) );
 #endif //ENABLE_G2_HOST_CACHE_DEBUGGING
 
-	if ( bLock )
-	{
-		m_pSection.lock();
-	}
+	m_pSection.lock();
 
-	SharedG2HostPtr pReturn = addSyncHelper( host, tTimeStamp, tNow );
+	SharedG2HostPtr pReturn = addSyncHelper( host, tTimeStamp, tNow, 0 );
 
 	if ( pReturn )
 	{
 		pReturn->setAck( tAck );
 	}
 
-	if ( bLock )
-	{
-		m_pSection.unlock();
-	}
+	m_pSection.unlock();
 
 	return pReturn;
 }
@@ -1432,15 +1470,23 @@ void G2HostCache::startUpInternal()
 	QByteArray         sNormalizedSignature;
 	int                nMethodIndex;
 
-	sNormalizedSignature    = "addSync(EndPoint,quint32,bool)";
+	sNormalizedSignature    = "addSync(EndPoint,quint32,SourceID)";
 	nMethodIndex            = pMetaObject->indexOfMethod( sNormalizedSignature );
 	m_pfAddSync             = pMetaObject->method( nMethodIndex );
 
-	sNormalizedSignature    = "addSyncKey(EndPoint,quint32,EndPoint,quint32,quint32,bool)";
+	sNormalizedSignature    = "addSyncSource(EndPoint,quint32,EndPoint)";
+	nMethodIndex            = pMetaObject->indexOfMethod( sNormalizedSignature );
+	m_pfAddSyncSource       = pMetaObject->method( nMethodIndex );
+
+	sNormalizedSignature    = "addSyncList(InsertList,EndPoint)";
+	nMethodIndex            = pMetaObject->indexOfMethod( sNormalizedSignature );
+	m_pfAddSyncList         = pMetaObject->method( nMethodIndex );
+
+	sNormalizedSignature    = "addSyncKey(EndPoint,quint32,EndPoint,quint32,quint32)";
 	nMethodIndex            = pMetaObject->indexOfMethod( sNormalizedSignature );
 	m_pfAddSyncKey          = pMetaObject->method( nMethodIndex );
 
-	sNormalizedSignature    = "addSyncAck(EndPoint,quint32,quint32,quint32,bool)";
+	sNormalizedSignature    = "addSyncAck(EndPoint,quint32,quint32,quint32)";
 	nMethodIndex            = pMetaObject->indexOfMethod( sNormalizedSignature );
 	m_pfAddSyncAck          = pMetaObject->method( nMethodIndex );
 
@@ -1474,6 +1520,8 @@ void G2HostCache::startUpInternal()
 
 #ifdef _DEBUG
 	Q_ASSERT( m_pfAddSync.isValid() );
+	Q_ASSERT( m_pfAddSyncSource.isValid() );
+	Q_ASSERT( m_pfAddSyncList.isValid() );
 	Q_ASSERT( m_pfAddSyncKey.isValid() );
 	Q_ASSERT( m_pfAddSyncAck.isValid() );
 	Q_ASSERT( m_pfAsyncAddXTry.isValid() );
@@ -1576,7 +1624,7 @@ void G2HostCache::asyncAddXTry( QString sHeader )
 		{
 			tTimeStamp = tNow;
 		}
-		addSyncHelper( oAddress, tTimeStamp, tNow );
+		addSyncHelper( oAddress, tTimeStamp, tNow, 0 );
 	}
 }
 

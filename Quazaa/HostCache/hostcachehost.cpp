@@ -29,19 +29,22 @@
 
 using namespace HostManagement;
 
-IDProvider<quint32> HostCacheHost::m_oIDProvider;
+//IDProvider<quint32> HostCacheHost::m_oIDProvider;
 bool                HostCacheHost::m_bShutDownFlag = false;
 
-HostCacheHost::HostCacheHost( const EndPoint& oAddress, const quint8 nFailures,
-							  const quint32 tTimestamp, const quint32 tLastConnect ) :
+HostCacheHost::HostCacheHost( const EndPoint& oAddress, quint8 nFailures, quint32 tTimestamp,
+							  quint32 tLastConnect, SourceID nOwnID, SourceID nSourceID ) :
 	m_nType( DiscoveryProtocol::None ),
 	m_oAddress(     oAddress     ),
 	m_tTimeStamp(   tTimestamp   ),
+	m_nOwnID(       nOwnID       ),
+	m_nSourceID(    nSourceID    ),
 	m_tLastConnect( tLastConnect ),
 	m_nFailures(    nFailures    ),
 	m_bConnectable( false        )
 {
 //	m_nID = m_oIDProvider.aquire();
+	Q_ASSERT( nOwnID ); // each host must have a valid own ID
 }
 
 HostCacheHost::~HostCacheHost()
@@ -54,17 +57,21 @@ HostCacheHost::~HostCacheHost()
 
 HostCacheHost* HostCacheHost::load( QDataStream& fsFile, quint32 tNow )
 {
-	quint8    nType;
+	quint8   nType;
 	EndPoint oAddress;
-	quint8    nFailures;
-	quint32   tTimeStamp;
-	quint32   tLastConnect;
+	quint8   nFailures;
+	quint32  tTimeStamp;
+	quint32  tLastConnect;
+	quint32  nOwnID;
+	quint32  nParentID;
 
 	fsFile >> nType;
 	fsFile >> oAddress;
 	fsFile >> nFailures;
 	fsFile >> tTimeStamp;
 	fsFile >> tLastConnect;
+	fsFile >> nOwnID;
+	fsFile >> nParentID;
 
 	if ( tTimeStamp > tNow )
 	{
@@ -81,7 +88,7 @@ HostCacheHost* HostCacheHost::load( QDataStream& fsFile, quint32 tNow )
 	switch ( nType )
 	{
 	case DiscoveryProtocol::G2:
-		pReturn = new G2HostCacheHost( oAddress, tTimeStamp, nFailures );
+		pReturn = new G2HostCacheHost( oAddress, tTimeStamp, nFailures, nOwnID, nParentID );
 		pReturn->setLastConnect( tLastConnect );
 		break;
 
@@ -99,6 +106,8 @@ void HostCacheHost::save( QDataStream& fsFile )
 	fsFile << m_nFailures;
 	fsFile << m_tTimeStamp;
 	fsFile << m_tLastConnect;
+	fsFile << ( quint32 )m_nOwnID;
+	fsFile << ( quint32 )m_nSourceID;
 }
 
 HostData::HostData( SharedHostPtr pHost ) :
@@ -108,13 +117,13 @@ HostData::HostData( SharedHostPtr pHost ) :
 	m_sCountryCode( m_oAddress.country() ),
 	m_sCountry(     geoIP.countryNameFromCode( m_sCountryCode ) ),
 	m_iCountry(     QIcon( ":/Resource/Flags/" + m_sCountryCode.toLower() + ".png" ) ),
-	//m_nID(          pHost->id()          ),
+//	m_nID(          pHost->id()          ),
 	m_tLastConnect( pHost->lastConnect() ),
-	m_sLastConnect( m_tLastConnect ? QDateTime::fromTime_t( m_tLastConnect ).toString()
-					: QObject::tr( "never" ) ),
-					  m_nFailures(    pHost->failures()    ),
-					  m_sFailures(    QString::number( m_nFailures ) ),
-					  m_nType(        pHost->type() )
+	m_sLastConnect( m_tLastConnect ? QDateTime::fromTime_t( m_tLastConnect ).toString() :
+									 QObject::tr( "never" ) ),
+	m_nFailures(    pHost->failures()    ),
+	m_sFailures(    QString::number( m_nFailures ) ),
+	m_nType(        pHost->type() )
 {
 }
 

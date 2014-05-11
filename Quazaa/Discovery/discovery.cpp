@@ -70,6 +70,8 @@ Manager::~Manager()
 	delete[] m_pActive;
 
 	Q_ASSERT( m_mServices.empty() );
+
+	// Note: m_pIDProvider is managed by HostCache
 }
 
 /**
@@ -142,6 +144,9 @@ void Manager::start()
 	// move to worker thread
 	m_pHostCacheDiscoveryThread = hostCache.m_pHostCacheDiscoveryThread;
 	moveToThread( m_pHostCacheDiscoveryThread );
+
+	// use the same ID provider for Host Cache and Discovery
+	m_pIDProvider = &hostCache.m_oIDProvider;
 
 	QMetaObject::invokeMethod( this, "startInternal", Qt::QueuedConnection );
 }
@@ -977,7 +982,7 @@ void Manager::doClear( bool bInformGUI )
 			emit serviceRemoved( pair.second->m_nID ); // inform GUI
 
 			// free GUI ID
-			m_oIDProvider.release( pair.second->m_nID );
+			m_pIDProvider->release( pair.second->m_nID );
 		}
 	}
 
@@ -1013,7 +1018,7 @@ bool Manager::doRemove( ServiceID nID )
 	m_mServices.erase( nID );
 
 	// Make sure to reassign the now unused ID.
-	m_oIDProvider.release( nID );
+	m_pIDProvider->release( nID );
 
 	return true;
 }
@@ -1186,7 +1191,7 @@ bool Manager::add( ServicePtr& pService )
 	}
 
 	// assign ID to service
-	pService->m_nID = m_oIDProvider.aquire();
+	pService->m_nID = m_pIDProvider->aquire();
 
 	// push to map
 	m_mServices[pService->m_nID] = pService;

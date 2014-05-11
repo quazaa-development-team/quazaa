@@ -262,7 +262,7 @@ DiscoveryService* DiscoveryService::createService( const QString& sURL, ServiceT
 		qDebug() << "[Discovery] Service Type: Unknown";
 #endif
 		systemLog.postLog( LogSeverity::Error, Component::Discovery,
-						   tr( "Internal error: Creation of service with unknown type requested: Type " )
+				tr( "Internal error: Creation of service with unknown type requested: Type " )
 						   + QString( eSType ) );
 
 		Q_ASSERT( false ); // unsupported service type

@@ -49,11 +49,14 @@ class HostCacheHost
 protected:
 	DiscoveryProtocol::Protocol    m_nType;        // The network type
 
-	EndPoint   m_oAddress;     // Hub address
+	EndPoint    m_oAddress;     // Hub address
 
 	quint32     m_tTimeStamp;   // Kiedy ostatnio widziany
 
 //	quint32     m_nID;          // GUI ID
+
+	SourceID    m_nOwnID;
+	SourceID    m_nSourceID;
 
 	quint32     m_tLastConnect; // kiedy ostatnio sie polaczylismy?
 	quint8      m_nFailures;    // Connection failures in a row.
@@ -62,12 +65,12 @@ protected:
 
 protected:
 	// mechanism for allocating GUI IDs
-	static IDProvider<quint32>  m_oIDProvider;
+//	static IDProvider<quint32>  m_oIDProvider;
 	static bool                 m_bShutDownFlag;
 
 public:
-	HostCacheHost( const EndPoint& oAddress, const quint8 nFailures,
-				   const quint32 tTimestamp,  const quint32 tLastConnect );
+	HostCacheHost( const EndPoint& oAddress, quint8 nFailures, quint32 tTimestamp,
+				   quint32 tLastConnect, SourceID nOwnID, SourceID nSourceID );
 	virtual ~HostCacheHost();
 
 private:
@@ -90,27 +93,39 @@ public:
 		return m_nType;
 	}
 
-	inline EndPoint address()        const
+	inline EndPoint address()       const
 	{
 		return m_oAddress;
 	}
-	inline quint32   timestamp()     const
+	inline quint32  timestamp()     const
 	{
 		return m_tTimeStamp;
 	}
-	/*inline quint32   id()            const
+//	inline quint32  id()            const
+//	{
+//		return m_nID;
+//	}
+	inline SourceID ownId()         const
 	{
-		return m_nID;
-	}*/
-	inline quint32   lastConnect()   const
+		return m_nOwnID;
+	}
+	inline SourceID sourceId()      const
+	{
+		return m_nSourceID;
+	}
+	inline void setSource( SourceID nSource )
+	{
+		m_nSourceID = nSource;
+	}
+	inline quint32  lastConnect()   const
 	{
 		return m_tLastConnect;
 	}
-	inline quint8    failures()      const
+	inline quint8   failures()      const
 	{
 		return m_nFailures;
 	}
-	inline bool      connectable()   const
+	inline bool     connectable()   const
 	{
 		return m_bConnectable;
 	}

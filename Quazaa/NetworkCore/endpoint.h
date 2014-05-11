@@ -83,4 +83,27 @@ public:
 QDataStream& operator<<( QDataStream& s, const EndPoint& rhs );
 QDataStream& operator>>( QDataStream& s, EndPoint& rhs );
 
+// allows using EndPoint with std::unordered_map
+namespace std
+{
+template <>
+struct hash<EndPoint> : public unary_function<EndPoint, size_t>
+{
+	size_t operator()( const EndPoint& value ) const
+	{
+		if ( value.protocol() == QAbstractSocket::IPv4Protocol )
+		{
+			quint64 nHash = value.toIPv4Address();
+			return nHash * value.port();
+		}
+		else
+		{
+			// TODO: improve?
+			return qHash( value.toStringWithPort() );
+		}
+
+	}
+};
+}
+
 #endif // ENDPOINT_H
