@@ -612,9 +612,9 @@ void G2HostCache::localAddressChanged()
 	bool bRetry = true;
 
 	// this avoids possible deadlocks with Network.m_pSection
-	if ( networkG2.m_pSection.tryLock( 100 ) )
+	if ( networkG2.m_pSection.tryLock() )
 	{
-		if ( m_pSection.tryLock( 100 ) )
+		if ( m_pSection.tryLock() )
 		{
 			bRetry          = false;
 			m_oLokalAddress = networkG2.localAddress();
