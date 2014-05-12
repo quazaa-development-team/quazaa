@@ -618,6 +618,7 @@ void G2HostCache::localAddressChanged()
 		{
 			bRetry          = false;
 			m_oLokalAddress = networkG2.localAddress();
+			remove( m_oLokalAddress );
 
 			m_pSection.unlock();
 		}
@@ -947,7 +948,6 @@ SharedG2HostPtr G2HostCache::addSyncHelper( const EndPoint& oHost, quint32 tTime
 #endif // QUAZAA_SETUP_UNIT_TESTS
 #endif //_DEBUG
 
-	// TODO: handle local IP changes - m_oLokalAddress might be unknown when adding own IP
 	// Don't add own IP to the cache.
 	if ( oHost == m_oLokalAddress )
 	{
@@ -1536,7 +1536,8 @@ void G2HostCache::startUpInternal()
 	connect( &securityManager.m_oSanity, SIGNAL( beginSanityCheck() ), SLOT( sanityCheck() ) );
 
 #ifndef QUAZAA_SETUP_UNIT_TESTS
-	connect( &networkG2, SIGNAL( localAddressChanged() ), SLOT( localAddressChanged() ) );
+	connect( &networkG2, &NetworkG2::localAddressChanged,
+			 this, &G2HostCache::localAddressChanged );
 #endif // QUAZAA_SETUP_UNIT_TESTS
 
 	localAddressChanged();
