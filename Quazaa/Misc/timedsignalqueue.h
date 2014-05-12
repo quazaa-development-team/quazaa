@@ -152,13 +152,7 @@ protected:
 private:
 	inline static quint64 getRelativeTimeInMs()
 	{
-		if ( !m_oElapsedTime.isValid() )
-		{
-#ifdef _DEBUG
-			m_tTimerStartUTCInMSec = ( quint64 )( common::getTNowUTC() ) * 1000;
-#endif
-			m_oElapsedTime.start();
-		}
+		Q_ASSERT( m_oElapsedTime.isValid() );
 
 #ifdef _DEBUG
 #if ENABLE_SIGNAL_QUEUE_DEBUGGING
@@ -213,6 +207,9 @@ public slots:
 	// the next schedule time of that combination is in tInterval milliseconds, no matter the timing state
 	// of the previously scheduled combination.
 	bool setInterval( QUuid oTimer_ID, quint64 tInterval );
+
+private slots:
+	void restartTimer();
 
 private:
 	TimerObject* popInternal( QUuid oTimer_ID );

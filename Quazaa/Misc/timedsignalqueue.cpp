@@ -229,17 +229,30 @@ void TimedSignalQueue::shutdownUnlock()
 void TimedSignalQueue::setup()
 {
 	QMutexLocker l( &m_pSection );
+
+	Q_ASSERT( !m_oElapsedTime.isValid() );
+
 	// start timer for timer events
 	m_oTimer.start( m_nPrecision, this );
+	m_oElapsedTime.start();
 
-	// initialize elapsed timer for relative times
-	getRelativeTimeInMs();
+#ifdef _DEBUG
+	m_tTimerStartUTCInMSec = ( quint64 )( common::getTNowUTC() ) * 1000;
+#endif
+
+	// 32 bit value with possible overflow
+	if ( m_oElapsedTime.clockType() == QElapsedTimer::TickCounter )
+	{
+		// use the signal queue's own mechinism to reset the timer each timo 2^31 is sprbanssed
+		push( this, "restartTimer", 2147483650, true );
+	}
 }
 
 void TimedSignalQueue::stop()
 {
 	QMutexLocker l( &m_pSection );
 	m_oTimer.stop();
+	m_oElapsedTime.invalidate();
 }
 
 void TimedSignalQueue::clear()
@@ -429,6 +442,19 @@ bool TimedSignalQueue::setInterval( QUuid oTimer_ID, quint64 tInterval )
 	return false;
 }
 
+void TimedSignalQueue::restartTimer()
+{
+	TimerObject* pTimer;
+	quint64 tRelative = m_oElapsedTime.restart();
+
+	for ( SignalQueueIterator iQueue = m_QueuedSignals.begin(); iQueue != m_QueuedSignals.end();
+		  ++iQueue )
+	{
+		pTimer = iQueue.value();
+		pTimer->m_tTime -= tRelative;
+	}
+}
+
 TimerObject* TimedSignalQueue::popInternal( QUuid oTimer_ID )
 {
 	TimerObject* pTimer;
@@ -449,4 +475,3 @@ TimerObject* TimedSignalQueue::popInternal( QUuid oTimer_ID )
 
 	return NULL;
 }
-
