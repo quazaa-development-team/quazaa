@@ -243,7 +243,7 @@ void TimedSignalQueue::setup()
 	// 32 bit value with possible overflow
 	if ( m_oElapsedTime.clockType() == QElapsedTimer::TickCounter )
 	{
-		// use the signal queue's own mechinism to reset the timer each timo 2^31 is sprbanssed
+		// use the signal queue's own mechinism to reset the timer each time 2^31 is surpassed
 		push( this, "restartTimer", 2147483650, true );
 	}
 }

@@ -111,7 +111,6 @@ private:
 	typedef QMultiMap<quint64, TimerObject*>           TSignalQueue;
 	typedef QMultiMap<quint64, TimerObject*>::iterator SignalQueueIterator;
 
-	// TODO: prevent timer overflow
 	static QElapsedTimer m_oElapsedTime;         // the relative time since the timer was started
 #ifdef _DEBUG
 	static quint64       m_tTimerStartUTCInMSec; // ms since 1970-01-01T00:00:00 UTC (timer start)
