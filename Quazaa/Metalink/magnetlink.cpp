@@ -39,8 +39,6 @@ Magnet::MagnetFile Magnet::operator[]( const quint16 nID ) const
 
 bool Magnet::parseMagnet( QString sMagnet )
 {
-	m_bNull = false;
-
 	if ( !sMagnet.startsWith( "magnet:?" ) )
 	{
 		return false;
@@ -80,9 +78,9 @@ bool Magnet::parseMagnet( QString sMagnet )
 		sParam = sSubsection.left( pos2 );            // get parameter type string
 		sSubsection.remove( 0, sParam.length() + 1 ); // isolate current subsection content
 
-		if ( ( sParam.length() == 2 || sParam.length() > 3 ) &&
+		if ( sParam.length() == 2 || ( sParam.length() > 3 &&
 			 ( sParam[2] == '.' ||     // covers multi file magnets
-			   sParam[1] == '.'    ) ) // covers experimental sections starting with "x."
+			   sParam[1] == '.' ) ) )  // covers experimental sections starting with "x."
 		{
 			// Determine ID the current file.
 			if ( sParam.length() == 2 )
@@ -99,6 +97,13 @@ bool Magnet::parseMagnet( QString sMagnet )
 					subsectionError( sParam, sSubsection );
 					continue;
 				}
+			}
+			else if ( sParam.startsWith( "x." ) ) // Experimental stuff
+			{
+				QString sub = QObject::tr( "Experimental Subsection: %1=%2" ).arg( sParam, sSubsection );
+				systemLog.postLog( LogSeverity::Error, QObject::tr( "Detected unsupported experimental subsection in Magnet Link:" ) );
+				systemLog.postLog( LogSeverity::Error, m_sMagnet );
+				systemLog.postLog( LogSeverity::Error, sub );
 			}
 			else
 			{
@@ -136,6 +141,10 @@ bool Magnet::parseMagnet( QString sMagnet )
 						systemLog.postLog( LogSeverity::Error, QObject::tr( "Detected and ignored conflicting hash within Magnet Link:" ) );
 						systemLog.postLog( LogSeverity::Error, m_sMagnet );
 					}
+					else
+					{
+						m_bNull = false;
+					}
 				}
 				else
 				{
@@ -156,6 +165,7 @@ bool Magnet::parseMagnet( QString sMagnet )
 				{
 					url.m_nPriority = sParam.startsWith( "xs" ) ? 128 : 0;
 					mFiles[nFileNo].m_lURLs.append( url );
+					m_bNull = false;
 				}
 				else
 				{
@@ -166,6 +176,7 @@ bool Magnet::parseMagnet( QString sMagnet )
 			else if ( sParam.startsWith( "kt" ) )
 			{
 				mSearches[nFileNo] = sSubsection;
+				m_bNull = false;
 			}
 			else if ( sParam.startsWith( "mt" ) )
 			{
@@ -189,13 +200,6 @@ bool Magnet::parseMagnet( QString sMagnet )
 					continue;
 				}
 			}
-			else if ( sParam.startsWith( "x." ) ) // Experimental stuff
-			{
-				QString sub = QObject::tr( "Experimental Subsection: %1=%2" ).arg( sParam, sSubsection );
-				systemLog.postLog( LogSeverity::Error, QObject::tr( "Detected unsupported experimental subsection in Magnet Link:" ) );
-				systemLog.postLog( LogSeverity::Error, m_sMagnet );
-				systemLog.postLog( LogSeverity::Error, sub );
-			}
 			else
 			{
 				QString sub = QObject::tr( "Subsection: %1=%2" ).arg( sParam, sSubsection );
@@ -210,6 +214,15 @@ bool Magnet::parseMagnet( QString sMagnet )
 		}
 	}
 
+	if ( m_bNull ) // We got neither hashes, nor direct web sources, nor keywords to search for.
+	{
+		m_sMagnet.clear();
+
+		m_lFiles.clear();
+		m_lSearches.clear();
+		return false;
+	}
+
 	for ( int i = 0, nSize = mFiles.size(); i < nSize; ++i )
 	{
 		if ( mFiles[i].isValid() )
@@ -219,7 +232,7 @@ bool Magnet::parseMagnet( QString sMagnet )
 		}
 	}
 
-	foreach ( const QString & sSearch, mSearches )
+	foreach ( const QString& sSearch, mSearches )
 	{
 		if ( !sSearch.trimmed().isEmpty() )
 		{
