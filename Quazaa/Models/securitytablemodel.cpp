@@ -333,8 +333,8 @@ SecurityTableModel::SecurityTableModel( QObject* parent, QWidget* container ) :
 	m_pIcons[2] = new QIcon( ":/Resource/Security/Deny.ico" );
 
 	// This connects the GUI to the Security Manager and the Main Window.
-	connect( &securityManager, SIGNAL( startUpFinished() ),
-			 this, SLOT( securityStartUpFinished() ) );
+	connect( &securityManager, &Security::Manager::startUpFinished,
+			 this, &SecurityTableModel::securityStartUpFinished );
 }
 
 SecurityTableModel::~SecurityTableModel()
@@ -611,8 +611,8 @@ void SecurityTableModel::completeRefresh()
 	clear();
 
 	// Note that this slot is automatically disconnected once all rules have been recieved once.
-	connect( &securityManager, SIGNAL( ruleInfo( Rule* ) ), this,
-			 SLOT( recieveRuleInfo( Rule* ) ), Qt::QueuedConnection );
+	connect( &securityManager, &Security::Manager::ruleInfo, this,
+			 &SecurityTableModel::recieveRuleInfo, Qt::QueuedConnection );
 
 	// Request getting the rules back from the Security Manager.
 	m_nRuleInfo = securityManager.requestRuleInfo();
@@ -647,18 +647,18 @@ void SecurityTableModel::securityStartUpFinished()
 	// register necessary meta types before using them
 	securityManager.registerMetaTypes();
 
-	connect( &securityManager, SIGNAL( ruleAdded( Rule* ) ), this,
-			 SLOT( addRule( Rule* ) ), Qt::QueuedConnection );
+	connect( &securityManager, &Security::Manager::ruleAdded, this,
+			 &SecurityTableModel::addRule, Qt::QueuedConnection );
 
-	connect( &securityManager, SIGNAL( ruleRemoved( SharedRulePtr ) ), this,
-			 SLOT( removeRule( SharedRulePtr ) ), Qt::QueuedConnection );
+	connect( &securityManager, &Security::Manager::ruleRemoved, this,
+			 &SecurityTableModel::removeRule, Qt::QueuedConnection );
 
 	// This handles GUI updates on rule changes.
-	connect( &securityManager, SIGNAL( ruleUpdated( ID ) ), this,
-			 SLOT( updateRule( ID ) ), Qt::QueuedConnection );
+	connect( &securityManager, &Security::Manager::ruleUpdated, this,
+			 &SecurityTableModel::updateRule, Qt::QueuedConnection );
 
 	// Prepare GUI for closing
-	connect( mainWindow, SIGNAL( shutDown() ), this, SLOT( onShutdown() ) );
+	connect( mainWindow, &CWinMain::shutDown, this, &SecurityTableModel::onShutdown );
 
 	// This needs to be called to make sure that all rules added to the securityManager before this
 	// part of the GUI is loaded are properly added to the model.
@@ -672,8 +672,8 @@ void SecurityTableModel::recieveRuleInfo( Rule* pRule )
 	// This handles disconnecting the ruleInfo signal after a completeRefresh() has been finished.
 	if ( !m_nRuleInfo )
 	{
-		disconnect( &securityManager, SIGNAL( ruleInfo( Rule* ) ),
-					this, SLOT( recieveRuleInfo( Rule* ) ) );
+		disconnect( &securityManager, &Security::Manager::ruleInfo,
+					this, &SecurityTableModel::recieveRuleInfo );
 	}
 
 	addRule( pRule );
