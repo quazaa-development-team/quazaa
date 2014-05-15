@@ -207,7 +207,7 @@ void CWidgetNeighbours::on_actionNeighbourDisconnect_triggered()
 	{
 		systemLog.postLog( LogSeverity::Information, Component::Network,
 						   qPrintable( tr( "Closing connection to neighbour %s" ) ),
-						   qPrintable( pNode->m_oAddress.toStringWithPort() ) );
+						   qPrintable( pNode->address().toStringWithPort() ) );
 		pNode->close();
 	}
 	neighbours.m_pSection.unlock();
@@ -240,7 +240,7 @@ void CWidgetNeighbours::on_actionNetworkChatWith_triggered()
 		{
 		case DiscoveryProtocol::G2:
 		{
-			ChatSessionG2* pSession = new ChatSessionG2( pNode->m_oAddress );
+			ChatSessionG2* pSession = new ChatSessionG2( pNode->address() );
 			pSession->connectNode();
 			break;
 		}

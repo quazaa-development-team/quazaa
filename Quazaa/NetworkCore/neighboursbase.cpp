@@ -70,7 +70,7 @@ void NeighboursBase::addNode( Neighbour* pNode )
 	ASSUME_LOCK( m_pSection );
 
 	m_lNodes.append( pNode );
-	m_lNodesByAddr.insert( pNode->m_oAddress, pNode );
+	m_lNodesByAddr.insert( pNode->address(), pNode );
 	m_lNodesByPtr.insert( pNode );
 
 	emit neighbourAdded( pNode );
@@ -80,7 +80,7 @@ void NeighboursBase::removeNode( Neighbour* pNode )
 	ASSUME_LOCK( m_pSection );
 
 	m_lNodes.removeAll( pNode );
-	m_lNodesByAddr.remove( pNode->m_oAddress );
+	m_lNodesByAddr.remove( pNode->address() );
 	m_lNodesByPtr.remove( pNode );
 
 	emit neighbourRemoved( pNode );

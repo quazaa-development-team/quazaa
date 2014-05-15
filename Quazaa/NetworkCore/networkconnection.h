@@ -56,7 +56,7 @@ public:
 class NetworkConnection : public QObject
 {
 	Q_OBJECT
-public:
+protected:
 	QTcpSocket* m_pSocket;  // Socket ;)
 
 	// Host Address
@@ -66,6 +66,7 @@ public:
 	Buffer* m_pInput;
 	Buffer* m_pOutput;
 
+public:
 	bool    m_bInitiated; // true if we initiated the connection; false otherwise
 	bool    m_bConnected; // TODO: this is never set to true for connections initiatied by us.
 	quint32 m_tConnected;

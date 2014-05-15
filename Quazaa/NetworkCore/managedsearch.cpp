@@ -200,13 +200,13 @@ void ManagedSearch::searchNeighbours( const QDateTime& tNowDT )
 		if ( pNode->m_nState == nsConnected &&
 			 tNow - pNode->m_tConnected > 15 &&
 			 ( tNow - pNode->m_tLastQuery > quazaaSettings.Gnutella2.QueryHostThrottle &&
-			   !m_lSearchedNodes.contains( pNode->m_oAddress ) ) )
+			   !m_lSearchedNodes.contains( pNode->address() ) ) )
 		{
 			G2Packet* pQuery = m_pQuery->toG2Packet( networkG2.isFirewalled() ?
 													 NULL : &networkG2.m_oAddress );
 			if ( pQuery )
 			{
-				m_lSearchedNodes[pNode->m_oAddress] = tNowDT;
+				m_lSearchedNodes[pNode->address()] = tNowDT;
 				pNode->sendPacket( pQuery, true, true );
 				pNode->m_tLastQuery = tNow;
 			}
@@ -325,7 +325,7 @@ void ManagedSearch::searchG2( const QDateTime& tNowDT, quint32* pnMaxPackets )
 
 				if ( pNode && static_cast<G2Node*>( pNode )->m_nState == nsConnected )
 				{
-					pReceiver = pNode->m_oAddress;
+					pReceiver = pNode->address();
 				}
 				else
 				{
@@ -393,8 +393,8 @@ void ManagedSearch::searchG2( const QDateTime& tNowDT, quint32* pnMaxPackets )
 					else
 					{
 						G2Packet* pQKR = G2Packet::newPacket( "QKR", true );
-						pQKR->writePacket( "RNA", ( pHub->m_oAddress.protocol() ? 18 : 6 )
-										 )->writeHostAddress( pHub->m_oAddress );
+						pQKR->writePacket( "RNA", ( pHub->address().protocol() ? 18 : 6 )
+										 )->writeHostAddress( pHub->address() );
 						datagrams.sendPacket( pQKR, pHost->address(), false );
 						pQKR->release();
 
@@ -528,7 +528,7 @@ G2Node* ManagedSearch::findBestHubForRoutingG2( const G2Node* const pLastNeighbo
 
 		// Must be a hub that already acked our query
 		if ( pNode->m_nType == G2_HUB &&
-			 m_lSearchedNodes.contains( pNode->m_oAddress ) )
+			 m_lSearchedNodes.contains( pNode->address() ) )
 		{
 			if ( ( bCheckLast && pNode == pLastNeighbour ) )
 			{

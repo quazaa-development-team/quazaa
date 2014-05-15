@@ -88,7 +88,7 @@ void Handshakes::incomingConnection( qintptr handle )
 	m_pController->addSocket( pNew );
 	m_nAccepted++;
 
-	if ( securityManager.isDenied( pNew->m_oAddress ) )
+	if ( securityManager.isDenied( pNew->address() ) )
 	{
 		pNew->close();
 		pNew->deleteLater();

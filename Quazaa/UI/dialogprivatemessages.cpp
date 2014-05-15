@@ -86,7 +86,7 @@ void CDialogPrivateMessages::OpenChat( ChatSession* pSess )
 	{
 		pWg = new CWidgetPrivateMessage( this );
 		m_lChatWindows.append( pWg );
-		int idx = ui->tabWidgetPrivateMessages->addTab( pWg, pSess->m_oAddress.toStringWithPort() );
+		int idx = ui->tabWidgetPrivateMessages->addTab( pWg, pSess->address().toStringWithPort() );
 		m_pCurrentWidget = pWg;
 		ui->tabWidgetPrivateMessages->setCurrentIndex( idx );
 	}

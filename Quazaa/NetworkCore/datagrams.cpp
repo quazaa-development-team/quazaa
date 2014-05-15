@@ -843,7 +843,7 @@ void Datagrams::onCRAWLR( G2Packet* pPacket, const EndPoint& addr )
 			if ( pNode->m_nType == G2_HUB )
 			{
 				G2Packet* pNH = G2Packet::newPacket( "NH" );
-				pNH->writePacket( "NA", ( ( pNode->m_oAddress.protocol() == 0 ) ? 6 : 18 ) )->writeHostAddress( pNode->m_oAddress );
+				pNH->writePacket( "NA", ( ( pNode->address().protocol() == 0 ) ? 6 : 18 ) )->writeHostAddress( pNode->address() );
 				pNH->writePacket( "HS", 2 )->writeIntLE( pNode->m_nLeafCount );
 				pCA->writePacket( pNH );
 				pNH->release();
@@ -851,7 +851,7 @@ void Datagrams::onCRAWLR( G2Packet* pPacket, const EndPoint& addr )
 			else if ( pNode->m_nType == G2_LEAF )
 			{
 				G2Packet* pNL = G2Packet::newPacket( "NL" );
-				pNL->writePacket( "NA", ( ( pNode->m_oAddress.protocol() == 0 ) ? 6 : 18 ) )->writeHostAddress( pNode->m_oAddress );
+				pNL->writePacket( "NA", ( ( pNode->address().protocol() == 0 ) ? 6 : 18 ) )->writeHostAddress( pNode->address() );
 				pCA->writePacket( pNL );
 				pNL->release();
 			}

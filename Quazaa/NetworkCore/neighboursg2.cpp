@@ -237,13 +237,13 @@ void NeighboursG2::dispatchKHL()
 
 		if ( pNode->m_nState == nsConnected && ( ( G2Node* )pNode )->m_nType == G2_HUB )
 		{
-			if ( pNode->m_oAddress.protocol() == QAbstractSocket::IPv4Protocol )
+			if ( pNode->address().protocol() == QAbstractSocket::IPv4Protocol )
 			{
-				pKHL->writePacket( "NH", 6 )->writeHostAddress( pNode->m_oAddress );
+				pKHL->writePacket( "NH", 6 )->writeHostAddress( pNode->address() );
 			}
 			else
 			{
-				pKHL->writePacket( "NH", 18 )->writeHostAddress( pNode->m_oAddress );
+				pKHL->writePacket( "NH", 18 )->writeHostAddress( pNode->address() );
 			}
 		}
 	}
@@ -473,8 +473,8 @@ G2Packet* NeighboursG2::createQueryAck( QUuid oGUID, bool bWithHubs, Neighbour* 
 				if ( pNode->m_nProtocol == DiscoveryProtocol::G2 && pNode->m_nState == nsConnected
 					 && ( ( G2Node* )pNode )->m_nType == G2_HUB && pNode != pExcept )
 				{
-					pPacket->writePacket( "D", ( pNode->m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 8 :
-												 20 ) )->writeHostAddress( pNode->m_oAddress );
+					pPacket->writePacket( "D", ( pNode->address().protocol() == QAbstractSocket::IPv4Protocol ? 8 :
+												 20 ) )->writeHostAddress( pNode->address() );
 					pPacket->writeIntLE<quint16>( ( ( G2Node* )pNode )->m_nLeafCount );
 				}
 			}

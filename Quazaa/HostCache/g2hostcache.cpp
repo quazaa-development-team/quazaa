@@ -241,7 +241,7 @@ QString G2HostCache::getXTry() const
 				 pNode->m_nLeafMax > 0 &&
 				 100 * pNode->m_nLeafCount / pNode->m_nLeafMax < 90 )
 			{
-				sReturn += pNeighbour->m_oAddress.toStringWithPort() + " " + sTNow + ",";
+				sReturn += pNeighbour->address().toStringWithPort() + " " + sTNow + ",";
 				++nCount;
 			}
 		}
