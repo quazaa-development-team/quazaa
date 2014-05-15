@@ -380,7 +380,7 @@ void ChatSessionG2::onUPROD( G2Packet* pPacket )
 	emit guidChanged( oGUID );
 	emit nickChanged( m_sNick );
 
-	if ( m_bInitiated ) // TODO PUSH handling
+	if ( m_bInitiated ) // TODO: PUSH handling
 	{
 		G2Packet* pReq = G2Packet::newPacket( "CHATREQ", true );
 		pReq->writePacket( "USERGUID", 16 );

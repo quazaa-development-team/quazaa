@@ -105,20 +105,21 @@ quint32 TCPBandwidthMeter::usage()
 	return nUsage;
 }
 
-NetworkConnection::NetworkConnection( QObject* parent )
-	: QObject( parent )
+NetworkConnection::NetworkConnection( QObject* parent ) :
+	QObject( parent )
 {
-	static int dummy = qRegisterMetaType<QAbstractSocket::SocketError>( "QAbstractSocket::SocketError" );
-	static int dummy2 = qRegisterMetaType<QAbstractSocket::SocketState>( "QAbstractSocket::SocketState" );
-	Q_UNUSED( dummy );
-	Q_UNUSED( dummy2 );
+	static int foo =
+			qRegisterMetaType< QAbstractSocket::SocketError >( "QAbstractSocket::SocketError" );
+	static int bar =
+			qRegisterMetaType< QAbstractSocket::SocketState >( "QAbstractSocket::SocketState" );
+	Q_UNUSED( foo );
+	Q_UNUSED( bar );
 
-	//qDebug() << "CNetworkConnection constructor";
+	//qDebug() << "NetworkConnection constructor";
 
-	m_pSocket = 0;
-
-	m_pInput = 0;
-	m_pOutput = 0;
+	m_pSocket = NULL;
+	m_pInput  = NULL;
+	m_pOutput = NULL;
 
 	m_bInitiated = false;
 	m_bConnected = false;
@@ -130,6 +131,7 @@ NetworkConnection::~NetworkConnection()
 	{
 		delete m_pInput;
 	}
+
 	if ( m_pOutput )
 	{
 		delete m_pOutput;
@@ -147,44 +149,37 @@ void NetworkConnection::connectTo( EndPoint oAddress )
 
 	m_bInitiated = true;
 	m_bConnected = false;
-	m_tConnected = time( 0 );
+	m_tConnected = common::getTNowUTC();
 
-	Q_ASSERT( m_pInput == 0 );
-	Q_ASSERT( m_pOutput == 0 );
-	m_pInput = new Buffer( 8192 );
+	Q_ASSERT( !m_pInput );
+	Q_ASSERT( !m_pOutput );
+	m_pInput  = new Buffer( 8192 );
 	m_pOutput = new Buffer( 8192 );
-	Q_ASSERT( m_pSocket == 0 );
 
+	Q_ASSERT( !m_pSocket );
 	m_pSocket = new QTcpSocket();
 	initializeSocket();
 	m_pSocket->connectToHost( oAddress, oAddress.port() );
-
 }
 
 void NetworkConnection::attachTo( NetworkConnection* pOther )
 {
-	Q_ASSERT( m_pSocket == 0 );
+	Q_ASSERT( !m_pSocket );
 	m_pSocket = pOther->m_pSocket;
-	pOther->m_pSocket = 0;
+	pOther->m_pSocket = NULL;
 
 	m_bConnected = pOther->m_bConnected;
 	m_tConnected = pOther->m_tConnected;
 	m_bInitiated = pOther->m_bInitiated;
 
-	Q_ASSERT( m_pInput == 0 );
-	Q_ASSERT( m_pOutput == 0 );
-	m_pInput = pOther->m_pInput;
+	Q_ASSERT( !m_pInput );
+	Q_ASSERT( !m_pOutput );
+	m_pInput  = pOther->m_pInput;
 	m_pOutput = pOther->m_pOutput;
-	pOther->m_pInput = pOther->m_pOutput = 0;
+	pOther->m_pInput = NULL;
+	pOther->m_pOutput = NULL;
 
-	if ( m_pSocket->peerAddress().protocol() == 0 )
-	{
-		m_oAddress.setAddress( m_pSocket->peerAddress().toIPv4Address() );
-	}
-	else
-	{
-		m_oAddress.setAddress( m_pSocket->peerAddress().toIPv6Address() );
-	}
+	m_oAddress.setAddress( m_pSocket->peerAddress() );
 	m_oAddress.setPort( m_pSocket->peerPort() );
 
 	initializeSocket();
@@ -194,14 +189,14 @@ void NetworkConnection::attachTo( NetworkConnection* pOther )
 
 void NetworkConnection::acceptFrom( qintptr nHandle )
 {
-	Q_ASSERT( m_pSocket == 0 );
+	Q_ASSERT( !m_pSocket );
 	m_pSocket = new QTcpSocket();
 
 	initializeSocket();
 
 	m_bInitiated = false;
 	m_bConnected = true;
-	m_tConnected = time( 0 );
+	m_tConnected = common::getTNowUTC();
 
 	Q_ASSERT( m_pInput == 0 );
 	Q_ASSERT( m_pOutput == 0 );
@@ -209,14 +204,8 @@ void NetworkConnection::acceptFrom( qintptr nHandle )
 	m_pOutput = new Buffer( 8192 );
 
 	m_pSocket->setSocketDescriptor( nHandle );
-	if ( m_pSocket->peerAddress().protocol() == 0 )
-	{
-		m_oAddress.setAddress( m_pSocket->peerAddress().toIPv4Address() );
-	}
-	else
-	{
-		m_oAddress.setAddress( m_pSocket->peerAddress().toIPv6Address() );
-	}
+
+	m_oAddress.setAddress( m_pSocket->peerAddress() );
 	m_oAddress.setPort( m_pSocket->peerPort() );
 
 	emit readyToTransfer();
@@ -259,6 +248,7 @@ void NetworkConnection::initializeSocket()
 {
 	m_pSocket->disconnect();
 
+	// TODO: use Qt5 connections
 	connect( m_pSocket, SIGNAL( connected() ),
 			 this, SIGNAL( connected() ) );
 	connect( m_pSocket, SIGNAL( connected() ),
@@ -276,6 +266,9 @@ void NetworkConnection::initializeSocket()
 	connect( m_pSocket, SIGNAL( aboutToClose() ),
 			 this, SIGNAL( aboutToClose() ) );
 
+	// avoid double connections
+	disconnect( this, 0, this, 0 );
+
 	connect( this, SIGNAL( connected() ),
 			 this, SLOT( onConnectNode() ), Qt::QueuedConnection );
 	connect( this, SIGNAL( disconnected() ),
@@ -286,12 +279,11 @@ void NetworkConnection::initializeSocket()
 			 this, SLOT( onError( QAbstractSocket::SocketError ) ), Qt::QueuedConnection );
 	connect( this, SIGNAL( stateChanged( QAbstractSocket::SocketState ) ),
 			 this, SLOT( onStateChange( QAbstractSocket::SocketState ) ), Qt::QueuedConnection );
-
 }
 
 qint64 NetworkConnection::readFromNetwork( qint64 nBytes )
 {
-	Q_ASSERT( m_pInput != 0 );
+	Q_ASSERT( m_pInput );
 	Q_ASSERT( nBytes >= 0 );
 
 	int nOldSize = m_pInput->size();
@@ -319,7 +311,7 @@ qint64 NetworkConnection::readFromNetwork( qint64 nBytes )
 }
 qint64 NetworkConnection::writeToNetwork( qint64 nBytes )
 {
-	Q_ASSERT( m_pOutput != 0 );
+	Q_ASSERT( m_pOutput );
 	Q_ASSERT( nBytes >= 0 );
 
 	qint64 nBytesWritten = m_pSocket->write( m_pOutput->data(), qMin( ( qint64 )m_pOutput->size(), nBytes ) );
@@ -336,7 +328,7 @@ qint64 NetworkConnection::writeToNetwork( qint64 nBytes )
 }
 qint64 NetworkConnection::readData( char* data, qint64 maxlen )
 {
-	Q_ASSERT( m_pInput != 0 );
+	Q_ASSERT( m_pInput );
 
 	int nBytesRead = qMin<qint64>( maxlen, m_pInput->size() );
 	memcpy( data, m_pInput->data(), nBytesRead );
@@ -352,7 +344,7 @@ qint64 NetworkConnection::readData( char* data, qint64 maxlen )
 
 qint64 NetworkConnection::writeData( const char* data, qint64 len )
 {
-	Q_ASSERT( m_pOutput != 0 );
+	Q_ASSERT( m_pOutput );
 
 	int nOldSize = m_pOutput->size();
 	m_pOutput->resize( nOldSize + len );
@@ -363,7 +355,7 @@ qint64 NetworkConnection::writeData( const char* data, qint64 len )
 
 qint64 NetworkConnection::bytesAvailable()
 {
-	Q_ASSERT( m_pInput != 0 );
+	Q_ASSERT( m_pInput );
 
 	if ( m_pSocket->state() != QTcpSocket::ConnectedState )
 	{
@@ -398,7 +390,7 @@ qint64 NetworkConnection::networkBytesAvailable() const
 }
 bool NetworkConnection::isValid() const
 {
-	if ( m_pSocket == 0 || m_pInput == 0 || m_pOutput == 0 )
+	if ( !m_pSocket || !m_pInput || !m_pOutput )
 	{
 		return false;
 	}
@@ -407,7 +399,7 @@ bool NetworkConnection::isValid() const
 }
 void NetworkConnection::setReadBufferSize( qint64 nSize )
 {
-	Q_ASSERT( m_pSocket != 0 );
+	Q_ASSERT( m_pSocket );
 
 	m_pSocket->setReadBufferSize( nSize );
 }

@@ -152,6 +152,8 @@ public slots:
 	 */
 	void onRead();
 
+	void onError( QAbstractSocket::SocketError e );
+
 	friend class CNetwork;
 };
 

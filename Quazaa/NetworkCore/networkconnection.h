@@ -67,8 +67,8 @@ public:
 	Buffer* m_pOutput;
 
 	bool    m_bInitiated; // true if we initiated the connection; false otherwise
-	bool    m_bConnected;
-	qint32  m_tConnected;
+	bool    m_bConnected; // TODO: this is never set to true for connections initiatied by us.
+	quint32 m_tConnected;
 
 public:
 	NetworkConnection( QObject* parent = 0 );

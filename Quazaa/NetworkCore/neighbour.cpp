@@ -59,7 +59,7 @@ void Neighbour::onTimer( quint32 tNow )
 	{
 		if ( tNow - m_tConnected > quazaaSettings.Connection.TimeoutConnect )
 		{
-			if ( m_bInitiated )
+			if ( m_bInitiated ) // we initiatied the connection
 			{
 				hostCache.onFailure( m_oAddress );
 			}
@@ -118,27 +118,30 @@ void Neighbour::onError( QAbstractSocket::SocketError e )
 {
 	if ( e == QAbstractSocket::RemoteHostClosedError )
 	{
-		if ( m_nState != nsHandshaking )
-			systemLog.postLog( LogSeverity::Information, Component::Network,
-							   QString( "Neighbour %1 dropped connection unexpectedly." )
-							   .arg( m_oAddress.toString().toLocal8Bit().constData() ) );
-		else
+		if ( m_nState == nsHandshaking )
 		{
 			systemLog.postLog( LogSeverity::Information, Component::Network,
-							   QString( "Neighbour %1 dropped connection during handshake." )
-							   .arg( m_oAddress.toString().toLocal8Bit().constData() ) );
+							   QString( "Neighbour %1 dropped connection during handshake."
+										).arg( m_oAddress.toString() ) );
 
 			if ( m_bInitiated )
 			{
 				// for some bad clients that drop connections too early
 				securityManager.ban( m_oAddress, Security::RuleTime::FiveMinutes, true,
-									 QString( "[AUTO] Dropped handshake. User Agent: "
-											) + m_sUserAgent , true
+									 QString( "[AUTO] Dropped handshake. User Agent: " )
+									 + ( m_sUserAgent.isEmpty() ? "unknown" : m_sUserAgent )
+									 + " Country: " + m_oAddress.countryName(), true
 #if SECURITY_LOG_BAN_SOURCES
 									 , QString( "neighbour.cpp line 133" )
 #endif // SECURITY_LOG_BAN_SOURCES
-								   );
+									 );
 			}
+		}
+		else
+		{
+			systemLog.postLog( LogSeverity::Information, Component::Network,
+							   QString( "Neighbour %1 dropped connection unexpectedly."
+										).arg( m_oAddress.toString() ) );
 		}
 	}
 	else

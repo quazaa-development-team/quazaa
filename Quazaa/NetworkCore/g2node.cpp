@@ -22,6 +22,8 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#include <QTcpSocket>
+
 #include "g2node.h"
 #include "network.h"
 #include "neighbours.h"
@@ -1682,6 +1684,55 @@ void G2Node::onRead()
 		}
 	}
 
+	neighbours.m_pSection.unlock();
+}
+
+void G2Node::onError( QAbstractSocket::SocketError e )
+{
+	if ( e == QAbstractSocket::RemoteHostClosedError )
+	{
+		if ( m_nState == nsHandshaking )
+		{
+			systemLog.postLog( LogSeverity::Information, Component::G2,
+							   QString( "G2 Neighbour %1 dropped connection during handshake."
+										).arg( m_oAddress.toString() ) );
+
+			// if initiated by us and has reached handshaking state
+			if ( m_bInitiated )
+			{
+				// for some bad clients that drop connections too early
+				securityManager.ban( m_oAddress, Security::RuleTime::FiveMinutes, true,
+									 QString( "[AUTO] G2 - Dropped handshake." ) + " User Agent: "
+									 + ( m_sUserAgent.isEmpty() ? "unknown" : m_sUserAgent )
+									 + " Country: " + m_oAddress.countryName(), true
+#if SECURITY_LOG_BAN_SOURCES
+									 , QString( "neighbour.cpp line 133" )
+#endif // SECURITY_LOG_BAN_SOURCES
+								   );
+			}
+		}
+		else
+		{
+			systemLog.postLog( LogSeverity::Information, Component::G2,
+							   QString( "G2 Neighbour %1 dropped connection unexpectedly."
+										) .arg( m_oAddress.toString() ) );
+		}
+	}
+	else
+	{
+		systemLog.postLog( LogSeverity::Error, Component::G2,
+						   "Neighbour %s dropped connection unexpectedly (socket error: %s).",
+						   qPrintable( m_oAddress.toStringWithPort() ),
+						   qPrintable( m_pSocket->errorString() ) );
+
+		if ( m_bInitiated )
+		{
+			hostCache.onFailure( m_oAddress );
+		}
+	}
+
+	neighbours.m_pSection.lock();
+	delete this;
 	neighbours.m_pSection.unlock();
 }
 
