@@ -140,7 +140,7 @@ EndPoint::EndPoint( SpecialAddress address, quint16 nPort ) :
 
 EndPoint& EndPoint::operator=( const EndPoint& rhs )
 {
-	QHostAddress::operator =( rhs );
+	QHostAddress::operator= ( rhs );
 	m_nPort = rhs.m_nPort;
 	return *this;
 }
@@ -303,6 +303,36 @@ bool EndPoint::operator ==( const QHostAddress& rhs ) const
 bool EndPoint::operator !=( const QHostAddress& rhs ) const
 {
 	return QHostAddress::operator !=( rhs );
+}
+
+void EndPoint::setAddress( quint32 ip4Addr )
+{
+	QHostAddress::setAddress( ip4Addr );
+}
+
+void EndPoint::setAddress( quint8* ip6Addr )
+{
+	QHostAddress::setAddress( ip6Addr );
+}
+
+void EndPoint::setAddress( const Q_IPV6ADDR& ip6Addr )
+{
+	QHostAddress::setAddress( ip6Addr );
+}
+
+bool EndPoint::setAddress( const QString& address )
+{
+	return QHostAddress::setAddress( address );
+}
+
+void EndPoint::setAddress( const sockaddr* sockaddr )
+{
+	QHostAddress::setAddress( sockaddr );
+}
+
+void EndPoint::setAddress( const QHostAddress& rhs )
+{
+	QHostAddress::operator= ( rhs );
 }
 
 void EndPoint::setAddressWithPort( const QString& address )

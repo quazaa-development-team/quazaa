@@ -62,6 +62,12 @@ public:
 	bool operator==( const QHostAddress& rhs ) const;
 	bool operator!=( const QHostAddress& rhs ) const;
 
+	void setAddress( quint32 ip4Addr );
+	void setAddress( quint8* ip6Addr );
+	void setAddress( const Q_IPV6ADDR& ip6Addr );
+	bool setAddress( const QString& address );
+	void setAddress( const sockaddr* sockaddr );
+	void setAddress( const QHostAddress& rhs );
 	void setAddressWithPort( const QString& address );
 	QString toStringWithPort() const;
 
