@@ -65,7 +65,8 @@
 ChatSessionG2::ChatSessionG2( EndPoint oRemoteHost, QObject* parent ) :
 	ChatSession( parent )
 {
-	m_oRemoteHost = m_oAddress = oRemoteHost;
+	m_oRemoteHost = oRemoteHost;
+	m_oAddress    = oRemoteHost;
 }
 
 void ChatSessionG2::connectNode()

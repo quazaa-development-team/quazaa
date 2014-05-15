@@ -149,7 +149,7 @@ void Neighbour::onError( QAbstractSocket::SocketError e )
 		systemLog.postLog( LogSeverity::Error, Component::Network,
 						   "Neighbour %s dropped connection unexpectedly (socket error: %s).",
 						   qPrintable( m_oAddress.toStringWithPort() ),
-						   qPrintable( m_pSocket->errorString() ) );
+						   qPrintable( errorString() ) );
 
 		if ( m_bInitiated )
 		{

@@ -1694,8 +1694,8 @@ void G2Node::onError( QAbstractSocket::SocketError e )
 		if ( m_nState == nsHandshaking )
 		{
 			systemLog.postLog( LogSeverity::Information, Component::G2,
-							   QString( "G2 Neighbour %1 dropped connection during handshake."
-										).arg( m_oAddress.toString() ) );
+					 tr( "G2 Neighbour %0 dropped connection during handshake."
+						 ).arg( m_oAddress.toString() ) );
 
 			// if initiated by us and has reached handshaking state
 			if ( m_bInitiated )
@@ -1723,7 +1723,7 @@ void G2Node::onError( QAbstractSocket::SocketError e )
 		systemLog.postLog( LogSeverity::Error, Component::G2,
 						   "Neighbour %s dropped connection unexpectedly (socket error: %s).",
 						   qPrintable( m_oAddress.toStringWithPort() ),
-						   qPrintable( m_pSocket->errorString() ) );
+						   qPrintable( errorString() ) );
 
 		if ( m_bInitiated )
 		{

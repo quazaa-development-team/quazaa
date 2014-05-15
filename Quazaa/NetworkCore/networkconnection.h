@@ -57,11 +57,12 @@ class NetworkConnection : public QObject
 {
 	Q_OBJECT
 
-protected:
+private:
 	QTcpSocket* m_pSocket;
 
+protected:
 	// Host Address
-	EndPoint   m_oAddress;
+	EndPoint    m_oAddress;
 
 	// Buffer I/O
 	Buffer* m_pInput;
@@ -152,6 +153,8 @@ public:
 	{
 		return m_tConnected;
 	}
+
+	QString errorString() const;
 
 	inline virtual bool hasData()
 	{

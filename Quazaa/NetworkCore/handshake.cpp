@@ -52,8 +52,8 @@ void Handshake::onTimer( quint32 tNow )
 	if ( tNow - m_tConnected > 15 )
 	{
 		systemLog.postLog( LogSeverity::Debug, Component::Network,
-						   QString( "Timed out handshaking with  %1"
-								  ).arg( m_pSocket->peerAddress().toString() ) );
+						   tr( "Timed out handshaking with  %1"
+							   ).arg( address().toString() ) );
 		close();
 	}
 }
@@ -94,7 +94,7 @@ void Handshake::onRead()
 	{
 		systemLog.postLog( LogSeverity::Debug, Component::Network,
 						   QString( "Closing connection with %1 - unknown protocol"
-								  ).arg( m_pSocket->peerAddress().toString() ) );
+								  ).arg( address().toString() ) );
 
 		QByteArray baResp;
 		baResp += "HTTP/1.1 501 Not Implemented\r\n";

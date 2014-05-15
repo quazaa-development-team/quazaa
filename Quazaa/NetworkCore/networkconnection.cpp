@@ -115,7 +115,7 @@ NetworkConnection::NetworkConnection( QObject* parent ) :
 	Q_UNUSED( foo );
 	Q_UNUSED( bar );
 
-	//qDebug() << "NetworkConnection constructor";
+	// qDebug() << "NetworkConnection constructor";
 
 	m_pSocket = NULL;
 	m_pInput  = NULL;
@@ -402,6 +402,11 @@ void NetworkConnection::setReadBufferSize( qint64 nSize )
 	Q_ASSERT( m_pSocket );
 
 	m_pSocket->setReadBufferSize( nSize );
+}
+
+QString NetworkConnection::errorString() const
+{
+	return m_pSocket ? m_pSocket->errorString() : QString();
 }
 
 QByteArray NetworkConnection::read( qint64 nMaxSize )
