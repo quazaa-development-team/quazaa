@@ -198,7 +198,7 @@ void ManagedSearch::searchNeighbours( const QDateTime& tNowDT )
 		G2Node* pNode = ( G2Node* )( *itNode );
 
 		if ( pNode->m_nState == nsConnected &&
-			 tNow - pNode->m_tConnected > 15 &&
+			 tNow - pNode->connectTime() > 15 &&
 			 ( tNow - pNode->m_tLastQuery > quazaaSettings.Gnutella2.QueryHostThrottle &&
 			   !m_lSearchedNodes.contains( pNode->address() ) ) )
 		{

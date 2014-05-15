@@ -56,8 +56,9 @@ public:
 class NetworkConnection : public QObject
 {
 	Q_OBJECT
+
 protected:
-	QTcpSocket* m_pSocket;  // Socket ;)
+	QTcpSocket* m_pSocket;
 
 	// Host Address
 	EndPoint   m_oAddress;
@@ -66,13 +67,12 @@ protected:
 	Buffer* m_pInput;
 	Buffer* m_pOutput;
 
-public:
 	bool    m_bInitiated; // true if we initiated the connection; false otherwise
 	bool    m_bConnected; // TODO: this is never set to true for connections initiatied by us.
 	quint32 m_tConnected;
 
 public:
-	NetworkConnection( QObject* parent = 0 );
+	NetworkConnection( QObject* parent = NULL );
 	virtual ~NetworkConnection();
 	void moveToThread( QThread* thread );
 
@@ -136,6 +136,21 @@ public:
 	inline const EndPoint& address() const
 	{
 		return m_oAddress;
+	}
+
+	inline bool initiatedByUs() const
+	{
+		return m_bInitiated;
+	}
+
+	inline bool isConnected() const
+	{
+		return m_bConnected;
+	}
+
+	inline quint32 connectTime() const
+	{
+		return m_tConnected;
 	}
 
 	inline virtual bool hasData()

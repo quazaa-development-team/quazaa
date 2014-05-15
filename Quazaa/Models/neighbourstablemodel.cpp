@@ -45,7 +45,7 @@ NeighboursTableModel::NeighbourData::NeighbourData( Neighbour* pNeighbour ) : pN
 
 	sHandshake      = pNode->m_sHandshake;
 	oAddress        = pNode->address();
-	tConnected      = tNow - pNode->m_tConnected;
+	tConnected      = tNow - pNode->connectTime();
 	nBandwidthIn    = pNode->m_mInput.usage();
 	nBandwidthOut   = pNode->m_mOutput.usage();
 	nBytesReceived  = pNode->m_mInput.m_nTotal;
@@ -117,7 +117,7 @@ bool NeighboursTableModel::NeighbourData::update( int row, int col, QModelIndexL
 	}
 	else if ( nState == nsConnected )
 	{
-		tConnected = tNow - pNode->m_tConnected;
+		tConnected = tNow - pNode->connectTime();
 		to_update.append( model->index( row, TIME ) );
 
 		if ( col == TIME )

@@ -139,7 +139,7 @@ void NeighboursConnections::disconnectYoungest( DiscoveryProtocol::Protocol nPro
 		{
 			if ( ( *i )->m_nState == nsConnected && ( *i )->m_nProtocol == nProtocol )
 			{
-				if ( bKeepManual && !( *i )->m_bAutomatic && tNow - ( *i )->m_tConnected < 120 )
+				if ( bKeepManual && !( *i )->m_bAutomatic && tNow - ( *i )->connectTime() < 120 )
 				{
 					continue;
 				}
@@ -159,7 +159,7 @@ void NeighboursConnections::disconnectYoungest( DiscoveryProtocol::Protocol nPro
 				}
 				else
 				{
-					if ( ( *i )->m_tConnected > pNode->m_tConnected )
+					if ( ( *i )->connectTime() > pNode->connectTime() )
 					{
 						pNode = ( *i );
 					}
@@ -209,7 +209,7 @@ void NeighboursConnections::maintain()
 				{
 				case G2_UNKNOWN:
 					nUnknown++;
-					if ( pNode->m_bInitiated )
+					if ( pNode->initiatedByUs() )
 					{
 						m_nUnknownInitiated++;
 					}
@@ -236,7 +236,7 @@ void NeighboursConnections::maintain()
 				break;
 			default:
 				nUnknown++;
-				if ( pNode->m_bInitiated )
+				if ( pNode->initiatedByUs() )
 				{
 					m_nUnknownInitiated++;
 				}
@@ -252,7 +252,7 @@ void NeighboursConnections::maintain()
 		{
 			nUnknown++;
 
-			if ( pNode->m_bInitiated )
+			if ( pNode->initiatedByUs() )
 			{
 				m_nUnknownInitiated++;
 			}

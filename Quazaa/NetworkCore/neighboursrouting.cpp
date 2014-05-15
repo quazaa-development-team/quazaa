@@ -48,7 +48,7 @@ void NeighboursRouting::routeQuery( QuerySharedPtr pQuery, G2Packet* pPacket, Ne
 	foreach ( Neighbour * pNode, m_lNodes )
 	{
 		if ( pNode != pFrom && pNode->m_nState == nsConnected && pNode->m_nProtocol == DiscoveryProtocol::G2
-			 && tNow - pNode->m_tConnected > 30 )
+			 && tNow - pNode->connectTime() > 30 )
 		{
 			G2Node* pG2 = static_cast<G2Node*>( pNode );
 

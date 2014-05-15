@@ -183,7 +183,7 @@ void Handshake::onWebRequest()
 			baHtml += "<tr><td style=\"text-align:center;\"><a href=\"http://" + ( *it )->address().toStringWithPort() + "\">" +
 					  ( *it )->address().toStringWithPort() + "</a></td>";
 
-			quint32 tConnected = tNow - ( *it )->m_tConnected;
+			quint32 tConnected = tNow - ( *it )->connectTime();
 			baHtml += "<td style=\"text-align:center;\">" + QString().sprintf( "%.2u:%.2u:%.2u", tConnected / 3600,
 																			   tConnected % 3600 / 60, ( tConnected % 3600 ) % 60 ) + "</td>";
 
