@@ -248,37 +248,31 @@ void NetworkConnection::initializeSocket()
 {
 	m_pSocket->disconnect();
 
+	void ( QTcpSocket::*qTcpSocketErrorPtr )( QAbstractSocket::SocketError ) = &QTcpSocket::error;
+
 	// TODO: use Qt5 connections
-	connect( m_pSocket, SIGNAL( connected() ),
-			 this, SIGNAL( connected() ) );
-	connect( m_pSocket, SIGNAL( connected() ),
-			 this, SIGNAL( readyToTransfer() ) );
-	connect( m_pSocket, SIGNAL( readyRead() ),
-			 this, SIGNAL( readyToTransfer() ) );
-	connect( m_pSocket, SIGNAL( disconnected() ),
-			 this, SLOT( onDisconnectInt() ) );
-	connect( m_pSocket, SIGNAL( error( QAbstractSocket::SocketError ) ),
-			 this, SLOT( onErrorInt( QAbstractSocket::SocketError ) ) );
-	connect( m_pSocket, SIGNAL( bytesWritten( qint64 ) ),
-			 this, SIGNAL( bytesWritten( qint64 ) ) );
-	connect( m_pSocket, SIGNAL( stateChanged( QAbstractSocket::SocketState ) ),
-			 this, SIGNAL( stateChanged( QAbstractSocket::SocketState ) ) );
-	connect( m_pSocket, SIGNAL( aboutToClose() ),
-			 this, SIGNAL( aboutToClose() ) );
+	connect( m_pSocket, &QTcpSocket::connected,    this, &NetworkConnection::connected       );
+	connect( m_pSocket, &QTcpSocket::connected,    this, &NetworkConnection::readyToTransfer );
+	connect( m_pSocket, &QTcpSocket::readyRead,    this, &NetworkConnection::readyToTransfer );
+	connect( m_pSocket, &QTcpSocket::disconnected, this, &NetworkConnection::onDisconnectInt );
+	connect( m_pSocket, qTcpSocketErrorPtr,        this, &NetworkConnection::onErrorInt      );
+	connect( m_pSocket, &QTcpSocket::bytesWritten, this, &NetworkConnection::bytesWritten    );
+	connect( m_pSocket, &QTcpSocket::stateChanged, this, &NetworkConnection::stateChanged    );
+	connect( m_pSocket, &QTcpSocket::aboutToClose, this, &NetworkConnection::aboutToClose    );
 
 	// avoid double connections
 	disconnect( this, 0, this, 0 );
 
-	connect( this, SIGNAL( connected() ),
-			 this, SLOT( onConnectNode() ), Qt::QueuedConnection );
-	connect( this, SIGNAL( disconnected() ),
-			 this, SLOT( onDisconnectNode() ), Qt::QueuedConnection );
-	connect( this, SIGNAL( readyRead() ),
-			 this, SLOT( onRead() ), Qt::QueuedConnection );
-	connect( this, SIGNAL( error( QAbstractSocket::SocketError ) ),
-			 this, SLOT( onError( QAbstractSocket::SocketError ) ), Qt::QueuedConnection );
-	connect( this, SIGNAL( stateChanged( QAbstractSocket::SocketState ) ),
-			 this, SLOT( onStateChange( QAbstractSocket::SocketState ) ), Qt::QueuedConnection );
+	connect( this, &NetworkConnection::connected,
+			 this, &NetworkConnection::onConnectNode,    Qt::QueuedConnection );
+	connect( this, &NetworkConnection::disconnected,
+			 this, &NetworkConnection::onDisconnectNode, Qt::QueuedConnection );
+	connect( this, &NetworkConnection::readyRead,
+			 this, &NetworkConnection::onRead,           Qt::QueuedConnection );
+	connect( this, &NetworkConnection::error,
+			 this, &NetworkConnection::onError,          Qt::QueuedConnection );
+	connect( this, &NetworkConnection::stateChanged,
+			 this, &NetworkConnection::onStateChange,    Qt::QueuedConnection );
 }
 
 qint64 NetworkConnection::readFromNetwork( qint64 nBytes )
