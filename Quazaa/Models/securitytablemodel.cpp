@@ -325,8 +325,11 @@ bool SecurityTableModel::m_bShutDown = false;
 SecurityTableModel::SecurityTableModel( QObject* parent, QWidget* container ) :
 	QAbstractTableModel( parent ),
 	m_oContainer( container ),
+	m_nSortOrder( Qt::AscendingOrder ),
 	m_nSortColumn( -1 ),
-	m_bNeedSorting( false )
+	m_bNeedSorting( false ),
+	m_nRuleInfo( 0 ),
+	m_lNodes( QList<RuleDataPtr>() )
 {
 	m_pIcons[0] = new QIcon( ":/Resource/Security/Null.ico" );
 	m_pIcons[1] = new QIcon( ":/Resource/Security/Accept.ico" );
@@ -600,24 +603,6 @@ RuleDataPtr SecurityTableModel::dataFromRow( int nRow ) const
 		return NULL;
 }*/
 
-void SecurityTableModel::completeRefresh()
-{
-	if ( m_bShutDown )
-	{
-		return;
-	}
-
-	// Remove all rules.
-	clear();
-
-	// Note that this slot is automatically disconnected once all rules have been recieved once.
-	connect( &securityManager, &Security::Manager::ruleInfo, this,
-			 &SecurityTableModel::recieveRuleInfo, Qt::QueuedConnection );
-
-	// Request getting the rules back from the Security Manager.
-	m_nRuleInfo = securityManager.requestRuleInfo();
-}
-
 /**
  * @brief SecurityTableModel::triggerRuleRemoval
  * @param nIndex
@@ -642,6 +627,44 @@ void SecurityTableModel::clear()
 	}
 }
 
+/**
+ * @brief completeRefresh does a complete refresh of all rules.
+ */
+void SecurityTableModel::completeRefresh()
+{
+	if ( m_bShutDown )
+	{
+		return;
+	}
+
+	if ( m_nRuleInfo )
+	{
+		// prevent two refreshes from mixing
+		QMetaObject::invokeMethod( this, "completeRefresh", Qt::QueuedConnection );
+		return;
+	}
+
+	// Remove all rules.
+	clear();
+
+	// This slot is automatically disconnected once all rules have been recieved once.
+	connect( &securityManager, &Security::Manager::ruleInfo, this,
+			 &SecurityTableModel::recieveRuleInfo, Qt::QueuedConnection );
+
+	// Request getting the rules back from the Security Manager.
+	m_nRuleInfo = securityManager.requestRuleInfo();
+
+	if ( !m_nRuleInfo )
+	{
+		// In case we don't need to recieve any rules after all.
+		disconnect( &securityManager, &Security::Manager::ruleInfo,
+					this, &SecurityTableModel::recieveRuleInfo );
+	}
+}
+
+/**
+ * @brief securityStartUpFinished initializes the GUI once Security has started.
+ */
 void SecurityTableModel::securityStartUpFinished()
 {
 	// register necessary meta types before using them

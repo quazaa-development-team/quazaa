@@ -136,8 +136,6 @@ public:
 	RuleDataPtr dataFromRow( int nRow ) const;
 	//Rule* ruleFromIndex(const QModelIndex& index) const;
 
-	void completeRefresh();
-
 	void triggerRuleRemoval( int nIndex );
 
 	/**
@@ -146,6 +144,11 @@ public:
 	void clear();
 
 public slots:
+	/**
+	 * @brief completeRefresh does a complete refresh of all rules.
+	 */
+	void completeRefresh();
+
 	/**
 	 * @brief securityStartUpFinished initializes the GUI once Security has started.
 	 */
