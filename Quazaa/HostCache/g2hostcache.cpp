@@ -1267,7 +1267,9 @@ void G2HostCache::load()
 	m_pSection.lock();
 	m_bLoading = true;
 
-	QFile file( QuazaaGlobals::DATA_PATH() + "hostcache.dat" );
+	QString sPath = QuazaaGlobals::DATA_PATH() + "hostcache.dat";
+
+	QFile file( sPath );
 
 	if ( !file.exists() || !file.open( QIODevice::ReadOnly ) )
 	{
@@ -1317,7 +1319,8 @@ void G2HostCache::load()
 	m_pSection.unlock();
 
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache,
-					   QObject::tr( "Loaded %1 hosts." ).arg( m_nSizeAtomic.load() ) );
+					   QObject::tr( "Loaded %1 hosts from file: %2"
+									).arg( QString::number( m_nSizeAtomic.load() ), sPath ) );
 
 #endif // QUAZAA_SETUP_UNIT_TESTS
 }
@@ -1524,6 +1527,7 @@ void G2HostCache::startUpInternal()
 	m_pfSanityCheckPerformed = pSecurityMetaObject->method( nMethodIndex );
 
 #ifdef _DEBUG
+	// verify HostCache methods
 	Q_ASSERT( m_pfAddSync.isValid() );
 	Q_ASSERT( m_pfAddSyncSource.isValid() );
 	Q_ASSERT( m_pfAddSyncList.isValid() );
@@ -1537,6 +1541,7 @@ void G2HostCache::startUpInternal()
 	Q_ASSERT( m_pfRemoveSync.isValid() );
 	Q_ASSERT( m_pfStartUpInternal.isValid() );
 
+	// verify security method
 	Q_ASSERT( m_pfSanityCheckPerformed.isValid() );
 #endif // _DEBUG
 

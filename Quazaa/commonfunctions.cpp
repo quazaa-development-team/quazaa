@@ -290,13 +290,13 @@ quint32 common::securedSaveFile( const QString& sPath, const QString& sFileName,
 								  + oFileInfo.suffix() );
 
 	systemLog.postLog( LogSeverity::Debug, oComponent,
-					   QObject::tr( "Saving to File: %1" ).arg( sCompletePathAndName ) );
+					   QObject::tr( "Saving to file: " ) + sCompletePathAndName );
 
 	if ( QFile::exists( sTemporaryPathAndName ) && !QFile::remove( sTemporaryPathAndName ) )
 	{
 		systemLog.postLog( LogSeverity::Error, oComponent,
-						   QObject::tr( "Error: Could not free space required for temporary file: " )
-						   + sTemporaryPathAndName );
+						   QObject::tr( "Error: Could not free space required for temporary file:" )
+						   + " " + sTemporaryPathAndName );
 		return 0;
 	}
 
