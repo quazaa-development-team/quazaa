@@ -671,8 +671,7 @@ void G2HostCache::sanityCheck()
 	m_pSection.unlock();
 	securityManager.m_oSanity.unlock();
 
-	QMetaObject::invokeMethod( &securityManager.m_oSanity, "sanityCheckPerformed",
-							   Qt::QueuedConnection );
+	m_pfSanityCheckPerformed.invoke( &securityManager.m_oSanity, Qt::QueuedConnection );
 
 #if ENABLE_G2_HOST_CACHE_DEBUGGING
 	systemLog.postLog( LogSeverity::Debug, Component::HostCache,
@@ -1518,6 +1517,12 @@ void G2HostCache::startUpInternal()
 	nMethodIndex            = pMetaObject->indexOfMethod( sNormalizedSignature );
 	m_pfStartUpInternal     = pMetaObject->method( nMethodIndex );
 
+	const QMetaObject* pSecurityMetaObject = securityManager.m_oSanity.metaObject();
+
+	sNormalizedSignature     = "sanityCheckPerformed()";
+	nMethodIndex             = pSecurityMetaObject->indexOfMethod( sNormalizedSignature );
+	m_pfSanityCheckPerformed = pSecurityMetaObject->method( nMethodIndex );
+
 #ifdef _DEBUG
 	Q_ASSERT( m_pfAddSync.isValid() );
 	Q_ASSERT( m_pfAddSyncSource.isValid() );
@@ -1531,6 +1536,8 @@ void G2HostCache::startUpInternal()
 	Q_ASSERT( m_pfLocalAddressChanged.isValid() );
 	Q_ASSERT( m_pfRemoveSync.isValid() );
 	Q_ASSERT( m_pfStartUpInternal.isValid() );
+
+	Q_ASSERT( m_pfSanityCheckPerformed.isValid() );
 #endif // _DEBUG
 
 	connect( &securityManager.m_oSanity, SIGNAL( beginSanityCheck() ), SLOT( sanityCheck() ) );

@@ -114,6 +114,8 @@ private:
 	QMetaMethod m_pfRemoveSync;
 	QMetaMethod m_pfStartUpInternal;
 
+	QMetaMethod m_pfSanityCheckPerformed;
+
 public:
 	G2HostCache();
 	~G2HostCache();
