@@ -1,7 +1,7 @@
 ﻿/*
 ** $Id$
 **
-** Copyright © Quazaa Development Team, 2009-2013.
+** Copyright © Quazaa Development Team, 2009-2014.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
 **
 ** Quazaa is free software; this file may be used under the terms of the GNU
@@ -24,6 +24,7 @@
 
 #include <QMenu>
 #include <QKeyEvent>
+#include <QFileDialog>
 
 #include "widgetsecurity.h"
 #include "ui_widgetsecurity.h"
@@ -86,6 +87,8 @@ CWidgetSecurity::CWidgetSecurity( QWidget* parent ) :
 	m_lAutomatic->sort( m_pTableViewSecurityAuto->horizontalHeader()->sortIndicatorSection(),
 						m_pTableViewSecurityAuto->horizontalHeader()->sortIndicatorOrder()    );
 	setSkin();
+
+	ui->actionSecurityExportRules->setEnabled( true );
 }
 
 CWidgetSecurity::~CWidgetSecurity()
@@ -247,7 +250,11 @@ void CWidgetSecurity::on_actionSecurityImportRules_triggered()
 
 void CWidgetSecurity::on_actionSecurityExportRules_triggered()
 {
-	// TODO: Implement.
+	// TODO: Implement exporting only a selection of rules.
+	QString sPath = QFileDialog::getSaveFileName( this, tr( "Export Security Rules" ), QString(),
+												  tr( "Security XML files (*.xml)" ) );
+
+	securityManager.toXML( sPath );
 }
 
 void CWidgetSecurity::on_actionSubscribeSecurityList_triggered()
