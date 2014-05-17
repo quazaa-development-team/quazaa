@@ -27,8 +27,9 @@
 
 #include "debug_new.h"
 
-#include <QStandardPaths>
 #include <QDir>
+#include <QObject>
+#include <QStandardPaths>
 
 /*!
 	\file quazaaglobals.h
@@ -36,17 +37,17 @@
  */
 
 /*!
-	\class CQuazaaGlobals quazaaglobals.h
+	\class QuazaaGlobals quazaaglobals.h
 	\ingroup base
-	\brief Miscellaneous identifiers used throughout quazaa.
+	\brief Miscellaneous identifiers used throughout Quazaa.
 
-	The CQuazaaGlobals class provides a single place to provide global
+	The QuazaaGlobals class provides a single place to provide global
 	variables used throughout Quazaa.
 
-	\section Accessing CQuazaaGlobals
+	\section Accessing QuazaaGlobals
 
-	It is recommended to access CQuazaaGlobals instances via static
-	CQuazaaGlobals::FUNCTION_NAME() methods.
+	It is recommended to access QuazaaGlobals instances via static
+	QuazaaGlobals::FUNCTION_NAME() methods.
  */
 
 /*!
@@ -142,12 +143,26 @@ QString QuazaaGlobals::VENDOR_CODE()
  */
 QString QuazaaGlobals::MEDIA_OPEN_FILTER()
 {
-	return tr( "All Media Files " ) +
-		   "(*.3g2 *.3gp *.3gp2 *.3gpp *.d2v *.divx *.amr *.amv *.asf *.avi *.bik *.drc *.dsa *.dsm *.dss *.dsv *.evo *.flc *.fli *.flic *.flv *.hdmov *.ifo *.ivf *.m1v *.m2p *.m2t *.m2ts *.m2v *.m4v *.mkv *.mov *.mp2v *.mp4 *.mp4v *.mpe *.mpeg *.mpg *.mpv2 *.mpv4 *.mts *.ogm *.ogv *.pss *.pva *.ram *.ratdvd *.rm *.rmm *.roq *.rp *.rmvb *.rpm *.rt *.smi *.smil *.smk *.swf *.tp *.tpr *.ts *.tta *.vob *.vp6 *.wm *.wmp *.wmv *.aac *.ac3 *.aif *.aifc *.aiff *.alac *.au *.cda *.dts *.flac *.mid *.midi *.m1a *.m2a *.m4a *.m4b *.mka *.mpa *.mpc *.mp2 *.mp3 *.oga *.ogg *.ra *.rmi *.snd *.wav *.wma);;"
-		   + tr( "All Files " ) + "(*.*);;" + tr( "Video Files " ) +
-		   "(*.3g2 *.3gp *.3gp2 *.3gpp *.d2v *.divx *.amr *.amv *.asf *.avi *.bik *.drc *.dsa *.dsm *.dss *.dsv *.evo *.flc *.fli *.flic *.flv *.hdmov *.ifo *.ivf *.m1v *.m2p *.m2t *.m2ts *.m2v *.m4v *.mkv *.mov *.mp2v *.mp4 *.mp4v *.mpe *.mpeg *.mpg *.mpv2 *.mpv4 *.mts *.ogm *.ogv *.pss *.pva *.ram *.ratdvd *.rm *.rmm *.roq *.rp *.rmvb *.rpm *.rt *.smi *.smil *.smk *.swf *.tp *.tpr *.ts *.tta *.vob *.vp6 *.wm *.wmp *.wmv);;"
-		   + tr( "Audio Files" ) +
-		   " (*.aac *.ac3 *.aif *.aifc *.aiff *.alac *.au *.cda *.dts *.flac *.mid *.midi *.m1a *.m2a *.m4a *.m4b *.mka *.mpa *.mpc *.mp2 *.mp3 *.oga *.ogg *.ra *.rmi *.snd *.wav *.wma)";
+	return QObject::tr( "All Media Files " )
+			+ "(*.3g2 *.3gp *.3gp2 *.3gpp *.d2v *.divx *.amr *.amv *.asf *.avi *.bik *.drc *.dsa "
+			+ "*.dsm *.dss *.dsv *.evo *.flc *.fli *.flic *.flv *.hdmov *.ifo *.ivf *.m1v *.m2p "
+			+ "*.m2t *.m2ts *.m2v *.m4v *.mkv *.mov *.mp2v *.mp4 *.mp4v *.mpe *.mpeg *.mpg *.mpv2 "
+			+ "*.mpv4 *.mts *.ogm *.ogv *.pss *.pva *.ram *.ratdvd *.rm *.rmm *.roq *.rp *.rmvb "
+			+ "*.rpm *.rt *.smi *.smil *.smk *.swf *.tp *.tpr *.ts *.tta *.vob *.vp6 *.wm *.wmp "
+			+ "*.wmv *.aac *.ac3 *.aif *.aifc *.aiff *.alac *.au *.cda *.dts *.flac *.mid *.midi "
+			+ "*.m1a *.m2a *.m4a *.m4b *.mka *.mpa *.mpc *.mp2 *.mp3 *.oga *.ogg *.ra *.rmi *.snd "
+			+ "*.wav *.wma);;"
+			+ QObject::tr( "All Files " ) + "(*.*);;" + QObject::tr( "Video Files " )
+			+ "(*.3g2 *.3gp *.3gp2 *.3gpp *.d2v *.divx *.amr *.amv *.asf *.avi *.bik *.drc *.dsa "
+			+ "*.dsm *.dss *.dsv *.evo *.flc *.fli *.flic *.flv *.hdmov *.ifo *.ivf *.m1v *.m2p "
+			+ "*.m2t *.m2ts *.m2v *.m4v *.mkv *.mov *.mp2v *.mp4 *.mp4v *.mpe *.mpeg *.mpg *.mpv2 "
+			+ "*.mpv4 *.mts *.ogm *.ogv *.pss *.pva *.ram *.ratdvd *.rm *.rmm *.roq *.rp *.rmvb "
+			+ "*.rpm *.rt *.smi *.smil *.smk *.swf *.tp *.tpr *.ts *.tta *.vob *.vp6 *.wm *.wmp "
+			+ "*.wmv);;"
+			+ QObject::tr( "Audio Files" )
+			+ " (*.aac *.ac3 *.aif *.aifc *.aiff *.alac *.au *.cda *.dts *.flac *.mid *.midi *.m1a "
+			+ "*.m2a *.m4a *.m4b *.mka *.mpa *.mpc *.mp2 *.mp3 *.oga *.ogg *.ra *.rmi *.snd *.wav "
+			+ "*.wma)";
 }
 
 QString QuazaaGlobals::SETTINGS_PATH()
@@ -189,6 +204,3 @@ QString QuazaaGlobals::HOME_PATH()
 								 + "/";
 	return sPath;
 }
-
-
-
