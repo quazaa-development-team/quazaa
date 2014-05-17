@@ -479,20 +479,31 @@ G2Packet* NeighboursG2::createQueryAck( QUuid oGUID, bool bWithHubs, Neighbour* 
 				}
 			}
 
-			/*int nCount = */hubHorizonPool.addHorizonHubs( pPacket );
+			int nCount = hubHorizonPool.addHorizonHubs( pPacket );
 
-			// TODO Add hubs from HostCache
-			/*if( nCount < 10 )
+			if ( nCount < 10 )
 			{
-				HostCache.m_pSection.lock();
+				hostCache.lock();
 
-				foreach ( const CHostCacheHost*& pHost, HostCache.m_lHosts )
+				G2HostCacheConstIterator it = hostCache.begin();
+
+				while ( it != hostCache.end() && nCount < 10 )
 				{
+					SharedG2HostPtr pHost = *it;
 
+					if ( pHost && !hubHorizonPool.find( pHost->address() ) )
+					{
+						pPacket->writePacket( "S", ( pHost->address().protocol() == QAbstractSocket::IPv4Protocol ? 6 : 18 ) );
+						pPacket->writeHostAddress( pHost->address() );
+
+						++nCount;
+					}
+
+					++it;
 				}
 
-				HostCache.m_pSection.unlock();
-			}*/
+				hostCache.unlock();
+			}
 		}
 		else
 		{

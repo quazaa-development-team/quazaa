@@ -82,12 +82,12 @@ void HubHorizonPool::clear()
 	}
 }
 
-HubHorizonHub* HubHorizonPool::add( EndPoint oAddress )
+HubHorizonHub* HubHorizonPool::add( const EndPoint& rAddress )
 {
 	HubHorizonHub* pHub = m_pActive;
 	for ( ; pHub ; pHub = pHub->m_pNext )
 	{
-		if ( pHub->m_oAddress == oAddress )
+		if ( pHub->m_oAddress == rAddress )
 		{
 			pHub->m_nReference ++;
 			return pHub;
@@ -106,7 +106,7 @@ HubHorizonHub* HubHorizonPool::add( EndPoint oAddress )
 	m_pActive = pHub;
 	m_nActive ++;
 
-	pHub->m_oAddress	= oAddress;
+	pHub->m_oAddress	= rAddress;
 	pHub->m_nReference	= 1;
 
 	return pHub;
@@ -131,17 +131,17 @@ void HubHorizonPool::remove( HubHorizonHub* pHub )
 	}
 }
 
-HubHorizonHub* HubHorizonPool::find( EndPoint oAddress )
+HubHorizonHub* HubHorizonPool::find( const EndPoint& rAddress )
 {
 	for ( HubHorizonHub* pHub = m_pActive ; pHub ; pHub = pHub->m_pNext )
 	{
-		if ( pHub->m_oAddress == oAddress )
+		if ( pHub->m_oAddress == rAddress )
 		{
 			return pHub;
 		}
 	}
 
-	return 0;
+	return NULL;
 }
 
 int HubHorizonPool::addHorizonHubs( G2Packet* pPacket )
@@ -153,7 +153,7 @@ int HubHorizonPool::addHorizonHubs( G2Packet* pPacket )
 		pPacket->writePacket( "S", ( pHub->m_oAddress.protocol() == QAbstractSocket::IPv4Protocol ? 6 : 18 ) );
 		pPacket->writeHostAddress( pHub->m_oAddress );
 
-		nCount++;
+		++nCount;
 	}
 
 	return nCount;

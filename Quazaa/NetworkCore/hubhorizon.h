@@ -71,9 +71,9 @@ protected:
 public:
 	void				setup();
 	void				clear();
-	HubHorizonHub*		add( EndPoint oAddress );
+	HubHorizonHub*		add( const EndPoint& rAddress );
 	void				remove( HubHorizonHub* pHub );
-	HubHorizonHub*		find( EndPoint oAddress );
+	HubHorizonHub*		find( const EndPoint& rAddress );
 	int					addHorizonHubs( G2Packet* pPacket );
 
 };
