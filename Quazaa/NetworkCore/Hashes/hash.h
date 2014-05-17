@@ -1,7 +1,7 @@
 /*
 ** hash.h
 **
-** Copyright © Quazaa Development Team, 2009-2013.
+** Copyright © Quazaa Development Team, 2009-2014.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
 **
 ** Quazaa is free software; this file may be used under the terms of the GNU
@@ -25,7 +25,8 @@
 #ifndef HASH_H
 #define HASH_H
 
-#include "types.h"
+#include <QHash>
+#include <QByteArray>
 
 struct invalid_hash_exception {};
 
@@ -134,48 +135,5 @@ bool Hash::operator >( const Hash& oHash ) const
 
 QDataStream& operator<<( QDataStream& s, const Hash& rhs );
 QDataStream& operator>>( QDataStream& s, Hash& rhs );
-
-class HashSet
-{
-private:
-	Hash** m_pHashes;
-
-public:
-	HashSet();
-	HashSet( const HashSet& other );
-	~HashSet();
-
-	bool insert( Hash* pHash );
-	bool insert( const Hash& rHash );
-	bool insert( const HashSet& other );
-
-	bool remove( const Hash& rHash );
-	bool remove( Hash::Algorithm eAlgo );
-
-	const Hash* const mostImportant() const;
-	const Hash* const get( Hash::Algorithm eAlgo ) const;
-
-	bool contains( const Hash& rHash ) const;
-	bool conflicts( const Hash& rHash ) const;
-
-	quint8 size() const;
-	quint8 hashCount() const;
-	bool empty() const;
-
-	void simplifyByHashPriority( quint8 nNumberOfHashes );
-
-public:
-	const Hash* const & operator[]( quint8 pos ) const;
-	bool operator==( const HashSet& other ) const;
-	bool operator!=( const HashSet& other ) const;
-	bool matches( const HashSet& other ) const;
-
-	friend class Hash;
-};
-
-QList<Hash>& operator<<(       QList<Hash>& list, const HashSet& vector );
-QList<Hash>& operator>>( const QList<Hash>& list,       HashSet& vector );
-HashSet&   operator<<(       HashSet& vector, const QList<Hash>& list );
-HashSet&   operator>>( const HashSet& vector,       QList<Hash>& list );
 
 #endif // HASH_H

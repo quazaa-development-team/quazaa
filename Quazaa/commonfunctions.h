@@ -30,10 +30,12 @@
 
 #include <QList>
 #include <QFile>
+#include <QString>
 #include <QDateTime>
 #include <QReadWriteLock>
 
 #include "systemlog.h"
+#include "NetworkCore/Hashes/hashset.h"
 
 //#define NO_OF_REGISTRATIONS 8
 
@@ -42,7 +44,14 @@ namespace common
 void folderOpen( QString file );
 QString vendorCodeToName( QString vendorCode );
 QString fixFileName( QString sName );
-QString getTempFileName( QString sName );
+
+/**
+ * @brief getTempFileName Allows to obtain a name for an incomplete download file based on the most
+ * important hash of that file.
+ * @param vHashes The file HashSet.
+ * @return The incomplete file name.
+ */
+QString getIncompleteFileName( const HashSet& vHashes );
 
 QString formatBytes( quint64 nBytesPerSec );
 QString writeSizeInWholeBytes( quint64 nBytes );

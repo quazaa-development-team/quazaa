@@ -223,7 +223,6 @@ Download::Download( QueryHit* pHit, QObject* parent ) :
 	m_sDisplayName = pHit->m_sDescriptiveName;
 	m_nSize = pHit->m_nObjectSize;
 	m_nCompletedSize = 0;
-	m_sTempName = getTempFileName( m_sDisplayName );
 
 	FileListItem oFile;
 	oFile.sFileName = fixFileName( m_sDisplayName );
@@ -232,9 +231,13 @@ Download::Download( QueryHit* pHit, QObject* parent ) :
 	oFile.nEndOffset = m_nSize - 1;
 	m_lFiles.append( oFile );
 	m_bMultifile = false;
-	// hashes are not needed here, for single file download
 
 	nSources = addSource( pHit );
+	m_sTempName = getIncompleteFileName( m_vHashes );
+	if ( m_sTempName.isEmpty() )
+	{
+		m_sTempName = m_sDisplayName;
+	}
 
 	setState( dsQueued );
 

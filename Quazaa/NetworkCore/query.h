@@ -26,7 +26,7 @@
 #define QUERY_H
 
 #include "types.h"
-#include "Hashes/hash.h"
+#include "NetworkCore/Hashes/hashset.h"
 
 class G2Packet;
 class Query;
@@ -37,7 +37,7 @@ class Query
 {
 public:
 	QUuid           m_oGUID;
-	HashSet      m_vHashes;
+	HashSet         m_vHashes;
 	QString         m_sMetadata;
 	quint64         m_nMinimumSize;
 	quint64         m_nMaximumSize;

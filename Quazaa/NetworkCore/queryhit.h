@@ -26,18 +26,18 @@
 #define QUERYHIT_H
 
 #include "types.h"
-#include "NetworkCore/Hashes/hash.h"
+#include "NetworkCore/Hashes/hashset.h"
 
 class G2Packet;
 class Query;
 
 struct QueryHitInfo
 {
-	EndPoint           m_oNodeAddress;
-	EndPoint           m_oSenderAddress;
+	EndPoint            m_oNodeAddress;
+	EndPoint            m_oSenderAddress;
 	QUuid               m_oGUID;
 	QUuid               m_oNodeGUID;
-	QList<EndPoint>    m_lNeighbouringHubs;
+	QList<EndPoint>     m_lNeighbouringHubs;
 	quint8              m_nHops;
 	QString             m_sVendor;
 
@@ -47,7 +47,7 @@ struct QueryHitInfo
 class QueryHit
 {
 public:
-	QueryHit*      m_pNext;
+	QueryHit*       m_pNext;
 
 	QSharedPointer<QueryHitInfo>   m_pHitInfo;
 

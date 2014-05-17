@@ -29,7 +29,7 @@
 #include <QUrl>
 #include <QtGlobal>
 
-#include "Hashes/hash.h"
+#include "types.h"
 #include "commonfunctions.h"
 
 #include "debug_new.h"
@@ -109,18 +109,18 @@ QString common::fixFileName( QString sName )
 	return sRet.left( 255 );
 }
 
-// TODO: It might be more intelligent to use one of the file hashes directly. Otherwise we could
-// simply use QUuid to generate a unique ID. Simply hashing the file name, some random data and the
-// current time to get a random enough value seems a rather inefficient and random approach...
-QString common::getTempFileName( QString sName )
+QString common::getIncompleteFileName( const HashSet& vHashes )
 {
-	Hash oHashName( Hash::SHA1 );
-	oHashName.addData( sName.toUtf8() );
-	oHashName.addData( QString::number( qrand() % qrand()
-										).append( getDateTimeUTC().toString( Qt::ISODate )
-												  ).toLocal8Bit() );
-	oHashName.finalize();
-	return oHashName.toString();
+	const Hash* const pHash = vHashes.mostImportant();
+
+	if ( pHash )
+	{
+		return pHash->getFamilyName() + "_" + pHash->toString();
+	}
+	else
+	{
+		return QString();
+	}
 }
 
 QString common::formatBytes( quint64 nBytesPerSec )

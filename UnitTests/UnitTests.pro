@@ -130,6 +130,7 @@ HEADERS += unittestshostcache.h \
 		   $$Q_DIR/NetworkCore/endpoint.h \
 		   $$Q_DIR/NetworkCore/g2packet.h \
 		   $$Q_DIR/NetworkCore/Hashes/hash.h \
+		   $$Q_DIR/NetworkCore/Hashes/hashset.h \
 		   $$Q_DIR/NetworkCore/queryhit.h \
 		   $$Q_DIR/quazaaglobals.h \
 		   $$Q_DIR/quazaasettings.h \
@@ -153,6 +154,7 @@ SOURCES += unitmain.cpp \
 		   $$Q_DIR/NetworkCore/endpoint.cpp \
 		   $$Q_DIR/NetworkCore/g2packet.cpp \
 		   $$Q_DIR/NetworkCore/Hashes/hash.cpp \
+		   $$Q_DIR/NetworkCore/Hashes/hashset.cpp \
 		   $$Q_DIR/NetworkCore/queryhit.cpp \
 		   $$Q_DIR/quazaaglobals.cpp \
 		   $$Q_DIR/quazaasettings.cpp \

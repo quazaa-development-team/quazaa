@@ -1,10 +1,11 @@
 #ifndef FILE_H
 #define FILE_H
 
+#include <QSet>
 #include <QFile>
 #include <QFileInfo>
 
-#include "Hashes/hash.h"
+#include "NetworkCore/Hashes/hashset.h"
 
 class File : public QObject, public QFileInfo
 {

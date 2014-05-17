@@ -1,7 +1,7 @@
 #
 # Quazaa.pro
 #
-# Copyright © Quazaaa Development Team, 2009-2013.
+# Copyright © Quazaaa Development Team, 2009-2014.
 # This file is part of QUAZAA (quazaa.sourceforge.net)
 #
 # Quazaa is free software; this file may be used under the terms of the GNU
@@ -292,6 +292,7 @@ HEADERS += \
 		NetworkCore/handshake.h \
 		NetworkCore/handshakes.h \
 		NetworkCore/Hashes/hash.h \
+		NetworkCore/Hashes/hashset.h \
 		NetworkCore/hubhorizon.h \
 		NetworkCore/managedsearch.h \
 		NetworkCore/neighbour.h \
@@ -455,6 +456,7 @@ SOURCES += \
 		NetworkCore/handshake.cpp \
 		NetworkCore/handshakes.cpp \
 		NetworkCore/Hashes/hash.cpp \
+		NetworkCore/Hashes/hashset.cpp \
 		NetworkCore/hubhorizon.cpp \
 		NetworkCore/managedsearch.cpp \
 		NetworkCore/neighbour.cpp \
