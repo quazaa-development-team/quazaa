@@ -54,7 +54,6 @@
 #define ENABLE_DISCOVERY_DEBUGGING 0
 
 // TODO: Implement rating based on successful connection to obtained hosts
-// TODO: Check if already active ( see method )
 // TODO: http://www.tartc.ru/classes/gwc?ping=1&get=1&net=gnutella2&client=QAZB&version=0.1 fails
 //       http://www.tartc.ru/classes/gwc/?ping=1&amp;get=1&amp;net=gnutella2&amp;client=QAZB&amp;version=0.1 works
 // Line: <p>The document has moved <a href="http://www.tartc.ru/classes/gwc/?ping=1&amp;get=1&amp;net=gnutella2&amp;client=QAZB&amp;version=0.1">here</a>.</p>
