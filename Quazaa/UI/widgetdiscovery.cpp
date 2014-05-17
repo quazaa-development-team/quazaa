@@ -48,22 +48,22 @@ CWidgetDiscovery::CWidgetDiscovery( QWidget* parent ) :
 
 	restoreState( quazaaSettings.WinMain.DiscoveryToolbar );
 
-	tableViewDiscovery = new CTableView();
-	ui->verticalLayoutDiscoveryTable->addWidget( tableViewDiscovery );
+	m_pTableViewDiscovery = new CTableView( this );
+	ui->verticalLayoutDiscoveryTable->addWidget( m_pTableViewDiscovery );
 
-	connect( tableViewDiscovery, &CTableView::clicked,
+	connect( m_pTableViewDiscovery, &CTableView::clicked,
 			 this, &CWidgetDiscovery::tableViewDiscovery_clicked );
-	connect( tableViewDiscovery, &CTableView::doubleClicked,
+	connect( m_pTableViewDiscovery, &CTableView::doubleClicked,
 			 this, &CWidgetDiscovery::tableViewDiscovery_doubleClicked );
-	connect( tableViewDiscovery, &CTableView::customContextMenuRequested,
+	connect( m_pTableViewDiscovery, &CTableView::customContextMenuRequested,
 			 this, &CWidgetDiscovery::tableViewDiscovery_customContextMenuRequested );
 
 	m_pDiscoveryList = new DiscoveryTableModel( this, tableView() );
 	setModel( m_pDiscoveryList );
-	m_pDiscoveryList->sort( tableViewDiscovery->horizontalHeader()->sortIndicatorSection(),
-							tableViewDiscovery->horizontalHeader()->sortIndicatorOrder()    );
+	m_pDiscoveryList->sort( m_pTableViewDiscovery->horizontalHeader()->sortIndicatorSection(),
+							m_pTableViewDiscovery->horizontalHeader()->sortIndicatorOrder()    );
 
-	tableViewDiscovery->horizontalHeader()->setStretchLastSection( false );
+	m_pTableViewDiscovery->horizontalHeader()->setStretchLastSection( false );
 	setSkin();
 
 	enum Column
@@ -84,11 +84,11 @@ CWidgetDiscovery::CWidgetDiscovery( QWidget* parent ) :
 	};
 
 	// Set up header sizes
-	if ( !tableViewDiscovery->horizontalHeader()->restoreState(
+	if ( !m_pTableViewDiscovery->horizontalHeader()->restoreState(
 			 quazaaSettings.WinMain.DiscoveryHeader ) )
 	{
-		QFontMetrics fm     = tableViewDiscovery->fontMetrics();
-		QHeaderView* header = tableViewDiscovery->horizontalHeader();
+		QFontMetrics fm     = m_pTableViewDiscovery->fontMetrics();
+		QHeaderView* header = m_pTableViewDiscovery->horizontalHeader();
 
 		header->resizeSection( DiscoveryTableModel::TYPE,
 							   fm.width( " -Banned GWC- " ) );
@@ -119,24 +119,28 @@ CWidgetDiscovery::CWidgetDiscovery( QWidget* parent ) :
 
 CWidgetDiscovery::~CWidgetDiscovery()
 {
-	delete ui; // Note: This does also take care of m_pDiscoveryMenu and m_pDiscoveryList.
-	delete tableViewDiscovery; // TODO: check whether this is necessary...
+	delete ui;
+	/* Note: This does also take care of:
+	 *       * m_pDiscoveryMenu
+	 *       * m_pDiscoveryList
+	 *       * m_pTableViewDiscovery
+	 */
 }
 
 void CWidgetDiscovery::setModel( QAbstractItemModel* model )
 {
-	tableViewDiscovery->setModel( model );
+	m_pTableViewDiscovery->setModel( model );
 }
 
 QWidget* CWidgetDiscovery::tableView()
 {
-	return tableViewDiscovery;
+	return m_pTableViewDiscovery;
 }
 
 void CWidgetDiscovery::saveWidget()
 {
 	quazaaSettings.WinMain.DiscoveryToolbar = saveState();
-	quazaaSettings.WinMain.DiscoveryHeader  = tableViewDiscovery->horizontalHeader()->saveState();
+	quazaaSettings.WinMain.DiscoveryHeader  = m_pTableViewDiscovery->horizontalHeader()->saveState();
 }
 
 void CWidgetDiscovery::changeEvent( QEvent* e )
@@ -191,7 +195,7 @@ void CWidgetDiscovery::keyPressEvent( QKeyEvent* e )
 
 void CWidgetDiscovery::tableViewDiscovery_customContextMenuRequested( const QPoint& point )
 {
-	QModelIndex index = tableViewDiscovery->indexAt( point );
+	QModelIndex index = m_pTableViewDiscovery->indexAt( point );
 
 	if ( index.isValid() )
 	{
@@ -264,7 +268,7 @@ void CWidgetDiscovery::tableViewDiscovery_clicked( const QModelIndex& index )
 
 void CWidgetDiscovery::setSkin()
 {
-	tableViewDiscovery->setStyleSheet( skinSettings.listViews );
+	m_pTableViewDiscovery->setStyleSheet( skinSettings.listViews );
 }
 
 void CWidgetDiscovery::on_actionDiscoveryAddService_triggered()
@@ -279,7 +283,7 @@ void CWidgetDiscovery::on_actionDiscoveryBrowseStatistics_triggered()
 
 void CWidgetDiscovery::on_actionDiscoveryRemoveService_triggered()
 {
-	QModelIndexList selection = tableViewDiscovery->selectionModel()->selectedRows();
+	QModelIndexList selection = m_pTableViewDiscovery->selectionModel()->selectedRows();
 
 	foreach( const QModelIndex & i, selection )
 	{
@@ -294,7 +298,7 @@ void CWidgetDiscovery::on_actionDiscoveryRemoveService_triggered()
 
 void CWidgetDiscovery::on_actionDiscoveryQueryNow_triggered()
 {
-	QModelIndex index = tableViewDiscovery->currentIndex();
+	QModelIndex index = m_pTableViewDiscovery->currentIndex();
 
 	if ( index.isValid() )
 	{
@@ -306,7 +310,7 @@ void CWidgetDiscovery::on_actionDiscoveryQueryNow_triggered()
 
 void CWidgetDiscovery::on_actionDiscoveryAdvertise_triggered()
 {
-	QModelIndex index = tableViewDiscovery->currentIndex();
+	QModelIndex index = m_pTableViewDiscovery->currentIndex();
 
 	if ( index.isValid() )
 	{
@@ -318,7 +322,7 @@ void CWidgetDiscovery::on_actionDiscoveryAdvertise_triggered()
 
 void CWidgetDiscovery::on_actionDiscoveryProperties_triggered()
 {
-	QModelIndex index = tableViewDiscovery->currentIndex();
+	QModelIndex index = m_pTableViewDiscovery->currentIndex();
 
 	if ( index.isValid() )
 	{

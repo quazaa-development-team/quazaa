@@ -250,7 +250,6 @@ void NetworkConnection::initializeSocket()
 
 	void ( QTcpSocket::*qTcpSocketErrorPtr )( QAbstractSocket::SocketError ) = &QTcpSocket::error;
 
-	// TODO: use Qt5 connections
 	connect( m_pSocket, &QTcpSocket::connected,    this, &NetworkConnection::connected       );
 	connect( m_pSocket, &QTcpSocket::connected,    this, &NetworkConnection::readyToTransfer );
 	connect( m_pSocket, &QTcpSocket::readyRead,    this, &NetworkConnection::readyToTransfer );

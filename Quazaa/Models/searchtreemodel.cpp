@@ -139,14 +139,14 @@ const SearchFilter::Filter* const SearchTreeItem::getFilter() const
 
 void SearchTreeItem::addVisibleChild()
 {
-	// TODO: remove after testing
+	// REMOVE after testing
 	Q_ASSERT( m_nVisibleChildren < ( quint32 )m_lChildItems.count() );
 	++m_nVisibleChildren;
 }
 
 void SearchTreeItem::removeVisibleChild()
 {
-	// TODO: remove after testing
+	// REMOVE after testing
 	Q_ASSERT( m_nVisibleChildren );
 	--m_nVisibleChildren;
 }

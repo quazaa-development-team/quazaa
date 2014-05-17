@@ -742,7 +742,7 @@ void SecurityTableModel::removeRule( SharedRulePtr pRule )
 
 	//qDebug() << "SecurityTableModel::removeRule()";
 
-	// TODO: remove assert before beta1
+	// REMOVE for beta 1
 	Q_ASSERT( pRule );
 
 	//qDebug() << "SecurityTableModel::removeRule() Rule appears to be valid.";

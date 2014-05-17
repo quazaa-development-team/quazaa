@@ -144,7 +144,7 @@ void GeoIPList::loadGeoIP()
 		}
 	}
 
-	// TODO: remove for beta1
+	// REMOVE for Quazaa 1.0
 #ifdef _DEBUG
 	// verify that loadad list is properly sorted
 	for ( int i = 0, nMax = m_lDatabase.size() - 1; i < nMax; ++i )

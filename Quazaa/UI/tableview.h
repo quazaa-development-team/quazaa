@@ -6,7 +6,7 @@
 class CTableView : public QTableView
 {
 public:
-	CTableView();
+	CTableView( QWidget* parent = NULL );
 
 protected:
 	// This overwrites certain key events...

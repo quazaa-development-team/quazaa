@@ -44,12 +44,12 @@ class CWidgetDiscovery : public QMainWindow
 
 public:
 	DiscoveryTableModel* m_pDiscoveryList;
-	QActionGroup* actionGroupDiscoveryNavigation;
+	//QActionGroup* actionGroupDiscoveryNavigation;
 
 private:
 	Ui::CWidgetDiscovery* ui;
 	QMenu* m_pDiscoveryMenu;
-	CTableView* tableViewDiscovery;
+	CTableView* m_pTableViewDiscovery;
 
 public:
 	CWidgetDiscovery( QWidget* parent = 0 );

@@ -114,7 +114,7 @@ void G2HostCacheHost::setKey( quint32 nKey, const quint32 tNow, const EndPoint& 
 
 G2HostCacheIterator G2HostCacheHost::iterator() const
 {
-	// TODO: remove in alpha1
+	// REMOVE for beta 1
 	Q_ASSERT( m_bIteratorValid );
 	// iterator is supposed to point back to a shared pointer to this instance
 	Q_ASSERT( ( *m_iHostCacheIterator ).data() == this );

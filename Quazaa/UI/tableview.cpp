@@ -2,7 +2,8 @@
 #include <QHeaderView>
 #include <QKeyEvent>
 
-CTableView::CTableView()
+CTableView::CTableView( QWidget* parent ) :
+	QTableView( parent )
 {
 	// Quazaa default view settings for table views with complete row selection.
 

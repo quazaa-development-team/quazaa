@@ -155,7 +155,7 @@ private:
 	void registerIterator( const_iterator* pIterator );
 	void unregisterIterator( const_iterator* pIterator );
 
-	// TODO: remove later
+	// REMOVE for alpha 1
 	bool checkIterator( const const_iterator* const pIterator ) const;
 #endif // DEBUG_UNORDERED_PTR_VECTOR_ITERATORS
 };

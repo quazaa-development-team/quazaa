@@ -257,7 +257,7 @@ QString G2HostCache::getXTry() const
 	{
 		m_pSection.lock();
 
-		// TODO: remove in beta1
+		// REMOVE for Quazaa 1.0
 		Q_ASSERT( m_lHosts.size() > m_nMaxFailures + 1 ); // at least m_nMaxFailures + 2
 
 		char nFailures = -1;
@@ -451,7 +451,7 @@ quint32 G2HostCache::requestHostInfo()
 		}
 	}
 
-	// TODO: remove later
+	// REMOVE for alpha 1
 	Q_ASSERT( nHosts == m_nSizeAtomic.load() );
 
 	m_pSection.unlock();
@@ -767,7 +767,7 @@ void G2HostCache::maintainInternal()
 		const quint32 nMax = nMaxSize - nMaxSize / 4;
 		quint8 nFailure    = m_nMaxFailures;
 
-		// TODO: remove in alpha1
+		// REMOVE for beta 1
 		Q_ASSERT( nMax > 0 );
 
 		// remove 1/4 of all hosts if the cache gets too full - failed and oldest first
@@ -881,7 +881,7 @@ SharedG2HostPtr G2HostCache::update( G2HostCacheIterator& itHost, quint32 tTimeS
 	SharedG2HostPtr pHost = *itHost;
 	SharedG2HostPtr pNew; // (shared) NULL ptr
 
-	// TODO: remove in beta1
+	// REMOVE for Quazaa 1.0
 	Q_ASSERT( pHost->failures() <= m_nMaxFailures );
 
 	if ( nFailures <= m_nMaxFailures )
@@ -1034,7 +1034,7 @@ void G2HostCache::insert( SharedG2HostPtr pNew )
 		emit hostAdded( new HostData( qSharedPointerCast<HostCacheHost>( pNew ) ) );
 	}
 
-	// TODO: remove in beta1
+	// REMOVE for Quazaa 1.0
 #ifdef _DEBUG
 	for ( G2HostCacheIterator it = m_lHosts.begin(); it != m_lHosts.end(); ++it )
 	{
@@ -1086,7 +1086,7 @@ G2HostCacheIterator G2HostCache::erase( G2HostCacheIterator& itHost )
 		emit hostRemoved( qSharedPointerCast<HostCacheHost>( pHost ) );
 	}
 
-	// TODO: remove in beta1
+	// REMOVE for Quazaa 1.0
 #ifdef _DEBUG
 	for ( G2HostCacheIterator it = m_lHosts.begin(); it != m_lHosts.end(); ++it )
 	{
@@ -1153,7 +1153,7 @@ void G2HostCache::removeWorst( quint8& nFailures )
 
 	ASSUME_LOCK( m_pSection );
 
-	// TODO: remove in beta1
+	// REMOVE for Quazaa 1.0
 	Q_ASSERT( !( *m_lHosts.begin() ) );
 
 	if ( nFailures > m_nMaxFailures )

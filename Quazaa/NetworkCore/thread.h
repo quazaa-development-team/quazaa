@@ -32,7 +32,7 @@
 #include <QMutexLocker>
 #include <QWaitCondition>
 
-// TODO: remove most of the try lock asserts for alpha1
+// REMOVE most of the try lock asserts for alpha1
 class CThread: public QThread
 {
 	Q_OBJECT

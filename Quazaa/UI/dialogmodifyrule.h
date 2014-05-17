@@ -42,7 +42,6 @@ namespace Ui
 class DialogModifyRule;
 }
 
-// TODO: add country again
 namespace RuleIndex
 {
 enum Rows

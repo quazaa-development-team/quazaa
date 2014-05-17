@@ -161,7 +161,7 @@ public:
 	}
 
 #ifdef _DEBUG
-	// TODO: remove in beta1
+	// REMOVE for Quazaa 1.0
 	void verifyIterators();
 #endif
 
