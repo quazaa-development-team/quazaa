@@ -77,9 +77,7 @@ DialogModifyRule::DialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule )
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::Country );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::Country );
 
-
-
-
+			ui->lineEditCountry->setText( m_pRule->m_sContent );
 			break;
 		}
 #endif // SECURITY_ENABLE_GEOIP
@@ -203,7 +201,6 @@ void DialogModifyRule::changeEvent( QEvent* e )
 	}
 }
 
-// TODO: change user interface for IP ranges and hashes.
 void DialogModifyRule::on_pushButtonOK_clicked()
 {
 	Rule* pRule = NULL;

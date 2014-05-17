@@ -59,6 +59,7 @@ enum Rows
 };
 }
 
+// TODO: Change user interface for IP ranges and hashes.
 class DialogModifyRule : public QDialog
 {
 	Q_OBJECT
