@@ -154,7 +154,7 @@ void CWidgetSecurity::update()
 
 void CWidgetSecurity::on_actionSecurityAddRule_triggered()
 {
-	CDialogModifyRule* dlgAddRule = new CDialogModifyRule( this );
+	DialogModifyRule* dlgAddRule = new DialogModifyRule( this );
 	// connect(dlgAddRule, SIGNAL(accepted()), SLOT(update())); // not required
 	dlgAddRule->show();
 }
@@ -236,7 +236,7 @@ void CWidgetSecurity::on_actionSecurityModifyRule_triggered()
 
 		Q_ASSERT( !pData.isNull() );
 
-		CDialogModifyRule* dlgModifyRule = new CDialogModifyRule( this, pData );
+		DialogModifyRule* dlgModifyRule = new DialogModifyRule( this, pData );
 		//connect(dlgAddRule, SIGNAL(accepted()), SLOT(update())); //not required/handled by manager
 		dlgModifyRule->show();
 	}

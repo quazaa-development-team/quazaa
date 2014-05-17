@@ -39,7 +39,7 @@
 
 namespace Ui
 {
-class CDialogModifyRule;
+class DialogModifyRule;
 }
 
 // TODO: add country again
@@ -53,22 +53,25 @@ enum Rows
 	Content             = 3,
 	RegularExpression   = 4,
 	UserAgent           = 5
+#if SECURITY_ENABLE_GEOIP
+	,Country             = 6
+#endif // SECURITY_ENABLE_GEOIP
 };
 }
 
-class CDialogModifyRule : public QDialog
+class DialogModifyRule : public QDialog
 {
 	Q_OBJECT
 
-	RuleDataPtr            m_pRule;
-	CWidgetSecurity*       m_pParent;
-	Ui::CDialogModifyRule* ui;
+	RuleDataPtr             m_pRule;
+	CWidgetSecurity*        m_pParent;
+	Ui::DialogModifyRule*   ui;
 
 public:
 	// Creates a dialog window using the provided rule as basis.
 	// To create a new rule, don't provide a rule.
-	CDialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule = RuleDataPtr() );
-	~CDialogModifyRule();
+	DialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule = RuleDataPtr() );
+	~DialogModifyRule();
 
 protected:
 	void changeEvent( QEvent* e );

@@ -31,17 +31,18 @@
 
 #include "debug_new.h"
 
-CDialogModifyRule::CDialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule ) :
+DialogModifyRule::DialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule ) :
 	QDialog( parent ),
 	m_pParent( parent ),
-	ui( new Ui::CDialogModifyRule )
+	ui( new Ui::DialogModifyRule )
 {
 	m_pRule = pRule;
 
 	ui->setupUi( this );
-	ui->comboBoxAction->setView( new QListView() );
-	ui->comboBoxExpire->setView( new QListView() );
-	ui->comboBoxRuleType->setView( new QListView() );
+
+#ifdef _DEBUG
+	ui->comboBoxRuleType->addItem( "Country Filter" );
+#endif // _DEBUG
 
 
 	if ( !m_pRule.isNull() ) // We are modifying a rule.
@@ -70,34 +71,54 @@ CDialogModifyRule::CDialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule
 			ui->lineEditEndIP->setText(   lAddressRange.at( 1 ) );
 			break;
 		}
-		// TODO: country rules
+#if SECURITY_ENABLE_GEOIP
+		case RuleType::Country:
+		{
+			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::Country );
+			ui->stackedWidgetType->setCurrentIndex( RuleIndex::Country );
+
+
+
+
+			break;
+		}
+#endif // SECURITY_ENABLE_GEOIP
 		case RuleType::Hash:
+		{
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::Hash );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::Hash );
-			//TODO: implement hashes
+
+			ui->lineEditContent->setText( m_pRule->m_sContent );
 			break;
+		}
 
 		case RuleType::Content:
+		{
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::Content );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::Content );
 
 			ui->lineEditContent->setText( m_pRule->m_sContent );
 			break;
+		}
 
 		case RuleType::RegularExpression:
+		{
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::RegularExpression );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::RegularExpression );
 
 			ui->lineEditRegularExpression->setText( m_pRule->m_sContent );
 			break;
+		}
 
 		case RuleType::UserAgent:
+		{
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::UserAgent );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::UserAgent );
 
 			ui->lineEditUserAgent->setText( m_pRule->m_sContent );
 			ui->checkBoxUserAgentRegularExpression->setChecked( m_pRule->m_bContent );
 			break;
+		}
 
 		default:
 			Q_ASSERT( false );
@@ -164,12 +185,12 @@ CDialogModifyRule::CDialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule
 	setSkin();
 }
 
-CDialogModifyRule::~CDialogModifyRule()
+DialogModifyRule::~DialogModifyRule()
 {
 	delete ui;
 }
 
-void CDialogModifyRule::changeEvent( QEvent* e )
+void DialogModifyRule::changeEvent( QEvent* e )
 {
 	QDialog::changeEvent( e );
 	switch ( e->type() )
@@ -183,7 +204,7 @@ void CDialogModifyRule::changeEvent( QEvent* e )
 }
 
 // TODO: change user interface for IP ranges and hashes.
-void CDialogModifyRule::on_pushButtonOK_clicked()
+void DialogModifyRule::on_pushButtonOK_clicked()
 {
 	Rule* pRule = NULL;
 
@@ -196,7 +217,7 @@ void CDialogModifyRule::on_pushButtonOK_clicked()
 		if ( !pRule->parseContent( ui->lineEditIP->text() ) )
 		{
 			QMessageBox::warning( this, tr( "IP Address Rule Invalid" ),
-								  tr( "The ip address rule is invalid. Please see the example for correct usage." ),
+								  tr( "The IP address rule is invalid. Please see the example for correct usage." ),
 								  QMessageBox::Ok, QMessageBox::Ok );
 			delete pRule;
 			return;
@@ -209,15 +230,28 @@ void CDialogModifyRule::on_pushButtonOK_clicked()
 		if ( !pRule->parseContent( ui->lineEditStartIP->text() + "-" +
 								   ui->lineEditEndIP->text() ) )
 		{
-			QMessageBox::warning( this, tr( "IP Address Range Rule Invalid" ),
-								  tr( "The ip address range rule is invalid. Please see the example for correct usage." ),
+			QMessageBox::warning( this, tr( "IP Range Rule Invalid" ),
+								  tr( "The IP range rule is invalid. Please see the example for correct usage." ),
 								  QMessageBox::Ok, QMessageBox::Ok );
 			delete pRule;
 			return;
 		}
 		break;
 
-	// TODO: country rule
+#ifdef SECURITY_ENABLE_GEOIP
+	case RuleIndex::Country:
+		pRule = new CountryRule();
+
+		if ( !pRule->parseContent( ui->lineEditCountry->text() ) )
+		{
+			QMessageBox::warning( this, tr( "Country Rule Invalid" ),
+								  tr( "The country rule is invalid. Please see the examples for correct usage." ),
+								  QMessageBox::Ok, QMessageBox::Ok );
+			delete pRule;
+			return;
+		}
+		break;
+#endif // SECURITY_ENABLE_GEOIP
 
 	case RuleIndex::Hash:
 		pRule = new HashRule();
@@ -238,7 +272,7 @@ void CDialogModifyRule::on_pushButtonOK_clicked()
 		if ( !pRule->parseContent( ui->lineEditContent->text() ) )
 		{
 			QMessageBox::warning( this, tr( "Content Rule Invalid" ),
-								  tr( "The content rule is invalid. Please see the example for correct usage." ),
+								  tr( "The content rule is invalid. Content rules may not be created without content." ),
 								  QMessageBox::Ok, QMessageBox::Ok );
 			delete pRule;
 			return;
@@ -252,7 +286,7 @@ void CDialogModifyRule::on_pushButtonOK_clicked()
 		if ( !pRule->parseContent( ui->lineEditRegularExpression->text() ) )
 		{
 			QMessageBox::warning( this, tr( "Regular Expression Rule Invalid" ),
-								  tr( "The regular expression rule is invalid. Please see the example for correct usage." ),
+								  tr( "The regular expression rule is invalid. Please specify a valid regular expression." ),
 								  QMessageBox::Ok, QMessageBox::Ok );
 			delete pRule;
 			return;
@@ -262,15 +296,17 @@ void CDialogModifyRule::on_pushButtonOK_clicked()
 	case RuleIndex::UserAgent:
 		pRule = new UserAgentRule();
 
-		if ( !pRule->parseContent( ui->lineEditUserAgent->text() ) )
+		// by setting this first, the content parsing detects regular expression errors
+		( ( UserAgentRule* )pRule )->setRegExp( ui->checkBoxUserAgentRegularExpression->isChecked() );
+
+		pRule->parseContent( ui->lineEditUserAgent->text() );
 		{
 			QMessageBox::warning( this, tr( "User Agent Rule Invalid" ),
-								  tr( "The user agent rule is invalid. Please see the example for correct usage." ),
+								  tr( "The user agent rule is invalid. Please see the examples for correct usage." ),
 								  QMessageBox::Ok, QMessageBox::Ok );
 			delete pRule;
 			return;
 		}
-		( ( UserAgentRule* )pRule )->setRegExp( ui->checkBoxUserAgentRegularExpression->isChecked() );
 		break;
 
 	default:
@@ -346,12 +382,12 @@ void CDialogModifyRule::on_pushButtonOK_clicked()
 	accept();
 }
 
-void CDialogModifyRule::on_pushButtonCancel_clicked()
+void DialogModifyRule::on_pushButtonCancel_clicked()
 {
 	reject();
 }
 
-void CDialogModifyRule::on_comboBoxExpire_currentIndexChanged( int index )
+void DialogModifyRule::on_comboBoxExpire_currentIndexChanged( int index )
 {
 	if ( index == 2 )
 	{
@@ -367,19 +403,18 @@ void CDialogModifyRule::on_comboBoxExpire_currentIndexChanged( int index )
 	}
 }
 
-void CDialogModifyRule::setSkin()
+void DialogModifyRule::setSkin()
 {
-
 }
 
-void CDialogModifyRule::on_lineEditDays_editingFinished()
+void DialogModifyRule::on_lineEditDays_editingFinished()
 {
 	quint64 nDays = ui->lineEditDays->text().toULong();
 
 	ui->lineEditDays->setText( QString::number( nDays ) );
 }
 
-void CDialogModifyRule::on_lineEditHours_editingFinished()
+void DialogModifyRule::on_lineEditHours_editingFinished()
 {
 	quint64 nHours = ui->lineEditHours->text().toULong();
 	quint64 nDays = ui->lineEditDays->text().toULong();
@@ -389,7 +424,7 @@ void CDialogModifyRule::on_lineEditHours_editingFinished()
 	ui->lineEditDays->setText( QString::number( nDays ) );
 }
 
-void CDialogModifyRule::on_lineEditMinutes_editingFinished()
+void DialogModifyRule::on_lineEditMinutes_editingFinished()
 {
 	quint64 nMinutes = ui->lineEditMinutes->text().toULong();
 	quint64 nHours = ui->lineEditHours->text().toULong();
