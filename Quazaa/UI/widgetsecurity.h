@@ -62,6 +62,11 @@ protected:
 	virtual void changeEvent( QEvent* e );
 	virtual void keyPressEvent( QKeyEvent* event );
 
+private:
+	QModelIndexList getSelectedItems( SecurityFilterModel*& pFilterModel ) const;
+	QModelIndexList getSelectedItems( SecurityFilterModel*& pFilterModel,
+									  CTableView*& pTableView ) const;
+
 public slots:
 	void update();
 

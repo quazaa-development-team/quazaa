@@ -146,6 +146,29 @@ void CWidgetSecurity::keyPressEvent( QKeyEvent* e )
 	QMainWindow::keyPressEvent( e );
 }
 
+QModelIndexList CWidgetSecurity::getSelectedItems( SecurityFilterModel*& pFilterModel ) const
+{
+	CTableView* pTableView = NULL;
+	return getSelectedItems( pFilterModel, pTableView );
+}
+
+QModelIndexList CWidgetSecurity::getSelectedItems( SecurityFilterModel*& pFilterModel,
+												   CTableView*& pTableView ) const
+{
+	if ( ui->tabWidgetSecurity->currentIndex() == 1 )
+	{
+		pFilterModel = m_lAutomatic;
+		pTableView   = m_pTableViewSecurityAuto;
+	}
+	else
+	{
+		pFilterModel = m_lManual;
+		pTableView   = m_pTableViewSecurity;
+	}
+
+	return pTableView->selectionModel()->selectedRows();
+}
+
 void CWidgetSecurity::update()
 {
 	// TODO: Test whether this is needed.
@@ -161,51 +184,24 @@ void CWidgetSecurity::on_actionSecurityAddRule_triggered()
 
 void CWidgetSecurity::on_actionSecurityRemoveRule_triggered()
 {
-	if ( ui->tabWidgetSecurity->currentIndex() == 1 )
-	{
-		QModelIndexList lSelection = m_pTableViewSecurityAuto->selectionModel()->selectedRows();
+	SecurityFilterModel* pModel = NULL;
+	QModelIndexList lSelection  = getSelectedItems( pModel );
 
-		foreach ( const QModelIndex & i, lSelection )
-		{
-			if ( i.isValid() )
-			{
-				// map filter model index to table model index and request rule removal
-				m_lSecurity->triggerRuleRemoval( m_lAutomatic->mapToSource( i ).row() );
-			}
-		}
-	}
-	else
+	foreach ( const QModelIndex& i, lSelection )
 	{
-		QModelIndexList selection = m_pTableViewSecurity->selectionModel()->selectedRows();
-
-		foreach ( const QModelIndex & i, selection )
+		if ( i.isValid() )
 		{
-			if ( i.isValid() )
-			{
-				// map filter model index to table model index and request rule removal
-				m_lSecurity->triggerRuleRemoval( m_lManual->mapToSource( i ).row() );
-			}
+			// map filter model index to table model index and request rule removal
+			m_lSecurity->triggerRuleRemoval( pModel->mapToSource( i ).row() );
 		}
 	}
 }
 
 void CWidgetSecurity::on_actionSecurityModifyRule_triggered()
 {
-	CTableView* pTableView;
-	SecurityFilterModel* pFilterModel;
+	SecurityFilterModel* pModel = NULL;
+	QModelIndexList lSelection  = getSelectedItems( pModel );
 
-	if ( ui->tabWidgetSecurity->currentIndex() == 1 )
-	{
-		pTableView = m_pTableViewSecurityAuto;
-		pFilterModel = m_lAutomatic;
-	}
-	else
-	{
-		pTableView = m_pTableViewSecurity;
-		pFilterModel = m_lManual;
-	}
-
-	QModelIndexList lSelection = pTableView->selectionModel()->selectedRows();
 	QModelIndex index = QModelIndex();
 
 	// Get the highest selected row.
@@ -226,7 +222,7 @@ void CWidgetSecurity::on_actionSecurityModifyRule_triggered()
 
 	if ( index.isValid() )
 	{
-		QModelIndex i = pFilterModel->mapToSource( index );
+		QModelIndex i = pModel->mapToSource( index );
 
 		Q_ASSERT( i.isValid()  &&
 				  i.row() >= 0 &&
@@ -237,7 +233,6 @@ void CWidgetSecurity::on_actionSecurityModifyRule_triggered()
 		Q_ASSERT( !pData.isNull() );
 
 		DialogModifyRule* dlgModifyRule = new DialogModifyRule( this, pData );
-		//connect(dlgAddRule, SIGNAL(accepted()), SLOT(update())); //not required/handled by manager
 		dlgModifyRule->show();
 	}
 }
@@ -250,16 +245,33 @@ void CWidgetSecurity::on_actionSecurityImportRules_triggered()
 
 void CWidgetSecurity::on_actionSecurityExportRules_triggered()
 {
-	// TODO: Implement exporting only a selection of rules.
+	std::set<ID> lsIDs;
+
+	SecurityFilterModel* pModel = NULL;
+	QModelIndexList lSelection  = getSelectedItems( pModel );
+
+	foreach ( const QModelIndex& iProxy, lSelection )
+	{
+		if ( iProxy.isValid() )
+		{
+			// map filter model index to table model index and store ID
+			const QModelIndex iSourceIndex = pModel->mapToSource( iProxy );
+			const int nRow = iSourceIndex.row();
+			const RuleDataPtr pRuleData = m_lSecurity->dataFromRow( nRow );
+			lsIDs.insert( pRuleData->m_nID );
+		}
+	}
+
 	QString sPath = QFileDialog::getSaveFileName( this, tr( "Export Security Rules" ), QString(),
 												  tr( "Security XML files (*.xml)" ) );
 
-	securityManager.toXML( sPath );
+	securityManager.toXML( sPath, lsIDs );
 }
 
 void CWidgetSecurity::on_actionSubscribeSecurityList_triggered()
 {
-	CDialogSecuritySubscriptions* dlgSecuritySubscriptions = new CDialogSecuritySubscriptions( this );
+	CDialogSecuritySubscriptions* dlgSecuritySubscriptions =
+			new CDialogSecuritySubscriptions( this );
 	dlgSecuritySubscriptions->show();
 }
 
