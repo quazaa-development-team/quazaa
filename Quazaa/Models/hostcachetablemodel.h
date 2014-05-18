@@ -113,10 +113,10 @@ public slots:
 
 private:
 	void updateView( QModelIndexList uplist = QModelIndexList() );
-	int findInsertPos( HostData* pData );
+	int findInsertPos( const HostData* const pData );
 	void insert( HostData* pData );
 	void insertAt( HostData* pData, const int nPos );
-	void erase( int nPos );
+	void erase( const int nPos );
 };
 
 #endif // G2CACHETABLEMODEL_H

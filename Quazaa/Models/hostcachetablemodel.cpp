@@ -33,8 +33,11 @@ using namespace HostManagement;
 HostCacheTableModel::HostCacheTableModel( QObject* parent, QWidget* container ) :
 	QAbstractTableModel( parent ),
 	m_oContainer( container ),
+	m_nSortOrder( Qt::AscendingOrder ),
 	m_nSortColumn( -1 ),
-	m_bNeedSorting( false )
+	m_bNeedSorting( false ),
+	m_nHostInfo( 0 ),
+	m_vHosts( std::vector<HostData*>() )
 {
 	// register necessary meta types before using them
 	hostCache.registerMetaTypes();
@@ -89,13 +92,13 @@ int HostCacheTableModel::columnCount( const QModelIndex& parent ) const
 
 QVariant HostCacheTableModel::data( const QModelIndex& index, int nRole ) const
 {
-	if ( !index.isValid() || index.row() > m_vHosts.size() || index.row() < 0 )
+	if ( !index.isValid() || index.row() >= m_vHosts.size() || index.row() < 0 )
 	{
 		Q_ASSERT( false );
 		return QVariant();
 	}
 
-	const HostData* pData = m_vHosts[ index.row() ];
+	const HostData* const pData = m_vHosts[ index.row() ];
 
 	switch ( nRole )
 	{
@@ -222,7 +225,7 @@ public:
 	 * @param b
 	 * @return true if a is smaller than b in the current sort order; false otherwise.
 	 */
-	bool operator()( HostData* a, HostData* b )
+	bool operator()( const HostData* const a, const HostData* const b ) const
 	{
 		Q_ASSERT( a );
 		Q_ASSERT( b );
@@ -259,7 +262,7 @@ void HostCacheTableModel::sort( int column, Qt::SortOrder order )
 		int oldRow = oldIdx.at( i ).row();
 
 		// if oldRow is outside range
-		if ( oldRow > m_vHosts.size()
+		if ( oldRow >= m_vHosts.size()
 			 // or the index points to another item
 			 || oldIdx.at( i ).internalPointer() != m_vHosts[oldRow] )
 		{
@@ -341,6 +344,15 @@ void HostCacheTableModel::completeRefresh()
 
 	// Request getting them back from the Host Cache.
 	m_nHostInfo = hostCache.requestHostInfo();
+
+	// avoid unnecessary reallocations in the future
+	m_vHosts.reserve( 2 * m_nHostInfo );
+
+	if ( !m_nHostInfo )
+	{
+		disconnect( &hostCache, SIGNAL( hostInfo( HostData* ) ),
+					this, SLOT( recieveHostInfo( HostData* ) ) );
+	}
 }
 
 /**
@@ -485,29 +497,35 @@ void HostCacheTableModel::updateView( QModelIndexList uplist )
 	}
 }
 
-int HostCacheTableModel::findInsertPos( HostData* pData )
+int HostCacheTableModel::findInsertPos( const HostData* const pData )
 {
 	if ( m_vHosts.empty() )
 	{
 		return 0;
 	}
 
-	HostData** pHosts = &m_vHosts[0];
+	const HostData* const * const pHosts = &m_vHosts[0];
 	G2CacheTableModelCmp oComparator = G2CacheTableModelCmp( m_nSortColumn, m_nSortOrder );
 
 	int nMiddle;
 	int nPosStart = 0;
 	int nPosEnd   = ( int )m_vHosts.size() - 1;
 
+	// REMOVE for Quazaa 1.0
+#ifdef _DEBUG
+	{
 	for ( int i = 0; i < nPosEnd - 1; ++i )
 	{
 		bool bSmaller   =  oComparator( pHosts[i], pHosts[i+1] );
 		bool bNotBigger = !oComparator( pHosts[i+1], pHosts[i] );
 		if ( !bSmaller && bNotBigger )
 		{
+			// may not be equal
 			Q_ASSERT( bSmaller || bNotBigger );
 		}
 	}
+	}
+#endif // _DEBUG
 
 	while ( nPosStart <= nPosEnd )
 	{
@@ -549,9 +567,14 @@ void HostCacheTableModel::insert( HostData* pData )
 	}
 }
 
-void HostCacheTableModel::insertAt(HostData* pData, const int nPos)
+void HostCacheTableModel::insertAt( HostData* pData, const int nPos )
 {
 	const int nMax = ( int )m_vHosts.size();
+
+#ifdef _DEBUG
+	Q_ASSERT( pData );
+	Q_ASSERT( nPos >= 0 && nPos <= nMax );
+#endif // _DEBUG
 
 	if ( nPos == nMax )
 	{
@@ -561,28 +584,23 @@ void HostCacheTableModel::insertAt(HostData* pData, const int nPos)
 	{
 		m_vHosts.push_back( NULL );
 
-		// TODO: use memmove
 		HostData** pHosts = &m_vHosts[0];
-		for ( int i = nMax; i > nPos; --i )
-		{
-			pHosts[i] = pHosts[i - 1];
-		}
-
+		memmove( pHosts + nPos + 1, pHosts + nPos, ( nMax - nPos ) * sizeof( HostData* ) );
 		pHosts[nPos] = pData;
 	}
 }
 
-void HostCacheTableModel::erase( int nPos )
+void HostCacheTableModel::erase( const int nPos )
 {
 	beginRemoveRows( QModelIndex(), nPos, nPos );
-	delete m_vHosts[nPos];
 
+	const int nMax = ( int )m_vHosts.size() - 1;
 	HostData** pHosts = &m_vHosts[0];
-	for ( int i = nPos, nMax = ( int )m_vHosts.size() - 1; i < nMax; ++i )
-	{
-		pHosts[i] = pHosts[i + 1];
-	}
-	m_vHosts.pop_back();
+	delete pHosts[nPos];
 
+	// Move all items on positions after nPos one spot to the left.
+	memmove( pHosts + nPos, pHosts + nPos + 1, ( nMax - nPos ) * sizeof( HostData* ) );
+
+	m_vHosts.pop_back();
 	endRemoveRows();
 }

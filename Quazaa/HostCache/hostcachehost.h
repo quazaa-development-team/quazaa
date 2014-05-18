@@ -187,7 +187,7 @@ public:
 	HostData( SharedHostPtr pHost );
 	bool update( int row, int col, QModelIndexList& to_update, HostCacheTableModel* model );
 	QVariant data( int col ) const;
-	bool lessThan( int col, HostData* pOther ) const;
+	bool lessThan( int col, const HostData* const pOther ) const;
 };
 
 #endif // HOSTCACHEHOST_H

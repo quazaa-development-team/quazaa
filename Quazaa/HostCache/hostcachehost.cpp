@@ -198,7 +198,7 @@ QVariant HostData::data( int col ) const
 	}
 }
 
-bool HostData::lessThan( int col, HostData* pOther ) const
+bool HostData::lessThan( int col, const HostData* const pOther ) const
 {
 	Q_ASSERT( pOther );
 

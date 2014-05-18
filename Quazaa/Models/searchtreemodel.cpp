@@ -203,7 +203,7 @@ void TreeRoot::removeChild( int position )
 	SearchTreeItem* pItem = m_lChildItems.at( position );
 	Q_ASSERT( pItem->type() == SearchFileType );
 
-	const Hash* const * pHashes = &( ( SearchFile* )pItem )->m_vHashes[0];
+	const Hash* const * const pHashes = &( ( SearchFile* )pItem )->m_vHashes[0];
 	for ( quint8 i = 0, nSize = ( ( SearchFile* )pItem )->m_vHashes.size(); i < nSize; ++i )
 	{
 		if ( pHashes[i] )
@@ -337,7 +337,7 @@ SearchFile::SearchFile( SearchTreeItem* parent,
 	m_pItemData[CLIENT]    = "";
 	m_pItemData[COUNTRY]   = "";
 
-	const Hash* const * pHashes = &m_vHashes[0];
+	const Hash* const * const pHashes = &m_vHashes[0];
 	for ( quint8 i = 0, nSize = m_vHashes.size(); i < nSize; ++i )
 	{
 		if ( pHashes[i] )
@@ -401,7 +401,7 @@ void SearchFile::insertHashes( const HashSet& vHashes )
 	Q_ASSERT( !vHashes.empty() );
 
 	// TODO: hash collision detection
-	const Hash* const * pHashes = &vHashes[0];
+	const Hash* const * const pHashes = &vHashes[0];
 	for ( quint8 i = 0, nSize = vHashes.size(); i < nSize; ++i )
 	{
 		if ( pHashes[i] && !manages( *pHashes[i] ) )

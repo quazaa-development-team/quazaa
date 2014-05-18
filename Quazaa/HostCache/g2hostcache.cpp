@@ -1182,7 +1182,7 @@ void G2HostCache::removeWorst( quint8& nFailures )
  * Locking: REQUIRED
  * @param oHost: the given EndPoint
  * @param nFailures: allows the caller to obtain the amount of failures of the host.
- * @return the iterator respectively m_vlHosts[0].end() if not found.
+ * @return the iterator respectively m_lHosts.end() if not found.
  */
 G2HostCacheIterator G2HostCache::find( const EndPoint& oHost )
 {
