@@ -89,25 +89,60 @@ public:
 QDataStream& operator<<( QDataStream& s, const EndPoint& rhs );
 QDataStream& operator>>( QDataStream& s, EndPoint& rhs );
 
-// allows using EndPoint with std::unordered_map
 namespace std
 {
 template <>
-struct hash<EndPoint> : public unary_function<EndPoint, size_t>
+/**
+ * @brief The hash<QHostAddress> struct provides a 32 bit hash of a given QHostAddress, thus
+ * allowing the usage of the QHostAddress class together with std::unordered_map.
+ */
+struct hash<QHostAddress> : public unary_function<QHostAddress, quint32>
 {
-	size_t operator()( const EndPoint& value ) const
+	/**
+	 * @brief operator() Hashes a given value and returns its 32 bit hash.
+	 * @param value The QHostAddress to hash.
+	 * @return The 32 bit hash of the QHostAddress.
+	 */
+	quint32 operator()( const QHostAddress& value ) const
 	{
 		if ( value.protocol() == QAbstractSocket::IPv4Protocol )
 		{
-			quint64 nHash = value.toIPv4Address();
-			return nHash * value.port();
+			return value.toIPv4Address();
 		}
 		else
 		{
-			// TODO: improve?
-			return qHash( value.toStringWithPort() );
+			Q_IPV6ADDR addr128bit = value.toIPv6Address();
+			quint32* addr32bit = ( quint32* )( &addr128bit );
+			return addr32bit[0] + addr32bit[1] + addr32bit[2] + addr32bit[3];
 		}
+	}
+};
 
+
+template <>
+/**
+ * @brief The hash<EndPoint> struct provides a 32 bit hash of a given EndPoint, thus allowing the
+ * usage of the EndPoint class together with std::unordered_map.
+ */
+struct hash<EndPoint> : public unary_function<EndPoint, quint32>
+{
+	/**
+	 * @brief operator() Hashes a given value and returns its 32 bit hash.
+	 * @param value The EndPoint to hash.
+	 * @return The 32 bit hash of the EndPoint.
+	 */
+	quint32 operator()( const EndPoint& value ) const
+	{
+		if ( value.protocol() == QAbstractSocket::IPv4Protocol )
+		{
+			return value.toIPv4Address() * value.port();
+		}
+		else
+		{
+			Q_IPV6ADDR addr128bit = value.toIPv6Address();
+			quint32* addr32bit = ( quint32* )( &addr128bit );
+			return ( addr32bit[0] + addr32bit[1] + addr32bit[2] + addr32bit[3] ) * value.port();
+		}
 	}
 };
 }

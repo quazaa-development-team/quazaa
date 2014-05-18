@@ -245,7 +245,7 @@ void CWidgetSecurity::on_actionSecurityImportRules_triggered()
 
 void CWidgetSecurity::on_actionSecurityExportRules_triggered()
 {
-	std::set<ID> lsIDs;
+	Security::IDSet lsIDs;
 
 	SecurityFilterModel* pModel = NULL;
 	QModelIndexList lSelection  = getSelectedItems( pModel );
