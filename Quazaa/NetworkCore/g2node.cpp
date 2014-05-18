@@ -1697,6 +1697,9 @@ void G2Node::onError( QAbstractSocket::SocketError e )
 					 tr( "G2 Neighbour %0 dropped connection during handshake."
 						 ).arg( m_oAddress.toString() ) );
 
+			// TODO: Find out why we are banning so many hosts here. It seems that at least 3 out of
+			// 4 hosts we're trying to connect to get banned at this point...
+
 			// if initiated by us and has reached handshaking state
 			if ( m_bInitiated )
 			{

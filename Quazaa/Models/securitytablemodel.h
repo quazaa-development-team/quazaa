@@ -33,6 +33,8 @@
 
 using namespace Security;
 
+// TODO: Find out why the view is unsorted after hitting F5.
+
 /**
  * @brief The SecurityTableModel class implements a table model for handling security rules.
  */
