@@ -30,7 +30,8 @@
 
 struct invalid_hash_exception {};
 
-// TODO: using shared data for both CHash and HashVector might be advantageous
+// TODO: using shared data for both CHash and/or HashVector might be advantageous
+// TODO: AICH support:http://www.emule-project.net/home/perl/help.cgi?l=1&topic_id=589&rm=show_topic
 class Hash
 {
 public:
