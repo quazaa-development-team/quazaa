@@ -1,7 +1,7 @@
 ﻿/*
-** $Id$
+** commonfunctions.h
 **
-** Copyright © Quazaa Development Team, 2009-2012.
+** Copyright © Quazaa Development Team, 2009-2014.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
 **
 ** Quazaa is free software; this file may be used under the terms of the GNU
@@ -36,8 +36,6 @@
 
 #include "systemlog.h"
 #include "NetworkCore/Hashes/hashset.h"
-
-//#define NO_OF_REGISTRATIONS 8
 
 namespace common
 {
@@ -98,60 +96,6 @@ inline QDateTime getDateTimeUTC()
 	Q_ASSERT( tNow.timeSpec() == Qt::UTC );
 	return tNow;
 }
-
-//    struct registeredSet
-//    {
-//        quint64 num64;
-//        quint8 num8;
-//    };
-//    struct registerEntry
-//    {
-//        quint64 num64[NO_OF_REGISTRATIONS];
-//    };
-//    static quint64 registeredNumbers[NO_OF_REGISTRATIONS] = {};
-
-//    registeredSet registerNumber();
-//    bool unregisterNumber(registeredSet registered);
-
-//    /**
-//      * Returns an empty but initilized registerEntry.
-//      */
-//    inline registerEntry getRegisterEntry()
-//    {
-//        registerEntry res = { {} };
-//        return res;
-//    }
-
-//    /**
-//      * Returns true if registering set to entry was successful; false if already registered.
-//      */
-//    inline bool applyRegisteredSet( registeredSet &set, registerEntry &entry )
-//    {
-//        if ( entry.num64[set.num8] & set.num64 )
-//        {
-//            return false;
-//        }
-//        else
-//        {
-//            entry.num64[set.num8] &= set.num64;
-//            return true;
-//        }
-//    }
-
-//    /**
-//      * Returns true if set was already registered to entry; false if already registered.
-//      */
-//    inline bool isRegisteredToEntry( registeredSet &set, registerEntry &entry )
-//    {
-//        if ( entry.num64[set.num8] & set.num64 )
-//        {
-//            return true;
-//        }
-//        else
-//        {
-//            return false;
-//        }
-//    }
 
 template <typename T>
 inline T getRandomNum( T min, T max )

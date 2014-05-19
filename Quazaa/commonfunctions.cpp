@@ -1,7 +1,7 @@
 ﻿/*
-** $Id$
+** commonfunctions.cpp
 **
-** Copyright © Quazaa Development Team, 2009-2013.
+** Copyright © Quazaa Development Team, 2009-2014.
 ** This file is part of QUAZAA (quazaa.sourceforge.net)
 **
 ** Quazaa is free software; this file may be used under the terms of the GNU
@@ -1827,43 +1827,3 @@ quint16 common::getRandomUnusedPort( bool bClear )
 
 	return nPort;
 }
-
-/*common::registeredSet common::registerNumber()
-{
-	registeredSet result;
-	result.num8 = 0;
-	result.num64 = 0;    // this is used to identify a struct as being invalid.
-
-	for ( quint8 i = 0; i < NO_OF_REGISTRATIONS; ++i )
-	{
-		quint64 counter = 1;
-		quint64 num64comp = 1;
-		while ( counter < 64 )
-		{
-			if ( registeredNumbers[i] & num64comp ) // this means the current number is registered
-			{
-				++counter;
-				num64comp *= 2;
-			}
-			else
-			{
-				result.num8 = i;
-				result.num64 = num64comp;
-
-				return result;
-			}
-		}
-	}
-	return result;
-}
-
-bool common::unregisterNumber(registeredSet registered)
-{
-	if ( registeredNumbers[ registered.num8 ] & registered.num64 )
-	{
-		registeredNumbers[ registered.num8 ] = registeredNumbers[ registered.num8 ] & ( ~registered.num64 );
-		return true;
-	}
-	return false;
-}*/
-
