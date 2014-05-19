@@ -34,18 +34,18 @@
 
 #include "debug_new.h"
 
-void common::folderOpen( QString file )
+void common::folderOpen( const QString& sPath )
 {
-	QDir completePath( file );
+	QDir completePath( sPath );
 
 	if ( !completePath.exists() )
 	{
-		completePath.mkpath( file );
+		completePath.mkpath( sPath );
 	}
-	QDesktopServices::openUrl( QUrl::fromLocalFile( file ) );
+	QDesktopServices::openUrl( QUrl::fromLocalFile( sPath ) );
 }
 
-QString common::vendorCodeToName( QString vendorCode )
+QString common::vendorCodeToName( const QString& vendorCode )
 {
 	if ( vendorCode == "RAZA" )
 	{
@@ -101,7 +101,7 @@ QString common::vendorCodeToName( QString vendorCode )
 	}
 }
 
-QString common::fixFileName( QString sName )
+QString common::fixFileName(const QString& sName )
 {
 	QString sRet = sName;
 	// \ * / ? % : | " > <

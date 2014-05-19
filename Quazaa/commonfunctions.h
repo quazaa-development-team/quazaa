@@ -39,20 +39,59 @@
 
 namespace common
 {
-void folderOpen( QString file );
-QString vendorCodeToName( QString vendorCode );
-QString fixFileName( QString sName );
+/**
+ * @brief folderOpen Opens a folder in the local default viewer. If it does not exist, a new folder
+ * with the specified path is created.
+ * @param sPath  The folder path.
+ */
+void folderOpen(const QString& sPath );
+
+/**
+ * @brief vendorCodeToName Maps known four letter vendor codes to application names.
+ * @param vendorCode  The vendor code to map.
+ * @return The application name.
+ */
+QString vendorCodeToName( const QString& vendorCode );
+
+/**
+ * @brief fixFileName Replaces unallowed characters in a file name or path with underscores and
+ * limits the length to 255 characters.
+ * @param sName  The file name.
+ * @return The fixed file name.
+ */
+QString fixFileName( const QString& sName );
 
 /**
  * @brief getTempFileName Allows to obtain a name for an incomplete download file based on the most
  * important hash of that file.
- * @param vHashes The file HashSet.
+ * @param vHashes  The file HashSet.
  * @return The incomplete file name.
  */
 QString getIncompleteFileName( const HashSet& vHashes );
 
+/**
+ * @brief formatBytes Converts a size in bytes to a human readable expression.
+ * @param nBytesPerSec  The number of bytes.
+ * @return A string representation of a number followed by a corresponding suffix.
+ * Output examples: 3 MiB, 999.92 TiB, 60.92 KiB
+ */
 QString formatBytes( quint64 nBytesPerSec );
+
+/**
+ * @brief writeSizeInWholeBytes Converts a size in bytes to a human readable expression.
+ * @param nBytes  The number of bytes.
+ * @return A string representation of the size in bytes while avoiding any data loss.
+ * Output examples: 999999999 B, 2 TiB, 5456 MB
+ */
 QString writeSizeInWholeBytes( quint64 nBytes );
+
+/**
+ * @brief readSizeInBytes Converts a given string into a number of bytes.
+ * @param sInput  The input string. Examples: "30 MB", "6KiB", "1345289375629 B", "10000 TB"
+ * @param bOK     The conversion verificator. Is set to true if successful; false otherwise.
+ * @return 0 if the conversion failed; the number of bytes read from the string representation
+ * otherwise.
+ */
 quint64 readSizeInBytes( QString sInput, bool& bOK );
 
 /**
@@ -67,46 +106,62 @@ typedef enum { programLocation, globalDataFiles, userDataFiles } Location;
  * to disk process. In case of a failure, any previous file is left untouched, in case of a
  * success, any previous file with the specified file name is replaced.
  * Locking needs to be handled by the caller.
- * @param location: the location of the file to be written.
- * @param sFileName: path and name of the file relative to the specified path.
- * @param oComponent: component saving the file (for system log).
- * @param pManager: first argument of the writeData() function.
- * @param writeData(): Function pointer to the static function doing the actual writing to file.
- * @return true if successful, false otherwise.
+ * @param sPath       Location where the file should be written to.
+ * @param sFileName   Path and name of the file relative to the specified path.
+ * @param oComponent  Component saving the file (for system log).
+ * @param pManager    First argument of the writeData() function.
+ * @param writeData() Function pointer to the static function doing the actual writing to file.
+ * @return true if successful; false otherwise.
  */
 quint32 securedSaveFile( const QString& sPath, const QString& sFileName,
 						 Component oComponent, const void* const pManager,
 						 quint32 ( *writeData )( const void* const, QFile& ) );
 
 /**
- * @brief getRandomUnusedPort
- * @param bClear - set this to true to clear the internal data structures. Frees ca. 2k RAM.
- * @return bClear ? 0 : a random port not known to be used by other applications
+ * @brief getRandomUnusedPort Allows to obtain a random unused port number.
+ * @param bClear   Set this to true to clear the internal data structures. Frees ca. 2k RAM.
+ * @return bClear  0 if bClear is set to true; otherwise a random port number not known to be used
+ * by an other application.
  */
 quint16 getRandomUnusedPort( bool bClear = false );
 
+/**
+ * @brief getTNowUTC Allows to access the current time (UTC).
+ * @return The number of seconds sinec 0:00:00 on January 1st, 1970 (UTC)
+ */
 inline quint32 getTNowUTC()
 {
 	return QDateTime::currentDateTimeUtc().toTime_t();
 }
 
+/**
+ * @brief getDateTimeUTC Allows to access the current time (UTC).
+ * @return The current UTC time as a QDateTime object.
+ */
 inline QDateTime getDateTimeUTC()
 {
-	QDateTime tNow = QDateTime::currentDateTimeUtc();
-	Q_ASSERT( tNow.timeSpec() == Qt::UTC );
-	return tNow;
+	return QDateTime::currentDateTimeUtc();
 }
 
 template <typename T>
+/**
+ * @brief getRandomNum Allows to obtain a random number within the interval [min;max]
+ * @param min  The minimum value.
+ * @param max  The maximum value.
+ * @return A random value between min and max.
+ */
 inline T getRandomNum( T min, T max )
 {
 	return min + T( ( ( max - min ) + 1 ) * ( double )( qrand() ) / ( RAND_MAX + 1.0 ) );
 }
 
-/**
- * This generates a (read/write) iterator from a (read-only) const_iterator.
- */
 template<class T>
+/**
+ * @brief getRWIterator Allows to obtain a (read/write) iterator from a (read-only) const_iterator.
+ * @param container  The container the iterator is a part of.
+ * @param const_it   The const_iterator.
+ * @return A RW iterator pointing to the same item as const_it.
+ */
 typename T::iterator getRWIterator( T& container, const typename T::const_iterator& const_it )
 {
 	typename T::iterator it = container.begin();
