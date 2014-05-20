@@ -6,46 +6,50 @@
 
 #include <QFileDialog>
 
-CDialogImportSecurity::CDialogImportSecurity( QWidget* parent ) :
+DialogImportSecurity::DialogImportSecurity( QWidget* parent ) :
 	QDialog( parent ),
-	ui( new Ui::CDialogImportSecurity )
+	ui( new Ui::DialogImportSecurity )
 {
 	ui->setupUi( this );
 
 	ui->progressBarLoad->setVisible( false );
 
-	connect( &securityManager, SIGNAL( updateLoadMax( int ) ), ui->progressBarLoad, SLOT( setMaximum( int ) ) );
-	connect( &securityManager, SIGNAL( updateLoadProgress( int ) ), ui->progressBarLoad, SLOT( setValue( int ) ) );
+	connect( &securityManager, &Security::Manager::updateLoadMax,
+			 ui->progressBarLoad, &QProgressBar::setMaximum );
+	connect( &securityManager, &Security::Manager::updateLoadProgress,
+			 ui->progressBarLoad, &QProgressBar::setValue );
 
 	setWindowFlags( windowFlags() |= Qt::FramelessWindowHint );
 }
 
-CDialogImportSecurity::~CDialogImportSecurity()
+DialogImportSecurity::~DialogImportSecurity()
 {
 	delete ui;
 }
 
-void CDialogImportSecurity::on_toolButtonChooseFile_clicked()
+void DialogImportSecurity::on_toolButtonChooseFile_clicked()
 {
-	QString filter;
+	QString sFilter;
 	switch ( ui->comboBoxFilterType->currentIndex() )
 	{
-	case SecurityFilterType::Shareaza:
-		filter = tr( "Shareaza Security Filters (*.xml)" );
-		break;
 	case SecurityFilterType::P2P:
-		filter = tr( "P2P Format Ban List (*.p2p *.txt)" );
+		sFilter = tr( "P2P Format Ban List (*.p2p *.txt)" );
 		break;
+
 	case SecurityFilterType::Dat:
-		filter = tr( "Dat Format Ban List (*.dat *.txt)" );
+		sFilter = tr( "Dat Format Ban List (*.dat *.txt)" );
 		break;
-	default: //SecurityFilterType::Quazaa
-		filter = tr( "Quazaa Security Filters (*.qsf)" );
+
+	case SecurityFilterType::Shareaza:
+	default:
+		sFilter = tr( "Shareaza Security Filters (*.xml)" );
 		break;
 	}
 
 	ui->lineEditFile->setText( QFileDialog::getOpenFileName( this,
-															 tr( "Select File to Import" ), quazaaSettings.Downloads.CompletePath, filter ) );
+															 tr( "Select File to Import" ),
+															 quazaaSettings.Downloads.CompletePath,
+															 sFilter ) );
 
 	if ( !ui->lineEditFile->text().isEmpty() )
 	{
@@ -53,7 +57,7 @@ void CDialogImportSecurity::on_toolButtonChooseFile_clicked()
 	}
 }
 
-void CDialogImportSecurity::on_pushButtonOK_clicked()
+void DialogImportSecurity::on_pushButtonOK_clicked()
 {
 	ui->progressBarLoad->setVisible( true );
 	ui->comboBoxFilterType->setEnabled( false );
@@ -61,28 +65,31 @@ void CDialogImportSecurity::on_pushButtonOK_clicked()
 	ui->pushButtonOK->setEnabled( false );
 	ui->pushButtonCancel->setEnabled( false );
 
+	// TODO: maybe do something if importing failed?
 	switch ( ui->comboBoxFilterType->currentIndex() )
 	{
-	case SecurityFilterType::Shareaza:
-		break;
 	case SecurityFilterType::P2P:
 		securityManager.fromP2P( ui->lineEditFile->text() );
 		break;
+
 	case SecurityFilterType::Dat:
 		break;
-	default: //SecurityFilterType::Quazaa
+
+	case SecurityFilterType::Shareaza:
+	default:
+		securityManager.fromXML( ui->lineEditFile->text() );
 		break;
 	}
 
 	close();
 }
 
-void CDialogImportSecurity::on_pushButtonCancel_clicked()
+void DialogImportSecurity::on_pushButtonCancel_clicked()
 {
 	close();
 }
 
-void CDialogImportSecurity::on_comboBoxFilterType_currentIndexChanged( int index )
+void DialogImportSecurity::on_comboBoxFilterType_currentIndexChanged( int index )
 {
 	Q_UNUSED( index );
 

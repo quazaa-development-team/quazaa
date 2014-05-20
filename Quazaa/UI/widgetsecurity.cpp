@@ -239,7 +239,7 @@ void CWidgetSecurity::on_actionSecurityModifyRule_triggered()
 
 void CWidgetSecurity::on_actionSecurityImportRules_triggered()
 {
-	CDialogImportSecurity* dlgImportSecurity = new CDialogImportSecurity( this );
+	DialogImportSecurity* dlgImportSecurity = new DialogImportSecurity( this );
 	dlgImportSecurity->exec();
 }
 

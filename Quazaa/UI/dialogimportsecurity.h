@@ -5,7 +5,7 @@
 
 namespace Ui
 {
-class CDialogImportSecurity;
+class DialogImportSecurity;
 }
 
 namespace SecurityFilterType
@@ -16,13 +16,13 @@ enum FilterType
 };
 }
 
-class CDialogImportSecurity : public QDialog
+class DialogImportSecurity : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit CDialogImportSecurity( QWidget* parent = 0 );
-	~CDialogImportSecurity();
+	explicit DialogImportSecurity( QWidget* parent = 0 );
+	~DialogImportSecurity();
 
 private slots:
 	void on_toolButtonChooseFile_clicked();
@@ -31,7 +31,7 @@ private slots:
 	void on_comboBoxFilterType_currentIndexChanged( int index );
 
 private:
-	Ui::CDialogImportSecurity* ui;
+	Ui::DialogImportSecurity* ui;
 };
 
 #endif // CDIALOGIMPORTSECURITY_H
