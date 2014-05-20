@@ -58,7 +58,10 @@ public:
 		RuleAction::Action   m_nAction;
 		quint32         m_nToday;
 		quint32         m_nTotal;
-		quint32         m_tExpire;    // UTC time in seconds
+		quint32         m_tExpire;  // UTC time in seconds
+		QString         m_sExpire;
+		quint32         m_tLastHit; // UTC time in seconds
+		QString         m_sLastHit;
 		QString         m_sContent;
 		QString         m_sComment;
 		bool            m_bContent;
@@ -90,6 +93,7 @@ public:
 
 		QString actionToString( RuleAction::Action nAction ) const;
 		QString expiryToString( quint32 tExpire ) const;
+		QString lastHitToString( quint32 tLastHit ) const;
 	};
 
 	typedef QSharedPointer<RuleData>    RuleDataPtr;
@@ -114,8 +118,9 @@ public:
 		ACTION  = 2,
 		EXPIRES = 3,
 		HITS    = 4,
-		COMMENT = 5,
-		_NO_OF_COLUMNS = 6
+		LASTHIT = 5,
+		COMMENT = 6,
+		_NO_OF_COLUMNS = 7
 	};
 
 	// icons used for the different rules

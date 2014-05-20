@@ -29,16 +29,19 @@
 #include "debug_new.h"
 
 RuleData::RuleData( Rule* pRule, SecurityTableModel* pModel ) :
-	m_pRule(      pRule                     ),
-	m_nID(        pRule->m_nGUIID           ),
-	m_nType(      pRule->type()             ),
-	m_nAction(    pRule->m_nAction          ),
-	m_nToday(     pRule->todayCount()    ),
-	m_nTotal(     pRule->totalCount()    ),
-	m_tExpire(    pRule->expiryTime()    ),
-	m_sContent(   pRule->getContentString() ),
-	m_sComment(   pRule->m_sComment         ),
-	m_bAutomatic( pRule->m_bAutomatic       )
+	m_pRule(      pRule                       ),
+	m_nID(        pRule->m_nGUIID             ),
+	m_nType(      pRule->type()               ),
+	m_nAction(    pRule->m_nAction            ),
+	m_nToday(     pRule->todayCount()         ),
+	m_nTotal(     pRule->totalCount()         ),
+	m_tExpire(    pRule->expiryTime()         ),
+	m_sExpire(  expiryToString ( m_tExpire  ) ),
+	m_tLastHit(   pRule->lastHit()            ),
+	m_sLastHit( lastHitToString( m_tLastHit ) ),
+	m_sContent(   pRule->getContentString()   ),
+	m_sComment(   pRule->m_sComment           ),
+	m_bAutomatic( pRule->m_bAutomatic         )
 {
 	switch ( m_nAction )
 	{
@@ -126,7 +129,11 @@ bool RuleData::update( int nRow, int nSortCol, QModelIndexList& lToUpdate,
 		m_nToday = m_pRule->todayCount();
 		m_nTotal = m_pRule->totalCount();
 
-		if ( nSortCol == HITS )
+		lToUpdate.append( pModel->index( nRow, LASTHIT ) );
+		m_tLastHit = m_pRule->lastHit();
+		m_sLastHit = lastHitToString( m_tLastHit );
+
+		if ( nSortCol == HITS || nSortCol == LASTHIT )
 		{
 			bReturn = true;
 		}
@@ -136,6 +143,7 @@ bool RuleData::update( int nRow, int nSortCol, QModelIndexList& lToUpdate,
 	{
 		lToUpdate.append( pModel->index( nRow, EXPIRES ) );
 		m_tExpire = m_pRule->expiryTime();
+		m_sExpire = expiryToString( m_tExpire );
 
 		if ( nSortCol == EXPIRES )
 		{
@@ -220,11 +228,14 @@ QVariant RuleData::data( int col ) const
 		return actionToString( m_nAction );
 
 	case EXPIRES:
-		return expiryToString( m_tExpire );
+		return m_sExpire;
 
 	case HITS:
 		return QString( "%1 (%2)" ).arg( QString::number( m_nToday ),
 										 QString::number( m_nTotal ) );
+
+	case LASTHIT:
+		return m_sLastHit;
 
 	case COMMENT:
 		return m_sComment;
@@ -278,6 +289,9 @@ bool RuleData::lessThan( int col, const SecurityTableModel::RuleData* const pOth
 		}
 		return m_nTotal < pOther->m_nTotal;
 
+	case LASTHIT:
+		return m_tLastHit < pOther->m_tLastHit;
+
 	case COMMENT:
 		return m_sComment < pOther->m_sComment;
 
@@ -317,6 +331,18 @@ QString RuleData::expiryToString( quint32 tExpire ) const
 
 	default:
 		return QDateTime::fromTime_t( tExpire ).toLocalTime().toString();
+	}
+}
+
+QString RuleData::lastHitToString( quint32 tLastHit ) const
+{
+	if ( !tLastHit )
+	{
+		return tr( "Never" );
+	}
+	else
+	{
+		return QDateTime::fromTime_t( tLastHit ).toLocalTime().toString();
 	}
 }
 
@@ -461,6 +487,9 @@ QVariant SecurityTableModel::headerData( int section, Qt::Orientation orientatio
 		case HITS:
 			return tr( "Hits" );
 
+		case LASTHIT:
+			return tr( "Last Hit" );
+
 		case COMMENT:
 			return tr( "Comment" );
 		}
@@ -483,6 +512,9 @@ QVariant SecurityTableModel::headerData( int section, Qt::Orientation orientatio
 
 		case HITS:
 			return tr( "How often the rule has been hit today (since its creation date)" );
+
+		case LASTHIT:
+			return tr( "When the rule was hit last" );
 
 		case COMMENT:
 			return tr( "Comment" );

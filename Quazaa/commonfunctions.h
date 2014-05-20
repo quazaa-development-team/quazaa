@@ -143,6 +143,22 @@ inline QDateTime getDateTimeUTC()
 	return QDateTime::currentDateTimeUtc();
 }
 
+/**
+ * @brief intToUint allows casting from signed to unsigned int in a well-defined way.
+ *
+ * @param n  The int to cast.
+ * @return an unsigned integer
+ */
+quint32 intToUint( qint32 n );
+
+/**
+ * @brief uintToInt allows casting from unsigned int to int in a well-defined way.
+ *
+ * @param n  The uint to cast.
+ * @return an integer
+ */
+qint32 uintToInt( quint32 n );
+
 template <typename T>
 /**
  * @brief getRandomNum Allows to obtain a random number within the interval [min;max]

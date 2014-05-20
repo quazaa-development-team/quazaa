@@ -1827,3 +1827,35 @@ quint16 common::getRandomUnusedPort( bool bClear )
 
 	return nPort;
 }
+
+
+quint32 common::intToUint(qint32 n)
+{
+	static const qint32 nMin = std::numeric_limits<qint32>::min();
+
+	if ( n < 0 )
+	{
+		return static_cast<quint32>( n - nMin ) + nMin;
+	}
+	else
+	{
+		return static_cast<quint32>( n );
+	}
+
+}
+
+
+qint32 common::uintToInt(quint32 n)
+{
+	static const quint32 nMax = ( quint32 )std::numeric_limits<qint32>::max();
+
+	if ( n > nMax )
+	{
+		return static_cast<qint32>( n - nMax ) + nMax;
+	}
+	else
+	{
+		return static_cast<qint32>( n );
+	}
+}
+

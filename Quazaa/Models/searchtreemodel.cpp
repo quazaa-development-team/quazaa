@@ -811,7 +811,6 @@ void SearchTreeModel::addQueryHit( QueryHit* pHit )
 
 	emit updateStats();
 
-	// TODO: choose better boundaries.
 	QModelIndex idx1 = index( 0, 0, QModelIndex() );
 	QModelIndex idx2 = index( m_pRootItem->childCount(), 10, QModelIndex() );
 	emit dataChanged( idx1, idx2 );
