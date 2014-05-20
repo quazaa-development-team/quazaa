@@ -413,11 +413,14 @@ bool HashSet::matches(const HashSet& other) const
 	return nCount;
 }
 
-QList<Hash>& operator<<( QList<Hash>& list, const HashSet& vector )
+QList<Hash>& operator<<( QList<Hash>& list, const HashSet& vHashes )
 {
-	for ( quint8 i = 0, nSize = vector.size(); i < nSize; ++i )
+	for ( quint8 i = 0, nSize = vHashes.size(); i < nSize; ++i )
 	{
-		list.append( *vector[i] );
+		if ( vHashes[i] )
+		{
+			list.append( *vHashes[i] );
+		}
 	}
 
 	return list;
@@ -443,12 +446,15 @@ HashSet& operator<<( HashSet& vector, const QList<Hash>& list )
 	return vector;
 }
 
-HashSet& operator>>( HashSet& vector, QList<Hash>& list )
+HashSet& operator>>( HashSet& vHashes, QList<Hash>& list )
 {
-	for ( quint8 i = 0, nSize = vector.size(); i < nSize; ++i )
+	for ( quint8 i = 0, nSize = vHashes.size(); i < nSize; ++i )
 	{
-		list.append( *vector[i] );
+		if ( vHashes[i] )
+		{
+			list.append( *vHashes[i] );
+		}
 	}
 
-	return vector;
+	return vHashes;
 }
