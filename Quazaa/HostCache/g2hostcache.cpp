@@ -634,52 +634,6 @@ void G2HostCache::localAddressChanged()
 }
 
 /**
- * @brief G2HostCache::sanityCheck performs the sanity check after a new security rule has been
- * added.
- * Locking: YES
- */
-void G2HostCache::sanityCheck()
-{
-#if ENABLE_G2_HOST_CACHE_DEBUGGING
-	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "sanityCheck()" ) );
-#endif //ENABLE_G2_HOST_CACHE_DEBUGGING
-
-	//qDebug() << "[HostCache] Started sanity checking.";
-	securityManager.m_oSanity.lockForRead();
-	m_pSection.lock(); // obtain HostCache lock second in order to minimize HostCache lockdown time
-
-	G2HostCacheIterator itHost = m_lHosts.begin();
-	SharedG2HostPtr pHost;
-
-	int nCount = 0;
-
-	while ( itHost != m_lHosts.end() )
-	{
-		pHost = *itHost;
-
-		if ( pHost && securityManager.m_oSanity.isNewlyDenied( pHost->address() ) )
-		{
-			itHost = erase( itHost );
-			++nCount;
-		}
-		else
-		{
-			++itHost;
-		}
-	}
-
-	m_pSection.unlock();
-	securityManager.m_oSanity.unlock();
-
-	m_pfSanityCheckPerformed.invoke( &securityManager.m_oSanity, Qt::QueuedConnection );
-
-#if ENABLE_G2_HOST_CACHE_DEBUGGING
-	systemLog.postLog( LogSeverity::Debug, Component::HostCache,
-					   QString( "Finished sanity checking. %1 hosts removed." ).arg( nCount ) );
-#endif // ENABLE_G2_HOST_CACHE_DEBUGGING
-}
-
-/**
  * @brief G2HostCache::maintain keeps everything neat and tidy.
  * Locking: YES
  */
@@ -1550,7 +1504,8 @@ void G2HostCache::startUpInternal()
 	Q_ASSERT( m_pfSanityCheckPerformed.isValid() );
 #endif // _DEBUG
 
-	connect( &securityManager.m_oSanity, SIGNAL( beginSanityCheck() ), SLOT( sanityCheck() ) );
+	connect( &securityManager.m_oSanity, &Security::SanityCecker::beginSanityCheck,
+			 this, &G2HostCache::sanityCheck, Qt::QueuedConnection );
 
 #ifndef QUAZAA_SETUP_UNIT_TESTS
 	connect( &networkG2, &NetworkG2::localAddressChanged,
@@ -1738,4 +1693,45 @@ void G2HostCache::asyncUpdateFailures( EndPoint oAddress, quint32 nNewFailures )
 	}
 
 	m_pSection.unlock();
+}
+
+void G2HostCache::sanityCheck()
+{
+#if ENABLE_G2_HOST_CACHE_DEBUGGING
+	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "sanityCheck()" ) );
+#endif //ENABLE_G2_HOST_CACHE_DEBUGGING
+
+	//qDebug() << "[HostCache] Started sanity checking.";
+	securityManager.m_oSanity.lockForRead();
+	m_pSection.lock(); // obtain HostCache lock second in order to minimize HostCache lockdown time
+
+	G2HostCacheIterator itHost = m_lHosts.begin();
+	SharedG2HostPtr pHost;
+
+	int nCount = 0;
+
+	while ( itHost != m_lHosts.end() )
+	{
+		pHost = *itHost;
+
+		if ( pHost && securityManager.m_oSanity.isNewlyDenied( pHost->address() ) )
+		{
+			itHost = erase( itHost );
+			++nCount;
+		}
+		else
+		{
+			++itHost;
+		}
+	}
+
+	m_pSection.unlock();
+	securityManager.m_oSanity.unlock();
+
+	m_pfSanityCheckPerformed.invoke( &securityManager.m_oSanity, Qt::QueuedConnection );
+
+#if ENABLE_G2_HOST_CACHE_DEBUGGING
+	systemLog.postLog( LogSeverity::Debug, Component::HostCache,
+					   QString( "Finished sanity checking. %1 hosts removed." ).arg( nCount ) );
+#endif // ENABLE_G2_HOST_CACHE_DEBUGGING
 }

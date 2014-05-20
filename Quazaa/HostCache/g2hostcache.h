@@ -44,10 +44,10 @@
 // 9 - Added host parent and source ID
 
 // TODO: test changes of m_nMaxFailures under load
-// TODO: add method for adding requesting a security check to be done within this thread
 // TODO: things to test
 //  12:58:39 brov: 1. does it use hosts from host cache b4 GWC query succeeds
-//  12:59:25 brov: 2. search manager must request query keys directly from other nodes (use a random search string)
+//  12:59:25 brov: 2. search manager must request query keys directly from other nodes
+//                    (use a random search string)
 
 class QFile;
 
@@ -170,7 +170,6 @@ public:
 
 public slots:
 	void localAddressChanged();
-	void sanityCheck();
 	void maintain();
 
 private:
@@ -245,6 +244,13 @@ private slots:
 	 * @param nFailures  The new failure count of oAddress.
 	 */
 	void asyncUpdateFailures( EndPoint oAddress, quint32 nNewFailures );
+
+	/**
+	 * @brief sanityCheck performs the sanity check after a new Security::Rule has been added to the
+	 * Security::Manager.
+	 * <br><b>Locking: YES</b>
+	 */
+	void sanityCheck();
 };
 
 } // namespace HostManagement

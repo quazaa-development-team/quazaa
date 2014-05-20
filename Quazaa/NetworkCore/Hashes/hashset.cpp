@@ -281,7 +281,6 @@ bool HashSet::conflicts( const Hash& rHash ) const
  * @brief HashVector::size Allows to access the vector size.
  * @return Always NO_OF_TYPES.
  */
-// TODO: check usage
 quint8 HashSet::size() const
 {
 	return Hash::NO_OF_TYPES;
