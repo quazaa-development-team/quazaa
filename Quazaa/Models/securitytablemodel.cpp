@@ -33,9 +33,9 @@ RuleData::RuleData( Rule* pRule, SecurityTableModel* pModel ) :
 	m_nID(        pRule->m_nGUIID           ),
 	m_nType(      pRule->type()             ),
 	m_nAction(    pRule->m_nAction          ),
-	m_nToday(     pRule->getTodayCount()    ),
-	m_nTotal(     pRule->getTotalCount()    ),
-	m_tExpire(    pRule->getExpiryTime()    ),
+	m_nToday(     pRule->todayCount()    ),
+	m_nTotal(     pRule->totalCount()    ),
+	m_tExpire(    pRule->expiryTime()    ),
 	m_sContent(   pRule->getContentString() ),
 	m_sComment(   pRule->m_sComment         ),
 	m_bAutomatic( pRule->m_bAutomatic       )
@@ -120,11 +120,11 @@ bool RuleData::update( int nRow, int nSortCol, QModelIndexList& lToUpdate,
 		}
 	}
 
-	if ( m_nToday != m_pRule->getTodayCount() )
+	if ( m_nToday != m_pRule->todayCount() )
 	{
 		lToUpdate.append( pModel->index( nRow, HITS ) );
-		m_nToday = m_pRule->getTodayCount();
-		m_nTotal = m_pRule->getTotalCount();
+		m_nToday = m_pRule->todayCount();
+		m_nTotal = m_pRule->totalCount();
 
 		if ( nSortCol == HITS )
 		{
@@ -132,10 +132,10 @@ bool RuleData::update( int nRow, int nSortCol, QModelIndexList& lToUpdate,
 		}
 	}
 
-	if ( m_tExpire != m_pRule->getExpiryTime() )
+	if ( m_tExpire != m_pRule->expiryTime() )
 	{
 		lToUpdate.append( pModel->index( nRow, EXPIRES ) );
-		m_tExpire = m_pRule->getExpiryTime();
+		m_tExpire = m_pRule->expiryTime();
 
 		if ( nSortCol == EXPIRES )
 		{
