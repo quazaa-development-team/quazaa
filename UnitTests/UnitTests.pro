@@ -124,6 +124,7 @@ HEADERS += unittestshostcache.h \
 		   $$Q_DIR/HostCache/hostcachehost.h \
 		   $$Q_DIR/HostCache/hostcache.h \
 		   $$Q_DIR/Misc/idprovider.h \
+		   $$Q_DIR/Misc/networkiconprovider.h \
 		   $$Q_DIR/Misc/timedsignalqueue.h \
 		   $$Q_DIR/Misc/unorderedptrvector.h \
 		   $$Q_DIR/NetworkCore/buffer.h \
@@ -149,6 +150,7 @@ SOURCES += unitmain.cpp \
 		   $$Q_DIR/HostCache/g2hostcachehost.cpp \
 		   $$Q_DIR/HostCache/hostcachehost.cpp \
 		   $$Q_DIR/HostCache/hostcache.cpp \
+		   $$Q_DIR/Misc/networkiconprovider.cpp \
 		   $$Q_DIR/Misc/timedsignalqueue.cpp \
 		   $$Q_DIR/NetworkCore/buffer.cpp \
 		   $$Q_DIR/NetworkCore/endpoint.cpp \

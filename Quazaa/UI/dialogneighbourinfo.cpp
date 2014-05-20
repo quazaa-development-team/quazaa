@@ -4,6 +4,7 @@
 #include "geoiplist.h"
 #include "neighbours.h"
 #include "networktype.h"
+#include "networkiconprovider.h"
 
 DialogNeighbourInfo::DialogNeighbourInfo( NeighboursTableModel::NeighbourData* pNeighbour, QWidget* parent ) :
 	QDialog( parent ),

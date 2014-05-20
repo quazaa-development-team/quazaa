@@ -25,6 +25,8 @@
 #include "hostcachehost.h"
 #include "g2hostcachehost.h"
 
+#include "Misc/networkiconprovider.h"
+
 #include "hostcachetablemodel.h"
 
 using namespace HostManagement;
@@ -116,7 +118,7 @@ HostData::HostData( SharedHostPtr pHost ) :
 	m_sAddress(     m_oAddress.toStringWithPort() ),
 	m_sCountryCode( m_oAddress.country() ),
 	m_sCountry(     geoIP.countryNameFromCode( m_sCountryCode ) ),
-	m_iCountry(     QIcon( ":/Resource/Flags/" + m_sCountryCode.toLower() + ".png" ) ),
+	m_iCountry(     NetworkIconProvider::icon( m_sCountryCode ) ),
 //	m_nID(          pHost->id()          ),
 	m_tLastConnect( pHost->lastConnect() ),
 	m_sLastConnect( m_tLastConnect ? QDateTime::fromTime_t( m_tLastConnect ).toString() :

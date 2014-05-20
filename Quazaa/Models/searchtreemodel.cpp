@@ -450,7 +450,7 @@ SearchHit::SearchHit( SearchTreeItem* parent,
 	QString sCountry       = pHit->m_pHitInfo.data()->m_oNodeAddress.country();
 
 	m_oHitData.iNetwork  = NetworkIconProvider::icon( DiscoveryProtocol::G2 );
-	m_oHitData.iCountry  = QIcon( ":/Resource/Flags/" + sCountry.toLower() + ".png" );
+	m_oHitData.iCountry  = NetworkIconProvider::icon( sCountry );
 	m_oHitData.pQueryHit = QueryHitSharedPtr( pHit );
 
 	// properly initialize filter data

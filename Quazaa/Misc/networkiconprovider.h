@@ -25,28 +25,27 @@
 #ifndef NETWORKICONPROVIDER_H
 #define NETWORKICONPROVIDER_H
 
-// TODO: Provide country flags, too.
-
 #include "types.h"
 
 class QIcon;
 
 /**
- * @brief The CNetworkIconProvider class can be used to obtain network icons. It optimizes memory
+ * @brief The NetworkIconProvider class can be used to obtain network icons. It optimizes memory
  * usage and HDD accesses using the QPixmapCache.
  */
 class NetworkIconProvider
 {
 private:
 	/**
-	 * @brief CNetworkIconProvider creates a new CNetworkIconProvider object.
+	 * @brief NetworkIconProvider creates a new NetworkIconProvider object.
 	 */
 	NetworkIconProvider();
 
 public:
 	/**
-	 * @brief icon can be used to get an apporpriate icon for a given DiscoveryProtocol.
-	 * @param protocol
+	 * @brief icon can be used to get an appropriate icon for a given DiscoveryProtocol.
+	 *
+	 * @param protocol  The DiscoveryProtocol.
 	 * @return The requested icon. Note that it internally uses shared data so you don't need to
 	 *         worry about copying it around or requesting the same icon twice (in terms of memory
 	 *         consumption).
@@ -55,12 +54,23 @@ public:
 
 	/**
 	 * @brief icon can be used to get an apporpriate icon for a given TransferProtocol.
-	 * @param protocol
+	 *
+	 * @param protocol  The TransferProtocol.
 	 * @return The requested icon. Note that it internally uses shared data so you don't need to
 	 *         worry about copying it around or requesting the same icon twice (in terms of memory
 	 *         consumption).
 	 */
 	static QIcon icon( TransferProtocol protocol );
+
+	/**
+	 * @brief icon can be used to get an apporpriate icon for a given country code.
+	 *
+	 * @param sCountryCode  The country code.
+	 * @return The requested icon. Note that it internally uses shared data so you don't need to
+	 *         worry about copying it around or requesting the same icon twice (in terms of memory
+	 *         consumption).
+	 */
+	static QIcon icon( const QString& sCountryCode );
 };
 
 #endif // NETWORKICONPROVIDER_H

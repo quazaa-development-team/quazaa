@@ -62,7 +62,7 @@ NeighboursTableModel::NeighbourData::NeighbourData( Neighbour* pNeighbour ) : pN
 	sUserAgent      = pNode->m_sUserAgent;
 	sCountryCode    = geoIP.findCountryCode( oAddress );
 	sCountry        = geoIP.countryNameFromCode( sCountryCode );
-	iCountry        = QIcon( ":/Resource/Flags/" + sCountryCode.toLower() + ".png" );
+	iCountry        = NetworkIconProvider::icon( sCountryCode );
 
 	switch ( pNode->m_nProtocol )
 	{

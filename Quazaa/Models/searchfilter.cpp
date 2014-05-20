@@ -570,7 +570,7 @@ void FilterControl::add( SearchTreeItem* pItem )
 
 void FilterControl::remove( SearchTreeItem* pItem )
 {
-	// TODO: remove an alpha 1
+	// REMOVE for beta 1
 	Q_ASSERT( pItem->m_pFilter->dataInitialized() );
 
 	if ( pItem->type() == SearchTreeItem::SearchHitType )

@@ -27,6 +27,8 @@
 #include <QStyle>
 
 #include "sharemanager.h"
+#include "networkiconprovider.h"
+
 #include "debug_new.h"
 
 // TODO: This is the current blocker in getting a rudimentary version of the library tab working.
@@ -311,8 +313,8 @@ void SharesNavigatorTreeModel::addFolder()
 									 << GeoIP.countryNameFromCode(sCountry);
 						SharesNavigatorTreeItem* m_oChildItem = new SharesNavigatorTreeItem(m_lChildData, m_oParentItem);
 						m_oChildItem->HitData.lHashes << pHit2->m_lHashes;
-						m_oChildItem->HitData.iNetwork = QIcon(":/Resource/Networks/Gnutella2.png");
-						m_oChildItem->HitData.iCountry = QIcon(":/Resource/Flags/" + sCountry.toLower() + ".png");
+						m_oChildItem->HitData.iNetwork = NetworkIconProvider::icon( DiscoveryProtocol::G2 );
+						m_oChildItem->HitData.iCountry = NetworkIconProvider::icon( sCountry );
 
 						rootItem->appendChild(m_oParentItem);
 						m_oParentItem->appendChild(m_oChildItem);
@@ -338,8 +340,8 @@ void SharesNavigatorTreeModel::addFolder()
 									 << GeoIP.countryNameFromCode(sCountry);
 						SharesNavigatorTreeItem* m_oChildItem = new SharesNavigatorTreeItem(m_lChildData, rootItem->child(existingSearch));
 						m_oChildItem->HitData.lHashes << pHit2->m_lHashes;
-						m_oChildItem->HitData.iNetwork = QIcon(":/Resource/Networks/Gnutella2.png");
-						m_oChildItem->HitData.iCountry = QIcon(":/Resource/Flags/" + sCountry.toLower() + ".png");
+						m_oChildItem->HitData.iNetwork = NetworkIconProvider::icon( DiscoveryProtocol::G2 );
+						m_oChildItem->HitData.iCountry = NetworkIconProvider::icon( sCountry );
 
 						rootItem->child(existingSearch)->appendChild(m_oChildItem);
 						rootItem->child(existingSearch)->updateHitCount(rootItem->child(existingSearch)->childCount());

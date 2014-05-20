@@ -97,7 +97,7 @@ QVariant DownloadsTreeModel::data( const QModelIndex& index, int role ) const
 			DownloadSourceItem* item = static_cast<DownloadSourceItem*>( index.internalPointer() );
 			if ( item->m_nProtocol != tpNull )
 			{
-				return QIcon( ":/Resource/Flags/" + item->getCountryCode().toLower() + ".png" );
+				return NetworkIconProvider::icon( item->getCountryCode() );
 			}
 		}
 	}

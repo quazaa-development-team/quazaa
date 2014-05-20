@@ -111,3 +111,29 @@ QIcon NetworkIconProvider::icon( TransferProtocol protocol )
 
 	return icon;
 }
+
+QIcon NetworkIconProvider::icon( const QString& sCountryCode )
+{
+	QIcon icon;
+	QPixmap pixIcon;
+	if ( QPixmapCache::find( sCountryCode, pixIcon ) )
+	{
+		// pixIcon internally uses shared data to avoid needless copying.
+		icon.addPixmap( pixIcon );
+		return icon;
+	}
+
+	pixIcon.load( ":/Resource/Flags/" + sCountryCode.toLower() + ".png" );
+
+	if ( pixIcon.isNull() )
+	{
+		return QIcon();
+	}
+
+	icon.addPixmap( pixIcon );
+
+	// Default cache size: 2048 KB on embedded platforms, 10240 KB on desktop platforms
+	QPixmapCache::insert( sCountryCode, pixIcon );
+
+	return icon;
+}
