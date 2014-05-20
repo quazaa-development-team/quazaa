@@ -1504,7 +1504,7 @@ void G2HostCache::startUpInternal()
 	Q_ASSERT( m_pfSanityCheckPerformed.isValid() );
 #endif // _DEBUG
 
-	connect( &securityManager.m_oSanity, &Security::SanityCecker::beginSanityCheck,
+	connect( &securityManager.m_oSanity, &Security::SanityChecker::beginSanityCheck,
 			 this, &G2HostCache::sanityCheck, Qt::QueuedConnection );
 
 #ifndef QUAZAA_SETUP_UNIT_TESTS
