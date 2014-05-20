@@ -109,6 +109,7 @@ private:
 	QMetaMethod m_pfAsyncAddXTry;
 	QMetaMethod m_pfAsyncOnFailure;
 	QMetaMethod m_pfAsyncPruneByQueryAck;
+	QMetaMethod m_pfAsyncPruneBySourceID;
 	QMetaMethod m_pfAsyncUpdateFailures;
 	QMetaMethod m_pfLocalAddressChanged;
 	QMetaMethod m_pfRemoveSync;
@@ -129,9 +130,9 @@ public:
 
 	void remove( const EndPoint& oHost );
 	void remove( SharedG2HostPtr pHost );
-	void remove( SourceID nSource );
 
 	void pruneByQueryAck( const quint32 tNow );
+	void pruneBySourceID( SourceID nSource );
 
 	void addXTry( const QString& sHeader );
 	QString getXTry() const;
@@ -218,7 +219,31 @@ private slots:
 
 	void asyncAddXTry( QString sHeader );
 	void asyncOnFailure( EndPoint addr );
-	void asyncPruneByQueryAck( quint32 tNow );
+
+	/**
+	 * @brief asyncPruneByQueryAck removes all hosts with outdated acks (older than
+	 * tNow - quazaaSettings.Gnutella2.QueryHostDeadline).
+	 * <br><b>Locking: YES</b>
+	 *
+	 * @param tNow  The current time in sec since 1970-01-01 0:00:00 UTC.
+	 */
+	void asyncPruneByQueryAck( const quint32 tNow );
+
+	/**
+	 * @brief asyncPruneBySourceID removes all hosts with the SourceID nSource from the cache.
+	 * <br><b>Locking: YES</b>
+	 *
+	 * @param nSource  The SourceID to expunge from the cache.
+	 */
+	void asyncPruneBySourceID( const SourceID nSource );
+
+	/**
+	 * @brief asyncUpdateFailures is a helper method for updateFailures().
+	 * <br><b>Locking: YES</b>
+	 *
+	 * @param oAddress   The address for which to update the failure count.
+	 * @param nFailures  The new failure count of oAddress.
+	 */
 	void asyncUpdateFailures( EndPoint oAddress, quint32 nNewFailures );
 };
 
