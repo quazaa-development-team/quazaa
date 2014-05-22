@@ -68,6 +68,7 @@ public:
 	}
 	void attachTo( NetworkConnection* pOther )
 	{
+		qDebug() << "new state: handshaking";
 		m_nState = nsHandshaking;
 		CompressedConnection::attachTo( pOther );
 	}
@@ -79,6 +80,11 @@ signals:
 
 public slots:
 	void onDisconnectNode();
+
+	/**
+	 * @brief onRead handles newly available bytes for a network connection.
+	 */
+	virtual void onRead() = 0;
 	virtual void onError( QAbstractSocket::SocketError e );
 
 };

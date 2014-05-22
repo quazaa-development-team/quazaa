@@ -64,7 +64,12 @@ enum TransferProtocol
 	tpBitTorrent
 };
 
-enum NodeState { nsClosed, nsConnecting, nsHandshaking, nsConnected, nsClosing, nsError };
+enum NodeState { nsClosed,
+				 nsConnecting,
+				 nsHandshaking,
+				 nsConnected,
+				 nsClosing,
+				 nsError };
 
 enum G2NodeType {G2_UNKNOWN = 0, G2_LEAF = 1, G2_HUB = 2};
 

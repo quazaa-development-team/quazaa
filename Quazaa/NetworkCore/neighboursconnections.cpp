@@ -422,7 +422,7 @@ quint32 NeighboursConnections::uploadSpeed()
 
 Neighbour* NeighboursConnections::onAccept( NetworkConnection* pConn )
 {
-	// TODO: Make new CNeighbour deriviate for handshaking with Gnutella clients
+	// TODO: Make new Neighbour deriviate for handshaking with Gnutella clients
 
 #if LOG_CONNECTIONS
 	systemLog.postLog( LogSeverity::Debug, "CNeighboursConnections::onAccept" );
@@ -446,6 +446,8 @@ Neighbour* NeighboursConnections::onAccept( NetworkConnection* pConn )
 	pNew->attachTo( pConn );
 	addNode( pNew );
 	pNew->moveToThread( &networkThread );
+
+	qDebug() << pNew->address().toStringWithPort() << " - NeighboursConnections::onAccept()- Transformed handshake into G2 neighbour connection";
 
 	m_pSection.unlock();
 

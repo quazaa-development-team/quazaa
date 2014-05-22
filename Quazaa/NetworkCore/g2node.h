@@ -69,7 +69,17 @@ public:
 	QHash<quint32, quint32> m_lRABan;       // list of banned return addresses
 
 private:
-	bool m_bHandshaking;
+	/**
+	 * @brief m_bHandshakeMessage1Recieved indicates that we have recieved HS message #1 from the
+	 * other party and are now waiting for message #3.
+	 */
+	bool m_bHandshakeMessage1Recieved;
+
+	/**
+	 * @brief m_bHandshakeMessage2Recieved indicates that we have recieved HS message #2 from the
+	 * other party.
+	 */
+	bool m_bHandshakeMessage2Recieved;
 
 public:
 	G2Node( QObject* parent = NULL );
@@ -95,19 +105,19 @@ protected:
 	 * @brief parseIncomingHandshake parses an initial G2 handshake message from the Node.
 	 * In this case, the other node is the connection initiator. This handles handshake part #1.
 	 */
-	void parseIncomingHandshake();
+	void handleIncomingHandshake();
 
 	/**
 	 * @brief parseHandshakeResponse parses the reply message to a handshake initiated by us.
 	 * In this case we are the connection initiator. This handles handshake part #2.
 	 */
-	void parseHandshakeResponse();
+	void handleHandshakeResponse();
 
 	/**
 	 * @brief parseHandShakeAccept parses the third handshake message.
 	 * In this case, the other node is the connection initiator. This handles handshake part #3.
 	 */
-	void parseHandShakeAccept();
+	void handleHandshakeAccept();
 
 	/**
 	 * @brief readUserAgentSecurity reads and checks the user agent information from the Handshake
@@ -154,6 +164,10 @@ signals:
 	void nodeStateChanged();
 
 public slots:
+	/**
+	 * @brief onConnectNode is to be triggered once the TCP socket of this connection emits the
+	 * QTcpSocket::connected signal.
+	 */
 	void onConnectNode();
 
 	/**

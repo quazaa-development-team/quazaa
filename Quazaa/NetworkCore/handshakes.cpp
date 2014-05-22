@@ -88,10 +88,14 @@ void Handshakes::incomingConnection( qintptr handle )
 	m_pController->addSocket( pNew );
 	m_nAccepted++;
 
+	qDebug() << pNew->address().toStringWithPort() << " - Handshakes::incomingConnection() - New incomming connection initiated.";
+
 	if ( securityManager.isDenied( pNew->address() ) )
 	{
 		pNew->close();
 		pNew->deleteLater();
+
+		qDebug() << pNew->address().toStringWithPort() << " Incomming connection denied.";
 	}
 }
 

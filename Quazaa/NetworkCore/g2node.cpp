@@ -62,7 +62,8 @@ G2Node::G2Node( QObject* parent ) :
 	m_pRemoteTable( NULL ),
 	m_pLocalTable( NULL ),
 	m_pHubGroup( new HubHorizonGroup ),
-	m_bHandshaking( false )
+	m_bHandshakeMessage1Recieved( false ),
+	m_bHandshakeMessage2Recieved( false )
 {
 	m_nProtocol = DiscoveryProtocol::G2;
 }
@@ -273,9 +274,12 @@ void G2Node::onTimer( quint32 tNow )
 
 void G2Node::initiateHandshake()
 {
-	// this switches to nsHandshaking once we have actually recieved a reply from the other party
-	m_nState = nsConnecting;
+	// We will only ever send the first handshake message if we have initiated the connection.
+	Q_ASSERT( m_bInitiated );
+	Q_ASSERT( m_nState == nsConnecting );
 
+	// A connection has been established, now we need to start handshaking.
+	m_nState = nsHandshaking;
 	emit nodeStateChanged();
 
 	QByteArray sHandshake;
@@ -311,7 +315,7 @@ void G2Node::initiateHandshake()
 	write( sHandshake );
 }
 
-void G2Node::parseIncomingHandshake()
+void G2Node::handleIncomingHandshake()
 {
 	qDebug() << "G2Node::parseIncomingHandshake() - HS msg #1";
 
@@ -414,17 +418,18 @@ void G2Node::parseIncomingHandshake()
 	}
 
 	// remember to listen for a reply
-	m_bHandshaking = true;
+	m_bHandshakeMessage1Recieved = true;
 
 	// send handshake message #2 to remote host
 	send_ConnectOK( true, m_bAcceptDeflate );
 }
 
 // this is handshake message #2
-void G2Node::parseHandshakeResponse()
+void G2Node::handleHandshakeResponse()
 {
-	m_nState = nsHandshaking;
-	emit nodeStateChanged();
+	Q_ASSERT( m_nState == nsHandshaking );
+
+	m_bHandshakeMessage2Recieved = true;
 
 	qDebug() << "G2Node::parseHandshakeResponse() - HS msg #2";
 	//QMutexLocker l(&Neighbours.m_pSection);
@@ -434,60 +439,73 @@ void G2Node::parseHandshakeResponse()
 
 	m_sHandshake += "Handshake in:\n" + sHandshake;
 
-	if ( sHandshake.left( 16 ) != "GNUTELLA/0.6 200" )
+	// TODO: Is it okay to count non-200 response as a failure? Needs some testing...
+	bool bHandshakeOK = sHandshake.left( 16 ) == "GNUTELLA/0.6 200";
+
+	const QString sAccept = Parser::getHeaderValue( sHandshake, "Accept" );
+	bool bAcceptG2 = sAccept.contains( "application/x-gnutella2" );
+
+	const QString sContentType = Parser::getHeaderValue( sHandshake, "Content-Type" );
+	bool bG2Provided = sContentType.contains( "application/x-gnutella2" );
+
+	if ( bHandshakeOK )
+	{
+		if ( readUserAgentSecurity( sHandshake ) )
+		{
+			return;
+		}
+
+		if ( !bAcceptG2 )
+		{
+			// We don't send X-Try to nodes not trying to connect to G2.
+			send_ConnectError( "503 Required network not accepted", false );
+			return;
+		}
+
+		if ( !bG2Provided )
+		{
+			// We don't send X-Try to nodes not trying to connect to G2.
+			send_ConnectError( "503 Required network not provided", false );
+			return;
+		}
+	}
+
+	if ( bG2Provided )
+	{
+		const QString sXTry = Parser::getHeaderValue( sHandshake, "X-Try-Hubs" );
+		if ( bAcceptG2 && bG2Provided && sXTry.size() )
+		{
+			hostCache.addXTry( sXTry );
+		}
+	}
+
+
+	// Read and use remote IP information even if we didn't get the expected handshake OK message.
+	// If it fails, do nothing in that case as the connection will be closed in the next if
+	// statement enyway.
+	const QString sRemoteIP = Parser::getHeaderValue( sHandshake, "Remote-IP" );
+	if ( !networkG2.acquireLocalAddress( sRemoteIP ) && bHandshakeOK )
+	{
+		// We don't send X-Try to buggy clients.
+		send_ConnectError( "503 Remote-IP header missing", false );
+		return;
+	}
+
+	// If the message didn't start with GNUTELLA/0.6 200, the other host requested for it to
+	// be closed.
+	if ( !bHandshakeOK )
 	{
 		systemLog.postLog( LogSeverity::Error, Component::G2,
 						   QString( "Connection to %1 rejected: %2"
 								  ).arg( m_oAddress.toString(),
 										 sHandshake.left( sHandshake.indexOf( "\r\n" ) ) ) );
 
-		// TODO: Is it okay to count non-200 response as a failure? Needs some testing...
-		hostCache.onFailure( m_oAddress );
+		// Note: This is not a failure (so no call to hostCache.onFailure(m_oAddress)) as a valid
+		// handshake was exchanged and the other party seems to be at least a valid node - however
+		// it is not a success either.
 
 		close();
 		return;
-	}
-
-	const QString sAccept = Parser::getHeaderValue( sHandshake, "Accept" );
-	bool bAcceptG2 = sAccept.contains( "application/x-gnutella2" );
-
-	if ( !bAcceptG2 )
-	{
-		// We don't send X-Try to nodes not trying to connect to G2.
-		send_ConnectError( "503 Required network not accepted", false );
-		return;
-	}
-
-	if ( readUserAgentSecurity( sHandshake ) )
-	{
-		return;
-	}
-
-	const QString sContentType = Parser::getHeaderValue( sHandshake, "Content-Type" );
-	bool bG2Provided = sContentType.contains( "application/x-gnutella2" );
-
-	if ( !bG2Provided )
-	{
-		// We don't send X-Try to nodes not trying to connect to G2.
-		send_ConnectError( "503 Required network not provided", false );
-		return;
-	}
-
-	const QString sXTry = Parser::getHeaderValue( sHandshake, "X-Try-Hubs" );
-	if ( bAcceptG2 && bG2Provided && sXTry.size() )
-	{
-		hostCache.addXTry( sXTry );
-	}
-
-	{
-		// read and use remote IP information
-		const QString sRemoteIP = Parser::getHeaderValue( sHandshake, "Remote-IP" );
-		if ( !networkG2.acquireLocalAddress( sRemoteIP ) )
-		{
-			// We don't send X-Try to buggy clients.
-			send_ConnectError( "503 Remote-IP header missing", false );
-			return;
-		}
 	}
 
 	{
@@ -572,11 +590,11 @@ void G2Node::parseHandshakeResponse()
 }
 
 // parses handshake message #3 recieved from remote node
-void G2Node::parseHandShakeAccept()
+void G2Node::handleHandshakeAccept()
 {
 	qDebug() << "G2Node::parseHandshakeResponse() - HS msg #3";
 
-	m_bHandshaking = false;
+	m_bHandshakeMessage1Recieved = false;
 
 	QString sHandshake = read( peek( bytesAvailable() ).indexOf( "\r\n\r\n" ) + 4 );
 
@@ -1641,40 +1659,46 @@ void G2Node::onConnectNode()
 
 void G2Node::onRead()
 {
-	neighbours.m_pSection.lock();
+	// This is triggered each time new bytes are available to be read for this G2Node.
+	// This includes the case of a newly established handshake by an other party.
 
-	qDebug() << " **************************** G2Node::onRead()";
+	neighbours.m_pSection.lock();
 
 	if ( m_nState == nsHandshaking )
 	{
-		qDebug() << "State: handshaking";
+		qDebug() << "+++" << m_oAddress.toStringWithPort() << " - G2Node::onRead()";
+		qDebug() << "+++" << m_oAddress.toStringWithPort() << " - State: handshaking";
 		if ( peek( bytesAvailable() ).indexOf( "\r\n\r\n" ) != -1 )
 		{
 			if ( m_bInitiated )
 			{
+				qDebug() << "+++" << m_oAddress.toStringWithPort() << "parse HS msg #2 send by other";
+
 				// We have initiated the connection and are waiting for a handshake reply.
 				// This parses the expected handshake message #2.
-				parseHandshakeResponse();
+				handleHandshakeResponse();
+
+				// TODO: should we be able to handle the other sending a reject message after having
+				// recieved our handshake message 2?
 			}
-			else if ( !m_bHandshaking )
+			else if ( !m_bHandshakeMessage1Recieved )
 			{
-				// We are not yet handshaking. This parses handshake message #1.
-				parseIncomingHandshake();
+				// We are not yet handshaking. This parses an incomming handshake message #1.
+				handleIncomingHandshake();
 			}
 			else
 			{
-				// We are currently handshaking. This parses handshake message #3.
-				parseHandShakeAccept();
+				// We are currently handshaking. This parses an incomming handshake message #3.
+				handleHandshakeAccept();
 			}
 		}
 		else
 		{
-			qDebug() << "got something useless";
+			qDebug() << "+++" << m_oAddress.toStringWithPort() << " - Warning: got something useless";
 		}
 	}
 	else if ( m_nState == nsConnected )
 	{
-		qDebug() << "State: connected";
 		G2Packet* pPacket = NULL;
 		try
 		{
@@ -1711,35 +1735,37 @@ void G2Node::onError( QAbstractSocket::SocketError e )
 {
 	if ( e == QAbstractSocket::RemoteHostClosedError )
 	{
-		if ( m_nState == nsConnecting )
-		{
-			systemLog.postLog( LogSeverity::Information, Component::G2,
-							   tr( "Failed to connect to G2 Neighbour %0."
-							   ).arg( m_oAddress.toString() ) );
-			hostCache.onFailure( m_oAddress );
-		}
-		else if ( m_nState == nsHandshaking )
+		if ( m_nState == nsHandshaking )
 		{
 			systemLog.postLog( LogSeverity::Information, Component::G2,
 							   tr( "G2 Neighbour %0 dropped connection during handshake."
 							   ).arg( m_oAddress.toString() ) );
 
-			// TODO: Find out why we are banning so many hosts here. It seems that at least 3 out of
-			// 4 hosts we're trying to connect to get banned at this point...
-
 			// if initiated by us and has reached handshaking state
 			if ( m_bInitiated )
 			{
-				qDebug() << " *** Banning Host because it dropped us: " << m_oAddress.toString();
-				// for some bad clients that drop connections too early
-				securityManager.ban( m_oAddress, Security::RuleTime::FiveMinutes, true,
-									 QString( "[AUTO] G2 - Dropped handshake." ) + " User Agent: "
-									 + ( m_sUserAgent.isEmpty() ? "unknown" : m_sUserAgent )
-									 + " Country: " + m_oAddress.countryName(), true
+				if ( m_bHandshakeMessage2Recieved )
+				{
+					// TODO: find out whether banning is necessary at all. For all we know, the
+					// oher parties computer might just have crashed.
+					qDebug() << " *** Banning Host because it dropped us: " << m_oAddress.toString();
+					// for some bad clients that drop connections too early
+					securityManager.ban( m_oAddress, Security::RuleTime::FiveMinutes, true,
+										 QString( "[AUTO] G2 - Dropped handshake." ) + " User Agent: "
+										 + ( m_sUserAgent.isEmpty() ? "unknown" : m_sUserAgent )
+										 + " Country: " + m_oAddress.countryName(), true
 #if SECURITY_LOG_BAN_SOURCES
-									 , QString( "neighbour.cpp line 133" )
+										 , QString( "neighbour.cpp line 133" )
 #endif // SECURITY_LOG_BAN_SOURCES
-								   );
+									   );
+				}
+				else // we never recieved any reply to our handshake message
+				{
+					systemLog.postLog( LogSeverity::Information, Component::G2,
+									   tr( "Failed to connect to G2 Neighbour %0."
+									   ).arg( m_oAddress.toString() ) );
+					hostCache.onFailure( m_oAddress );
+				}
 			}
 		}
 		else

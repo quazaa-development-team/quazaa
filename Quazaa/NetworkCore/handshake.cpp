@@ -75,6 +75,7 @@ void Handshake::onRead()
 						   QString( "Incoming connection from %1 is Gnutella Neighbour connection"
 								  ).arg( m_pSocket->peerAddress().toString() ) );
 #endif
+		qDebug() << m_oAddress.toStringWithPort() << " - Handshake::onRead() - Recieved messige starts with \"GNUTELLA\"";
 		handshakes.processNeighbour( this );
 		delete this;
 	}
