@@ -320,21 +320,23 @@ void G2HostCache::onFailure( const EndPoint& addr )
 	m_pfAsyncOnFailure.invoke( this, Qt::QueuedConnection, Q_ARG( EndPoint, addr ) );
 }
 
-/**
- * @brief G2HostCache::updateFailures updates the number of failures of a given host.
- * Locking: YES (asynchronous)
- * @param oAddress: the host
- * @param nFailures: its new failures
- */
-void G2HostCache::updateFailures( const EndPoint& oAddress, const quint32 nFailures )
+void G2HostCache::onConnectSuccess( const EndPoint& rHost )
 {
-#if ENABLE_G2_HOST_CACHE_DEBUGGING
-	systemLog.postLog( LogSeverity::Debug, Component::HostCache, QString( "updateFailures()" ) );
-#endif //ENABLE_G2_HOST_CACHE_DEBUGGING
-
 	m_pfAsyncUpdateFailures.invoke( this, Qt::QueuedConnection,
-									Q_ARG( EndPoint, oAddress ), Q_ARG( quint32, nFailures ) );
+									Q_ARG( EndPoint, rHost ), Q_ARG( quint32, 0 ) );
 }
+
+///**
+// * @brief G2HostCache::updateFailures updates the number of failures of a given host.
+// * Locking: YES (asynchronous)
+// * @param oAddress: the host
+// * @param nFailures: its new failures
+// */
+//void G2HostCache::updateFailures( const EndPoint& oAddress, const quint32 nFailures )
+//{
+//	m_pfAsyncUpdateFailures.invoke( this, Qt::QueuedConnection,
+//									Q_ARG( EndPoint, oAddress ), Q_ARG( quint32, nFailures ) );
+//}
 
 /**
  * @brief G2HostCache::get allows you to access the CHostCacheHost object pertaining to a given
@@ -1279,6 +1281,16 @@ void G2HostCache::load()
 #endif // QUAZAA_SETUP_UNIT_TESTS
 }
 
+void G2HostCache::reportSuccess( const EndPoint& rHost )
+{
+	IDLookup::const_iterator it = m_mIDLookup.find( rHost );
+
+	SourceID id = (*it).second;
+
+
+	// TODO: do something with the ID
+}
+
 /**
  * @brief G2HostCache::addSync adds a given EndPoint synchronously to the cache.
  * Locking: see bLock
@@ -1686,6 +1698,10 @@ void G2HostCache::asyncUpdateFailures( EndPoint oAddress, quint32 nNewFailures )
 
 		if ( nNewFailures <= m_nMaxFailures )
 		{
+			if ( !m_nMaxFailures )
+			{
+				reportSuccess( oAddress );
+			}
 			G2HostCacheHost* pNew = new G2HostCacheHost( *pHost, pHost->timestamp(), nNewFailures );
 			// insert new host with correct failure count into correct list
 			insert( SharedG2HostPtr( pNew ) );

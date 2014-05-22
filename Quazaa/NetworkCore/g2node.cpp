@@ -543,7 +543,7 @@ void G2Node::parseHandshakeResponse()
 	// send handshake message #3 back
 	send_ConnectOK( false, bAcceptDeflate );
 
-	hostCache.updateFailures( m_oAddress, 0 );
+	hostCache.onConnectSuccess( m_oAddress );
 
 	// connection established successfully
 	m_nState = nsConnected;

@@ -74,68 +74,86 @@ public:
 
 	/**
 	 * @brief start initializes the Host Cache.
+	 * <br><b>Locking: YES</b> (asynchronous)
+	 *
 	 * Make sure this is not called before QApplication is instantiated.
 	 * Any custom initializations should be made within asyncStartUpHelper().
-	 * Locking: YES (asynchronous)
 	 */
 	void            start();
 
 	/**
 	 * @brief stop prepares the Host Cache for deletion on application shutdown.
+	 * <br><b>Locking: YES</b>
 	 */
 	void            stop();
 
 	/**
 	 * @brief registerMetaTypes registers the necessary meta types for signal and slot connections.
-	 * Locking: /
+	 * <br><b>Locking: /</b>
 	 */
 	void            registerMetaTypes();
 
 	/**
-	 * @brief hasConnectable allows to find out whether the cache currently holds connectable hosts.
-	 * @return true if at least one connectable host is present; false otherwise.
+	 * @brief hasConnectable allows to find out whether the cache currently holds connectable
+	 * HostCacheHosts.
+	 * <br><b>Locking: /</b>
+	 *
+	 * @return <code>true</code> if at least one connectable host is present;
+	 * <br><code>false<code> otherwise.
 	 */
 	bool            hasConnectable();
 
 	/**
-	 * @brief size allows access to the number of Hosts in the Cache.
-	 * Locking: /
-	 * @return the number of hosts in the cache.
+	 * @brief size allows access to the number of [HostCacheHosts](@ref HostCacheHost) in the Cache.
+	 * <br><b>Locking: /</b>
+	 *
+	 * @return the number of [HostCacheHosts](@ref HostCacheHost) in the cache.
 	 */
 	quint32         size() const;
 
 	/**
-	 * @brief CHostCache::isEmpty allows to check whether the Host Cache is empty.
-	 * Locking: /
-	 * @return true if the cache contains no hosts; false otherwise.
+	 * @brief isEmpty allows to check whether the Host Cache is empty.
+	 * <br><b>Locking: /</b>
+	 *
+	 * @return <code>true</code> if the cache contains no hosts;
+	 * <br><code>false<code> otherwise.
 	 */
 	bool            isEmpty() const;
 
+	/**
+	 * @brief onConnectSuccess informs the cache about a successful connection to a host that has
+	 * (possibly) been retrieved from the cache.
+	 * <br><b>Locking: YES</b> (asynchronous)
+	 *
+	 * @param rHost  The host that has been successfully connected to.
+	 */
+	virtual void    onConnectSuccess( const EndPoint& rHost ) = 0;
+
 signals:
 	/**
-	 * @brief hostAdded informs about a new host having been added.
-	 * @param pHost : the host
+	 * @brief hostAdded informs about a new Host having been added.
+	 * @param pHost  GUI data representing a HostCacheHost
 	 */
 	void            hostAdded( HostData* pHostData );
 
 	/**
 	 * @brief hostRemoved informs about a host having been removed.
-	 * @param pHost : the host
+	 * @param pHost  QSharedPointer to a HostCacheHost
 	 */
 	void            hostRemoved( QSharedPointer<HostCacheHost> pHost );
 
 	/**
 	 * @brief hostInfo info signal to get informed about all hosts within the cache.
-	 * See requestHostList() for more information.
-	 * @param pHost : the host
+	 * @see requestHostList()
+	 * @param pHost  GUI data representing a HostCacheHost
 	 */
 	void            hostInfo( HostData* pHost );
 
 	/**
 	 * @brief hostUpdated informs about a host having been updated.
-	 * @param nID : the GUI ID of the updated host
+	 * @param nID  The GUI ID of the updated HostCacheHost
 	 */
-	//void            hostUpdated(quint32 nID);
+	void            hostUpdated( quint32 nID ); // may not be used by all subclass implementations
 
 	/**
 	 * @brief loadingFinished is emitted after new Hosts have been loaded.
@@ -143,29 +161,32 @@ signals:
 	void            loadingFinished();
 
 	/**
-	 * @brief clearTriggered
+	 * @brief clearTriggered is emitted if the entire cache is cleared instead of emitting
+	 * hostRemoved() for each host.
 	 */
 	void            clearTriggered();
 
 private:
 	/**
 	 * @brief stopInternal prepares the Host Cache (sub classes) for deletion.
-	 * Locking: REQUIRED
+	 * <br><b>Locking: REQUIRED</b>
 	 */
 	virtual void    stopInternal() = 0;
 
 	/**
 	 * @brief registerMetaTypesInternal handles registering the necessary meta types of child
 	 * classes.
+	 * <br><b>Locking: /</b>
 	 */
 	virtual void    registerMetaTypesInternal() = 0;
 
 private slots:
 	/**
 	 * @brief asyncStartUpHelper is a private helper method for start().
-	 * It contains among other things the signal slot connections specific to the respective host
+	 * <br><b>Locking: YES</b>
+	 *
+	 * It contains among other things the signal/slot connections specific to the respective host
 	 * cache.
-	 * Locking: YES
 	 */
 	virtual void    startUpInternal() = 0;
 };

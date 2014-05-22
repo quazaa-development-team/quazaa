@@ -138,7 +138,8 @@ public:
 	QString getXTry() const;
 
 	void onFailure( const EndPoint& addr );
-	void updateFailures( const EndPoint& oAddress, const quint32 nFailures );
+	void onConnectSuccess( const EndPoint& rHost );
+//	void updateFailures( const EndPoint& oAddress, const quint32 nFailures );
 
 	SharedG2HostPtr get( const EndPoint& oHost ) const;
 	SharedG2HostPtr getConnectable( const QSet<SharedG2HostPtr>& oExcept = QSet<SharedG2HostPtr>(),
@@ -202,6 +203,14 @@ private:
 	G2HostCacheConstIterator find( const G2HostCacheHost* const pHost ) const;
 
 	void load();
+
+	/**
+	 * @brief reportSuccess handles reporting a successful connection to the source of rHost.
+	 * <br><b>Locking: REQUIRED</b>
+	 *
+	 * @param rHost  The host that has been successfully connected to.
+	 */
+	void reportSuccess( const EndPoint& rHost );
 
 private slots:
 	SharedG2HostPtr addSync( EndPoint oHost, quint32 tTimeStamp, SourceID nSource );
