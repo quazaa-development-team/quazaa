@@ -59,6 +59,8 @@ protected:
 	SourceID    m_nSourceID;
 
 	quint32     m_tLastConnect; // kiedy ostatnio sie polaczylismy?
+	quint32     m_tLastConnectionEstablished;
+
 	quint8      m_nFailures;    // Connection failures in a row.
 
 	bool        m_bConnectable;
@@ -120,6 +122,10 @@ public:
 	inline quint32  lastConnect()   const
 	{
 		return m_tLastConnect;
+	}
+	inline quint32  lastConnectSuccess() const
+	{
+		return m_tLastConnectionEstablished;
 	}
 	inline quint8   failures()      const
 	{

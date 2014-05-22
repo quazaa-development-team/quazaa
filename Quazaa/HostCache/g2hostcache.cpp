@@ -1633,7 +1633,9 @@ void G2HostCache::asyncOnFailure( EndPoint addr )
 		erase( itHost );      // remove host with old failure count
 
 		quint8 nFailures = pHost->failures();
-		if ( nFailures < m_nMaxFailures ) // if failure count may be increased
+		// if failure count may be increased and we have established a connection in the past
+		// at least once
+		if ( nFailures < m_nMaxFailures && pHost->lastConnectSuccess() )
 		{
 			++nFailures;
 			SharedG2HostPtr pNewHost = SharedG2HostPtr( new G2HostCacheHost( *pHost,

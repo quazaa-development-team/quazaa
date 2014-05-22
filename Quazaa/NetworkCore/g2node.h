@@ -121,7 +121,16 @@ protected:
 	 * @param bXTry : whether to append an X-Try header
 	 */
 	void send_ConnectError( QString sReason, bool bXTry );
-	void send_ConnectOK( bool bHandshakeStep2, bool bDeflated = false );
+
+	/**
+	 * @brief send_ConnectOK sends handshake message #2 or #3 to other party. This acknowledges the
+	 * established connection to the other party.
+	 *
+	 * @param bHandshakeStep2  <code>true</code> if this is step #2 of the handshake;
+	 * <br><code>false</code> if this is step #3
+	 * @param bDeflated        Whether or not to negociate connection deflation.
+	 */
+	void send_ConnectOK( bool bHandshakeStep2, bool bDeflate = false );
 	void sendStartups();
 
 	void onPacket( G2Packet* pPacket );

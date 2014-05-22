@@ -40,13 +40,13 @@ public:
 G2HostCacheHost::G2HostCacheHost( const EndPoint& oAddress, quint32 tTimestamp,
 								  quint8 nFailures, SourceID nOwnID, SourceID nSourceID ) :
 	HostCacheHost( oAddress, nFailures, tTimestamp, 0, nOwnID, nSourceID ),
-	m_nQueryKey(    0           ),
-	m_oKeyHost(     EndPoint() ),
-	m_nKeyTime(     0           ),
-	m_tAck(         0           ),
-	m_tLastQuery(   0           ),
-	m_tRetryAfter(  0           ),
-	m_bIteratorValid( false     )
+	m_nQueryKey(   0          ),
+	m_oKeyHost(    EndPoint() ),
+	m_nKeyTime(    0          ),
+	m_tAck(        0          ),
+	m_tLastQuery(  0          ),
+	m_tRetryAfter( 0          ),
+	m_bIteratorValid( false   )
 {
 	m_nType = DiscoveryProtocol::G2;
 }
@@ -55,13 +55,13 @@ G2HostCacheHost::G2HostCacheHost( const G2HostCacheHost& oHost, quint32 tTimesta
 								  quint8 nFailures ) :
 	HostCacheHost( oHost.m_oAddress, nFailures, tTimestamp,
 				   oHost.m_tLastConnect, oHost.m_nOwnID, oHost.m_nSourceID ),
-	m_nQueryKey(    oHost.m_nQueryKey    ),
-	m_oKeyHost(     oHost.m_oKeyHost     ),
-	m_nKeyTime(     oHost.m_nKeyTime     ),
-	m_tAck(         oHost.m_tAck         ),
-	m_tLastQuery(   oHost.m_tLastQuery   ),
-	m_tRetryAfter(  oHost.m_tRetryAfter  ),
-	m_bIteratorValid( false              )
+	m_nQueryKey(   oHost.m_nQueryKey   ),
+	m_oKeyHost(    oHost.m_oKeyHost    ),
+	m_nKeyTime(    oHost.m_nKeyTime    ),
+	m_tAck(        oHost.m_tAck        ),
+	m_tLastQuery(  oHost.m_tLastQuery  ),
+	m_tRetryAfter( oHost.m_tRetryAfter ),
+	m_bIteratorValid( false            )
 {
 	m_nType = DiscoveryProtocol::G2;
 }

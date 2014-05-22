@@ -1033,9 +1033,9 @@ void Datagrams::onQH2( G2Packet* pPacket, const EndPoint& addr )
 
 	if ( pInfo )
 	{
-		if ( securityManager.isVendorBlocked(
-				 pInfo->m_sVendor ) ) // Block foxy client search results. We can't download from them any way.
+		if ( securityManager.isVendorBlocked( pInfo->m_sVendor ) )
 		{
+			// Block foxy client search results. We can't download from them any way.
 			securityManager.ban( pInfo->m_oNodeAddress, Security::RuleTime::SixHours, true,
 								 QString( "[AUTO] Vendor blocked (%1)" ).arg( pInfo->m_sVendor ),
 								 true

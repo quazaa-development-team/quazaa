@@ -273,7 +273,9 @@ void G2Node::onTimer( quint32 tNow )
 
 void G2Node::initiateHandshake()
 {
-	m_nState = nsHandshaking;
+	// this switches to nsHandshaking once we have actually recieved a reply from the other party
+	m_nState = nsConnecting;
+
 	emit nodeStateChanged();
 
 	QByteArray sHandshake;
@@ -311,12 +313,14 @@ void G2Node::initiateHandshake()
 
 void G2Node::parseIncomingHandshake()
 {
+	qDebug() << "G2Node::parseIncomingHandshake() - HS msg #1";
+
 	//QMutexLocker l(&Neighbours.m_pSection);
 
 	const qint32 nIndex = peek( bytesAvailable() ).indexOf( "\r\n\r\n" );
 	const QString sHs   = read( nIndex + 4 );
 
-	//qDebug() << "Handshake receive:\n" << sHs;
+	qDebug() << "Handshake receive message 1:\n" << sHs;
 
 	m_sHandshake += "Handshake in:\n" + sHs;
 
@@ -419,12 +423,30 @@ void G2Node::parseIncomingHandshake()
 // this is handshake message #2
 void G2Node::parseHandshakeResponse()
 {
+	m_nState = nsHandshaking;
+	emit nodeStateChanged();
+
+	qDebug() << "G2Node::parseHandshakeResponse() - HS msg #2";
 	//QMutexLocker l(&Neighbours.m_pSection);
 	QString sHandshake = read( peek( bytesAvailable() ).indexOf( "\r\n\r\n" ) + 4 );
 
-	//qDebug() << "Handshake receive:\n" << sHs;
+	qDebug() << "Handshake receive message 2:\n" << sHandshake;
 
 	m_sHandshake += "Handshake in:\n" + sHandshake;
+
+	if ( sHandshake.left( 16 ) != "GNUTELLA/0.6 200" )
+	{
+		systemLog.postLog( LogSeverity::Error, Component::G2,
+						   QString( "Connection to %1 rejected: %2"
+								  ).arg( m_oAddress.toString(),
+										 sHandshake.left( sHandshake.indexOf( "\r\n" ) ) ) );
+
+		// TODO: Is it okay to count non-200 response as a failure? Needs some testing...
+		hostCache.onFailure( m_oAddress );
+
+		close();
+		return;
+	}
 
 	const QString sAccept = Parser::getHeaderValue( sHandshake, "Accept" );
 	bool bAcceptG2 = sAccept.contains( "application/x-gnutella2" );
@@ -455,20 +477,6 @@ void G2Node::parseHandshakeResponse()
 	if ( bAcceptG2 && bG2Provided && sXTry.size() )
 	{
 		hostCache.addXTry( sXTry );
-	}
-
-	if ( sHandshake.left( 16 ) != "GNUTELLA/0.6 200" )
-	{
-		systemLog.postLog( LogSeverity::Error, Component::G2,
-						   QString( "Connection to %1 rejected: %2"
-								  ).arg( m_oAddress.toString(),
-										 sHandshake.left( sHandshake.indexOf( "\r\n" ) ) ) );
-
-		// TODO: Is it okay to count non-200 response as a failure? Needs some testing...
-		hostCache.onFailure( m_oAddress );
-
-		close();
-		return;
 	}
 
 	{
@@ -566,9 +574,13 @@ void G2Node::parseHandshakeResponse()
 // parses handshake message #3 recieved from remote node
 void G2Node::parseHandShakeAccept()
 {
+	qDebug() << "G2Node::parseHandshakeResponse() - HS msg #3";
+
 	m_bHandshaking = false;
 
 	QString sHandshake = read( peek( bytesAvailable() ).indexOf( "\r\n\r\n" ) + 4 );
+
+	qDebug() << "Handshake message 3 from remote node:\n" << sHandshake;
 
 	const QString sContentType = Parser::getHeaderValue( sHandshake, "Content-Type" );
 	bool bG2Provided = sContentType.contains( "application/x-gnutella2" );
@@ -1631,8 +1643,11 @@ void G2Node::onRead()
 {
 	neighbours.m_pSection.lock();
 
+	qDebug() << " **************************** G2Node::onRead()";
+
 	if ( m_nState == nsHandshaking )
 	{
+		qDebug() << "State: handshaking";
 		if ( peek( bytesAvailable() ).indexOf( "\r\n\r\n" ) != -1 )
 		{
 			if ( m_bInitiated )
@@ -1652,9 +1667,14 @@ void G2Node::onRead()
 				parseHandShakeAccept();
 			}
 		}
+		else
+		{
+			qDebug() << "got something useless";
+		}
 	}
 	else if ( m_nState == nsConnected )
 	{
+		qDebug() << "State: connected";
 		G2Packet* pPacket = NULL;
 		try
 		{
@@ -1691,11 +1711,18 @@ void G2Node::onError( QAbstractSocket::SocketError e )
 {
 	if ( e == QAbstractSocket::RemoteHostClosedError )
 	{
-		if ( m_nState == nsHandshaking )
+		if ( m_nState == nsConnecting )
 		{
 			systemLog.postLog( LogSeverity::Information, Component::G2,
-					 tr( "G2 Neighbour %0 dropped connection during handshake."
-						 ).arg( m_oAddress.toString() ) );
+							   tr( "Failed to connect to G2 Neighbour %0."
+							   ).arg( m_oAddress.toString() ) );
+			hostCache.onFailure( m_oAddress );
+		}
+		else if ( m_nState == nsHandshaking )
+		{
+			systemLog.postLog( LogSeverity::Information, Component::G2,
+							   tr( "G2 Neighbour %0 dropped connection during handshake."
+							   ).arg( m_oAddress.toString() ) );
 
 			// TODO: Find out why we are banning so many hosts here. It seems that at least 3 out of
 			// 4 hosts we're trying to connect to get banned at this point...
@@ -1703,6 +1730,7 @@ void G2Node::onError( QAbstractSocket::SocketError e )
 			// if initiated by us and has reached handshaking state
 			if ( m_bInitiated )
 			{
+				qDebug() << " *** Banning Host because it dropped us: " << m_oAddress.toString();
 				// for some bad clients that drop connections too early
 				securityManager.ban( m_oAddress, Security::RuleTime::FiveMinutes, true,
 									 QString( "[AUTO] G2 - Dropped handshake." ) + " User Agent: "

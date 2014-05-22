@@ -37,13 +37,14 @@ bool                HostCacheHost::m_bShutDownFlag = false;
 HostCacheHost::HostCacheHost( const EndPoint& oAddress, quint8 nFailures, quint32 tTimestamp,
 							  quint32 tLastConnect, SourceID nOwnID, SourceID nSourceID ) :
 	m_nType( DiscoveryProtocol::None ),
-	m_oAddress(     oAddress     ),
-	m_tTimeStamp(   tTimestamp   ),
-	m_nOwnID(       nOwnID       ),
-	m_nSourceID(    nSourceID    ),
-	m_tLastConnect( tLastConnect ),
-	m_nFailures(    nFailures    ),
-	m_bConnectable( false        )
+	m_oAddress(     oAddress         ),
+	m_tTimeStamp(   tTimestamp       ),
+	m_nOwnID(       nOwnID           ),
+	m_nSourceID(    nSourceID        ),
+	m_tLastConnect( tLastConnect     ),
+	m_tLastConnectionEstablished( 1  ), // TODO: fill with data
+	m_nFailures(    nFailures        ),
+	m_bConnectable( false            )
 {
 //	m_nID = m_oIDProvider.aquire();
 	Q_ASSERT( nOwnID ); // each host must have a valid own ID
