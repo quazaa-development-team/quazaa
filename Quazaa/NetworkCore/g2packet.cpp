@@ -123,7 +123,7 @@ G2Packet* G2Packet::newPacket( const char* pszType, bool bCompound )
 	if ( pszType )
 	{
 		size_t nLength = strlen( pszType );
-		strncpy( pPacket->m_sType, pszType, nLength );
+		strncpy_s( pPacket->m_sType, pszType, nLength );
 		pPacket->m_sType[nLength] = 0;
 	}
 
