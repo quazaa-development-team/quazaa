@@ -349,6 +349,19 @@ void G2Node::handleIncomingHandshake()
 	}
 
 	{
+		// GnucDNA authentification extension
+		const QString sChallenge = Parser::getHeaderValue( sHs, "X-Auth-Challenge" );
+
+		if ( !sChallenge.isEmpty() )
+		{
+			send_ConnectError( "503 GnucDNA style authentification not supported.", false );
+			securityManager.ban( m_oAddress, Security::RuleTime::Day, true,
+								 tr( "[AUTO] Client sent GnucDNA style auth challenge" ), true );
+			return;
+		}
+	}
+
+	{
 		// read and verify accept type
 		const QString sAccept = Parser::getHeaderValue( sHs, "Accept" );
 		const bool bAcceptG2 = sAccept.contains( "application/x-gnutella2" );
@@ -478,7 +491,6 @@ void G2Node::handleHandshakeResponse()
 			hostCache.addXTry( sXTry );
 		}
 	}
-
 
 	// Read and use remote IP information even if we didn't get the expected handshake OK message.
 	// If it fails, do nothing in that case as the connection will be closed in the next if
