@@ -144,7 +144,7 @@ void UnitTestsSecurity::initTestCase()
 
 		m_pManager->add( pRule );
 	}
-	QCOMPARE( NO_OF_CONTENT_RULES, (int)m_pManager->m_vContents.size() );
+	QCOMPARE( NO_OF_CONTENT_RULES, ( int )m_pManager->m_vContents.size() );
 
 	// agent rules
 	for ( ushort i = 0; i < m_vAgentDefinitions.size(); ++i )
@@ -161,7 +161,7 @@ void UnitTestsSecurity::initTestCase()
 
 		m_pManager->add( pRule );
 	}
-	QCOMPARE( NO_OF_AGENT_RULES, (int)m_pManager->m_vUserAgents.size() );
+	QCOMPARE( NO_OF_AGENT_RULES, ( int )m_pManager->m_vUserAgents.size() );
 
 
 	m_lQuery.append( "w0" );
@@ -184,7 +184,7 @@ void UnitTestsSecurity::initTestCase()
 
 		m_pManager->add( pRule );
 	}
-	QCOMPARE( NO_OF_REGEXP_RULES, (int)m_pManager->m_vRegularExpressions.size() );
+	QCOMPARE( NO_OF_REGEXP_RULES, ( int )m_pManager->m_vRegularExpressions.size() );
 }
 
 void UnitTestsSecurity::cleanupTestCase()
