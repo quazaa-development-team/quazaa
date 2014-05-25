@@ -946,6 +946,27 @@ SecurityTableModel::VectorPos SecurityTableModel::find( const RuleData* const pD
 	const VectorPos nSize = m_vNodes.size();
 	const RuleData* const * const pArray = m_vNodes.data();
 
+#ifdef _DEBUG
+	VectorPos i = 0;
+	// find precise position
+	while ( i < nSize && pArray[i]->m_nID != pData->m_nID )
+	{
+		++i;
+	}
+
+	// find theoretical position
+	if ( i == nSize )
+	{
+		i = 0;
+		while ( i < nSize && oCmp( pArray[i], pData ) )
+		{
+			++i;
+		}
+	}
+
+	qDebug() << "Size: " << nSize << " i: " << i;
+#endif // _DEBUG
+
 	VectorPos nMiddle, nHalf, nBegin = 0;
 	VectorPos n = nSize;
 
@@ -979,6 +1000,16 @@ SecurityTableModel::VectorPos SecurityTableModel::find( const RuleData* const pD
 			// at this point: nPos >= nBegin && nPos <= nBegin + n
 		}
 
+#ifdef _DEBUG
+		if ( i < nBegin || i > nBegin + n )
+		{
+			qDebug() << "nBegin: " << nBegin << " nBegin + n: " << nBegin + n;
+
+			Q_ASSERT( i >= nBegin );
+			Q_ASSERT( i <= nBegin + n );
+		}
+#endif // _DEBUG
+
 		// at this point: nPos >= nBegin && nPos <= nBegin + n
 	}
 
@@ -1003,6 +1034,10 @@ SecurityTableModel::VectorPos SecurityTableModel::find( const RuleData* const pD
 			Q_ASSERT( bLeftSmaller );
 		}
 	}
+#endif // _DEBUG
+
+#ifdef _DEBUG
+		Q_ASSERT( i == nBegin );
 #endif // _DEBUG
 
 	return nBegin;
