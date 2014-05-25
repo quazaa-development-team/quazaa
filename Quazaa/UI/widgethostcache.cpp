@@ -40,7 +40,8 @@ WidgetHostCache::WidgetHostCache( QWidget* parent ) :
 	ui->setupUi( this );
 
 	m_pHostCacheMenu =  new QMenu( this );
-	// TODO: fill menu
+	m_pHostCacheMenu->addAction( ui->actionConnectTo  );
+	m_pHostCacheMenu->addAction( ui->actionRemove     );
 
 	restoreState( quazaaSettings.WinMain.HostCacheToolbar );
 	ui->splitterHostCache->restoreState( quazaaSettings.WinMain.HostCacheSplitter );
@@ -113,13 +114,6 @@ void WidgetHostCache::keyPressEvent( QKeyEvent* e )
 	QMainWindow::keyPressEvent( e );
 }
 
-/*void WidgetHostCache::update()
-{
-	// TODO: improve
-
-	m_pDiscoveryList->updateAll();
-}*/
-
 void WidgetHostCache::saveWidget()
 {
 	quazaaSettings.WinMain.HostCacheToolbar = saveState();
@@ -159,6 +153,7 @@ void WidgetHostCache::setSkin()
 
 void WidgetHostCache::tableViewG2Cache_doubleClicked( const QModelIndex& index )
 {
+	// TODO: implement
 	if ( index.isValid() )
 	{
 	}
@@ -182,7 +177,7 @@ void WidgetHostCache::tableViewG2Cache_customContextMenuRequested( const QPoint&
 {
 	QModelIndex index = m_pTableViewG2Cache->indexAt( pos );
 
-	// enable/disable actions
+	// TODO: enable/disable actions
 	if ( index.isValid() )
 	{
 	}
@@ -191,4 +186,19 @@ void WidgetHostCache::tableViewG2Cache_customContextMenuRequested( const QPoint&
 	}
 
 	m_pHostCacheMenu->popup( QCursor::pos() );
+}
+
+void WidgetHostCache::on_actionConnectTo_triggered()
+{
+	// TODO: implement
+}
+
+void WidgetHostCache::on_actionDisconnect_triggered()
+{
+	// TODO: implement
+}
+
+void WidgetHostCache::on_actionRemove_triggered()
+{
+	// TODO: implement
 }

@@ -56,9 +56,6 @@ protected:
 	void changeEvent( QEvent* e );
 	virtual void keyPressEvent( QKeyEvent* event );
 
-public slots:
-	//void update();
-
 private slots:
 	void on_splitterHostCache_customContextMenuRequested( QPoint pos );
 	void setSkin();
@@ -66,6 +63,9 @@ private slots:
 	void tableViewG2Cache_doubleClicked( const QModelIndex& index );
 	void tableViewG2Cache_clicked( const QModelIndex& index );
 	void tableViewG2Cache_customContextMenuRequested( const QPoint& pos );
+	void on_actionConnectTo_triggered();
+	void on_actionDisconnect_triggered();
+	void on_actionRemove_triggered();
 };
 
 #endif // WIDGETHOSTCACHE_H
