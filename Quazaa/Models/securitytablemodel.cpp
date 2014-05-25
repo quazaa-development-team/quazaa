@@ -247,10 +247,7 @@ Rule* SecurityTableModel::RuleData::rule() const
 bool SecurityTableModel::RuleData::lessThan( int col, bool bSortOrder,
 											 const SecurityTableModel::RuleData* const pOther ) const
 {
-	if ( !pOther )
-	{
-		return false;
-	}
+	Q_ASSERT( pOther );
 
 	switch ( col )
 	{
@@ -299,9 +296,43 @@ bool SecurityTableModel::RuleData::lessThan( int col, bool bSortOrder,
 		return m_sComment < pOther->m_sComment;
 
 	default:
+		Q_ASSERT( false ); // a column comparison implementation is missing
 		return false;
 	}
+}
 
+bool SecurityTableModel::RuleData::equals( int col,
+										   const SecurityTableModel::RuleData* const pOther ) const
+{
+	Q_ASSERT( pOther );
+
+	switch ( col )
+	{
+	case CONTENT:
+		return m_sContent == pOther->m_sContent;
+
+	case TYPE:
+		return m_nType    == pOther->m_nType;
+
+	case ACTION:
+		return m_nAction  == pOther->m_nAction;
+
+	case EXPIRES:
+		return m_tExpire  == pOther->m_tExpire;
+
+	case HITS:
+		return m_nTotal   == pOther->m_nTotal && m_nToday == pOther->m_nToday;
+
+	case LASTHIT:
+		return m_tLastHit == pOther->m_tLastHit;
+
+	case COMMENT:
+		return m_sComment == pOther->m_sComment;
+
+	default:
+		Q_ASSERT( false ); // a column comparison implementation is missing
+		return false;
+	}
 }
 
 QString SecurityTableModel::RuleData::actionToString( RuleAction::Action nAction ) const
@@ -792,9 +823,38 @@ void SecurityTableModel::removeRule( SharedRulePtr pRule )
 
 	const VectorPos nMax  = nSize - 1;
 
-	RuleData      tmp = RuleData( pRule.data(), m_pIcons );
+	RuleData  tmpData = RuleData( pRule.data(), m_pIcons );
 	RuleData** pArray = m_vNodes.data();
-	const VectorPos nPos  = find( &tmp );
+	VectorPos    nPos = findInsertPos( &tmpData );
+
+	VectorPos nTmp = nPos;
+
+	// first look prior to the returned item
+	while ( nTmp > 0 && pArray[--nTmp]->equals( m_nSortColumn, &tmpData ) )
+	{
+		if ( pArray[nTmp]->m_nID == tmpData.m_nID )
+		{
+			break;
+		}
+	}
+
+	if ( pArray[nTmp]->m_nID == tmpData.m_nID )
+	{
+		// if the desired item could be found, fine
+		nPos = nTmp;
+	}
+	else
+	{
+		// else if the item could not be found before, look behind
+		while ( nPos < nSize && pArray[nPos]->equals( m_nSortColumn, &tmpData ) )
+		{
+			if ( pArray[nPos]->m_nID == tmpData.m_nID )
+			{
+				break;
+			}
+			++nPos;
+		}
+	}
 
 	Q_ASSERT( nPos != nSize );
 
@@ -927,7 +987,7 @@ SecurityTableModel::VectorPos SecurityTableModel::find( ID nRuleID ) const
 	return nSize;
 }
 
-SecurityTableModel::VectorPos SecurityTableModel::find( const RuleData* const pData ) const
+SecurityTableModel::VectorPos SecurityTableModel::findInsertPos( const RuleData* const pData ) const
 {
 	Q_ASSERT( pData );
 
@@ -988,9 +1048,14 @@ SecurityTableModel::VectorPos SecurityTableModel::find( const RuleData* const pD
 			// (!(a < b) && !(b < a)) == (a == b)
 			if ( !oCmp( pArray[nMiddle], pData ) )
 			{
-				// at this point: nPos == nMiddle
-				return nMiddle;
-				break;
+				// We have found an element whose sorting value is identical to the one we're
+				// looking for. Note that in case an identical element exists within the vector,
+				// this return value needs not be the location of that element.
+
+
+				// We return the position right of the element with an identical sorting key, thus
+				// reducing the number of items that have to be moved to the right on insertions.
+				return ++nMiddle;
 			}
 			// at this point: nPos > nMiddle && nPos <= nBegin + n
 
@@ -1054,7 +1119,9 @@ void SecurityTableModel::insert( RuleData* pRule )
 	else
 	{
 		const VectorPos nMax = m_vNodes.size();
-		const VectorPos nPos = find( pRule );
+		const VectorPos nPos = findInsertPos( pRule );
+
+		Q_ASSERT( nPos >= 0 && nPos <= nMax );
 
 		beginInsertRows( QModelIndex(), ( int )nPos, ( int )nPos );
 		m_vNodes.push_back( NULL );

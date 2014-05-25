@@ -87,6 +87,7 @@ public:
 		Rule* rule() const;
 
 		bool lessThan( int col, bool bSortOrder , const RuleData* const pOther ) const;
+		bool equals  ( int col, const RuleData* const pOther ) const;
 
 		QString actionToString( RuleAction::Action nAction ) const;
 		QString expiryToString( quint32 tExpire ) const;
@@ -193,12 +194,13 @@ private:
 	VectorPos find( ID nRuleID ) const;
 
 	/**
-	 * @brief find allows to determine the theoretical position (within [0; size]) of pRule.
+	 * @brief findInsertPos allows to determine the theoretical position (within [0; size]) of
+	 * pData.
 	 *
-	 * @param pRule  The rule data to look for.
+	 * @param pData  The RuleData to look for.
 	 * @return the theoretical VectorPos
 	 */
-	VectorPos find( const RuleData* const pData ) const;
+	VectorPos findInsertPos( const RuleData* const pData ) const;
 
 	void insert( RuleData* pRule );
 
