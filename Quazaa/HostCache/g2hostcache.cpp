@@ -924,11 +924,6 @@ SharedG2HostPtr G2HostCache::addSyncHelper( const EndPoint& oHost, quint32 tTime
 	}
 	else
 	{
-		if ( nSource )
-		{
-			m_mIDLookup[ oHost ] = nSource;
-		}
-
 		const SourceID nOwnID = m_oIDProvider.aquire();
 
 		// create host, find place in sorted list, insert it there
@@ -1283,12 +1278,8 @@ void G2HostCache::load()
 
 void G2HostCache::reportSuccess( const EndPoint& rHost )
 {
-	IDLookup::const_iterator it = m_mIDLookup.find( rHost );
-
-	SourceID id = (*it).second;
-
-
-	// TODO: do something with the ID
+	// TODO: Implement mechanism for reporting a successful connection and base
+	//       the rating based on that.
 }
 
 /**
@@ -1320,17 +1311,19 @@ SharedG2HostPtr G2HostCache::addSync( EndPoint oHost, quint32 tTimeStamp, Source
 
 SharedG2HostPtr G2HostCache::addSyncSource( EndPoint oHost, quint32 tTimeStamp, EndPoint oSource )
 {
-	IDLookup::const_iterator it = m_mIDLookup.find( oSource );
-	const SourceID nID = ( it != m_mIDLookup.end() ) ? (*it).second : 0;
+//	IDLookup::const_iterator it = m_mSourceIDLookup.find( oSource );
+//	const SourceID nID = ( it != m_mSourceIDLookup.end() ) ? (*it).second : 0;
 
+	const SourceID nID = 0;
 	return addSync( oHost, tTimeStamp, nID );
 }
 
 void G2HostCache::addSyncList( InsertList lHosts, EndPoint oSource )
 {
-	IDLookup::const_iterator it = m_mIDLookup.find( oSource );
-	const SourceID nID = ( it != m_mIDLookup.end() ) ? (*it).second : 0;
+//	IDLookup::const_iterator it = m_mSourceIDLookup.find( oSource );
+//	const SourceID nID = ( it != m_mSourceIDLookup.end() ) ? (*it).second : 0;
 
+	const SourceID nID = 0;
 	for ( int i = 0, nSize = lHosts.size(); i < nSize; ++i )
 	{
 		addSync( lHosts[i].first, lHosts[i].second, nID );

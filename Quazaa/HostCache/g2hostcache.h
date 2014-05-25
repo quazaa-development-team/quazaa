@@ -76,7 +76,7 @@ namespace HostManagement
 
 typedef quint32 SourceID;
 typedef QList< QPair<EndPoint, quint32> > InsertList;
-typedef std::unordered_map<EndPoint, SourceID> IDLookup;
+// typedef std::unordered_map<EndPoint, SourceID> IDLookup;
 
 class G2HostCache : public HostCache
 {
@@ -86,8 +86,6 @@ private:
 	// allows access to 0 .. m_nMaxFailures + 1
 	G2HostCacheIterator*    m_pFailures; // = new G2HostCacheIterator[m_nMaxFailures + 2];
 	G2HostCacheList         m_lHosts;
-
-	IDLookup m_mIDLookup;
 
 #if ENABLE_G2_HOST_CACHE_BENCHMARKING
 	QAtomicInt              m_nLockWaitTime;
