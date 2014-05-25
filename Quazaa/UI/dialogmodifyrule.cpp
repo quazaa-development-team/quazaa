@@ -31,7 +31,7 @@
 
 #include "debug_new.h"
 
-DialogModifyRule::DialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule ) :
+DialogModifyRule::DialogModifyRule( CWidgetSecurity* parent, Rule* pRule ) :
 	QDialog( parent ),
 	m_pParent( parent ),
 	ui( new Ui::DialogModifyRule )
@@ -45,19 +45,19 @@ DialogModifyRule::DialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule )
 #endif // _DEBUG
 
 
-	if ( !m_pRule.isNull() ) // We are modifying a rule.
+	if ( m_pRule ) // We are modifying a Rule.
 	{
 		ui->comboBoxRuleType->setEnabled( false );
 		ui->lineEditComment->setText( m_pRule->m_sComment );
 
-		switch ( m_pRule->m_nType )
+		switch ( m_pRule->type() )
 		{
 		case RuleType::IPAddress:
 		{
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::IPAddress );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::IPAddress );
 
-			ui->lineEditIP->setText( m_pRule->m_sContent );
+			ui->lineEditIP->setText( m_pRule->contentString() );
 			break;
 		}
 
@@ -66,7 +66,7 @@ DialogModifyRule::DialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule )
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::IPAddressRange );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::IPAddressRange );
 
-			QStringList lAddressRange = m_pRule->m_sContent.split( "-" );
+			QStringList lAddressRange = m_pRule->contentString().split( "-" );
 			ui->lineEditStartIP->setText( lAddressRange.at( 0 ) );
 			ui->lineEditEndIP->setText(   lAddressRange.at( 1 ) );
 			break;
@@ -77,7 +77,7 @@ DialogModifyRule::DialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule )
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::Country );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::Country );
 
-			ui->lineEditCountry->setText( m_pRule->m_sContent );
+			ui->lineEditCountry->setText( m_pRule->contentString() );
 			break;
 		}
 #endif // SECURITY_ENABLE_GEOIP
@@ -86,7 +86,7 @@ DialogModifyRule::DialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule )
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::Hash );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::Hash );
 
-			ui->lineEditContent->setText( m_pRule->m_sContent );
+			ui->lineEditContent->setText( m_pRule->contentString() );
 			break;
 		}
 
@@ -95,7 +95,7 @@ DialogModifyRule::DialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule )
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::Content );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::Content );
 
-			ui->lineEditContent->setText( m_pRule->m_sContent );
+			ui->lineEditContent->setText( m_pRule->contentString() );
 			break;
 		}
 
@@ -104,7 +104,7 @@ DialogModifyRule::DialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule )
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::RegularExpression );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::RegularExpression );
 
-			ui->lineEditRegularExpression->setText( m_pRule->m_sContent );
+			ui->lineEditRegularExpression->setText( m_pRule->contentString() );
 			break;
 		}
 
@@ -113,8 +113,9 @@ DialogModifyRule::DialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule )
 			ui->comboBoxRuleType->setCurrentIndex( RuleIndex::UserAgent );
 			ui->stackedWidgetType->setCurrentIndex( RuleIndex::UserAgent );
 
-			ui->lineEditUserAgent->setText( m_pRule->m_sContent );
-			ui->checkBoxUserAgentRegularExpression->setChecked( m_pRule->m_bContent );
+			ui->lineEditUserAgent->setText( m_pRule->contentString() );
+			ui->checkBoxUserAgentRegularExpression->setChecked(
+						( ( UserAgentRule* )m_pRule )->isRegExp() );
 			break;
 		}
 
@@ -135,7 +136,7 @@ DialogModifyRule::DialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule )
 			break;
 		}
 
-		quint32 tExpire = m_pRule->m_tExpire;
+		quint32 tExpire = m_pRule->expiryTime();
 		switch ( tExpire )
 		{
 		case Security::RuleTime::Forever:
@@ -186,6 +187,9 @@ DialogModifyRule::DialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule )
 DialogModifyRule::~DialogModifyRule()
 {
 	delete ui;
+
+	if ( m_pRule )
+		delete m_pRule;
 }
 
 void DialogModifyRule::changeEvent( QEvent* e )
@@ -351,23 +355,22 @@ void DialogModifyRule::on_pushButtonOK_clicked()
 	pRule->m_bAutomatic = false;
 
 	securityManager.m_oRWLock.lockForRead();
-	Rule* pExistingRule = m_pRule.isNull() ? NULL : m_pRule.data()->rule();
 
 	bool bReplace = false;
-	if ( pExistingRule )
+	if ( m_pRule )
 	{
-		pRule->m_idUUID = pExistingRule->m_idUUID;
-		bReplace = *pExistingRule != *pRule;
+		pRule->m_idUUID = m_pRule->m_idUUID;
+		bReplace = *m_pRule != *pRule;
 	}
 
 	securityManager.m_oRWLock.unlock();
 
 	if ( bReplace )
 	{
-		securityManager.remove( pExistingRule );
+		securityManager.remove( m_pRule );
 		securityManager.add( pRule );
 	}
-	else if ( pExistingRule ) // rule already exists and is no different from the existing rule
+	else if ( m_pRule ) // rule already exists and is no different from the existing rule
 	{
 		delete pRule;
 	}

@@ -26,14 +26,11 @@
 #define SECURITYTABLEMODEL_H
 
 #include <QAbstractTableModel>
-#include <QVector>
 #include <QIcon>
 
 #include "securitymanager.h"
 
 using namespace Security;
-
-// TODO: Find out why the view is unsorted after hitting F5.
 
 /**
  * @brief The SecurityTableModel class implements a table model for handling security rules.
@@ -64,11 +61,10 @@ public:
 		QString         m_sLastHit;
 		QString         m_sContent;
 		QString         m_sComment;
-		bool            m_bContent;
 		const QIcon*    m_piAction;
 		bool            m_bAutomatic;
 
-		RuleData( Rule* pRule, SecurityTableModel* pModel );
+		RuleData( Rule* pRule, const QIcon* pIcons[3] );
 		~RuleData();
 
 		/**
@@ -80,7 +76,8 @@ public:
 		 * @param pModel : the model
 		 * @return true if an entry within the column col has been modified
 		 */
-		bool update( int nRow, int nSortCol, QModelIndexList& lToUpdate, SecurityTableModel* pModel );
+		bool update( int nRow, int nSortCol, QModelIndexList& lToUpdate,
+					 SecurityTableModel* pModel );
 		QVariant data( int col ) const;
 
 		/**
@@ -89,26 +86,24 @@ public:
 		 */
 		Rule* rule() const;
 
-		bool lessThan( int col, const RuleData* const pOther ) const;
+		bool lessThan( int col, bool bSortOrder , const RuleData* const pOther ) const;
 
 		QString actionToString( RuleAction::Action nAction ) const;
 		QString expiryToString( quint32 tExpire ) const;
 		QString lastHitToString( quint32 tLastHit ) const;
 	};
 
-	typedef QSharedPointer<RuleData>    RuleDataPtr;
-
 private:
+	typedef std::vector<RuleData*>::size_type VectorPos;
+
 	QWidget*        m_oContainer;
 	Qt::SortOrder   m_nSortOrder;
+	bool            m_bSecondarySortOrder;
 	int             m_nSortColumn;
-	bool            m_bNeedSorting;
 	static bool     m_bShutDown;
-
 	quint32         m_nRuleInfo;
 
-protected:
-	QList<RuleDataPtr> m_lNodes;
+	std::vector<RuleData*> m_vNodes;
 
 public:
 	enum Column
@@ -136,12 +131,9 @@ public:
 	QVariant headerData( int section, Qt::Orientation orientation, int role ) const;
 	QModelIndex index( int row, int column, const QModelIndex& parent = QModelIndex() ) const;
 
-	void sort( int column, Qt::SortOrder order );
+	void sort( int column, Qt::SortOrder order , bool bUserInput = true );
 
-	int find( ID nRuleID );
-
-	RuleDataPtr dataFromRow( int nRow ) const;
-	//Rule* ruleFromIndex(const QModelIndex& index) const;
+	RuleData* dataFromRow( int nRow ) const;
 
 	void triggerRuleRemoval( int nIndex );
 
@@ -195,10 +187,25 @@ public slots:
 	 * @brief onShutdown handles shutting down.
 	 */
 	void onShutdown();
-};
 
-typedef SecurityTableModel::RuleData    RuleData;
-typedef SecurityTableModel::RuleDataPtr RuleDataPtr;
+private:
+
+	VectorPos find( ID nRuleID ) const;
+
+	/**
+	 * @brief find allows to determine the theoretical position (within [0; size]) of pRule.
+	 *
+	 * @param pRule  The rule data to look for.
+	 * @return the theoretical VectorPos
+	 */
+	VectorPos find( const RuleData* const pData ) const;
+
+	void insert( RuleData* pRule );
+
+#ifdef _DEBUG
+	void verifySorting() const;
+#endif
+};
 
 #endif // SECURITYTABLEMODEL_H
 

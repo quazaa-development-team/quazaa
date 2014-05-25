@@ -38,9 +38,9 @@ bool SecurityFilterModel::filterAcceptsRow( int nSourceRow, const QModelIndex& s
 
 	Q_ASSERT( nSourceRow >= 0 && nSourceRow < m_lSecurity->rowCount() );
 
-	RuleDataPtr pData = m_lSecurity->dataFromRow( nSourceRow );
+	SecurityTableModel::RuleData* pData = m_lSecurity->dataFromRow( nSourceRow );
 
-	Q_ASSERT( !pData.isNull() );
+	Q_ASSERT( pData );
 
 	return m_bShowAutomatic == pData->m_bAutomatic;
 }

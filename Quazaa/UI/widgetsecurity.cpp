@@ -228,11 +228,11 @@ void CWidgetSecurity::on_actionSecurityModifyRule_triggered()
 				  i.row() >= 0 &&
 				  i.row() < m_lSecurity->rowCount() );
 
-		RuleDataPtr pData = m_lSecurity->dataFromRow( i.row() );
+		SecurityTableModel::RuleData* pData = m_lSecurity->dataFromRow( i.row() );
+		Q_ASSERT( pData );
 
-		Q_ASSERT( !pData.isNull() );
-
-		DialogModifyRule* dlgModifyRule = new DialogModifyRule( this, pData );
+		Rule* pRule = pData->rule()->getCopy();
+		DialogModifyRule* dlgModifyRule = new DialogModifyRule( this, pRule );
 		dlgModifyRule->show();
 	}
 }
@@ -257,8 +257,8 @@ void CWidgetSecurity::on_actionSecurityExportRules_triggered()
 			// map filter model index to table model index and store ID
 			const QModelIndex iSourceIndex = pModel->mapToSource( iProxy );
 			const int nRow = iSourceIndex.row();
-			const RuleDataPtr pRuleData = m_lSecurity->dataFromRow( nRow );
-			lsIDs.insert( pRuleData->m_nID );
+			const SecurityTableModel::RuleData* pData = m_lSecurity->dataFromRow( nRow );
+			lsIDs.insert( pData->m_nID );
 		}
 	}
 

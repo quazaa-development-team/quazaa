@@ -21,14 +21,14 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include <QAbstractItemView>
+#include <limits>
 
 #include "winmain.h"
 #include "securitytablemodel.h"
 
 #include "debug_new.h"
 
-RuleData::RuleData( Rule* pRule, SecurityTableModel* pModel ) :
+SecurityTableModel::RuleData::RuleData( Rule* pRule, const QIcon* pIcons[3] ) :
 	m_pRule(      pRule                       ),
 	m_nID(        pRule->m_nGUIID             ),
 	m_nType(      pRule->type()               ),
@@ -39,36 +39,33 @@ RuleData::RuleData( Rule* pRule, SecurityTableModel* pModel ) :
 	m_sExpire(  expiryToString ( m_tExpire  ) ),
 	m_tLastHit(   pRule->lastHit()            ),
 	m_sLastHit( lastHitToString( m_tLastHit ) ),
-	m_sContent(   pRule->getContentString()   ),
+	m_sContent(   pRule->contentString()   ),
 	m_sComment(   pRule->m_sComment           ),
 	m_bAutomatic( pRule->m_bAutomatic         )
 {
 	switch ( m_nAction )
 	{
 	case Security::RuleAction::None:
-		m_piAction = pModel->m_pIcons[0];
+		m_piAction = pIcons[0];
 		break;
 
 	case Security::RuleAction::Accept:
-		m_piAction = pModel->m_pIcons[1];
+		m_piAction = pIcons[1];
 		break;
 
 	case Security::RuleAction::Deny:
-		m_piAction = pModel->m_pIcons[2];
+		m_piAction = pIcons[2];
 		break;
 
 	default:
 		Q_ASSERT( false );
 	}
-
-	if ( m_nType == RuleType::RegularExpression )
-	{
-		m_bContent = ( ( Security::UserAgentRule* )pRule )->getRegExp();
-	}
 }
 
-RuleData::~RuleData()
+SecurityTableModel::RuleData::~RuleData()
 {
+	// m_pRule     is handled by SecurityManager
+	// m_piAction  is handled by SecurityTableModel
 }
 
 /**
@@ -80,8 +77,8 @@ RuleData::~RuleData()
  * @param pModel : the model
  * @return true if an entry within the column col has been modified
  */
-bool RuleData::update( int nRow, int nSortCol, QModelIndexList& lToUpdate,
-					   SecurityTableModel* pModel )
+bool SecurityTableModel::RuleData::update( int nRow, int nSortCol, QModelIndexList& lToUpdate,
+										   SecurityTableModel* pModel )
 {
 	if ( m_bShutDown )
 	{
@@ -93,6 +90,8 @@ bool RuleData::update( int nRow, int nSortCol, QModelIndexList& lToUpdate,
 	bool bReturn = false;
 
 	// type and ID never change
+	Q_ASSERT( m_nType == m_pRule->type()   );
+	Q_ASSERT( m_nID   == m_pRule->m_nGUIID );
 
 	if ( m_nAction != m_pRule->m_nAction )
 	{
@@ -151,10 +150,10 @@ bool RuleData::update( int nRow, int nSortCol, QModelIndexList& lToUpdate,
 		}
 	}
 
-	if ( m_sContent != m_pRule->getContentString() )
+	if ( m_sContent != m_pRule->contentString() )
 	{
 		lToUpdate.append( pModel->index( nRow, CONTENT ) );
-		m_sContent = m_pRule->getContentString();
+		m_sContent = m_pRule->contentString();
 
 		if ( nSortCol == CONTENT )
 		{
@@ -173,11 +172,6 @@ bool RuleData::update( int nRow, int nSortCol, QModelIndexList& lToUpdate,
 		}
 	}
 
-	if ( m_nType == RuleType::RegularExpression )
-	{
-		m_bContent = ( ( Security::UserAgentRule* )m_pRule )->getRegExp();
-	}
-
 	m_bAutomatic = m_pRule->m_bAutomatic;
 
 	return bReturn;
@@ -188,7 +182,7 @@ bool RuleData::update( int nRow, int nSortCol, QModelIndexList& lToUpdate,
  * @param col
  * @return
  */
-QVariant RuleData::data( int col ) const
+QVariant SecurityTableModel::RuleData::data( int col ) const
 {
 	switch ( col )
 	{
@@ -231,8 +225,8 @@ QVariant RuleData::data( int col ) const
 		return m_sExpire;
 
 	case HITS:
-		return QString( "%1 (%2)" ).arg( QString::number( m_nToday ),
-										 QString::number( m_nTotal ) );
+		return QString( "%1 (%2)" ).arg( QString::number( m_nTotal ),
+										 QString::number( m_nToday ) );
 
 	case LASTHIT:
 		return m_sLastHit;
@@ -245,12 +239,13 @@ QVariant RuleData::data( int col ) const
 	}
 }
 
-Rule* RuleData::rule() const
+Rule* SecurityTableModel::RuleData::rule() const
 {
 	return m_bShutDown ? NULL : m_pRule;
 }
 
-bool RuleData::lessThan( int col, const SecurityTableModel::RuleData* const pOther ) const
+bool SecurityTableModel::RuleData::lessThan( int col, bool bSortOrder,
+											 const SecurityTableModel::RuleData* const pOther ) const
 {
 	if ( !pOther )
 	{
@@ -263,31 +258,39 @@ bool RuleData::lessThan( int col, const SecurityTableModel::RuleData* const pOth
 		return m_sContent < pOther->m_sContent;
 
 	case TYPE:
-		return m_nType < pOther->m_nType;
+		return m_nType    < pOther->m_nType;
 
 	case ACTION:
 		return m_nAction  < pOther->m_nAction;
 
 	case EXPIRES:
-		if ( m_tExpire && !pOther->m_tExpire )
-		{
-			return true;
-		}
-
-		if ( m_tExpire > 1 && pOther->m_tExpire <= 1 )
-		{
-			return true;
-		}
-
-		return m_tExpire  < pOther->m_tExpire;
+		return ( m_tExpire < 2 ? std::numeric_limits<quint32>::max() - m_tExpire : m_tExpire ) <
+			   ( pOther->m_tExpire < 2 ?
+					 std::numeric_limits<quint32>::max() - pOther->m_tExpire : pOther->m_tExpire );
 
 	case HITS:
-		// TODO: sort by m_nToday for second click
-		if ( m_nTotal == pOther->m_nTotal )
+		if ( bSortOrder )
 		{
-			return m_nToday < pOther->m_nToday;
+			if ( m_nTotal == pOther->m_nTotal )
+			{
+				return m_nToday < pOther->m_nToday;
+			}
+			else
+			{
+				return m_nTotal < pOther->m_nTotal;
+			}
 		}
-		return m_nTotal < pOther->m_nTotal;
+		else
+		{
+			if ( m_nToday == pOther->m_nToday )
+			{
+				return m_nTotal < pOther->m_nTotal;
+			}
+			else
+			{
+				return m_nToday < pOther->m_nToday;
+			}
+		}
 
 	case LASTHIT:
 		return m_tLastHit < pOther->m_tLastHit;
@@ -301,7 +304,7 @@ bool RuleData::lessThan( int col, const SecurityTableModel::RuleData* const pOth
 
 }
 
-QString RuleData::actionToString( RuleAction::Action nAction ) const
+QString SecurityTableModel::RuleData::actionToString( RuleAction::Action nAction ) const
 {
 	switch ( nAction )
 	{
@@ -319,7 +322,7 @@ QString RuleData::actionToString( RuleAction::Action nAction ) const
 	}
 }
 
-QString RuleData::expiryToString( quint32 tExpire ) const
+QString SecurityTableModel::RuleData::expiryToString( quint32 tExpire ) const
 {
 	switch ( tExpire )
 	{
@@ -334,7 +337,7 @@ QString RuleData::expiryToString( quint32 tExpire ) const
 	}
 }
 
-QString RuleData::lastHitToString( quint32 tLastHit ) const
+QString SecurityTableModel::RuleData::lastHitToString( quint32 tLastHit ) const
 {
 	if ( !tLastHit )
 	{
@@ -353,13 +356,13 @@ SecurityTableModel::SecurityTableModel( QObject* parent, QWidget* container ) :
 	m_oContainer( container ),
 	m_nSortOrder( Qt::AscendingOrder ),
 	m_nSortColumn( -1 ),
-	m_bNeedSorting( false ),
+	m_bSecondarySortOrder( true ),
 	m_nRuleInfo( 0 ),
-	m_lNodes( QList<RuleDataPtr>() )
+	m_vNodes( std::vector<RuleData*>() )
 {
-	m_pIcons[0] = new QIcon( ":/Resource/Security/Null.ico" );
+	m_pIcons[0] = new QIcon( ":/Resource/Security/Null.ico"   );
 	m_pIcons[1] = new QIcon( ":/Resource/Security/Accept.ico" );
-	m_pIcons[2] = new QIcon( ":/Resource/Security/Deny.ico" );
+	m_pIcons[2] = new QIcon( ":/Resource/Security/Deny.ico"   );
 
 	// This connects the GUI to the Security Manager and the Main Window.
 	connect( &securityManager, &Security::Manager::startUpFinished,
@@ -368,7 +371,7 @@ SecurityTableModel::SecurityTableModel( QObject* parent, QWidget* container ) :
 
 SecurityTableModel::~SecurityTableModel()
 {
-	m_lNodes.clear();
+	m_vNodes.clear();
 
 	delete m_pIcons[0];
 	delete m_pIcons[1];
@@ -383,7 +386,7 @@ int SecurityTableModel::rowCount( const QModelIndex& parent ) const
 	}
 	else
 	{
-		return m_lNodes.count();
+		return ( int )m_vNodes.size();
 	}
 }
 
@@ -401,12 +404,12 @@ int SecurityTableModel::columnCount( const QModelIndex& parent ) const
 
 QVariant SecurityTableModel::data( const QModelIndex& index, int nRole ) const
 {
-	if ( !index.isValid() || index.row() > m_lNodes.size() || index.row() < 0 )
+	if ( !index.isValid() || index.row() >= m_vNodes.size() || index.row() < 0 )
 	{
 		return QVariant();
 	}
 
-	const RuleDataPtr pData = m_lNodes.at( index.row() );
+	const RuleData* pData = m_vNodes[index.row()];
 
 	switch ( nRole )
 	{
@@ -502,7 +505,7 @@ QVariant SecurityTableModel::headerData( int section, Qt::Orientation orientatio
 			return tr( "The content of the Security Manager rule" );
 
 		case TYPE:
-			return tr( "The rule type." );
+			return tr( "The rule type" );
 
 		case ACTION:
 			return tr( "Whether a rule blocks or allows content" );
@@ -511,7 +514,7 @@ QVariant SecurityTableModel::headerData( int section, Qt::Orientation orientatio
 			return tr( "When the Security Manager rule expires" );
 
 		case HITS:
-			return tr( "How often the rule has been hit today (since its creation date)" );
+			return tr( "How often the rule has been hit since its creation (in this session)" );
 
 		case LASTHIT:
 			return tr( "When the rule was hit last" );
@@ -526,7 +529,7 @@ QVariant SecurityTableModel::headerData( int section, Qt::Orientation orientatio
 
 QModelIndex SecurityTableModel::index( int row, int column, const QModelIndex& parent ) const
 {
-	if ( parent.isValid() || row < 0 || row >= m_lNodes.count() )
+	if ( parent.isValid() || row < 0 || row >= m_vNodes.size() )
 	{
 		return QModelIndex();
 	}
@@ -538,33 +541,52 @@ QModelIndex SecurityTableModel::index( int row, int column, const QModelIndex& p
 
 class SecurityTableModelCmp
 {
+private:
+	int             m_nColumn;
+	Qt::SortOrder   m_nOrder;
+	bool            m_bSecondarySortOrder;
+
 public:
-	SecurityTableModelCmp( int col, Qt::SortOrder o ) :
-		column( col ),
-		order( o )
+	SecurityTableModelCmp( int col, Qt::SortOrder o, bool bOrder ) :
+		m_nColumn( col ),
+		m_nOrder( o ),
+		m_bSecondarySortOrder( bOrder )
 	{
 	}
 
-	bool operator()( RuleDataPtr a, RuleDataPtr b )
+	bool operator()( const SecurityTableModel::RuleData* const a,
+					 const SecurityTableModel::RuleData* const b )
 	{
-		if ( order == Qt::AscendingOrder )
+		if ( m_nOrder == Qt::AscendingOrder )
 		{
-			return a->lessThan( column, b.data() );
+			return a->lessThan( m_nColumn, m_bSecondarySortOrder, b );
 		}
 		else
 		{
-			return b->lessThan( column, a.data() );
+			return b->lessThan( m_nColumn, m_bSecondarySortOrder, a );
 		}
 	}
-
-	int column;
-	Qt::SortOrder order;
 };
 
-void SecurityTableModel::sort( int column, Qt::SortOrder order )
+void SecurityTableModel::sort( int column, Qt::SortOrder order, bool bUserInput )
 {
 	m_nSortColumn = column;
 	m_nSortOrder  = order;
+
+	if ( bUserInput )
+	{
+		if ( m_nSortColumn == HITS )
+		{
+			if ( m_nSortOrder == Qt::DescendingOrder )
+			{
+				m_bSecondarySortOrder = !m_bSecondarySortOrder;
+			}
+		}
+		else
+		{
+			m_bSecondarySortOrder = false;
+		}
+	}
 
 	emit layoutAboutToBeChanged();
 
@@ -572,21 +594,26 @@ void SecurityTableModel::sort( int column, Qt::SortOrder order )
 	QModelIndexList oldIdx = persistentIndexList();
 	QModelIndexList newIdx = oldIdx;
 
-	qStableSort( m_lNodes.begin(), m_lNodes.end(), SecurityTableModelCmp( column, order ) );
+	// make sure there is enough memory for sorting efficiently
+	const VectorPos nSize = m_vNodes.size();
+	m_vNodes.reserve( nSize + nSize / 2 );
 
-	for ( int i = 0; i < oldIdx.size(); ++i ) // For each persistent index
+	std::stable_sort( m_vNodes.begin(), m_vNodes.end(),
+					  SecurityTableModelCmp( column, order, m_bSecondarySortOrder ) );
+
+	for ( int i = 0, nSize = oldIdx.size(); i < nSize; ++i ) // For each persistent index
 	{
 		int oldRow = oldIdx.at( i ).row();
 
 		// if oldRow is outside range
-		if ( oldRow > m_lNodes.size()
+		if ( oldRow > nSize ||
 			 // or the index points to another item
-			 || oldIdx.at( i ).internalPointer() != m_lNodes.at( oldRow ) )
+			 oldIdx.at( i ).internalPointer() != m_vNodes[oldRow] )
 		{
 			// find the correct item and update persistent index
-			for ( int j = 0; j < m_lNodes.size(); ++j )
+			for ( int j = 0; j < nSize; ++j )
 			{
-				if ( oldIdx.at( i ).internalPointer() == m_lNodes.at( j ) )
+				if ( oldIdx.at( i ).internalPointer() == m_vNodes[j] )
 				{
 					newIdx[i] = createIndex( j, oldIdx.at( i ).column(),
 											 oldIdx.at( i ).internalPointer() );
@@ -600,40 +627,17 @@ void SecurityTableModel::sort( int column, Qt::SortOrder order )
 	emit layoutChanged();
 }
 
-int SecurityTableModel::find( ID nRuleID )
+SecurityTableModel::RuleData* SecurityTableModel::dataFromRow( int nRow ) const
 {
-	int nSize = m_lNodes.size();
-
-	for ( int nPos = 0; nPos < nSize; ++nPos )
+	if ( nRow < m_vNodes.size() && nRow >= 0 )
 	{
-		if ( m_lNodes[nPos]->m_nID == nRuleID )
-		{
-			return nPos;
-		}
-	}
-
-	return -1;
-}
-
-RuleDataPtr SecurityTableModel::dataFromRow( int nRow ) const
-{
-	if ( nRow < m_lNodes.count() && nRow >= 0 )
-	{
-		return m_lNodes[nRow];
+		return m_vNodes[nRow];
 	}
 	else
 	{
-		return RuleDataPtr();
-	}
-}
-
-/*Rule* SecurityTableModel::ruleFromIndex(const QModelIndex &index) const
-{
-	if ( index.isValid() && index.row() < m_lNodes.count() && index.row() >= 0 )
-		return m_lNodes[ index.row() ]->m_pRule;
-	else
 		return NULL;
-}*/
+	}
+}
 
 /**
  * @brief SecurityTableModel::triggerRuleRemoval
@@ -641,9 +645,9 @@ RuleDataPtr SecurityTableModel::dataFromRow( int nRow ) const
  */
 void SecurityTableModel::triggerRuleRemoval( int nIndex )
 {
-	Q_ASSERT( nIndex >= 0 && nIndex < m_lNodes.size() );
+	Q_ASSERT( nIndex >= 0 && nIndex < m_vNodes.size() );
 
-	securityManager.remove( m_lNodes[nIndex]->rule() );
+	securityManager.remove( m_vNodes[nIndex]->rule() );
 }
 
 /**
@@ -651,10 +655,18 @@ void SecurityTableModel::triggerRuleRemoval( int nIndex )
  */
 void SecurityTableModel::clear()
 {
-	if ( m_lNodes.size() )
+	if ( m_vNodes.size() )
 	{
-		beginRemoveRows( QModelIndex(), 0, m_lNodes.size() - 1 );
-		m_lNodes.clear();
+		beginRemoveRows( QModelIndex(), 0, ( int )m_vNodes.size() - 1 );
+
+		RuleData** pData = m_vNodes.data();
+		for ( VectorPos n = 0, nSize = m_vNodes.size(); n < nSize; ++n )
+		{
+			delete pData[n];
+		}
+
+		m_vNodes.clear();
+
 		endRemoveRows();
 	}
 }
@@ -685,6 +697,9 @@ void SecurityTableModel::completeRefresh()
 
 	// Request getting the rules back from the Security Manager.
 	m_nRuleInfo = securityManager.requestRuleInfo();
+
+	// prevent unnecessary reallocations
+	m_vNodes.reserve( 2 * m_nRuleInfo );
 
 	if ( !m_nRuleInfo )
 	{
@@ -745,19 +760,17 @@ void SecurityTableModel::addRule( Rule* pRule )
 		return;
 	}
 
+#ifdef _DEBUG
 	Q_ASSERT( pRule );
 	Q_ASSERT( securityManager.check( pRule ) );
+	verifySorting();
+#endif // _DEBUG
 
-	securityManager.m_oRWLock.lockForRead();
+	insert( new RuleData( pRule, m_pIcons ) );
 
-	beginInsertRows( QModelIndex(), m_lNodes.size(), m_lNodes.size() );
-
-	m_lNodes.append( RuleDataPtr( new RuleData( pRule, this ) ) );
-	m_bNeedSorting = true; // triggers list to be resorted
-
-	endInsertRows();
-
-	securityManager.m_oRWLock.unlock();
+#ifdef _DEBUG
+	verifySorting();
+#endif
 }
 
 /**
@@ -772,31 +785,27 @@ void SecurityTableModel::removeRule( SharedRulePtr pRule )
 		return;
 	}
 
-	//qDebug() << "SecurityTableModel::removeRule()";
+	const VectorPos nSize = m_vNodes.size();
 
-	// REMOVE for beta 1
 	Q_ASSERT( pRule );
+	Q_ASSERT( nSize );
 
-	//qDebug() << "SecurityTableModel::removeRule() Rule appears to be valid.";
+	const VectorPos nMax  = nSize - 1;
 
-	for ( int i = 0; i < m_lNodes.size(); ++i )
-	{
-		if ( m_lNodes[i]->rule() == pRule.data() )
-		{
-			beginRemoveRows( QModelIndex(), i, i );
+	RuleData      tmp = RuleData( pRule.data(), m_pIcons );
+	RuleData** pArray = m_vNodes.data();
+	const VectorPos nPos  = find( &tmp );
 
-			//qDebug() << "SecurityTableModel::removeRule() Found rule row. Removing now.";
+	Q_ASSERT( nPos != nSize && *pArray[nPos]->rule() == *pRule );
 
-			m_lNodes.removeAt( i );         // clears shared rule data pointer
+	beginRemoveRows( QModelIndex(), ( int )nPos, ( int )nPos );
+	delete pArray[nPos];
+	pArray[nPos] = NULL;
 
-			endRemoveRows();
-
-			// m_bNeedSorting needs not to be set to true here as sorting is not required on removal
-			break;
-		}
-	}
-
-	//qDebug() << "SecurityTableModel::removeRule() finished";
+	// move all rules starting from position nPos one spot to the right
+	memmove( pArray + nPos, pArray + nPos + 1, ( nMax - nPos ) * sizeof( RuleData* ) );
+	m_vNodes.pop_back();
+	endRemoveRows();
 }
 
 /**
@@ -811,14 +820,14 @@ void SecurityTableModel::updateRule( ID nRuleID )
 	}
 
 	QModelIndexList uplist;
-	bool bSort = m_bNeedSorting;
 
-	const int nRuleRowPos = find( nRuleID );
+	const VectorPos nRuleRowPos = find( nRuleID );
 
-	Q_ASSERT( nRuleRowPos != -1 );
+	Q_ASSERT( nRuleRowPos != m_vNodes.size() );
 
+	bool bSort = false;
 	securityManager.m_oRWLock.lockForRead();
-	if ( m_lNodes[nRuleRowPos]->update( nRuleRowPos, m_nSortColumn, uplist, this ) )
+	if ( m_vNodes[nRuleRowPos]->update( ( int )nRuleRowPos, m_nSortColumn, uplist, this ) )
 	{
 		bSort = true;
 	}
@@ -827,8 +836,7 @@ void SecurityTableModel::updateRule( ID nRuleID )
 	// if necessary adjust container order (also updates view)
 	if ( bSort )
 	{
-		sort( m_nSortColumn, m_nSortOrder );
-		m_bNeedSorting = false;
+		sort( m_nSortColumn, m_nSortOrder, false );
 	}
 	// update view for all changed model indexes
 	else if ( !uplist.isEmpty() )
@@ -856,12 +864,12 @@ void SecurityTableModel::updateAll()
 	}
 
 	QModelIndexList uplist;
-	bool bSort = m_bNeedSorting;
 
+	bool bSort = false;
 	securityManager.m_oRWLock.lockForRead();
-	for ( int i = 0, max = m_lNodes.count(); i < max; ++i )
+	for ( VectorPos n = 0, nMax = m_vNodes.size(); n < nMax; ++n )
 	{
-		if ( m_lNodes[i]->update( i, m_nSortColumn, uplist, this ) )
+		if ( m_vNodes[n]->update( ( int )n, m_nSortColumn, uplist, this ) )
 		{
 			bSort = true;
 		}
@@ -870,8 +878,7 @@ void SecurityTableModel::updateAll()
 
 	if ( bSort )
 	{
-		sort( m_nSortColumn, m_nSortOrder );
-		m_bNeedSorting = false;
+		sort( m_nSortColumn, m_nSortOrder, false );
 	}
 	else
 	{
@@ -898,3 +905,144 @@ void SecurityTableModel::onShutdown()
 	m_bShutDown = true;
 	clear();
 }
+
+SecurityTableModel::VectorPos SecurityTableModel::find( ID nRuleID ) const
+{
+	const VectorPos nSize = m_vNodes.size();
+	const RuleData* const * const pArray = m_vNodes.data();
+
+	for ( VectorPos nPos = 0; nPos < nSize; ++nPos )
+	{
+		if ( pArray[nPos]->m_nID == nRuleID )
+		{
+			return nPos;
+		}
+	}
+
+	return nSize;
+}
+
+SecurityTableModel::VectorPos SecurityTableModel::find( const RuleData* const pData ) const
+{
+	Q_ASSERT( pData );
+
+	if ( m_vNodes.empty() )
+	{
+		return 0;
+	}
+
+#ifdef _DEBUG
+	verifySorting();
+#endif // _DEBUG
+
+	SecurityTableModelCmp oCmp = SecurityTableModelCmp( m_nSortColumn, m_nSortOrder,
+														m_bSecondarySortOrder );
+
+	const VectorPos nSize = m_vNodes.size();
+	const RuleData* const * const pArray = m_vNodes.data();
+
+	VectorPos nMiddle, nHalf, nBegin = 0;
+	VectorPos n = nSize;
+
+	// Note: In the comments nPos is the theoretical position pRule.
+	while ( n > 0 )
+	{
+		nHalf = n >> 1;
+
+		nMiddle = nBegin + nHalf;
+
+		if ( oCmp( pData, pArray[nMiddle] ) )
+		{
+			// at this point: nPos >= nBegin && nPos < nMiddle
+			n = nHalf;
+			// at this point: nPos >= nBegin && nPos < nBegin + n
+		}
+		else
+		{
+			// (!(a < b) && !(b < a)) == (a == b)
+			if ( !oCmp( pArray[nMiddle], pData ) )
+			{
+				// at this point: nPos == nMiddle
+				return nMiddle;
+				break;
+			}
+			// at this point: nPos > nMiddle && nPos <= nBegin + n
+
+			nBegin = nMiddle + 1;
+			n -= nHalf + 1;
+
+			// at this point: nPos >= nBegin && nPos <= nBegin + n
+		}
+
+		// at this point: nPos >= nBegin && nPos <= nBegin + n
+	}
+
+	// REMOVE for Quazaa 1.0
+#ifdef _DEBUG
+	if ( nBegin != nSize )
+	{
+		bool bNBeginBigger = oCmp( pData, pArray[nBegin] );
+
+		if ( !bNBeginBigger )
+		{
+			Q_ASSERT( bNBeginBigger );
+		}
+	}
+
+	if ( nBegin )
+	{
+		bool bLeftSmaller  = oCmp( pArray[nBegin - 1], pData );
+
+		if ( !bLeftSmaller )
+		{
+			Q_ASSERT( bLeftSmaller );
+		}
+	}
+#endif // _DEBUG
+
+	return nBegin;
+}
+
+void SecurityTableModel::insert( RuleData* pRule )
+{
+	if ( m_vNodes.empty() )
+	{
+		beginInsertRows( QModelIndex(), 0, 0 );
+		m_vNodes.push_back( pRule );
+		endInsertRows();
+	}
+	else
+	{
+		const VectorPos nMax = m_vNodes.size();
+		const VectorPos nPos = find( pRule );
+
+		beginInsertRows( QModelIndex(), ( int )nPos, ( int )nPos );
+		m_vNodes.push_back( NULL );
+
+		RuleData** pArray = m_vNodes.data();
+		// move all rules starting from position nPos one spot to the right
+		memmove( pArray + nPos + 1, pArray + nPos, ( nMax - nPos ) * sizeof( RuleData* ) );
+
+		pArray[nPos] = pRule;
+		endInsertRows();
+	}
+
+#ifdef _DEBUG
+		verifySorting();
+#endif // _DEBUG
+}
+
+#ifdef _DEBUG
+void SecurityTableModel::verifySorting() const
+{
+	SecurityTableModelCmp oCmp = SecurityTableModelCmp( m_nSortColumn, m_nSortOrder,
+														m_bSecondarySortOrder );
+
+	const RuleData* const * const pArray = m_vNodes.data();
+	for ( VectorPos n = 0, nSize = m_vNodes.size(); n + 1 < nSize; ++n )
+	{
+		// pArray[n+1] may not be smaller than pArray[n]
+		Q_ASSERT( !oCmp( pArray[n+1], pArray[n] ) );
+	}
+}
+#endif

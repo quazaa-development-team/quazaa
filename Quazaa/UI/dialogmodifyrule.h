@@ -63,14 +63,19 @@ class DialogModifyRule : public QDialog
 {
 	Q_OBJECT
 
-	RuleDataPtr             m_pRule;
+	Rule*                   m_pRule;
 	CWidgetSecurity*        m_pParent;
 	Ui::DialogModifyRule*   ui;
 
 public:
-	// Creates a dialog window using the provided rule as basis.
-	// To create a new rule, don't provide a rule.
-	DialogModifyRule( CWidgetSecurity* parent, RuleDataPtr pRule = RuleDataPtr() );
+	/**
+	 * @brief DialogModifyRule creates a new Rule editing dialog.
+	 *
+	 * @param parent  The parent Widget.
+	 * @param pRule   The Rule to modify. Note: The dialog takes ownership of the provided Rule.
+	 * If a new Rule shall be created, don't pass a Rule as parameter.
+	 */
+	DialogModifyRule( CWidgetSecurity* parent, Rule* pRule = NULL );
 	~DialogModifyRule();
 
 protected:
