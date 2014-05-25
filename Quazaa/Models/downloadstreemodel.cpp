@@ -474,12 +474,12 @@ DownloadSourceItem::DownloadSourceItem( DownloadSource* downloadSource,
 	parentItem = parent;
 
 	// TODO: import values from downloadSource
-	m_sAddress = downloadSource->m_oAddress.toStringWithPort();
-	m_nSize = 0;
-	m_nProgress = 0;
-	m_nBandwidth = 0;
-	m_nStatus = 0;
-	m_sClient = "";
+	m_sAddress    = downloadSource->m_oAddress.toStringWithPort();
+	m_nSize       = downloadSource->m_pDownload->m_nSize;
+	m_nProgress   = 0;
+	m_nBandwidth  = 0;
+	m_nStatus     = 0;
+	m_sClient     = "";
 	m_nDownloaded = 0;
 
 	m_sCountryCode = downloadSource->m_oAddress.country();

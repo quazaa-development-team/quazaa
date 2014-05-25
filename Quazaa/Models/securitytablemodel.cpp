@@ -796,7 +796,12 @@ void SecurityTableModel::removeRule( SharedRulePtr pRule )
 	RuleData** pArray = m_vNodes.data();
 	const VectorPos nPos  = find( &tmp );
 
-	Q_ASSERT( nPos != nSize && *pArray[nPos]->rule() == *pRule );
+	Q_ASSERT( nPos != nSize );
+
+	Rule* pArrayRule  = pArray[nPos]->rule();
+	Rule* pSharedRule = pRule.data();
+
+	Q_ASSERT( *pArrayRule == *pSharedRule );
 
 	beginRemoveRows( QModelIndex(), ( int )nPos, ( int )nPos );
 	delete pArray[nPos];
