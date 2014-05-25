@@ -44,10 +44,8 @@
 // 9 - Added host parent and source ID
 
 // TODO: test changes of m_nMaxFailures under load
-// TODO: things to test
-//  12:58:39 brov: 1. does it use hosts from host cache b4 GWC query succeeds
-//  12:59:25 brov: 2. search manager must request query keys directly from other nodes
-//                    (use a random search string)
+// TODO: Test: search manager must request query keys directly from other nodes
+//             (use a random search string)
 
 class QFile;
 
