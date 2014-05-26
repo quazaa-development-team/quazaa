@@ -169,12 +169,6 @@ QModelIndexList CWidgetSecurity::getSelectedItems( SecurityFilterModel*& pFilter
 	return pTableView->selectionModel()->selectedRows();
 }
 
-void CWidgetSecurity::update()
-{
-	// TODO: Test whether this is needed.
-	//m_lSecurity->updateAll();
-}
-
 void CWidgetSecurity::on_actionSecurityAddRule_triggered()
 {
 	DialogModifyRule* dlgAddRule = new DialogModifyRule( this );

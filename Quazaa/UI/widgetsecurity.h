@@ -67,9 +67,6 @@ private:
 	QModelIndexList getSelectedItems( SecurityFilterModel*& pFilterModel,
 									  CTableView*& pTableView ) const;
 
-public slots:
-	void update();
-
 private slots:
 	void on_actionSecurityAddRule_triggered();
 	void on_actionSecurityRemoveRule_triggered();
