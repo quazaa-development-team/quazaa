@@ -202,7 +202,7 @@ void Datagrams::onDatagram()
 		return;
 	}
 
-	//while(m_pSocket->hasPendingDatagrams())
+	while ( m_pSocket->hasPendingDatagrams() )
 	{
 		qint64 nSize = m_pSocket->pendingDatagramSize();
 		m_pRecvBuffer->resize( nSize );
