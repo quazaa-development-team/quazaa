@@ -24,6 +24,7 @@
 
 #include <QDebug>
 #include <QtGlobal>
+#include <QDataStream>
 #include <QCryptographicHash>
 
 #include "hash.h"
@@ -34,23 +35,23 @@
 #include "debug_new.h"
 
 Hash::Hash( const Hash& rhs ) : // Right Hash Set
-	m_pContext( NULL ),
-	m_bFinalized( true ),
-	m_baRawValue( rhs.m_baRawValue ),
-	m_nHashAlgorithm( rhs.m_nHashAlgorithm ),
-	m_eType( rhs.m_eType )
+    m_pContext( NULL ),
+    m_bFinalized( true ),
+    m_baRawValue( rhs.m_baRawValue ),
+    m_nHashAlgorithm( rhs.m_nHashAlgorithm ),
+    m_eType( rhs.m_eType )
 {
 	if ( !rhs.m_bFinalized )
 	{
 		systemLog.postLog( LogSeverity::Debug,
-						   QObject::tr( "WARNING: Copying non-finalized CHash" ) );
+		                   QObject::tr( "WARNING: Copying non-finalized CHash" ) );
 	}
 }
 
 Hash::Hash( Algorithm algo ) :
-	m_bFinalized( false ),
-	m_nHashAlgorithm( algo ),
-	m_eType( Hash::algoToType( algo ) )
+    m_bFinalized( false ),
+    m_nHashAlgorithm( algo ),
+    m_eType( Hash::algoToType( algo ) )
 {
 	switch ( algo )
 	{
@@ -69,11 +70,11 @@ Hash::Hash( Algorithm algo ) :
 }
 
 Hash::Hash( QByteArray baRaw, Hash::Algorithm algo ) :
-	m_pContext( NULL ),
-	m_bFinalized( true ),
-	m_baRawValue( baRaw ),
-	m_nHashAlgorithm( algo ),
-	m_eType( Hash::algoToType( algo ) )
+    m_pContext( NULL ),
+    m_bFinalized( true ),
+    m_baRawValue( baRaw ),
+    m_nHashAlgorithm( algo ),
+    m_eType( Hash::algoToType( algo ) )
 {
 	if ( baRaw.size() != Hash::byteCount( algo ) )
 	{

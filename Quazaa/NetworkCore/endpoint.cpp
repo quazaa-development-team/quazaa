@@ -27,41 +27,43 @@
 #include <QStringList>
 #include <QtEndian>
 
+#include <QDataStream>
+
 #include "debug_new.h"
 
 EndPoint::EndPoint() :
-	QHostAddress(),
-	m_nPort( 0 )
+    QHostAddress(),
+    m_nPort( 0 )
 {
 }
 
 EndPoint::EndPoint( quint32 ip4Addr, quint16 nPort ) :
-	QHostAddress( ip4Addr ),
-	m_nPort( nPort )
+    QHostAddress( ip4Addr ),
+    m_nPort( nPort )
 {
 }
 
 EndPoint::EndPoint( quint8* ip6Addr, quint16 nPort ) :
-	QHostAddress( ip6Addr ),
-	m_nPort( nPort )
+    QHostAddress( ip6Addr ),
+    m_nPort( nPort )
 {
 }
 
 EndPoint::EndPoint( const Q_IPV6ADDR& ip6Addr, quint16 nPort ) :
-	QHostAddress( ip6Addr ),
-	m_nPort( nPort )
+    QHostAddress( ip6Addr ),
+    m_nPort( nPort )
 {
 }
 
 EndPoint::EndPoint( const sockaddr* sockaddr, quint16 nPort ) :
-	QHostAddress( sockaddr ),
-	m_nPort( nPort )
+    QHostAddress( sockaddr ),
+    m_nPort( nPort )
 {
 }
 
 EndPoint::EndPoint( const QString& address, quint16 nPort ) :
-	QHostAddress( address ),
-	m_nPort( nPort )
+    QHostAddress( address ),
+    m_nPort( nPort )
 {
 }
 
@@ -119,22 +121,22 @@ EndPoint::EndPoint( const QString& address )
 }
 
 EndPoint::EndPoint( const QHostAddress& address, quint16 nPort ) :
-	QHostAddress( address ),
-	m_nPort( nPort )
+    QHostAddress( address ),
+    m_nPort( nPort )
 {
 }
 
 
 EndPoint::EndPoint( const EndPoint& copy ) :
-	QHostAddress( copy ),
-	m_nPort( copy.m_nPort ),
-	m_sCountryCode( copy.m_sCountryCode )
+    QHostAddress( copy ),
+    m_nPort( copy.m_nPort ),
+    m_sCountryCode( copy.m_sCountryCode )
 {
 }
 
 EndPoint::EndPoint( SpecialAddress address, quint16 nPort ) :
-	QHostAddress( address ),
-	m_nPort( nPort )
+    QHostAddress( address ),
+    m_nPort( nPort )
 {
 }
 

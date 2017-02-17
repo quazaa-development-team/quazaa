@@ -26,6 +26,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QDataStream>
 #include "geoiplist.h"
 #include "types.h"
 #include "systemlog.h"
@@ -58,7 +59,7 @@ void GeoIPList::loadGeoIP()
 			if ( iOriginal.lastModified() > iSerialized.lastModified() )
 			{
 				systemLog.postLog( LogSeverity::Warning,
-								   QObject::tr( "GeoIP data modified, refreshing..." ) );
+				                   QObject::tr( "GeoIP data modified, refreshing..." ) );
 				oSerializedFile.remove();
 			}
 		}
@@ -66,8 +67,8 @@ void GeoIPList::loadGeoIP()
 		if ( ! oSerializedFile.open( QIODevice::ReadOnly ) )
 		{
 			systemLog.postLog( LogSeverity::Warning,
-							   QObject::tr(
-								   "Unable to open GeoIP serialization file for loading." ) );
+			                   QObject::tr(
+			                       "Unable to open GeoIP serialization file for loading." ) );
 			readFromOriginalGeoIP = true;
 		}
 		else
@@ -80,7 +81,7 @@ void GeoIPList::loadGeoIP()
 			catch ( ... )
 			{
 				systemLog.postLog( LogSeverity::Warning,
-								   QObject::tr( "Unable to deserialize GeoIP list." ) );
+				                   QObject::tr( "Unable to deserialize GeoIP list." ) );
 				readFromOriginalGeoIP = true;
 			}
 			oSerializedFile.close();
@@ -112,8 +113,8 @@ void GeoIPList::loadGeoIP()
 			QString sCountry = line[2];
 
 			GeoIPEntry item = GeoIPEntry( rBegin.toIPv4Address(),
-										  QPair<quint32, QString>( rEnd.toIPv4Address(),
-																   sCountry ) );
+			                              QPair<quint32, QString>( rEnd.toIPv4Address(),
+			                                                       sCountry ) );
 			m_lDatabase.append( item );
 		}
 
@@ -125,8 +126,8 @@ void GeoIPList::loadGeoIP()
 		if ( ! oSerializedFile.open( QIODevice::WriteOnly ) )
 		{
 			systemLog.postLog( LogSeverity::Error,
-							   QObject::tr(
-								   "Unable to open GeoIP serialization file for saving." ) );
+			                   QObject::tr(
+			                       "Unable to open GeoIP serialization file for saving." ) );
 		}
 		else
 		{
@@ -138,7 +139,7 @@ void GeoIPList::loadGeoIP()
 			catch ( ... )
 			{
 				systemLog.postLog( LogSeverity::Error,
-								   QObject::tr( "Unable to serialize GeoIP list." ) );
+				                   QObject::tr( "Unable to serialize GeoIP list." ) );
 			}
 			oSerializedFile.close();
 		}
@@ -158,7 +159,7 @@ void GeoIPList::loadGeoIP()
 		{
 			qSort( m_lDatabase );
 			systemLog.postLog( LogSeverity::Error,
-							   QObject::tr( "Broken serialized GeoIP list loaded from disk." ) );
+			                   QObject::tr( "Broken serialized GeoIP list loaded from disk." ) );
 			break;
 		}
 	}
